@@ -1,0 +1,22 @@
+{
+    "name": "scripts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "designate-as-admin": "node index.js designate-as-admin",
+        "list-admin-users": "node index.js list-admin-users",
+        "migrate": "node index.js migrate"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "axios": "^1.7.2",
+        "commander": "^12.1.0",
+        "dotenv": "^16.4.7",
+        "firebase-admin": "^12.1.0",
+        "firebase-tools": "^13.11.4",
+        "google-auth-library": "^9.14.1"
+    }
+}

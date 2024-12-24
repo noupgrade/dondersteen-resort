@@ -1,0 +1,72 @@
+# Node.js
+node_modules/
+dist/
+*.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+npm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+__log__/
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Vite
+.vite
+temp
+.cache
+
+# Typescript
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# JetBrains IDEs
+.idea/
+
+# VSCode
+.vscode/
+
+# Coverage directory used by testing tools
+coverage/
+
+# Temporary folders
+tmp/
+temp/
+
+# Firebase
+.firebase/
+backend/emulator-data/
+
+*debug.log
+
+firebase-exports-*
+
+scripts/admin-sdk-service-account.json
+
+# Scripts
+scripts/event.json
+scripts/google_reviews.json

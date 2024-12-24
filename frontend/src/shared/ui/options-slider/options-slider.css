@@ -1,0 +1,19 @@
+#options-slider {
+    @apply h-2.5 text-primary;
+
+    .MuiSlider-thumb {
+        @apply block h-5 w-5 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+    }
+
+    .MuiSlider-rail {
+        @apply bg-primary/20;
+    }
+
+    .MuiSlider-track {
+        @apply bg-primary;
+    }
+
+    .MuiSlider-mark {
+        display: none;
+    }
+}

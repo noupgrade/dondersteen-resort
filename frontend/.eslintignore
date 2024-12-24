@@ -1,0 +1,9 @@
+dist
+old
+*.css
+*.otf
+*.woff2
+*.svg
+*.png
+*.html
+*.md

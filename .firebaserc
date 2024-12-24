@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "dondersteen-resort"
+  },
+  "targets": {
+    "dondersteen-resort": {
+      "hosting": {
+        "default": [
+          "dondersteen-resort"
+        ]
+      }
+    }
+  },
+  "dataconnectEmulatorConfig": {}
+}
