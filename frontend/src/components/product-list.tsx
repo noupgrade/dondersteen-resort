@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 
 import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
@@ -21,8 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { toast } from '@/components/ui/use-toast'
-import { useProductContext } from '@/context/ProductContext'
+import { toast } from '@/hooks/use-toast'
+import { useProductContext } from '@/components/ProductContext'
 
 export function ProductList() {
     const { products, categories, deleteProduct, addCategory, deleteCategory } = useProductContext()
