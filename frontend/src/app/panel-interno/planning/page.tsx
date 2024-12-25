@@ -1,8 +1,8 @@
 import { useReservation } from '@/components/ReservationContext'
 import { DailyNeedsList } from '@/components/daily-needs-list'
 import { HotelFloorPlan } from '@/components/hotel-floor-plan'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card } from '@/shared/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 export default function PlanningPage() {
     const { reservations } = useReservation()

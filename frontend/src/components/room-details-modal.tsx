@@ -6,9 +6,9 @@ import { format } from 'date-fns'
 import { Calendar, PawPrintIcon as Paw, X } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
 import {
     Dialog,
     DialogContent,
@@ -16,12 +16,12 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/shared/ui/dialog'
+import { Input } from '@/shared/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Separator } from '@/shared/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { Textarea } from '@/shared/ui/textarea'
 
 interface Room {
     id: string
@@ -76,18 +76,18 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
         const petsInfo = roomReservations.flatMap(r =>
             r.pets
                 ? r.pets.map(pet => ({
-                      id: `${r.id}-${pet.name}`,
-                      name: pet.name,
-                      breed: pet.breed,
-                      size: pet.size,
-                      checkInDate: r.date,
-                      checkOutDate: r.checkOutDate,
-                      conditions: [],
-                      medication: pet.medication || '',
-                      specialFood: pet.specialFood || '',
-                      observations: pet.observations || '',
-                      roomNumber: r.roomNumber,
-                  }))
+                    id: `${r.id}-${pet.name}`,
+                    name: pet.name,
+                    breed: pet.breed,
+                    size: pet.size,
+                    checkInDate: r.date,
+                    checkOutDate: r.checkOutDate,
+                    conditions: [],
+                    medication: pet.medication || '',
+                    specialFood: pet.specialFood || '',
+                    observations: pet.observations || '',
+                    roomNumber: r.roomNumber,
+                }))
                 : [],
         )
 
@@ -100,12 +100,12 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
         const allPets = reservations.flatMap(r =>
             r.pets
                 ? r.pets.map(pet => ({
-                      ...pet,
-                      id: `${r.id}-${pet.name}`,
-                      checkInDate: r.date,
-                      checkOutDate: r.checkOutDate,
-                      roomNumber: r.roomNumber,
-                  }))
+                    ...pet,
+                    id: `${r.id}-${pet.name}`,
+                    checkInDate: r.date,
+                    checkOutDate: r.checkOutDate,
+                    roomNumber: r.roomNumber,
+                }))
                 : [],
         )
 
@@ -128,11 +128,11 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
                         reservation.pets?.map(p =>
                             p.name === pet.name
                                 ? {
-                                      ...p,
-                                      ...pet,
-                                      medication: pet.conditions.includes('medication') ? pet.medication : undefined,
-                                      specialFood: pet.conditions.includes('specialFood') ? pet.specialFood : undefined,
-                                  }
+                                    ...p,
+                                    ...pet,
+                                    medication: pet.conditions.includes('medication') ? pet.medication : undefined,
+                                    specialFood: pet.conditions.includes('specialFood') ? pet.specialFood : undefined,
+                                }
                                 : p,
                         ) || []
 

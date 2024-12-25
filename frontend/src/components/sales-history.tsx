@@ -5,9 +5,9 @@ import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 
 import { useProductContext } from '@/components/ProductContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
 export function SalesHistory() {
     const { sales } = useProductContext()

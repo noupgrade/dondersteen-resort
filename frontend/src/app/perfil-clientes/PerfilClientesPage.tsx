@@ -8,9 +8,9 @@ import { ClientDetailsCard } from '@/components/client-details-card'
 import { NewReservationModal } from '@/components/new-reservation-modal'
 import { PetCard } from '@/components/pet-card'
 import { ReservationCard } from '@/components/reservation-card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
 const translations = {
     back: { es: 'Volver', en: 'Back' },

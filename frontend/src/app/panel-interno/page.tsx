@@ -10,10 +10,10 @@ import { CheckIns } from '@/components/check-ins'
 import { CheckOuts } from '@/components/check-outs'
 import { HotelAvailabilityCalendar } from '@/components/hotel-availability-calendar'
 import { PendingRequests } from '@/components/pending-requests'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Progress } from '@/shared/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 export default function PanelInterno() {
     const { reservations, getReservationsByDate } = useReservation()

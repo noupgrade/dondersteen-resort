@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react'
 import { Clock } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/shared/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
 type Room = {
     number: string
@@ -91,15 +91,15 @@ export function CheckIns() {
                                     checkIn.status === 'Hab.Asignada'
                                         ? 'default'
                                         : checkIn.pets.some(pet => pet.assignedRoom)
-                                          ? 'secondary'
-                                          : 'outline'
+                                            ? 'secondary'
+                                            : 'outline'
                                 }
                             >
                                 {checkIn.status === 'Hab.Asignada'
                                     ? 'Hab.Asignada'
                                     : checkIn.pets.some(pet => pet.assignedRoom)
-                                      ? 'Asignación Parcial'
-                                      : 'Pendiente'}
+                                        ? 'Asignación Parcial'
+                                        : 'Pendiente'}
                             </Badge>
                         </CardTitle>
                     </CardHeader>

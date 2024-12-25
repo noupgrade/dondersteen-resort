@@ -7,8 +7,8 @@ import { es } from 'date-fns/locale'
 import { CalendarIcon, PlusCircle } from 'lucide-react'
 import * as z from 'zod'
 
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/shared/ui/button'
+import { Calendar } from '@/shared/ui/calendar'
 import {
     Dialog,
     DialogContent,
@@ -16,11 +16,11 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/ui/dialog'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+} from '@/shared/ui/dialog'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
+import { Input } from '@/shared/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
@@ -199,9 +199,8 @@ export function NuevaEntradaDialog() {
                                             <FormControl>
                                                 <Button
                                                     variant='outline'
-                                                    className={`w-full justify-start text-left font-normal ${
-                                                        !field.value && 'text-muted-foreground'
-                                                    }`}
+                                                    className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'
+                                                        }`}
                                                 >
                                                     {field.value ? (
                                                         format(field.value, 'PPP', { locale: es })
@@ -238,9 +237,8 @@ export function NuevaEntradaDialog() {
                                             <FormControl>
                                                 <Button
                                                     variant='outline'
-                                                    className={`w-full justify-start text-left font-normal ${
-                                                        !field.value && 'text-muted-foreground'
-                                                    }`}
+                                                    className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'
+                                                        }`}
                                                 >
                                                     {field.value ? (
                                                         format(field.value, 'PPP', { locale: es })

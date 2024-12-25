@@ -7,9 +7,9 @@ import { Calendar, Check, Clock, Info, X } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import {
     Dialog,
     DialogContent,
@@ -17,12 +17,12 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/shared/ui/dialog'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { ScrollArea } from '@/shared/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { Textarea } from '@/shared/ui/textarea'
 
 type Reservation = {
     id: string
@@ -181,19 +181,18 @@ export default function PeluqueriaPage() {
 
                                             <div className='flex h-full flex-col items-end justify-between'>
                                                 <Badge
-                                                    className={`px-3 py-1 text-base font-semibold ${
-                                                        reservation.additionalServices[0] === 'corte'
+                                                    className={`px-3 py-1 text-base font-semibold ${reservation.additionalServices[0] === 'corte'
                                                             ? 'bg-blue-500 text-white hover:bg-blue-600'
                                                             : reservation.additionalServices[0] === 'bano_especial'
-                                                              ? 'bg-green-500 text-white hover:bg-green-600'
-                                                              : 'bg-purple-500 text-white hover:bg-purple-600'
-                                                    }`}
+                                                                ? 'bg-green-500 text-white hover:bg-green-600'
+                                                                : 'bg-purple-500 text-white hover:bg-purple-600'
+                                                        }`}
                                                 >
                                                     {reservation.additionalServices[0] === 'corte'
                                                         ? 'Corte'
                                                         : reservation.additionalServices[0] === 'bano_especial'
-                                                          ? 'Baño especial'
-                                                          : 'Deslanado'}
+                                                            ? 'Baño especial'
+                                                            : 'Deslanado'}
                                                 </Badge>
 
                                                 <div className='mt-4 flex gap-2'>
@@ -248,8 +247,8 @@ export default function PeluqueriaPage() {
                                                                     ? 'Corte'
                                                                     : reservation.additionalServices[0] ===
                                                                         'bano_especial'
-                                                                      ? 'Baño especial'
-                                                                      : 'Deslanado'}
+                                                                        ? 'Baño especial'
+                                                                        : 'Deslanado'}
                                                             </p>
                                                             {reservation.observations && (
                                                                 <div className='mt-1 flex items-center text-xs text-muted-foreground'>
@@ -335,8 +334,8 @@ export default function PeluqueriaPage() {
                                             service === 'corte'
                                                 ? 'Corte'
                                                 : service === 'bano_especial'
-                                                  ? 'Baño especial'
-                                                  : 'Deslanado',
+                                                    ? 'Baño especial'
+                                                    : 'Deslanado',
                                         )
                                         .join(', ')}
                                     readOnly

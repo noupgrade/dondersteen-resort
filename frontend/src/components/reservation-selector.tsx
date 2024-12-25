@@ -3,8 +3,8 @@
 import { useState } from 'react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/shared/ui/button'
+import { Input } from '@/shared/ui/input'
 
 export function ReservationSelector() {
     const [searchTerm, setSearchTerm] = useState('')

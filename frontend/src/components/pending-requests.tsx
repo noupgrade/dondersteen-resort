@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Separator } from '@/shared/ui/separator'
 
 type Pet = {
     name: string

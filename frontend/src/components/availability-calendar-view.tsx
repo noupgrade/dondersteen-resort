@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Calendar } from '@/shared/ui/calendar'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
 // Mock data for peluqueria availability
 const mockPeluqueriaAvailability: Record<string, number[]> = {

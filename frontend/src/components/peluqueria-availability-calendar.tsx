@@ -4,8 +4,8 @@ import { addDays, format, startOfDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
+import { Button } from '@/shared/ui/button'
+import { Calendar } from '@/shared/ui/calendar'
 
 type PeluqueriaAvailabilityCalendarProps = {
     onSelect: (date: Date, time: string) => void

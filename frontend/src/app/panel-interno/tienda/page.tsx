@@ -2,8 +2,8 @@
 
 import { ProductList } from '@/components/product-list'
 import { SalesHistory } from '@/components/sales-history'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { VisualPOS } from '@/components/visual-pos'
 
 export default function StorePage() {

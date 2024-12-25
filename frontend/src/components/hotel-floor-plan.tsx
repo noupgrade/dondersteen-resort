@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 
 import { useReservation } from '@/components/ReservationContext'
 import { RoomDetailsModal } from '@/components/room-details-modal'
-import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Badge } from '@/shared/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui/tooltip'
 import { cn } from '@/shared/lib/styles/class-merge'
 
 interface Room {

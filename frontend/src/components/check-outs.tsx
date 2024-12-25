@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router-dom'
 import { Clock, DollarSign } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
 
 type CheckOut = {
     id: string
