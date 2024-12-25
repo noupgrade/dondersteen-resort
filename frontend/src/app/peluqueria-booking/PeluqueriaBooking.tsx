@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { format, parse } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import * as z from 'zod'
 
 import { useReservation } from '@/components/ReservationContext'
@@ -38,8 +38,7 @@ export default function PeluqueriaBookingPage() {
     const [confirmedReservationId, setConfirmedReservationId] = useState('')
     const { addReservation } = useReservation()
 
-    // Wrap useSearchParams in Suspense
-    const searchParams = useSearchParams()
+    const [searchParams] = useSearchParams()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

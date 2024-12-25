@@ -1,5 +1,3 @@
-'use client'
-
 import { useCallback, useEffect, useState } from 'react'
 
 import { addDays, format, startOfDay } from 'date-fns'
@@ -40,7 +38,7 @@ export function PeluqueriaAvailabilityCalendar({
         if (selectedDate) {
             updateAvailableHours(selectedDate)
         }
-    }, [selectedDate, updateAvailableHours])
+    }, [selectedDate])
 
     const handleDateSelect = (date: Date | undefined) => {
         if (date) {
