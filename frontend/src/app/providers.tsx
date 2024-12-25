@@ -1,11 +1,7 @@
-import {ReactNode} from 'react'
+import { ReactNode } from 'react'
 
-import {AuthProvider} from '@/shared/auth'
+import { AuthProvider } from '@/shared/auth'
 
 export const UnauthenticatedProviders = ({ children }: { children: ReactNode }) => {
-    return (
-        <AuthProvider>
-            {children}
-        </AuthProvider>
-    )
+    return <AuthProvider>{children}</AuthProvider>
 }

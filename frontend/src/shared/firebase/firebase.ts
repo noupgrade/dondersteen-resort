@@ -18,13 +18,13 @@ import { isLocalEnvironment } from '@/shared/lib/environment'
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyA2Ttfl8dPWRmInMCqL9oAJewl3ymHq_58",
-    authDomain: "dondersteen-resort.firebaseapp.com",
-    projectId: "dondersteen-resort",
-    storageBucket: "dondersteen-resort.firebasestorage.app",
-    messagingSenderId: "969555424520",
-    appId: "1:969555424520:web:1f3230920e0432b4c9a8bd",
-    measurementId: "G-4GE41TFN8J"
+    apiKey: 'AIzaSyA2Ttfl8dPWRmInMCqL9oAJewl3ymHq_58',
+    authDomain: 'dondersteen-resort.firebaseapp.com',
+    projectId: 'dondersteen-resort',
+    storageBucket: 'dondersteen-resort.firebasestorage.app',
+    messagingSenderId: '969555424520',
+    appId: '1:969555424520:web:1f3230920e0432b4c9a8bd',
+    measurementId: 'G-4GE41TFN8J',
 }
 
 // Initialize Firebase

@@ -19,7 +19,7 @@ export const WithAnonymousUser = ({ children, userType }: { children: ReactNode;
             }
         }
         signIn()
-    }, [isLoadingUser, anonymousSignIn, isLoggedIn])
+    }, [isLoadingUser, anonymousSignIn, isLoggedIn, userType])
 
     if (isLoggedIn) return <>{children}</>
 }
