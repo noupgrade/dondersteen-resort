@@ -1,6 +1,6 @@
+import { ProductProvider } from '@/components/ProductContext'
+import { ReservationProvider } from '@/components/ReservationContext'
 import Sidebar from '@/components/sidebar'
-import { ProductProvider } from '@/context/ProductContext'
-import { ReservationProvider } from '@/context/ReservationContext'
 
 export default function PanelInternoLayout({ children }: { children: React.ReactNode }) {
     return (

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, Check, Clock, Info, X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
@@ -48,7 +48,7 @@ type Reservation = {
 
 export default function PeluqueriaPage() {
     const { reservations } = useReservation()
-    const router = useRouter()
+    const navigate = useNavigate()
     const [pendingReservations, setPendingReservations] = useState<Reservation[]>([])
     const [confirmedReservations, setConfirmedReservations] = useState<Reservation[]>([])
     const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
@@ -283,7 +283,7 @@ export default function PeluqueriaPage() {
                                                         size='sm'
                                                         onClick={() => {
                                                             const dateString = format(new Date(), 'yyyy-MM-dd')
-                                                            router.push(
+                                                            navigate(
                                                                 `/peluqueria-booking?date=${dateString}&time=${slot}`,
                                                             )
                                                         }}

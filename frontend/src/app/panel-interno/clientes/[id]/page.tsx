@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ChevronLeft, Download, Save } from 'lucide-react'
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -44,7 +43,7 @@ type Client = {
 
 export default function ClientDetailsPage() {
     const params = useParams()
-    const router = useRouter()
+    const navigate = useNavigate()
     const [client, setClient] = useState<Client | null>(null)
     const [internalNotes, setInternalNotes] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -125,7 +124,7 @@ export default function ClientDetailsPage() {
 
     return (
         <div className='container mx-auto space-y-6 p-6'>
-            <Button variant='outline' onClick={() => router.back()}>
+            <Button variant='outline' onClick={() => navigate(-1)}>
                 <ChevronLeft className='mr-2 h-4 w-4' /> Volver
             </Button>
 
@@ -282,7 +281,7 @@ export default function ClientDetailsPage() {
                         </CardHeader>
                         <CardContent className='space-y-2'>
                             <Button className='w-full' asChild>
-                                <Link href='/booking'>Nueva Reserva</Link>
+                                <Link to='/booking'>Nueva Reserva</Link>
                             </Button>
                             <Button className='w-full' variant='outline' onClick={handleEditToggle}>
                                 {isEditing ? 'Guardar Cambios' : 'Editar Información'}

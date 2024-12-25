@@ -1,4 +1,4 @@
-import { useRouter } from 'next/navigation'
+import { useNavigate } from 'react-router-dom'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,7 +20,7 @@ type ClientCardProps = {
 }
 
 export function ClientCard({ client }: ClientCardProps) {
-    const router = useRouter()
+    const navigate = useNavigate()
     const classificationColor = {
         NEW: 'bg-gray-200 text-gray-800',
         'Rango 1': 'bg-green-200 text-green-800',
@@ -31,7 +31,7 @@ export function ClientCard({ client }: ClientCardProps) {
     return (
         <Card
             className='cursor-pointer transition-shadow hover:shadow-md'
-            onClick={() => router.push(`/panel-interno/clientes/${client.id}`)}
+            onClick={() => navigate(`/panel-interno/clientes/${client.id}`)}
         >
             <CardContent className='p-4'>
                 <div className='mb-4 flex items-start justify-between'>

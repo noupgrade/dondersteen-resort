@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { ChevronLeft, Save } from 'lucide-react'
-import { useParams, useRouter } from 'next/navigation'
 import * as z from 'zod'
 
 import { useReservation } from '@/components/ReservationContext'
@@ -33,7 +33,7 @@ const reservationSchema = z.object({
 
 export default function EditReservationPage() {
     const params = useParams()
-    const router = useRouter()
+    const navigate = useNavigate()
     const { reservations, updateReservation } = useReservation()
     const [reservation, setReservation] = useState<any>(null)
 
@@ -75,9 +75,9 @@ export default function EditReservationPage() {
                 specialNeeds: foundReservation.specialNeeds || '',
             })
         } else {
-            router.push('/panel-interno')
+            navigate('/panel-interno')
         }
-    }, [params.id, reservations, router, form])
+    }, [params.id, reservations, navigate, form])
 
     const onSubmit = async (data: z.infer<typeof reservationSchema>) => {
         if (reservation) {
@@ -99,7 +99,7 @@ export default function EditReservationPage() {
                 specialNeeds: data.specialNeeds,
             }
             await updateReservation(reservation.id, updatedReservation)
-            router.push(`/panel-interno/reservas/${reservation.id}`)
+            navigate(`/panel-interno/reservas/${reservation.id}`)
         }
     }
 
@@ -109,7 +109,7 @@ export default function EditReservationPage() {
 
     return (
         <div className='container mx-auto space-y-6 p-6'>
-            <Button variant='outline' onClick={() => router.back()} className='mb-4'>
+            <Button variant='outline' onClick={() => navigate(-1)} className='mb-4'>
                 <ChevronLeft className='mr-2 h-4 w-4' /> Volver
             </Button>
 

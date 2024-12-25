@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { format } from 'date-fns'
 import { Clock, PawPrint, Plus, PlusCircle, Scissors, Users } from 'lucide-react'
-import Link from 'next/link'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
@@ -41,12 +41,12 @@ export default function PanelInterno() {
                 <h1 className='text-4xl font-bold text-[#101828]'>Panel de Control</h1>
                 <div className='flex gap-4'>
                     <Button asChild className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'>
-                        <Link href='/booking'>
+                        <Link to='/booking'>
                             <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
                         </Link>
                     </Button>
                     <Button asChild className='bg-[#9757D7] text-white hover:bg-[#9757D7]/90'>
-                        <Link href='/peluqueria-booking'>
+                        <Link to='/peluqueria-booking'>
                             <Plus className='mr-2 h-4 w-4' /> Añadir Cita Peluquería
                         </Link>
                     </Button>

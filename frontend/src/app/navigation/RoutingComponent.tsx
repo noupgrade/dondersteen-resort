@@ -4,6 +4,8 @@ import { ReservationProvider } from '@/components/ReservationContext'
 
 import BookingPage from '../booking/BookingPage'
 import Home from '../page'
+import PanelInternoLayout from '../panel-interno/layout'
+import PanelInterno from '../panel-interno/page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
 import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
 
@@ -32,6 +34,14 @@ export const RoutingComponent = () => (
                 <ReservationProvider>
                     <PerfilClientesPage />
                 </ReservationProvider>
+            }
+        />
+        <Route
+            path='/panel-interno'
+            element={
+                <PanelInternoLayout>
+                    <PanelInterno />
+                </PanelInternoLayout>
             }
         />
         <Route path='*' element={<div>404 - Page not found</div>} />

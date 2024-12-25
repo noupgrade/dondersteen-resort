@@ -1,12 +1,12 @@
+import { Link, useLocation } from 'react-router-dom'
+
 import { Home, LayoutGrid, Scissors, Users } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
 const Sidebar = () => {
-    const pathname = usePathname()
+    const location = useLocation()
 
     const isActive = (path: string) => {
-        return pathname === path ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'
+        return location.pathname === path ? 'bg-gray-200 text-gray-900' : 'text-gray-600 hover:bg-gray-100'
     }
 
     return (
@@ -18,7 +18,7 @@ const Sidebar = () => {
                 <ul className='space-y-2 py-4'>
                     <li>
                         <Link
-                            href='/panel-interno'
+                            to='/panel-interno'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno')}`}
                         >
                             <Home className='mr-3 h-5 w-5' />
@@ -27,7 +27,7 @@ const Sidebar = () => {
                     </li>
                     <li>
                         <Link
-                            href='/panel-interno/planning'
+                            to='/panel-interno/planning'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/planning')}`}
                         >
                             <LayoutGrid className='mr-3 h-5 w-5' />
@@ -36,7 +36,7 @@ const Sidebar = () => {
                     </li>
                     <li>
                         <Link
-                            href='/panel-interno/peluqueria'
+                            to='/panel-interno/peluqueria'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/peluqueria')}`}
                         >
                             <Scissors className='mr-3 h-5 w-5' />
@@ -45,7 +45,7 @@ const Sidebar = () => {
                     </li>
                     <li>
                         <Link
-                            href='/panel-interno/clientes'
+                            to='/panel-interno/clientes'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/clientes')}`}
                         >
                             <Users className='mr-3 h-5 w-5' />

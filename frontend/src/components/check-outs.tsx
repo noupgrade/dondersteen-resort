@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { Clock, DollarSign } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
 import { useReservation } from '@/components/ReservationContext'
 import { Badge } from '@/components/ui/badge'
@@ -24,7 +24,7 @@ type CheckOut = {
 }
 
 export function CheckOuts() {
-    const router = useRouter()
+    const navigate = useNavigate()
     const { reservations, updateReservation } = useReservation()
     const [confirmedCheckOuts, setConfirmedCheckOuts] = useState<string[]>([])
 
@@ -52,7 +52,7 @@ export function CheckOuts() {
     }
 
     const handleViewDetails = (id: string) => {
-        router.push(`/panel-interno/reservas/${id}`)
+        navigate(`/panel-interno/reservas/${id}`)
     }
 
     return (

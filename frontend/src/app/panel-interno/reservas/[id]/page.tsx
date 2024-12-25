@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, ChevronLeft, Clock, DollarSign, Home, Pencil } from 'lucide-react'
-import { useParams, useRouter } from 'next/navigation'
 
 import { useReservation } from '@/components/ReservationContext'
 import { Badge } from '@/components/ui/badge'
@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator'
 
 export default function ReservationDetailsPage() {
     const params = useParams()
-    const router = useRouter()
+    const navigate = useNavigate()
     const { reservations, updateReservation } = useReservation()
     const [reservation, setReservation] = useState<any>(null)
 
@@ -23,10 +23,9 @@ export default function ReservationDetailsPage() {
         if (foundReservation) {
             setReservation(foundReservation)
         } else {
-            // Manejar el caso de reserva no encontrada
-            router.push('/panel-interno')
+            navigate('/panel-interno')
         }
-    }, [params.id, reservations, router])
+    }, [params.id, reservations, navigate])
 
     if (!reservation) {
         return <div>Cargando...</div>
@@ -44,7 +43,7 @@ export default function ReservationDetailsPage() {
 
     return (
         <div className='container mx-auto space-y-6 p-6'>
-            <Button variant='outline' onClick={() => router.back()} className='mb-4'>
+            <Button variant='outline' onClick={() => navigate(-1)} className='mb-4'>
                 <ChevronLeft className='mr-2 h-4 w-4' /> Volver
             </Button>
 
@@ -167,7 +166,7 @@ export default function ReservationDetailsPage() {
                         </div>
                         <Button
                             variant='outline'
-                            onClick={() => router.push(`/panel-interno/reservas/${reservation.id}/edit`)}
+                            onClick={() => navigate(`/panel-interno/reservas/${reservation.id}/edit`)}
                         >
                             <Pencil className='mr-2 h-4 w-4' /> Editar Reserva
                         </Button>
