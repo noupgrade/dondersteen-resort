@@ -12,6 +12,8 @@ import PlanningPage from '../panel-interno/planning/page'
 import TiendaPage from '../panel-interno/tienda/page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
 import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
+import ClientDetailsPage from '../panel-interno/clientes/[id]/page'
+import ReservationDetailsPage from '../panel-interno/reservas/[id]/page'
 
 export const RoutingComponent = () => (
     <Routes>
@@ -41,7 +43,7 @@ export const RoutingComponent = () => (
             }
         />
         <Route
-            path='/panel-interno*'
+            path='/panel-interno/*'
             element={
                 <PanelInternoLayout>
                     <Routes>
@@ -50,8 +52,8 @@ export const RoutingComponent = () => (
                         <Route path='tienda' element={<TiendaPage />} />
                         <Route path='planning' element={<PlanningPage />} />
                         <Route path='clientes' element={<ClientesPage />} />
-                        <Route path='clientes/:id' element={<ClientesPage />} />
-                        <Route path='reservas/:id' element={<PanelInterno />} />
+                        <Route path='clientes/:id' element={<ClientDetailsPage />} />
+                        <Route path='reservas/:id' element={<ReservationDetailsPage />} />
                     </Routes>
                 </PanelInternoLayout>
             }
