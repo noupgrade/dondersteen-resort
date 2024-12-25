@@ -1,6 +1,7 @@
+import { useNavigate } from 'react-router-dom'
+
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { useNavigate } from 'react-router-dom'
 
 const translations = {
     newReservation: { es: 'Nueva Reserva', en: 'New Reservation' },

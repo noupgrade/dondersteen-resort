@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertCircle, ChevronLeft, Globe, Plus } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 import { ClientDetailsCard } from '@/components/client-details-card'
 import { NewReservationModal } from '@/components/new-reservation-modal'

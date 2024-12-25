@@ -159,7 +159,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                     {localReservation.type === 'grooming' ? (
                         <>
                             <Scissors className='mr-2 h-5 w-5 text-pink-500' />
-                            <span className='text-lg font-bold text-pink-700'>Peluquería Reserva</span>
+                            <span className='text-lg font-bold text-pink-700'>Reserva de Peluquería</span>
                         </>
                     ) : (
                         <>
