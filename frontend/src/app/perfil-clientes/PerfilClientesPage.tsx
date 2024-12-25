@@ -13,30 +13,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const translations = {
-    back: {
-        es: 'Volver',
-        en: 'Back',
-    },
-    clientProfile: {
-        es: 'Perfil del Cliente',
-        en: 'Client Profile',
-    },
-    newReservation: {
-        es: 'Nueva Reserva',
-        en: 'New Reservation',
-    },
-    reservations: {
-        es: 'Reservas',
-        en: 'Reservations',
-    },
-    pets: {
-        es: 'Mascotas',
-        en: 'Pets',
-    },
-    addNewPet: {
-        es: 'Añadir Nueva Mascota',
-        en: 'Add New Pet',
-    },
+    back: { es: 'Volver', en: 'Back' },
+    clientProfile: { es: 'Mi Perfil', en: 'My Profile' },
+    newReservation: { es: 'Nueva Reserva', en: 'New Reservation' },
+    reservations: { es: 'Reservas', en: 'Reservations' },
+    pets: { es: 'Mascotas', en: 'Pets' },
+    addNewPet: { es: 'Añadir Nueva Mascota', en: 'Add New Pet' },
 }
 
 export default function ClientProfile() {
