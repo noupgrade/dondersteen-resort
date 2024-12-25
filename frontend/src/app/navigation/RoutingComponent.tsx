@@ -4,16 +4,16 @@ import { ReservationProvider } from '@/components/ReservationContext'
 
 import BookingPage from '../booking/BookingPage'
 import Home from '../page'
+import ClientDetailsPage from '../panel-interno/clientes/[id]/page'
 import ClientesPage from '../panel-interno/clientes/page'
 import PanelInternoLayout from '../panel-interno/layout'
 import PanelInterno from '../panel-interno/page'
 import PeluqueriaPage from '../panel-interno/peluqueria/page'
 import PlanningPage from '../panel-interno/planning/page'
+import ReservationDetailsPage from '../panel-interno/reservas/[id]/page'
 import TiendaPage from '../panel-interno/tienda/page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
 import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
-import ClientDetailsPage from '../panel-interno/clientes/[id]/page'
-import ReservationDetailsPage from '../panel-interno/reservas/[id]/page'
 
 export const RoutingComponent = () => (
     <Routes>
