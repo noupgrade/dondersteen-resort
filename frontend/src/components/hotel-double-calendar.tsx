@@ -4,11 +4,11 @@ import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, startOfM
 import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react'
 
+import { cn } from '@/shared/lib/styles/class-merge'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
-import { cn } from '@/shared/lib/styles/class-merge'
 
 // Comprehensive mock data for December 2024 and January 2025
 const mockOccupancy: Record<string, { occupancy: number; availableRooms: number; pendingReservations: number }> = {

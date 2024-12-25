@@ -4,11 +4,11 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { useProductContext } from '@/components/ProductContext'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { toast } from '@/hooks/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const productSchema = z.object({

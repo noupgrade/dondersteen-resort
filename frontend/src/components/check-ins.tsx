@@ -91,15 +91,15 @@ export function CheckIns() {
                                     checkIn.status === 'Hab.Asignada'
                                         ? 'default'
                                         : checkIn.pets.some(pet => pet.assignedRoom)
-                                            ? 'secondary'
-                                            : 'outline'
+                                          ? 'secondary'
+                                          : 'outline'
                                 }
                             >
                                 {checkIn.status === 'Hab.Asignada'
                                     ? 'Hab.Asignada'
                                     : checkIn.pets.some(pet => pet.assignedRoom)
-                                        ? 'Asignación Parcial'
-                                        : 'Pendiente'}
+                                      ? 'Asignación Parcial'
+                                      : 'Pendiente'}
                             </Badge>
                         </CardTitle>
                     </CardHeader>

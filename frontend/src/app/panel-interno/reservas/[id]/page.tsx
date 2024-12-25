@@ -56,15 +56,15 @@ export default function ReservationDetailsPage() {
                                 reservation.status === 'confirmed'
                                     ? 'default'
                                     : reservation.status === 'completed'
-                                        ? 'success'
-                                        : 'destructive'
+                                      ? 'success'
+                                      : 'destructive'
                             }
                         >
                             {reservation.status === 'confirmed'
                                 ? 'Confirmada'
                                 : reservation.status === 'completed'
-                                    ? 'Completada'
-                                    : 'Cancelada'}
+                                  ? 'Completada'
+                                  : 'Cancelada'}
                         </Badge>
                     </CardTitle>
                 </CardHeader>

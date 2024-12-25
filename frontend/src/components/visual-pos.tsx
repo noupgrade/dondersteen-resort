@@ -5,6 +5,7 @@ import { Check, Minus, Plus, Search, ShoppingCart } from 'lucide-react'
 import { useProductContext } from '@/components/ProductContext'
 import { useReservation } from '@/components/ReservationContext'
 import { GenericProductModal } from '@/components/generic-product-modal'
+import { toast } from '@/hooks/use-toast'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,7 +20,6 @@ import {
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
-import { toast } from '@/hooks/use-toast'
 
 const categoryIcons: { [key: string]: string } = {
     Juguetes: '🧸',

@@ -2,8 +2,8 @@
 
 import * as React from 'react'
 
-import { buttonVariants } from '@/shared/ui/button'
 import { cn } from '@/shared/lib/styles/class-merge'
+import { buttonVariants } from '@/shared/ui/button'
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 
 const AlertDialog = AlertDialogPrimitive.Root

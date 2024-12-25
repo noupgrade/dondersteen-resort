@@ -9,14 +9,7 @@ import * as z from 'zod'
 
 import { Button } from '@/shared/ui/button'
 import { Calendar } from '@/shared/ui/calendar'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
@@ -199,8 +192,9 @@ export function NuevaEntradaDialog() {
                                             <FormControl>
                                                 <Button
                                                     variant='outline'
-                                                    className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'
-                                                        }`}
+                                                    className={`w-full justify-start text-left font-normal ${
+                                                        !field.value && 'text-muted-foreground'
+                                                    }`}
                                                 >
                                                     {field.value ? (
                                                         format(field.value, 'PPP', { locale: es })
@@ -237,8 +231,9 @@ export function NuevaEntradaDialog() {
                                             <FormControl>
                                                 <Button
                                                     variant='outline'
-                                                    className={`w-full justify-start text-left font-normal ${!field.value && 'text-muted-foreground'
-                                                        }`}
+                                                    className={`w-full justify-start text-left font-normal ${
+                                                        !field.value && 'text-muted-foreground'
+                                                    }`}
                                                 >
                                                     {field.value ? (
                                                         format(field.value, 'PPP', { locale: es })

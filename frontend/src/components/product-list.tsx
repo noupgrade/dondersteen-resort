@@ -4,6 +4,7 @@ import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 
 import { useProductContext } from '@/components/ProductContext'
 import { ProductForm } from '@/components/product-form'
+import { toast } from '@/hooks/use-toast'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -20,7 +21,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
-import { toast } from '@/hooks/use-toast'
 
 export function ProductList() {
     const { products, categories, deleteProduct, addCategory, deleteCategory } = useProductContext()

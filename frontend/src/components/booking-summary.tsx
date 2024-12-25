@@ -212,92 +212,92 @@ export function BookingSummary({ dates, pets, services, totalPrice, pickupTime }
                                         services[`specialCare_${index}`] ||
                                         services[`customFood_${index}`] ||
                                         services[`grooming_${index}`]) && (
-                                            <div className='space-y-2'>
-                                                <span className='text-sm font-medium'>{pet.name}:</span>
-                                                {services[`medication_${index}`] && (
-                                                    <div className='flex items-center justify-between pl-4'>
-                                                        <span className='text-sm text-muted-foreground'>
-                                                            Medicación (
-                                                            {services[`medication_frequency_${index}`] === 'once'
-                                                                ? '1 vez'
-                                                                : 'Varias veces'}
-                                                            )
-                                                        </span>
-                                                        <div className='text-right'>
-                                                            <span className='font-medium'>
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('medication', index).costPerDay,
-                                                                )}
-                                                                /día
-                                                                <br />(
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('medication', index).totalCost,
-                                                                )}
-                                                                )
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {services[`specialCare_${index}`] && (
-                                                    <div className='flex items-center justify-between pl-4'>
-                                                        <span className='text-sm text-muted-foreground'>
-                                                            Curas Especiales
-                                                        </span>
-                                                        <div className='text-right'>
-                                                            <span className='font-medium'>
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('specialCare', index).costPerDay,
-                                                                )}
-                                                                /día
-                                                                <br />(
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('specialCare', index).totalCost,
-                                                                )}
-                                                                )
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {services[`customFood_${index}`] && (
-                                                    <div className='flex items-center justify-between pl-4'>
-                                                        <span className='text-sm text-muted-foreground'>
-                                                            Comida personalizada
-                                                        </span>
-                                                        <div className='text-right'>
-                                                            <span className='font-medium'>
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('customFood', index).costPerDay,
-                                                                )}
-                                                                /día
-                                                                <br />(
-                                                                {formatCurrency(
-                                                                    calculateServiceCost('customFood', index).totalCost,
-                                                                )}
-                                                                )
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {services[`grooming_${index}`] && (
-                                                    <div className='flex items-center justify-between pl-4'>
-                                                        <span className='text-sm text-muted-foreground'>
-                                                            Peluquería (
-                                                            {services[`groomingService_${index}`] === 'bano_especial'
-                                                                ? 'Baño especial'
-                                                                : services[`groomingService_${index}`] === 'corte'
-                                                                    ? 'Corte'
-                                                                    : 'Deslanado'}
-                                                            )
-                                                        </span>
-                                                        <span className='text-right font-medium'>
+                                        <div className='space-y-2'>
+                                            <span className='text-sm font-medium'>{pet.name}:</span>
+                                            {services[`medication_${index}`] && (
+                                                <div className='flex items-center justify-between pl-4'>
+                                                    <span className='text-sm text-muted-foreground'>
+                                                        Medicación (
+                                                        {services[`medication_frequency_${index}`] === 'once'
+                                                            ? '1 vez'
+                                                            : 'Varias veces'}
+                                                        )
+                                                    </span>
+                                                    <div className='text-right'>
+                                                        <span className='font-medium'>
                                                             {formatCurrency(
-                                                                calculateServiceCost('grooming', index).totalCost,
+                                                                calculateServiceCost('medication', index).costPerDay,
                                                             )}
+                                                            /día
+                                                            <br />(
+                                                            {formatCurrency(
+                                                                calculateServiceCost('medication', index).totalCost,
+                                                            )}
+                                                            )
                                                         </span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        )}
+                                                </div>
+                                            )}
+                                            {services[`specialCare_${index}`] && (
+                                                <div className='flex items-center justify-between pl-4'>
+                                                    <span className='text-sm text-muted-foreground'>
+                                                        Curas Especiales
+                                                    </span>
+                                                    <div className='text-right'>
+                                                        <span className='font-medium'>
+                                                            {formatCurrency(
+                                                                calculateServiceCost('specialCare', index).costPerDay,
+                                                            )}
+                                                            /día
+                                                            <br />(
+                                                            {formatCurrency(
+                                                                calculateServiceCost('specialCare', index).totalCost,
+                                                            )}
+                                                            )
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {services[`customFood_${index}`] && (
+                                                <div className='flex items-center justify-between pl-4'>
+                                                    <span className='text-sm text-muted-foreground'>
+                                                        Comida personalizada
+                                                    </span>
+                                                    <div className='text-right'>
+                                                        <span className='font-medium'>
+                                                            {formatCurrency(
+                                                                calculateServiceCost('customFood', index).costPerDay,
+                                                            )}
+                                                            /día
+                                                            <br />(
+                                                            {formatCurrency(
+                                                                calculateServiceCost('customFood', index).totalCost,
+                                                            )}
+                                                            )
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {services[`grooming_${index}`] && (
+                                                <div className='flex items-center justify-between pl-4'>
+                                                    <span className='text-sm text-muted-foreground'>
+                                                        Peluquería (
+                                                        {services[`groomingService_${index}`] === 'bano_especial'
+                                                            ? 'Baño especial'
+                                                            : services[`groomingService_${index}`] === 'corte'
+                                                              ? 'Corte'
+                                                              : 'Deslanado'}
+                                                        )
+                                                    </span>
+                                                    <span className='text-right font-medium'>
+                                                        {formatCurrency(
+                                                            calculateServiceCost('grooming', index).totalCost,
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
 

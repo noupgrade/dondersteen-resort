@@ -10,14 +10,7 @@ import { AvailabilityCalendarView } from '@/components/availability-calendar-vie
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { ScrollArea } from '@/shared/ui/scroll-area'
@@ -181,18 +174,19 @@ export default function PeluqueriaPage() {
 
                                             <div className='flex h-full flex-col items-end justify-between'>
                                                 <Badge
-                                                    className={`px-3 py-1 text-base font-semibold ${reservation.additionalServices[0] === 'corte'
+                                                    className={`px-3 py-1 text-base font-semibold ${
+                                                        reservation.additionalServices[0] === 'corte'
                                                             ? 'bg-blue-500 text-white hover:bg-blue-600'
                                                             : reservation.additionalServices[0] === 'bano_especial'
-                                                                ? 'bg-green-500 text-white hover:bg-green-600'
-                                                                : 'bg-purple-500 text-white hover:bg-purple-600'
-                                                        }`}
+                                                              ? 'bg-green-500 text-white hover:bg-green-600'
+                                                              : 'bg-purple-500 text-white hover:bg-purple-600'
+                                                    }`}
                                                 >
                                                     {reservation.additionalServices[0] === 'corte'
                                                         ? 'Corte'
                                                         : reservation.additionalServices[0] === 'bano_especial'
-                                                            ? 'Baño especial'
-                                                            : 'Deslanado'}
+                                                          ? 'Baño especial'
+                                                          : 'Deslanado'}
                                                 </Badge>
 
                                                 <div className='mt-4 flex gap-2'>
@@ -247,8 +241,8 @@ export default function PeluqueriaPage() {
                                                                     ? 'Corte'
                                                                     : reservation.additionalServices[0] ===
                                                                         'bano_especial'
-                                                                        ? 'Baño especial'
-                                                                        : 'Deslanado'}
+                                                                      ? 'Baño especial'
+                                                                      : 'Deslanado'}
                                                             </p>
                                                             {reservation.observations && (
                                                                 <div className='mt-1 flex items-center text-xs text-muted-foreground'>
@@ -334,8 +328,8 @@ export default function PeluqueriaPage() {
                                             service === 'corte'
                                                 ? 'Corte'
                                                 : service === 'bano_especial'
-                                                    ? 'Baño especial'
-                                                    : 'Deslanado',
+                                                  ? 'Baño especial'
+                                                  : 'Deslanado',
                                         )
                                         .join(', ')}
                                     readOnly
