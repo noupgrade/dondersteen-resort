@@ -5,6 +5,7 @@ import { ReservationProvider } from '@/components/ReservationContext'
 import BookingPage from '../booking/BookingPage'
 import Home from '../page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
+import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
 
 export const RoutingComponent = () => (
     <Routes>
@@ -22,6 +23,14 @@ export const RoutingComponent = () => (
             element={
                 <ReservationProvider>
                     <PeluqueriaBookingPage />
+                </ReservationProvider>
+            }
+        />
+        <Route
+            path='/perfil-clientes'
+            element={
+                <ReservationProvider>
+                    <PerfilClientesPage />
                 </ReservationProvider>
             }
         />

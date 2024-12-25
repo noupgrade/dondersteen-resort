@@ -1,7 +1,6 @@
-import { useRouter } from 'next/navigation'
-
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useNavigate } from 'react-router-dom'
 
 const translations = {
     newReservation: { es: 'Nueva Reserva', en: 'New Reservation' },
@@ -20,7 +19,7 @@ type NewReservationModalProps = {
 }
 
 export function NewReservationModal({ isOpen, onClose, language }: NewReservationModalProps) {
-    const router = useRouter()
+    const navigate = useNavigate()
     const t = (key: string): string => {
         return translations[key]?.[language] || key
     }
@@ -28,9 +27,9 @@ export function NewReservationModal({ isOpen, onClose, language }: NewReservatio
     const handleReservationTypeSelect = (type: 'grooming' | 'hotel') => {
         onClose()
         if (type === 'grooming') {
-            router.push('/peluqueria-booking')
+            navigate('/peluqueria-booking')
         } else {
-            router.push('/booking')
+            navigate('/booking')
         }
     }
 
