@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { useProductContext } from '@/components/ProductContext'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,7 +16,6 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { useProductContext } from '@/components/ProductContext'
 
 export function CategoryManagement() {
     const { categories, addCategory, updateCategory, deleteCategory } = useProductContext()
