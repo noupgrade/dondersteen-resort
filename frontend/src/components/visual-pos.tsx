@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Check, Minus, Plus, Search, ShoppingCart } from 'lucide-react'
+import { Minus, Plus, Search, ShoppingCart } from 'lucide-react'
 
 import { useProductContext } from '@/components/ProductContext'
 import { useReservation } from '@/components/ReservationContext'
@@ -21,6 +21,49 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 
+// Mock data for testing
+const mockReservations = [
+    {
+        id: 'RES001',
+        client: {
+            id: 'CLI001',
+            name: 'Juan Pérez',
+        },
+        pet: {
+            name: 'Luna',
+            breed: 'Golden Retriever',
+        },
+        date: '2024-01-20',
+        totalPrice: 50,
+    },
+    {
+        id: 'RES002',
+        client: {
+            id: 'CLI002',
+            name: 'María García',
+        },
+        pet: {
+            name: 'Rocky',
+            breed: 'Pastor Alemán',
+        },
+        date: '2024-01-21',
+        totalPrice: 75,
+    },
+    {
+        id: 'RES003',
+        client: {
+            id: 'CLI003',
+            name: 'Ana Martínez',
+        },
+        pet: {
+            name: 'Milo',
+            breed: 'Yorkshire Terrier',
+        },
+        date: '2024-01-22',
+        totalPrice: 60,
+    },
+]
+
 const categoryIcons: { [key: string]: string } = {
     Juguetes: '🧸',
     Alimentos: '🥗',
@@ -39,7 +82,7 @@ export function VisualPOS() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedReservation, setSelectedReservation] = useState<any | null>(null)
     const [cart, setCart] = useState<CartItem[]>([])
-    const [reservationSearch, setReservationSearch] = useState('')
+    const [searchQuery, setSearchQuery] = useState('')
 
     const filteredProducts = selectedCategory
         ? products.filter(product => product.category === selectedCategory)
@@ -143,157 +186,183 @@ export function VisualPOS() {
 
     console.log('Current reservation state:', reservations)
 
-    const filteredReservations = reservations.filter(
-        r => r.client.name.toLowerCase().includes(reservationSearch.toLowerCase()) || r.id.includes(reservationSearch),
-    )
+    const filteredReservations = mockReservations.filter(r => {
+        const searchLower = searchQuery.toLowerCase()
+        return (
+            r.client.name.toLowerCase().includes(searchLower) ||
+            r.pet.name.toLowerCase().includes(searchLower) ||
+            r.pet.breed.toLowerCase().includes(searchLower)
+        )
+    })
 
     useEffect(() => {
         console.log('Reservations updated:', reservations)
     }, [reservations])
 
     return (
-        <div className='mx-auto flex h-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8'>
-            {/* Client Selection */}
-            <div className='mb-4 w-full'>
-                <div className='relative'>
-                    <Search className='absolute left-2 top-1/2 -translate-y-1/2 transform text-gray-400' />
-                    <Input
-                        placeholder='Buscar reserva por cliente o ID'
-                        value={reservationSearch}
-                        onChange={e => setReservationSearch(e.target.value)}
-                        className='w-full pl-10'
-                    />
-                </div>
-                {reservationSearch && (
-                    <div className='mt-2 max-h-40 overflow-y-auto rounded-md border bg-white shadow-lg'>
-                        {filteredReservations.map(reservation => (
+        <div className='mx-auto flex h-full max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:px-8'>
+            {/* Card 1: Búsqueda y selección de reserva */}
+            <Card>
+                <CardContent className='p-6'>
+                    <h2 className='mb-4 text-xl font-semibold'>Búsqueda y selección de reserva</h2>
+                    <div className='relative'>
+                        <Search className='absolute left-2 top-1/2 -translate-y-1/2 transform text-gray-400' />
+                        <Input
+                            placeholder='Buscar por cliente o mascota...'
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className='w-full pl-10'
+                        />
+                    </div>
+
+                    {searchQuery && (
+                        <div className='mt-4 rounded-md border bg-white p-2 shadow-sm'>
+                            {filteredReservations.map(reservation => (
+                                <Button
+                                    key={reservation.id}
+                                    variant={selectedReservation?.id === reservation.id ? 'default' : 'ghost'}
+                                    className='w-full justify-start text-left'
+                                    onClick={() => setSelectedReservation(reservation)}
+                                >
+                                    <div className='flex flex-col items-start'>
+                                        <span className='font-medium'>{reservation.client.name}</span>
+                                        <span className='text-sm text-gray-600'>
+                                            Mascota: {reservation.pet.name} • {reservation.pet.breed}
+                                        </span>
+                                    </div>
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+
+                    {selectedReservation && (
+                        <div className='mt-4 rounded-lg bg-gray-50 p-4'>
+                            <h3 className='font-medium'>Reserva seleccionada:</h3>
+                            <p className='text-sm text-gray-600'>
+                                Cliente: {selectedReservation.client.name}
+                                <br />
+                                Mascota: {selectedReservation.pet.name} ({selectedReservation.pet.breed})
+                            </p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Card 2: Selección y filtrado de productos */}
+            <Card>
+                <CardContent className='p-6'>
+                    <div className='mb-6 flex items-center justify-between'>
+                        <h2 className='text-xl font-semibold'>Productos</h2>
+                        <GenericProductModal onAddToCart={product => addToCart(product, true)} />
+                    </div>
+
+                    <div className='mb-6 flex flex-wrap gap-2'>
+                        <Button
+                            variant={selectedCategory === null ? 'default' : 'outline'}
+                            onClick={() => setSelectedCategory(null)}
+                            className='whitespace-nowrap px-4 py-2 text-base'
+                        >
+                            Todos
+                        </Button>
+                        {categories.map(category => (
                             <Button
-                                key={reservation.id}
-                                variant={selectedReservation?.id === reservation.id ? 'default' : 'ghost'}
-                                className='w-full justify-start text-left'
-                                onClick={() => setSelectedReservation(reservation)}
+                                key={category.id}
+                                variant={selectedCategory === category.name ? 'default' : 'outline'}
+                                onClick={() => setSelectedCategory(category.name)}
+                                className='whitespace-nowrap px-4 py-2 text-base'
                             >
-                                {reservation.client.name} - {reservation.id}
+                                {categoryIcons[category.name] || '📦'} {category.name}
                             </Button>
                         ))}
                     </div>
-                )}
-            </div>
 
-            {/* Categories and Products */}
-            <div className='flex-grow overflow-hidden'>
-                <div className='mb-4 flex touch-pan-x flex-wrap gap-2 pb-2'>
-                    <Button
-                        variant={selectedCategory === null ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(null)}
-                        className='whitespace-nowrap px-4 py-2 text-base sm:px-6 sm:py-3 sm:text-lg'
-                    >
-                        Todos
-                    </Button>
-                    {categories.map(category => (
-                        <Button
-                            key={category.id}
-                            variant={selectedCategory === category.name ? 'default' : 'outline'}
-                            onClick={() => setSelectedCategory(category.name)}
-                            className='whitespace-nowrap px-4 py-2 text-base sm:px-6 sm:py-3 sm:text-lg'
-                        >
-                            {categoryIcons[category.name] || '📦'} {category.name}
-                        </Button>
-                    ))}
-                    <GenericProductModal
-                        onAddToCart={product => addToCart(product, true)}
-                        className='whitespace-nowrap border-2 border-primary px-6 py-3 text-lg'
-                    />
-                </div>
-
-                <div className='grid max-h-[calc(100vh-350px)] touch-pan-y grid-cols-2 gap-4 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'>
-                    {filteredProducts.map(product => (
-                        <Card
-                            key={product.id}
-                            className='cursor-pointer transition-shadow hover:shadow-md'
-                            onClick={() => addToCart(product)}
-                        >
-                            <CardContent className='flex h-full flex-col items-center justify-center p-4'>
-                                <h3 className='text-center font-bold'>{product.name}</h3>
-                                <p className='mt-2 text-lg font-semibold'>{product.price.toFixed(2)} €</p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-
-            {/* Cart */}
-            <Card className='mt-4 lg:mx-auto lg:max-w-md'>
-                <CardContent className='p-4'>
-                    <h3 className='mb-4 flex items-center font-bold'>
-                        <ShoppingCart className='mr-2' />
-                        Carrito
-                    </h3>
-                    <div className='max-h-40 overflow-y-auto'>
-                        {cart.map((item, index) => (
-                            <div
-                                key={index}
-                                className='mb-4 flex flex-col items-start justify-between sm:mb-2 sm:flex-row sm:items-center'
+                    <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4'>
+                        {filteredProducts.map(product => (
+                            <Card
+                                key={product.id}
+                                className='cursor-pointer transition-shadow hover:shadow-md'
+                                onClick={() => addToCart(product)}
                             >
-                                <span className='font-medium'>
-                                    {item.isGeneric ? `Producto Genérico: ${item.product.name}` : item.product.name}
-                                </span>
-                                <div className='flex items-center'>
+                                <CardContent className='flex h-full flex-col items-center justify-center p-4'>
+                                    <h3 className='text-center font-bold'>{product.name}</h3>
+                                    <p className='mt-2 text-lg font-semibold'>{product.price.toFixed(2)} €</p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Card 3: Resumen del pedido */}
+            <Card>
+                <CardContent className='p-6'>
+                    <div className='flex items-center justify-between'>
+                        <h2 className='flex items-center text-xl font-semibold'>
+                            <ShoppingCart className='mr-2' />
+                            Resumen del pedido
+                        </h2>
+                        {selectedReservation && (
+                            <p className='text-sm text-gray-600'>Cliente: {selectedReservation.client.name}</p>
+                        )}
+                    </div>
+
+                    <div className='mt-4 space-y-4'>
+                        {cart.map((item, index) => (
+                            <div key={index} className='flex items-center justify-between rounded-lg bg-gray-50 p-3'>
+                                <div className='flex-1'>
+                                    <span className='font-medium'>
+                                        {item.isGeneric ? `Producto Genérico: ${item.product.name}` : item.product.name}
+                                    </span>
+                                    <p className='text-sm text-gray-600'>
+                                        {(item.product.price * item.quantity).toFixed(2)} €
+                                    </p>
+                                </div>
+                                <div className='flex items-center gap-2'>
                                     <Button
                                         variant='outline'
                                         size='sm'
-                                        className='h-8 w-8 sm:h-10 sm:w-10'
                                         onClick={() => updateQuantity(index, item.quantity - 1)}
                                     >
                                         <Minus className='h-4 w-4' />
                                     </Button>
-                                    <span className='mx-2'>{item.quantity}</span>
+                                    <span className='w-8 text-center'>{item.quantity}</span>
                                     <Button
                                         variant='outline'
                                         size='sm'
-                                        className='h-8 w-8 sm:h-10 sm:w-10'
                                         onClick={() => updateQuantity(index, item.quantity + 1)}
                                     >
                                         <Plus className='h-4 w-4' />
                                     </Button>
-                                    <span className='ml-4 font-semibold'>
-                                        {(item.product.price * item.quantity).toFixed(2)} €
-                                    </span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className='mt-4 text-right text-xl font-bold'>Total: {getTotalPrice().toFixed(2)} €</div>
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                className='mt-4 w-full bg-green-500 py-3 text-lg text-white hover:bg-green-600'
-                                disabled={!selectedReservation || cart.length === 0}
-                            >
-                                <Check className='mr-2 h-4 w-4' />
-                                Confirmar Productos
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>¿Confirmar la compra?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Esta acción añadirá los productos seleccionados a la reserva y registrará la venta.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={() => {
-                                        console.log('Confirm button clicked')
-                                        handleConfirmProducts()
-                                    }}
-                                >
-                                    Confirmar
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+
+                    {cart.length > 0 && (
+                        <div className='mt-6 flex flex-col gap-4'>
+                            <div className='flex justify-between border-t pt-4'>
+                                <span className='text-lg font-bold'>Total:</span>
+                                <span className='text-lg font-bold'>{getTotalPrice().toFixed(2)} €</span>
+                            </div>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button className='w-full bg-green-600 hover:bg-green-700'>Confirmar Pedido</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Confirmar pedido?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta acción agregará los productos seleccionados a la reserva.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleConfirmProducts}>Confirmar</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

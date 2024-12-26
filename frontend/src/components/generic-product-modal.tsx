@@ -40,7 +40,7 @@ export function GenericProductModal({ onAddToCart }: GenericProductModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant='outline'>Producto Genérico</Button>
+                <Button className='bg-green-600 text-white hover:bg-green-700'>Producto Genérico</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
