@@ -218,11 +218,15 @@ export function VisualPOS() {
                     {searchQuery && (
                         <div className='mt-4 rounded-md border bg-white p-2 shadow-sm'>
                             {filteredReservations.map(reservation => (
-                                <Button
+                                <div
                                     key={reservation.id}
-                                    variant={selectedReservation?.id === reservation.id ? 'default' : 'ghost'}
-                                    className='w-full justify-start text-left'
-                                    onClick={() => setSelectedReservation(reservation)}
+                                    className={`cursor-pointer rounded-md p-2 transition-colors hover:bg-gray-50 ${
+                                        selectedReservation?.id === reservation.id ? 'bg-blue-50' : ''
+                                    }`}
+                                    onClick={() => {
+                                        setSelectedReservation(reservation)
+                                        setSearchQuery('')
+                                    }}
                                 >
                                     <div className='flex flex-col items-start'>
                                         <span className='font-medium'>{reservation.client.name}</span>
@@ -230,7 +234,7 @@ export function VisualPOS() {
                                             Mascota: {reservation.pet.name} • {reservation.pet.breed}
                                         </span>
                                     </div>
-                                </Button>
+                                </div>
                             ))}
                         </div>
                     )}
