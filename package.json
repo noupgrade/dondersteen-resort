@@ -22,8 +22,7 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "firebase-tools": "^13.11.4",
-    "lefthook": "^1.7.21"
+    "firebase-tools": "^13.11.4"
   },
   "dependencies": {
     "axios": "^1.7.2",
