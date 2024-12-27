@@ -34,6 +34,7 @@ import { Checkbox } from '@/shared/ui/checkbox'
 import { useToast } from '@/shared/ui/use-toast'
 import { Upload } from '@/shared/ui/upload'
 import { BaseReservation, ExtendedReservation, ReservationStatus } from '@/types/reservation'
+import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell'
 
 interface SubCita {
     fecha: string
@@ -161,6 +162,32 @@ export default function PeluqueriaPage() {
     const [reservationToReject, setReservationToReject] = useState<ExtendedReservationWithSubcitas | null>(null)
     const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ fecha: '', hora: '' })
     const [isPropuestaModalOpen, setIsPropuestaModalOpen] = useState(false)
+    const [notifications, setNotifications] = useState<Notification[]>([
+        {
+            id: '1',
+            petName: 'Luna',
+            reservationId: 'res_1',
+            currentDate: format(new Date(), 'yyyy-MM-dd'),
+            currentTime: '10:00',
+            newDate: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+            newTime: '14:00',
+            timestamp: new Date().toISOString(),
+            read: false,
+            message: 'La reserva de Luna se ha retrasado'
+        },
+        {
+            id: '2',
+            petName: 'Rocky',
+            reservationId: 'res_2',
+            currentDate: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+            currentTime: '11:30',
+            newDate: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
+            newTime: '16:30',
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            read: false,
+            message: 'La reserva de Rocky se ha retrasado'
+        }
+    ])
 
     // Función para ordenar las reservas por origen (hotel primero)
     const sortedReservations = [...pendingReservations].sort((a, b) => {
@@ -266,9 +293,73 @@ export default function PeluqueriaPage() {
         setPropuestaFecha({ fecha: '', hora: '' })
     }
 
+    const handleMarkAsRead = (notificationId: string) => {
+        setNotifications(prev => 
+            prev.map(notification => 
+                notification.id === notificationId 
+                    ? { 
+                        ...notification, 
+                        read: true,
+                        readTimestamp: new Date().toISOString()
+                    }
+                    : notification
+            )
+        )
+    }
+
+    const handleNotificationClick = (notification: Notification) => {
+        // Aquí iría la lógica para navegar a la vista semanal y resaltar la reserva
+        navigate(`/panel-interno/peluqueria/semana?reserva=${notification.reservationId}`)
+    }
+
+    const handleUpdateReservationFromNotification = (
+        reservationId: string,
+        newDate: string,
+        newTime: string
+    ) => {
+        // Actualizar la reserva en el estado
+        setPendingReservations(prev =>
+            prev.map(reservation =>
+                reservation.id === reservationId
+                    ? { ...reservation, date: newDate, time: newTime }
+                    : reservation
+            )
+        )
+
+        setConfirmedReservations(prev =>
+            prev.map(reservation =>
+                reservation.id === reservationId
+                    ? { ...reservation, date: newDate, time: newTime }
+                    : reservation
+            )
+        )
+
+        toast({
+            title: "Cita actualizada",
+            description: `La cita ha sido reprogramada para el ${format(new Date(newDate), 'dd MMM yyyy', { locale: es })} a las ${newTime}`
+        })
+    }
+
+    const handleRemoveNotification = (notificationId: string) => {
+        setNotifications(prev => prev.filter(notification => notification.id !== notificationId))
+        toast({
+            title: "Notificación eliminada",
+            description: "La notificación ha sido eliminada correctamente"
+        })
+    }
+
     return (
         <div className='container mx-auto p-4 md:p-6'>
-            <h1 className='mb-6 text-3xl font-bold'>Gestión de Peluquería</h1>
+            <div className='flex items-center justify-between mb-6'>
+                <h1 className='text-3xl font-bold'>Gestión de Peluquería</h1>
+                <NotificationBell
+                    notifications={notifications}
+                    onMarkAsRead={handleMarkAsRead}
+                    onNotificationClick={handleNotificationClick}
+                    onUpdateReservation={handleUpdateReservationFromNotification}
+                    onRemoveNotification={handleRemoveNotification}
+                />
+            </div>
 
             <Card className='mb-6'>
                 <CardContent className='flex items-center justify-between p-4'>
