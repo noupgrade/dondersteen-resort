@@ -164,6 +164,7 @@ export function VisualPOS() {
             updateReservation(selectedReservation.id, updatedReservation)
 
             setCart([])
+            setSelectedReservation(null)
             toast({
                 title: 'Productos agregados',
                 description: `Se han agregado ${cart.length} productos a la reserva de ${selectedReservation.client.name} por un total de ${totalPrice.toFixed(2)} €.`,

@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import * as z from 'zod'
+import { Plus } from 'lucide-react'
 
 import { useProductContext } from '@/components/ProductContext'
 import { toast } from '@/hooks/use-toast'
@@ -10,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
 
 const productSchema = z.object({
     name: z.string().min(1, 'El nombre es requerido'),
@@ -23,7 +25,9 @@ type ProductFormProps = {
 }
 
 export function ProductForm({ productId, onClose }: ProductFormProps) {
-    const { addProduct, updateProduct, getProductById, categories } = useProductContext()
+    const { addProduct, updateProduct, getProductById, categories, addCategory } = useProductContext()
+    const [newCategoryName, setNewCategoryName] = useState('')
+    const [isAddingCategory, setIsAddingCategory] = useState(false)
 
     const form = useForm<z.infer<typeof productSchema>>({
         resolver: zodResolver(productSchema),
@@ -47,6 +51,20 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
         }
     }, [productId, getProductById, form])
 
+    const handleAddCategory = () => {
+        if (newCategoryName.trim()) {
+            addCategory({ name: newCategoryName.trim() })
+            // Seleccionar automáticamente la nueva categoría
+            form.setValue('category', newCategoryName.trim())
+            setNewCategoryName('')
+            setIsAddingCategory(false)
+            toast({
+                title: 'Categoría añadida',
+                description: 'La nueva categoría ha sido creada correctamente.',
+            })
+        }
+    }
+
     function onSubmit(values: z.infer<typeof productSchema>) {
         if (productId) {
             updateProduct(productId, values)
@@ -66,20 +84,21 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
                 <FormField
                     control={form.control}
                     name='name'
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nombre</FormLabel>
+                            <FormLabel>Nombre del producto</FormLabel>
                             <FormControl>
-                                <Input placeholder='Nombre del producto' {...field} />
+                                <Input {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name='price'
@@ -87,42 +106,93 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
                         <FormItem>
                             <FormLabel>Precio</FormLabel>
                             <FormControl>
-                                <Input
-                                    type='number'
-                                    step='0.01'
-                                    {...field}
-                                    onChange={e => field.onChange(parseFloat(e.target.value))}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type="number"
+                                        inputMode="decimal"
+                                        step="0.01"
+                                        {...field}
+                                        onChange={e => field.onChange(parseFloat(e.target.value))}
+                                        className="pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                        €
+                                    </span>
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name='category'
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Categoría</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <div className="flex gap-2">
                                 <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder='Selecciona una categoría' />
-                                    </SelectTrigger>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder='Selecciona una categoría' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories.map(category => (
+                                                <SelectItem key={category.id} value={category.name}>
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </FormControl>
-                                <SelectContent>
-                                    {categories.map(category => (
-                                        <SelectItem key={category.id} value={category.name}>
-                                            {category.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="icon"
+                                    onClick={() => setIsAddingCategory(true)}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                <Button type='submit'>Guardar Cambios</Button>
+
+                {isAddingCategory && (
+                    <div className="space-y-2">
+                        <FormLabel>Nueva categoría</FormLabel>
+                        <div className="flex gap-2">
+                            <Input
+                                placeholder="Nombre de la categoría"
+                                value={newCategoryName}
+                                onChange={e => setNewCategoryName(e.target.value)}
+                            />
+                            <Button 
+                                type="button" 
+                                onClick={handleAddCategory}
+                                disabled={!newCategoryName.trim()}
+                            >
+                                Añadir
+                            </Button>
+                            <Button 
+                                type="button" 
+                                variant="ghost"
+                                onClick={() => {
+                                    setIsAddingCategory(false)
+                                    setNewCategoryName('')
+                                }}
+                            >
+                                Cancelar
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                <Button type='submit'>
+                    {productId ? 'Actualizar Producto' : 'Crear Producto'}
+                </Button>
             </form>
         </Form>
     )

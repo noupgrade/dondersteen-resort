@@ -22,11 +22,19 @@ import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
+// Colores suaves por categoría
+const categoryColors: { [key: string]: string } = {
+    Juguetes: 'bg-pink-50 hover:bg-pink-100',
+    Alimentos: 'bg-green-50 hover:bg-green-100',
+    Accesorios: 'bg-blue-50 hover:bg-blue-100',
+    default: 'bg-gray-50 hover:bg-gray-100'
+}
+
 export function ProductList() {
     const { products, categories, deleteProduct, addCategory, deleteCategory } = useProductContext()
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('all')
-    const [editingProduct, setEditingProduct] = useState<string | null>(null)
+    const [editingProduct, setEditingProduct] = useState<string>('')
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
@@ -51,22 +59,23 @@ export function ProductList() {
         })
     }
 
+    const getColorByCategory = (category: string): string => {
+        return categoryColors[category] || categoryColors.default
+    }
+
     return (
         <div className='space-y-6'>
             <div className='flex flex-col gap-4 sm:flex-row'>
-                <div className='flex flex-1 flex-col gap-4 sm:flex-row'>
-                    <div className='relative flex-1'>
-                        <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-500' />
-                        <Input
-                            placeholder='Buscar productos...'
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                            className='pl-10'
-                        />
-                    </div>
+                <div className='flex flex-1 items-center gap-2'>
+                    <Input
+                        placeholder='Buscar productos...'
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className='max-w-sm'
+                    />
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                        <SelectTrigger className='w-[200px]'>
-                            <SelectValue placeholder='Todas las categorías' />
+                        <SelectTrigger className='w-[180px]'>
+                            <SelectValue placeholder='Categoría' />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value='all'>Todas las categorías</SelectItem>
@@ -101,8 +110,8 @@ export function ProductList() {
                             <DialogHeader>
                                 <DialogTitle>Gestionar Categorías</DialogTitle>
                             </DialogHeader>
-                            <div className='space-y-4'>
-                                <div className='flex gap-2'>
+                            <div className='grid gap-4 py-4'>
+                                <div className='flex items-center gap-2'>
                                     <Input
                                         placeholder='Nueva categoría'
                                         value={newCategoryName}
@@ -110,91 +119,58 @@ export function ProductList() {
                                     />
                                     <Button onClick={handleAddCategory}>Añadir</Button>
                                 </div>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Nombre</TableHead>
-                                            <TableHead>Acciones</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {categories.map(category => (
-                                            <TableRow key={category.id}>
-                                                <TableCell>{category.name}</TableCell>
-                                                <TableCell>
-                                                    <Button
-                                                        variant='outline'
-                                                        size='sm'
-                                                        className='mr-2'
-                                                        onClick={() => setEditingCategory(category)}
-                                                    >
-                                                        Editar
-                                                    </Button>
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant='outline' size='sm'>
-                                                                Eliminar
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Esta acción no se puede deshacer. Esto eliminará
-                                                                    permanentemente la categoría.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                                <AlertDialogAction
-                                                                    onClick={() => deleteCategory(category.id)}
-                                                                >
-                                                                    Eliminar
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                <div className='space-y-2'>
+                                    {categories.map(category => (
+                                        <div
+                                            key={category.id}
+                                            className='flex items-center justify-between rounded-lg bg-gray-50 p-2'
+                                        >
+                                            <span>{category.name}</span>
+                                            <Button
+                                                variant='ghost'
+                                                size='sm'
+                                                onClick={() => deleteCategory(category.id)}
+                                            >
+                                                <Trash2 className='h-4 w-4' />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </DialogContent>
                     </Dialog>
                 </div>
             </div>
 
-            <div className='overflow-hidden rounded-md border'>
+            <div className='rounded-md border'>
                 <Table>
                     <TableHeader>
-                        <TableRow className='bg-gray-100'>
-                            <TableHead className='font-bold'>Nombre</TableHead>
-                            <TableHead className='font-bold'>Precio</TableHead>
-                            <TableHead className='font-bold'>Categoría</TableHead>
-                            <TableHead className='font-bold'>Acciones</TableHead>
+                        <TableRow>
+                            <TableHead>Nombre</TableHead>
+                            <TableHead>Categoría</TableHead>
+                            <TableHead className='text-right'>Precio</TableHead>
+                            <TableHead className='text-right'>Acciones</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredProducts.map((product, index) => (
-                            <TableRow key={product.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        {filteredProducts.map(product => (
+                            <TableRow 
+                                key={product.id}
+                                className={`${getColorByCategory(product.category)} transition-colors`}
+                            >
                                 <TableCell className='font-medium'>{product.name}</TableCell>
-                                <TableCell>{product.price.toFixed(2)} €</TableCell>
-                                <TableCell>{product.category || 'N/A'}</TableCell>
-                                <TableCell>
-                                    <div className='flex space-x-2'>
-                                        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                                <TableCell>{product.category}</TableCell>
+                                <TableCell className='text-right'>{product.price.toFixed(2)} €</TableCell>
+                                <TableCell className='text-right'>
+                                    <div className='flex justify-end gap-2'>
+                                        <Dialog>
                                             <DialogTrigger asChild>
                                                 <Button
-                                                    variant='outline'
+                                                    variant='ghost'
                                                     size='sm'
-                                                    onClick={() => {
-                                                        setEditingProduct(product.id)
-                                                        setIsEditDialogOpen(true)
-                                                    }}
+                                                    onClick={() => setEditingProduct(product.id)}
                                                 >
-                                                    <Pencil className='mr-1 h-4 w-4' />
-                                                    Editar
+                                                    <Pencil className='h-4 w-4' />
                                                 </Button>
                                             </DialogTrigger>
                                             <DialogContent>
@@ -203,31 +179,28 @@ export function ProductList() {
                                                 </DialogHeader>
                                                 <ProductForm
                                                     productId={editingProduct}
-                                                    onClose={() => {
-                                                        setEditingProduct(null)
-                                                        setIsEditDialogOpen(false)
-                                                    }}
+                                                    onClose={() => setEditingProduct('')}
                                                 />
                                             </DialogContent>
                                         </Dialog>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button variant='outline' size='sm'>
-                                                    <Trash2 className='mr-1 h-4 w-4' />
-                                                    Eliminar
+                                                <Button variant='ghost' size='sm'>
+                                                    <Trash2 className='h-4 w-4' />
                                                 </Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                    <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        Esta acción no se puede deshacer. Esto eliminará permanentemente
-                                                        el producto.
+                                                        Esta acción no se puede deshacer.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                                    <AlertDialogAction
+                                                        onClick={() => handleDeleteProduct(product.id)}
+                                                    >
                                                         Eliminar
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
