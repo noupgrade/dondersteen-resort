@@ -23,7 +23,7 @@ import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
@@ -506,7 +506,7 @@ export default function PeluqueriaPage() {
                                             <Hotel className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
                                                 </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                             {hotelReservations.map(reservation => (
                                                 <ReservationCard
                                                     key={reservation.id}
@@ -525,8 +525,8 @@ export default function PeluqueriaPage() {
                                         <div className="flex items-center gap-2 mb-6">
                                             <Users className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas Externas</h3>
-                                                </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                             {externalReservations.map(reservation => (
                                                 <ReservationCard
                                                     key={reservation.id}
@@ -1130,103 +1130,109 @@ function ReservationCard({
     onReject: (r: ExtendedReservationWithSubcitas) => void 
 }) {
     return (
-        <Card className='transition-all hover:shadow-lg touch-manipulation'>
-            <CardContent className='p-6'>
-                <div className='space-y-6'>
-                    {/* Header con origen de reserva */}
-                    <div className='flex items-center justify-between'>
-                        <Badge 
-                            variant={reservation.source === 'hotel' ? 'default' : 'secondary'}
-                            className='px-3 py-1.5'
-                        >
-                            {reservation.source === 'hotel' ? (
-                                <div className='flex items-center gap-2'>
-                                    <Hotel className='h-4 w-4' />
-                                    <span>Hotel</span>
-                                </div>
-                            ) : (
-                                <div className='flex items-center gap-2'>
-                                    <Users className='h-4 w-4' />
-                                    <span>Externo</span>
-                                </div>
-                            )}
-                        </Badge>
-                        <Badge 
-                            variant="outline"
-                            className={`px-3 py-1.5 ${
-                                reservation.additionalServices[0] === 'corte'
-                                    ? 'border-blue-500 text-blue-700'
-                                    : reservation.additionalServices[0] === 'bano_especial'
-                                    ? 'border-green-500 text-green-700'
-                                    : 'border-purple-500 text-purple-700'
-                            }`}
-                        >
-                            {reservation.additionalServices[0] === 'corte'
-                                ? 'Baño y corte'
-                                : reservation.additionalServices[0] === 'bano_especial'
-                                ? 'Baño y cepillado'
-                                : 'Deslanado'}
-                        </Badge>
+        <Card className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="flex-none pb-4">
+                <div className="flex justify-between items-start gap-4">
+                    <div className="flex items-center gap-3">
+                        {reservation.source === 'hotel' ? (
+                            <div className="p-2 bg-primary/10 rounded-full">
+                                <Hotel className="h-5 w-5 text-primary" />
+                            </div>
+                        ) : (
+                            <div className="p-2 bg-violet-100 rounded-full">
+                                <Users className="h-5 w-5 text-violet-600" />
+                            </div>
+                        )}
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">{reservation.client.name}</p>
+                            <p className="text-sm text-muted-foreground">{reservation.client.phone}</p>
+                        </div>
                     </div>
+                    <Badge 
+                        variant="outline"
+                        className={`px-3 py-1.5 whitespace-nowrap font-medium ${
+                            reservation.additionalServices[0] === 'corte'
+                                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                : reservation.additionalServices[0] === 'bano_especial'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : 'bg-violet-50 border-violet-200 text-violet-700'
+                        }`}
+                    >
+                        {reservation.additionalServices[0] === 'corte'
+                            ? 'Baño y corte'
+                            : reservation.additionalServices[0] === 'bano_especial'
+                            ? 'Baño y cepillado'
+                            : 'Deslanado'}
+                    </Badge>
+                </div>
+            </CardHeader>
 
-                    {/* Información principal */}
+            <CardContent className="flex-grow">
+                <div className="space-y-4">
                     <div>
-                        <h3 className='text-xl font-semibold mb-1'>
-                            {reservation.pet.name}
-                        </h3>
-                        <p className='text-sm text-muted-foreground mb-2'>
-                            {reservation.pet.breed}
-                        </p>
-                        <div className='flex items-center gap-4 text-sm text-muted-foreground'>
-                            <div className='flex items-center gap-1.5'>
-                                <Calendar className='h-4 w-4' />
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className='text-xl font-semibold text-gray-900'>
+                                {reservation.pet.name}
+                            </h3>
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                {reservation.pet.breed}
+                            </span>
+                        </div>
+                        <div className='flex items-center gap-4 text-sm text-muted-foreground mt-3'>
+                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                <Calendar className='h-4 w-4 text-gray-500' />
                                 <span>
                                     {format(new Date(reservation.date), 'dd MMM', {
                                         locale: es,
                                     })}
                                 </span>
                             </div>
-                            <div className='flex items-center gap-1.5'>
-                                <Clock className='h-4 w-4' />
+                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                <Clock className='h-4 w-4 text-gray-500' />
                                 <span>{reservation.time}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Botones de acción */}
-                    <div className='flex gap-3 pt-2'>
-                        {reservation.source === 'hotel' ? (
-                            <Button
-                                variant='default'
-                                className='flex-1 min-h-[44px]'
-                                onClick={() => onAccept(reservation)}
-                            >
-                                <Calendar className='mr-2 h-5 w-5' />
-                                Organizar cita
-                            </Button>
-                        ) : (
-                            <>
-                                <Button
-                                    variant='destructive'
-                                    className='flex-1 min-h-[44px]'
-                                    onClick={() => onReject(reservation)}
-                                >
-                                    <X className='mr-2 h-5 w-5' />
-                                    Denegar
-                                </Button>
-                                <Button
-                                    variant='default'
-                                    className='flex-1 min-h-[44px]'
-                                    onClick={() => onAccept(reservation)}
-                                >
-                                    <Check className='mr-2 h-5 w-5' />
-                                    Aceptar
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                    {reservation.observations && (
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <p className="text-sm text-gray-600">{reservation.observations}</p>
+                        </div>
+                    )}
                 </div>
             </CardContent>
+
+            <CardFooter className="flex-none pt-4 border-t">
+                <div className="flex justify-end gap-3 w-full">
+                    {reservation.source === 'hotel' ? (
+                        <Button
+                            className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
+                            onClick={() => onAccept(reservation)}
+                        >
+                            <Calendar className="mr-2 h-5 w-5" />
+                            Organizar cita
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onReject(reservation)}
+                                className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                            >
+                                Rechazar
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={() => onAccept(reservation)}
+                                className="bg-primary hover:bg-primary/90 text-white transition-colors"
+                            >
+                                Aceptar
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </CardFooter>
         </Card>
     )
 }

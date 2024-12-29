@@ -13,6 +13,7 @@ import {
     Scissors,
     LoaderPinwheelIcon as Spinner,
     X,
+    Phone,
 } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
@@ -22,31 +23,53 @@ import { Button } from '@/shared/ui/button'
 import { Calendar } from '@/shared/ui/calendar'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
+import { DateRange, SelectRangeEventHandler } from 'react-day-picker'
 
 type Pet = {
     name: string
     breed: string
+    size: 'pequeño' | 'mediano' | 'grande'
+    weight: number
 }
 
-type ReservationCardProps = {
-    reservation: {
-        id: string
-        type: 'grooming' | 'hotel'
-        date?: string
-        time?: string
-        startDate?: string
-        endDate?: string
-        services: string[]
-        status: string
-        estimatedPrice?: number
-        pets: Pet[]
+type ReservationStatus = 
+    | 'pending'
+    | 'confirmed'
+    | 'completed'
+    | 'cancelled'
+    | 'propuesta peluqueria'
+    | 'servicio solicitado'
+    | 'cancelacion solicitada'
+
+type ReservationType = 'peluqueria' | 'hotel'
+
+interface Reservation {
+    id: string
+    type: ReservationType
+    date?: string
+    time?: string
+    startDate?: string
+    endDate?: string
+    services: string[]
+    status: ReservationStatus
+    estimatedPrice?: number
+    pets: Pet[]
+}
+
+type TranslationKey = 'from' | 'to' | 'services' | 'estimatedPrice' | 'acceptProposal' | 'rejectProposal' | 
+    'requestCancellation' | 'changeDates' | 'cancel' | 'submit' | 'pets' | 'changeDatesRequested' | 
+    'processing' | 'awaitingConfirmation' | 'changeDatesSuccess' | 'callGrooming' | 'rejectReason' | 'rejectAndCall'
+
+type Translations = {
+    [K in TranslationKey]: {
+        es: string
+        en: string
     }
-    language: 'es' | 'en'
-    onReservationDeleted: (id: string) => void
 }
 
-const translations = {
+const translations: Translations = {
     from: { es: 'Desde', en: 'From' },
     to: { es: 'Hasta', en: 'To' },
     services: { es: 'Servicios', en: 'Services' },
@@ -65,9 +88,16 @@ const translations = {
         es: 'Solicitud de cambio de fechas enviada exitosamente',
         en: 'Date change request submitted successfully',
     },
+    callGrooming: { es: 'Llamar a peluquería', en: 'Call grooming service' },
+    rejectReason: { es: 'Motivo del rechazo', en: 'Rejection reason' },
+    rejectAndCall: { es: 'Rechazar y llamar', en: 'Reject and call' },
 }
 
-export function ReservationCard({ reservation, language, onReservationDeleted }: ReservationCardProps) {
+export function ReservationCard({ reservation, language, onReservationDeleted }: { 
+    reservation: Reservation
+    language: 'es' | 'en'
+    onReservationDeleted: (id: string) => void 
+}) {
     const { updateReservation, deleteReservation } = useReservation()
     const [localReservation, setLocalReservation] = useState(reservation)
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
@@ -75,39 +105,18 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
     const [isChangeDatesDialogOpen, setIsChangeDatesDialogOpen] = useState(false)
     const [rejectReason, setRejectReason] = useState('')
     const [cancelReason, setCancelReason] = useState('')
-    const [newDates, setNewDates] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    const [newDates, setNewDates] = useState<DateRange>({
         from: undefined,
-        to: undefined,
+        to: undefined
     })
     const [isProcessing, setIsProcessing] = useState(false)
     const [showSuccessMessage, setShowSuccessMessage] = useState(false)
 
-    const t = (key: string) => translations[key][language]
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return format(date, 'dd/MM/yyyy')
-    }
-
-    const formatTime = (timeString: string) => {
-        return timeString
-    }
-
-    const translateStatus = (status: string) => {
-        // Add translations for status if needed
-        return status
-    }
-
-    const translateService = (service: string) => {
-        // Add translations for services if needed
-        return service
-    }
-
-    const statusColor = localReservation.status.toLowerCase().includes('confirmada') ? 'bg-green-500' : 'bg-yellow-500'
+    const t = (key: TranslationKey) => translations[key][language]
 
     const handleAcceptProposal = () => {
-        updateReservation(localReservation.id, { ...localReservation, status: 'Confirmada' })
-        setLocalReservation({ ...localReservation, status: 'Confirmada' })
+        updateReservation(localReservation.id, { ...localReservation, status: 'confirmed' })
+        setLocalReservation({ ...localReservation, status: 'confirmed' })
     }
 
     const handleRejectProposal = () => {
@@ -117,10 +126,53 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
     }
 
     const handleRequestCancellation = () => {
-        updateReservation(localReservation.id, { ...localReservation, status: 'Cancelación Solicitada' })
-        setLocalReservation({ ...localReservation, status: 'Cancelación Solicitada' })
+        updateReservation(localReservation.id, { ...localReservation, status: 'cancelacion solicitada' })
+        setLocalReservation({ ...localReservation, status: 'cancelacion solicitada' })
         setIsCancelDialogOpen(false)
     }
+
+    const formatDate = (dateString: string) => {
+        if (!dateString) return ''
+        try {
+            const date = new Date(dateString)
+            if (isNaN(date.getTime())) return ''
+            return format(date, 'dd/MM/yyyy')
+        } catch (error) {
+            console.error('Error formatting date:', error)
+            return ''
+        }
+    }
+
+    const formatTime = (timeString: string) => {
+        if (!timeString) return ''
+        return timeString
+    }
+
+    const translateStatus = (status: string) => {
+        const statusTranslations = {
+            'propuesta peluqueria': language === 'es' ? 'Propuesta Peluquería' : 'Grooming Proposal',
+            'confirmed': language === 'es' ? 'Confirmada' : 'Confirmed',
+            'cancelacion solicitada': language === 'es' ? 'Cancelación Solicitada' : 'Cancellation Requested',
+            'pending': language === 'es' ? 'Pendiente' : 'Pending',
+            'completed': language === 'es' ? 'Completada' : 'Completed',
+            'cancelled': language === 'es' ? 'Cancelada' : 'Cancelled',
+            'servicio solicitado': language === 'es' ? 'Servicio Solicitado' : 'Service Requested',
+            'cambio fechas solicitado': language === 'es' ? 'Cambio de Fechas Solicitado' : 'Date Change Requested'
+        }
+        return statusTranslations[status as keyof typeof statusTranslations] || status
+    }
+
+    const translateService = (service: string) => {
+        const serviceTranslations = {
+            bath: language === 'es' ? 'Baño' : 'Bath',
+            haircut: language === 'es' ? 'Corte' : 'Haircut',
+            accommodation: language === 'es' ? 'Alojamiento' : 'Accommodation',
+            food: language === 'es' ? 'Comida' : 'Food'
+        }
+        return serviceTranslations[service as keyof typeof serviceTranslations] || service
+    }
+
+    const statusColor = localReservation.status === 'confirmed' ? 'bg-green-500' : 'bg-yellow-500'
 
     const handleChangeDates = async () => {
         if (newDates.from && newDates.to) {
@@ -137,14 +189,13 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                 endDate.setDate(endDate.getDate() + 1)
             }
 
-            const updatedReservation = {
-                ...localReservation,
+            const updatedData: Partial<Reservation> = {
                 startDate: format(startDate, 'yyyy-MM-dd'),
                 endDate: format(endDate, 'yyyy-MM-dd'),
-                status: 'Cambio de fechas solicitado',
+                status: 'servicio solicitado'
             }
-            updateReservation(localReservation.id, updatedReservation)
-            setLocalReservation(updatedReservation)
+            updateReservation(localReservation.id, updatedData)
+            setLocalReservation({ ...localReservation, ...updatedData })
             setIsChangeDatesDialogOpen(false)
             setIsProcessing(false)
             setShowSuccessMessage(true)
@@ -152,11 +203,17 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         }
     }
 
+    const handleDateSelect: SelectRangeEventHandler = (range) => {
+        if (range) {
+            setNewDates(range)
+        }
+    }
+
     return (
         <Card className='mb-4 overflow-hidden rounded-lg shadow-md'>
             <CardHeader className='flex flex-col items-start justify-between px-4 pb-2 pt-4 sm:flex-row sm:items-center sm:px-6'>
                 <div className='mb-2 flex items-center sm:mb-0'>
-                    {localReservation.type === 'grooming' ? (
+                    {localReservation.type === 'peluqueria' ? (
                         <>
                             <Scissors className='mr-2 h-5 w-5 text-pink-500' />
                             <span className='text-lg font-bold text-pink-700'>Reserva de Peluquería</span>
@@ -172,7 +229,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
             </CardHeader>
             <CardContent className='px-4 pt-4 sm:px-6'>
                 <div className='mb-4'>
-                    {localReservation.type === 'grooming' ? (
+                    {localReservation.type === 'peluqueria' ? (
                         <p className='flex flex-col text-base font-bold sm:flex-row sm:items-center sm:text-lg'>
                             <span className='mb-2 flex items-center sm:mb-0'>
                                 <CalendarIcon className='mr-2 h-5 w-5 text-gray-500' />
@@ -263,8 +320,8 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                         </>
                     )}
                 </div>
-                {localReservation.status.toLowerCase() === 'cambio de fechas solicitado' && (
-                    <Badge variant='warning' className='mt-2 flex w-full items-center justify-center sm:w-auto'>
+                {localReservation.status === 'servicio solicitado' && (
+                    <Badge variant="outline" className='mt-2 flex w-full items-center justify-center sm:w-auto'>
                         <AlertCircle className='mr-2 h-4 w-4' />
                         {t('changeDatesRequested')} - {t('awaitingConfirmation')}
                     </Badge>
@@ -272,26 +329,35 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
             </CardContent>
 
             <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-                <DialogContent className='p-4 sm:max-w-[425px] sm:p-6'>
+                <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>{t('rejectProposal')}</DialogTitle>
                     </DialogHeader>
-                    <Textarea
-                        placeholder={t('rejectProposal')}
-                        value={rejectReason}
-                        onChange={e => setRejectReason(e.target.value)}
-                        className='min-h-[100px]'
-                    />
-                    <div className='mt-4 flex flex-col justify-end gap-2 sm:flex-row sm:gap-4'>
+                    <div className="flex flex-col gap-2">
                         <Button
-                            variant='outline'
+                            variant="outline"
+                            className="w-full bg-gray-100 hover:bg-gray-200"
+                            onClick={() => {
+                                window.location.href = 'tel:+34666777888'
+                            }}
+                        >
+                            <Phone className="mr-2 h-4 w-4" />
+                            {t('callGrooming')}
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={handleRejectProposal}
+                        >
+                            <X className="mr-2 h-4 w-4" />
+                            {t('rejectProposal')}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full"
                             onClick={() => setIsRejectDialogOpen(false)}
-                            className='w-full sm:w-auto'
                         >
                             {t('cancel')}
-                        </Button>
-                        <Button onClick={handleRejectProposal} className='w-full sm:w-auto'>
-                            {t('submit')}
                         </Button>
                     </div>
                 </DialogContent>
@@ -335,7 +401,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                         <Calendar
                             mode='range'
                             selected={newDates}
-                            onSelect={setNewDates}
+                            onSelect={handleDateSelect}
                             numberOfMonths={1}
                             disabled={date => date < new Date()}
                             className='mx-auto w-full max-w-[350px] rounded-md border'
@@ -375,7 +441,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                         transition={{ duration: 0.3 }}
                         className='fixed right-4 top-4 z-50'
                     >
-                        <Alert variant='success'>
+                        <Alert variant="destructive">
                             <AlertCircle className='h-4 w-4' />
                             <AlertDescription>{t('changeDatesSuccess')}</AlertDescription>
                         </Alert>
@@ -385,3 +451,5 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         </Card>
     )
 }
+
+export type { Reservation }
