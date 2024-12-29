@@ -69,7 +69,7 @@ export type HairSalonReservation = {
     observations?: string
 }
 
-type Reservation = HotelReservation | HairSalonReservation
+export type Reservation = HotelReservation | HairSalonReservation
 
 type CalendarAvailability = {
     [date: string]: number

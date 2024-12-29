@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import { format } from 'date-fns'
 import { CheckCircle } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
@@ -19,6 +20,60 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
 
     if (!reservation) {
         return null
+    }
+
+    const renderContent = () => {
+        if (reservation.type === 'hotel') {
+            return (
+                <div className='py-4'>
+                    <BookingSummary
+                        dates={{
+                            from: new Date(reservation.checkInDate),
+                            to: new Date(reservation.checkOutDate),
+                        }}
+                        pets={reservation.pets}
+                        services={reservation.additionalServices.reduce((acc, service) => ({ ...acc, [service]: true }), {})}
+                        totalPrice={reservation.totalPrice}
+                        pickupTime={reservation.checkInTime}
+                    />
+                </div>
+            )
+        } else {
+            return (
+                <div className='py-4 space-y-4'>
+                    <div className='grid grid-cols-2 gap-4'>
+                        <div>
+                            <p className='text-sm text-muted-foreground'>Fecha</p>
+                            <p className='font-medium'>{format(new Date(reservation.date), 'dd/MM/yyyy')}</p>
+                        </div>
+                        <div>
+                            <p className='text-sm text-muted-foreground'>Hora</p>
+                            <p className='font-medium'>{reservation.time}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p className='text-sm text-muted-foreground'>Mascota</p>
+                        <p className='font-medium'>{reservation.pet.name} ({reservation.pet.breed})</p>
+                    </div>
+                    <div>
+                        <p className='text-sm text-muted-foreground'>Servicio</p>
+                        <p className='font-medium'>
+                            {reservation.additionalServices.map(service =>
+                                service === 'corte' ? 'Corte' :
+                                    service === 'bano_especial' ? 'Baño especial' :
+                                        'Deslanado'
+                            ).join(', ')}
+                        </p>
+                    </div>
+                    {reservation.totalPrice > 0 && (
+                        <div>
+                            <p className='text-sm text-muted-foreground'>Precio total</p>
+                            <p className='font-medium'>€{reservation.totalPrice.toFixed(2)}</p>
+                        </div>
+                    )}
+                </div>
+            )
+        }
     }
 
     return (
@@ -41,18 +96,7 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                         </p>
                     </DialogDescription>
                 </DialogHeader>
-                <div className='py-4'>
-                    <BookingSummary
-                        dates={{
-                            from: new Date(reservation.checkInDate),
-                            to: new Date(reservation.checkOutDate || reservation.checkInDate),
-                        }}
-                        pets={reservation.pets || []}
-                        services={reservation.additionalServices || {}}
-                        totalPrice={reservation.totalPrice || 0}
-                        pickupTime={reservation.checkInTime}
-                    />
-                </div>
+                {renderContent()}
                 <DialogFooter className='sm:justify-between'>
                     <Button variant='outline' onClick={() => onOpenChange(false)}>
                         Cerrar

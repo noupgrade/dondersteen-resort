@@ -8,6 +8,7 @@ import { AlertCircle } from 'lucide-react'
 import * as z from 'zod'
 
 import { useReservation } from '@/components/ReservationContext'
+import type { HairSalonReservation } from '@/components/ReservationContext'
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
 import { PeluqueriaAvailabilityCalendar } from '@/components/peluqueria-availability-calendar'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
@@ -62,8 +63,7 @@ export default function PeluqueriaBookingPage() {
         }
         setDateTimeError('')
 
-        const newReservation = {
-            id: Date.now().toString(),
+        const newReservation: Omit<HairSalonReservation, 'id'> = {
             type: 'peluqueria',
             date: format(values.date, 'yyyy-MM-dd'),
             time: values.time,
@@ -76,11 +76,21 @@ export default function PeluqueriaBookingPage() {
                 name: values.petName,
                 breed: values.petBreed,
                 weight: values.petWeight,
+                size: 'pequeño',
             },
             additionalServices: [values.serviceType],
+            status: 'pending',
+            totalPrice: 0,
+            paymentStatus: 'Pendiente',
+            source: 'external',
+            beforePhoto: '',
+            afterPhoto: '',
+            priceNote: '',
+            observations: '',
         }
-        await addReservation(newReservation)
-        setConfirmedReservationId(newReservation.id)
+
+        const savedReservation = await addReservation(newReservation)
+        setConfirmedReservationId(savedReservation.id)
         setShowConfirmation(true)
     }
 
@@ -234,7 +244,7 @@ export default function PeluqueriaBookingPage() {
                                 )}
                             />
                             <div className='flex justify-between'>
-                                <Link href='/'>
+                                <Link to='/'>
                                     <Button type='button' variant='outline'>
                                         Volver a Inicio
                                     </Button>
