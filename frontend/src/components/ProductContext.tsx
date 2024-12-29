@@ -1,4 +1,9 @@
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect } from 'react'
+import { useDocument } from '@/shared/firebase/hooks/useDocument'
+import { useCollection } from '@/shared/firebase/hooks/useCollection'
+import { FSDocument } from '@/shared/firebase/types'
+import { Timestamp, setDoc, doc, collection } from 'firebase/firestore'
+import { firestore } from '@/shared/firebase/firebase'
 
 type Product = {
     id: string
@@ -20,7 +25,15 @@ type Sale = {
     price: number
     clientName: string
     reservationId: string
+    createdAt: Timestamp
+    updatedAt: Timestamp
 }
+
+type StoreConfigDocument = {
+    id: string
+    products: Product[]
+    categories: Category[]
+} & FSDocument
 
 type ProductContextType = {
     products: Product[]
@@ -33,7 +46,7 @@ type ProductContextType = {
     addCategory: (category: Omit<Category, 'id'>) => void
     updateCategory: (id: string, category: Partial<Category>) => void
     deleteCategory: (id: string) => void
-    addSale: (sale: Omit<Sale, 'id'>) => void
+    addSale: (sale: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
@@ -47,108 +60,33 @@ export const useProductContext = () => {
 }
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [products, setProducts] = useState<Product[]>([
-        { id: '1', name: 'Collar Básico', price: 15.99, category: 'Accesorios' },
-        { id: '2', name: 'Correa Extendible', price: 25.5, category: 'Accesorios' },
-        { id: '3', name: 'Arnés Ajustable', price: 19.99, category: 'Accesorios' },
-        { id: '4', name: 'Placa de Identificación', price: 8.99, category: 'Accesorios' },
-        { id: '5', name: 'Cama para Mascotas', price: 39.99, category: 'Accesorios' },
-        { id: '6', name: 'Comida Seca Premium', price: 29.99, category: 'Alimentos' },
-        { id: '7', name: 'BARF Diet', price: 34.99, category: 'Alimentos' },
-        { id: '8', name: 'Snacks Naturales', price: 12.99, category: 'Alimentos' },
-        { id: '9', name: 'Suplementos Vitaminados', price: 19.99, category: 'Alimentos' },
-        { id: '10', name: 'Comida Húmeda Gourmet', price: 2.99, category: 'Alimentos' },
-        { id: '11', name: 'Pelota de Goma', price: 7.99, category: 'Juguetes' },
-        { id: '12', name: 'Mordedor de Caucho', price: 9.99, category: 'Juguetes' },
-        { id: '13', name: 'Disco Volador', price: 11.99, category: 'Juguetes' },
-        { id: '14', name: 'Peluche Interactivo', price: 14.99, category: 'Juguetes' },
-        { id: '15', name: 'Juguete Dispensador de Premios', price: 16.99, category: 'Juguetes' },
-    ])
+    const { document: storeConfig, setDocument: setStoreConfig } = useDocument<StoreConfigDocument>({
+        collectionName: 'configs',
+        id: 'store'
+    })
 
-    const [categories, setCategories] = useState<Category[]>([
-        { id: '1', name: 'Accesorios' },
-        { id: '2', name: 'Alimentos' },
-        { id: '3', name: 'Juguetes' },
-    ])
+    const { results: sales } = useCollection<Sale>({
+        path: 'sales',
+        orderBy: ['createdAt', 'desc']
+    })
 
-    const [sales, setSales] = useState<Sale[]>([
-        {
-            id: '1',
-            date: '2024-01-15',
-            productId: '1',
-            productName: 'Collar Básico',
-            price: 31.98,
-            clientName: 'Juan Pérez',
-            reservationId: 'RES001',
-        },
-        {
-            id: '2',
-            date: '2024-01-15',
-            productId: '11',
-            productName: 'Pelota de Goma',
-            price: 15.98,
-            clientName: 'Juan Pérez',
-            reservationId: 'RES001',
-        },
-        {
-            id: '3',
-            date: '2024-01-16',
-            productId: '6',
-            productName: 'Comida Seca Premium',
-            price: 59.98,
-            clientName: 'María López',
-            reservationId: 'RES002',
-        },
-        {
-            id: '4',
-            date: '2024-01-16',
-            productId: '8',
-            productName: 'Snacks Naturales',
-            price: 25.98,
-            clientName: 'María López',
-            reservationId: 'RES002',
-        },
-        {
-            id: '5',
-            date: '2024-01-17',
-            productId: '9',
-            productName: 'Suplementos Vitaminados',
-            price: 39.98,
-            clientName: 'Ana García',
-            reservationId: 'RES003',
-        },
-        {
-            id: '6',
-            date: '2024-01-17',
-            productId: '3',
-            productName: 'Arnés Ajustable',
-            price: 19.99,
-            clientName: 'Ana García',
-            reservationId: 'RES003',
-        },
-    ])
+    const products = storeConfig?.products || []
+    const categories = storeConfig?.categories || []
 
     const addProduct = useCallback((product: Omit<Product, 'id'>) => {
         const newProduct = { ...product, id: Date.now().toString() }
-        setProducts(prev => [...prev, newProduct])
-    }, [])
+        setStoreConfig({ id: 'store', products: [...products, newProduct], categories })
+    }, [products, categories, setStoreConfig])
 
     const updateProduct = useCallback((id: string, updatedProduct: Partial<Product>) => {
-        setProducts(prev => prev.map(p => (p.id === id ? { ...p, ...updatedProduct } : p)))
-    }, [])
+        const updatedProducts = products.map(p => (p.id === id ? { ...p, ...updatedProduct } : p))
+        setStoreConfig({ id: 'store', products: updatedProducts, categories })
+    }, [products, categories, setStoreConfig])
 
     const deleteProduct = useCallback((id: string) => {
-        setProducts(prevProducts => {
-            const updatedProducts = prevProducts.filter(p => p.id !== id)
-            console.log('Products after deletion:', updatedProducts) // Para depuración
-            return updatedProducts
-        })
-        setSales(prevSales => {
-            const updatedSales = prevSales.filter(s => s.productId !== id)
-            console.log('Sales after product deletion:', updatedSales) // Para depuración
-            return updatedSales
-        })
-    }, [])
+        const updatedProducts = products.filter(p => p.id !== id)
+        setStoreConfig({ id: 'store', products: updatedProducts, categories })
+    }, [products, categories, setStoreConfig])
 
     const getProductById = useCallback(
         (id: string) => {
@@ -159,20 +97,30 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const addCategory = useCallback((category: Omit<Category, 'id'>) => {
         const newCategory = { ...category, id: Date.now().toString() }
-        setCategories(prev => [...prev, newCategory])
-    }, [])
+        setStoreConfig({ id: 'store', products, categories: [...categories, newCategory] })
+    }, [products, categories, setStoreConfig])
 
     const updateCategory = useCallback((id: string, updatedCategory: Partial<Category>) => {
-        setCategories(prev => prev.map(c => (c.id === id ? { ...c, ...updatedCategory } : c)))
-    }, [])
+        const updatedCategories = categories.map(c => (c.id === id ? { ...c, ...updatedCategory } : c))
+        setStoreConfig({ id: 'store', products, categories: updatedCategories })
+    }, [products, categories, setStoreConfig])
 
     const deleteCategory = useCallback((id: string) => {
-        setCategories(prev => prev.filter(c => c.id !== id))
-    }, [])
+        const updatedCategories = categories.filter(c => c.id !== id)
+        setStoreConfig({ id: 'store', products, categories: updatedCategories })
+    }, [products, categories, setStoreConfig])
 
-    const addSale = useCallback((sale: Omit<Sale, 'id'>) => {
-        const newSale = { ...sale, id: Date.now().toString() }
-        setSales(prev => [...prev, newSale])
+    const addSale = useCallback(async (sale: Omit<Sale, 'id' | 'createdAt' | 'updatedAt'>) => {
+        const now = Timestamp.now()
+        const id = Date.now().toString()
+        const newSale: Sale = {
+            ...sale,
+            id,
+            createdAt: now,
+            updatedAt: now
+        }
+        const saleRef = doc(collection(firestore, 'sales'), id)
+        await setDoc(saleRef, newSale)
     }, [])
 
     return (

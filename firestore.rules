@@ -2,11 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is authenticated staff
+    function isStaff() {
+      return request.auth != null // && request.auth.token.isStaff == true; // TODO: Uncomment this when we have a proper auth system
+    }
 
     // app_versions collection for versioning
     match /app_versions/{appVersionId} {
       allow write: if false; // Only this script has access
       allow read, list: if true; // Accessible for all users
+    }
+
+    // Store configuration document
+    match /configs/store {
+      allow read, write: if isStaff(); // Only staff can modify store config
+    }
+
+    // Sales collection
+    match /sales/{saleId} {
+      allow read, create, update: if isStaff(); // Only staff can create and update sales
+      allow delete: if false; // Prevent deletion of sales records for audit purposes
     }
   }
 }

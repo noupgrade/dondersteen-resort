@@ -11,17 +11,20 @@ import { RoutingComponent } from '../navigation/RoutingComponent'
 import { UnauthenticatedProviders } from '../providers'
 import '../styles/index.css'
 import '../versions/versionListener.ts'
+import { DocumentsProvider } from '@/shared/firebase/hooks/useDocument.tsx'
 
 TrackingService.init()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <Sentry.ErrorBoundary fallback={<ErrorPage />} showDialog>
-            <UnauthenticatedProviders>
-                <BrowserRouter>
-                    <RoutingComponent />
-                </BrowserRouter>
-            </UnauthenticatedProviders>
+            <DocumentsProvider>
+                <UnauthenticatedProviders>
+                    <BrowserRouter>
+                        <RoutingComponent />
+                    </BrowserRouter>
+                </UnauthenticatedProviders>
+            </DocumentsProvider>
         </Sentry.ErrorBoundary>
     </React.StrictMode>,
 )

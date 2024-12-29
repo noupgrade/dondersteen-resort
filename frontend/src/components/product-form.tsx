@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import * as z from 'zod'
 import { Plus } from 'lucide-react'
+import * as z from 'zod'
 
 import { useProductContext } from '@/components/ProductContext'
-import { toast } from '@/hooks/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/shared/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
 
 const productSchema = z.object({
     name: z.string().min(1, 'El nombre es requerido'),
@@ -28,6 +27,7 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
     const { addProduct, updateProduct, getProductById, categories, addCategory } = useProductContext()
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isAddingCategory, setIsAddingCategory] = useState(false)
+    const { toast } = useToast() // TODO TOAST IS NOT WORKING
 
     const form = useForm<z.infer<typeof productSchema>>({
         resolver: zodResolver(productSchema),
@@ -54,31 +54,34 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
     const handleAddCategory = () => {
         if (newCategoryName.trim()) {
             addCategory({ name: newCategoryName.trim() })
-            // Seleccionar automáticamente la nueva categoría
             form.setValue('category', newCategoryName.trim())
             setNewCategoryName('')
             setIsAddingCategory(false)
             toast({
                 title: 'Categoría añadida',
-                description: 'La nueva categoría ha sido creada correctamente.',
+                description: 'La nueva categoría ha sido creada correctamente',
+                variant: 'success',
+                duration: 3000
             })
         }
     }
 
     function onSubmit(values: z.infer<typeof productSchema>) {
-        if (productId) {
+        const isUpdate = Boolean(productId)
+
+        if (isUpdate && productId) {
             updateProduct(productId, values)
-            toast({
-                title: 'Producto actualizado',
-                description: 'El producto ha sido actualizado correctamente.',
-            })
         } else {
             addProduct(values)
-            toast({
-                title: 'Producto añadido',
-                description: 'El nuevo producto ha sido añadido correctamente.',
-            })
         }
+
+        toast({
+            title: `Producto ${isUpdate ? 'actualizado' : 'añadido'}`,
+            description: `El producto ha sido ${isUpdate ? 'actualizado' : 'añadido'} correctamente`,
+            variant: 'success',
+            duration: 3000
+        })
+
         if (onClose) onClose()
     }
 
@@ -146,9 +149,9 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
                                         </SelectContent>
                                     </Select>
                                 </FormControl>
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
+                                <Button
+                                    type="button"
+                                    variant="outline"
                                     size="icon"
                                     onClick={() => setIsAddingCategory(true)}
                                 >
@@ -169,15 +172,15 @@ export function ProductForm({ productId, onClose }: ProductFormProps) {
                                 value={newCategoryName}
                                 onChange={e => setNewCategoryName(e.target.value)}
                             />
-                            <Button 
-                                type="button" 
+                            <Button
+                                type="button"
                                 onClick={handleAddCategory}
                                 disabled={!newCategoryName.trim()}
                             >
                                 Añadir
                             </Button>
-                            <Button 
-                                type="button" 
+                            <Button
+                                type="button"
                                 variant="ghost"
                                 onClick={() => {
                                     setIsAddingCategory(false)

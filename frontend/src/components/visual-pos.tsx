@@ -5,7 +5,7 @@ import { Minus, Plus, Search, ShoppingCart } from 'lucide-react'
 import { useProductContext } from '@/components/ProductContext'
 import { useReservation } from '@/components/ReservationContext'
 import { GenericProductModal } from '@/components/generic-product-modal'
-import { toast } from '@/hooks/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -83,6 +83,7 @@ export function VisualPOS() {
     const [selectedReservation, setSelectedReservation] = useState<any | null>(null)
     const [cart, setCart] = useState<CartItem[]>([])
     const [searchQuery, setSearchQuery] = useState('')
+    const { toast } = useToast()
 
     const filteredProducts = selectedCategory
         ? products.filter(product => product.category === selectedCategory)
@@ -122,9 +123,6 @@ export function VisualPOS() {
     }
 
     const handleConfirmProducts = () => {
-        console.log('handleConfirmProducts called')
-        console.log('Selected Reservation:', selectedReservation)
-        console.log('Cart:', cart)
         if (selectedReservation && cart.length > 0) {
             const totalPrice = getTotalPrice()
             const newSales = cart.map(item => ({
@@ -136,15 +134,10 @@ export function VisualPOS() {
                 reservationId: selectedReservation.id,
             }))
 
-            console.log('New sales to be added:', newSales)
-
-            // Agregar nuevas ventas
             newSales.forEach(sale => {
-                console.log('Adding sale:', sale)
                 addSale(sale)
             })
 
-            // Actualizar la reserva con los nuevos productos
             const updatedReservation = {
                 ...selectedReservation,
                 products: [
@@ -160,27 +153,22 @@ export function VisualPOS() {
                 totalPrice: (selectedReservation.totalPrice || 0) + totalPrice,
             }
 
-            console.log('Updating reservation:', updatedReservation)
             updateReservation(selectedReservation.id, updatedReservation)
 
             setCart([])
             setSelectedReservation(null)
             toast({
                 title: 'Productos agregados',
-                description: `Se han agregado ${cart.length} productos a la reserva de ${selectedReservation.client.name} por un total de ${totalPrice.toFixed(2)} €.`,
+                description: `Se han agregado ${cart.length} productos a la reserva de ${selectedReservation.client.name} por un total de ${totalPrice.toFixed(2)} €`,
+                variant: 'success',
+                duration: 3000
             })
-
-            // Forzar una actualización del estado de las reservaciones
-            setTimeout(() => {
-                console.log('Current reservation state after update:', reservations)
-            }, 0)
         } else {
-            console.log('Cannot confirm products:', { selectedReservation, cartLength: cart.length })
-            console.error('Error: No se puede confirmar la compra')
             toast({
                 title: 'Error',
-                description: 'Por favor, selecciona una reserva y agrega productos al carrito antes de confirmar.',
+                description: 'Por favor, selecciona una reserva y agrega productos al carrito antes de confirmar',
                 variant: 'destructive',
+                duration: 4000
             })
         }
     }
@@ -221,9 +209,8 @@ export function VisualPOS() {
                             {filteredReservations.map(reservation => (
                                 <div
                                     key={reservation.id}
-                                    className={`cursor-pointer rounded-md p-2 transition-colors hover:bg-gray-50 ${
-                                        selectedReservation?.id === reservation.id ? 'bg-blue-50' : ''
-                                    }`}
+                                    className={`cursor-pointer rounded-md p-2 transition-colors hover:bg-gray-50 ${selectedReservation?.id === reservation.id ? 'bg-blue-50' : ''
+                                        }`}
                                     onClick={() => {
                                         setSelectedReservation(reservation)
                                         setSearchQuery('')

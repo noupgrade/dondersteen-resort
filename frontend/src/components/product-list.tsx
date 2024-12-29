@@ -4,7 +4,7 @@ import { Pencil, Plus, Search, Trash2 } from 'lucide-react'
 
 import { useProductContext } from '@/components/ProductContext'
 import { ProductForm } from '@/components/product-form'
-import { toast } from '@/hooks/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -37,6 +37,7 @@ export function ProductList() {
     const [editingProduct, setEditingProduct] = useState<string>('')
     const [newCategoryName, setNewCategoryName] = useState('')
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+    const { toast } = useToast()
 
     const filteredProducts = products.filter(
         product =>
@@ -55,7 +56,9 @@ export function ProductList() {
         deleteProduct(productId)
         toast({
             title: 'Producto eliminado',
-            description: 'El producto ha sido eliminado correctamente.',
+            description: 'El producto ha sido eliminado correctamente',
+            variant: 'success',
+            duration: 3000
         })
     }
 
@@ -88,7 +91,7 @@ export function ProductList() {
                     </Select>
                 </div>
                 <div className='flex gap-2'>
-                    <Dialog>
+                    <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                         <DialogTrigger asChild>
                             <Button variant='outline'>
                                 <Plus className='mr-2 h-4 w-4' />
@@ -154,7 +157,7 @@ export function ProductList() {
                     </TableHeader>
                     <TableBody>
                         {filteredProducts.map(product => (
-                            <TableRow 
+                            <TableRow
                                 key={product.id}
                                 className={`${getColorByCategory(product.category)} transition-colors`}
                             >
@@ -163,7 +166,7 @@ export function ProductList() {
                                 <TableCell className='text-right'>{product.price.toFixed(2)} €</TableCell>
                                 <TableCell className='text-right'>
                                     <div className='flex justify-end gap-2'>
-                                        <Dialog>
+                                        <Dialog open={editingProduct !== ''} onOpenChange={(open) => !open && setEditingProduct('')}>
                                             <DialogTrigger asChild>
                                                 <Button
                                                     variant='ghost'

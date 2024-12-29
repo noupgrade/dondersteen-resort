@@ -14,6 +14,8 @@ import ReservationDetailsPage from '../panel-interno/reservas/[id]/page'
 import TiendaPage from '../panel-interno/tienda/page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
 import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
+import { LoginPage } from '@/pages/login/LoginPage'
+import { ProtectedPage } from './ProtectedPage'
 
 export const RoutingComponent = () => (
     <Routes>
@@ -26,6 +28,7 @@ export const RoutingComponent = () => (
                 </ReservationProvider>
             }
         />
+        <Route path='/login' element={<LoginPage />} />
         <Route
             path='/peluqueria-booking'
             element={
@@ -45,17 +48,19 @@ export const RoutingComponent = () => (
         <Route
             path='/panel-interno/*'
             element={
-                <PanelInternoLayout>
-                    <Routes>
-                        <Route index element={<PanelInterno />} />
-                        <Route path='peluqueria' element={<PeluqueriaPage />} />
-                        <Route path='tienda' element={<TiendaPage />} />
-                        <Route path='planning' element={<PlanningPage />} />
-                        <Route path='clientes' element={<ClientesPage />} />
-                        <Route path='clientes/:id' element={<ClientDetailsPage />} />
-                        <Route path='reservas/:id' element={<ReservationDetailsPage />} />
-                    </Routes>
-                </PanelInternoLayout>
+                <ProtectedPage>
+                    <PanelInternoLayout>
+                        <Routes>
+                            <Route index element={<PanelInterno />} />
+                            <Route path='peluqueria' element={<PeluqueriaPage />} />
+                            <Route path='tienda' element={<TiendaPage />} />
+                            <Route path='planning' element={<PlanningPage />} />
+                            <Route path='clientes' element={<ClientesPage />} />
+                            <Route path='clientes/:id' element={<ClientDetailsPage />} />
+                            <Route path='reservas/:id' element={<ReservationDetailsPage />} />
+                        </Routes>
+                    </PanelInternoLayout>
+                </ProtectedPage>
             }
         />
         <Route path='*' element={<div>404 - Page not found</div>} />
