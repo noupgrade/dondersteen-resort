@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { addDays, format } from 'date-fns'
@@ -120,11 +120,11 @@ const mockPendingReservations: ExtendedReservationWithSubcitas[] = [
         source: 'hotel',
         date: format(new Date(), 'yyyy-MM-dd'),
         time: '12:30',
-    client: {
+        client: {
             name: 'Laura Sánchez',
             phone: '688777666'
         },
-    pet: {
+        pet: {
             name: 'Toby',
             breed: 'Shih Tzu'
         },
@@ -155,10 +155,10 @@ export default function PeluqueriaPage() {
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false)
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
     const [reservationToReject, setReservationToReject] = useState<ExtendedReservationWithSubcitas | null>(null)
-    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ 
-        fecha: '', 
-        hora: '', 
-        precioEstimado: 0 
+    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({
+        fecha: '',
+        hora: '',
+        precioEstimado: 0
     })
     const [isPropuestaModalOpen, setIsPropuestaModalOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>([
@@ -226,17 +226,17 @@ export default function PeluqueriaPage() {
         // Determinar el estado según el origen de la reserva
         const newStatus = selectedReservation.source === 'hotel' ? 'confirmed' : 'pending_client_confirmation'
 
-        const updatedReservation = { 
-            ...selectedReservation, 
+        const updatedReservation = {
+            ...selectedReservation,
             status: newStatus as ReservationStatus,
             precioEstimado,
             horaDefinitiva,
             subcitas: crearSubcitas ? subcitas : undefined
         }
-        
+
         setConfirmedReservations(prev => [...prev, updatedReservation])
         setPendingReservations(prev => prev.filter(r => r.id !== selectedReservation.id))
-        
+
         // Resetear todos los estados
         setCrearSubcitas(false)
         setSubcitas([])
@@ -244,10 +244,10 @@ export default function PeluqueriaPage() {
         setHoraDefinitiva('')
         setSelectedReservation(null)
         setIsAcceptModalOpen(false)
-        
+
         toast({
             title: selectedReservation.source === 'hotel' ? "Reserva aceptada" : "Reserva pendiente de confirmación",
-            description: selectedReservation.source === 'hotel' 
+            description: selectedReservation.source === 'hotel'
                 ? "La reserva ha sido confirmada exitosamente."
                 : "La reserva está pendiente de confirmación por parte del cliente."
         })
@@ -264,7 +264,7 @@ export default function PeluqueriaPage() {
         setPendingReservations(prev => prev.filter(r => r.id !== reservationToReject.id))
         setIsRejectModalOpen(false)
         setReservationToReject(null)
-        
+
         toast({
             title: "Reserva denegada",
             description: "La reserva ha sido denegada exitosamente."
@@ -279,7 +279,7 @@ export default function PeluqueriaPage() {
 
     const handlePropuestaFecha = () => {
         if (!reservationToReject) return
-        
+
         if (!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado) {
             toast({
                 title: "Error",
@@ -288,13 +288,13 @@ export default function PeluqueriaPage() {
             })
             return
         }
-        
+
         // Aquí iría la lógica para enviar la propuesta al cliente
         toast({
             title: "Propuesta enviada",
             description: `Se ha enviado una propuesta para el ${format(new Date(propuestaFecha.fecha), 'dd MMM yyyy', { locale: es })} a las ${propuestaFecha.hora} con un precio estimado de ${propuestaFecha.precioEstimado}€`
         })
-        
+
         setIsRejectModalOpen(false)
         setIsPropuestaModalOpen(false)
         setReservationToReject(null)
@@ -302,11 +302,11 @@ export default function PeluqueriaPage() {
     }
 
     const handleMarkAsRead = (notificationId: string) => {
-        setNotifications(prev => 
-            prev.map(notification => 
-                notification.id === notificationId 
-                    ? { 
-                        ...notification, 
+        setNotifications(prev =>
+            prev.map(notification =>
+                notification.id === notificationId
+                    ? {
+                        ...notification,
                         read: true,
                         readTimestamp: new Date().toISOString()
                     }
@@ -328,8 +328,8 @@ export default function PeluqueriaPage() {
         try {
             // Verificar si el horario está disponible
             const isTimeSlotAvailable = !confirmedReservations.some(
-                reservation => 
-                    reservation.date === newDate && 
+                reservation =>
+                    reservation.date === newDate &&
                     reservation.time === newTime &&
                     reservation.id !== reservationId
             )
@@ -381,7 +381,7 @@ export default function PeluqueriaPage() {
         try {
             // Obtener la notificación antes de eliminarla
             const notification = notifications.find(n => n.id === notificationId)
-            
+
             if (!notification) return
 
             // Si la notificación no ha sido leída, marcarla como leída primero
@@ -412,13 +412,13 @@ export default function PeluqueriaPage() {
     // Efecto para limpiar notificaciones antiguas
     useEffect(() => {
         const now = new Date()
-        setNotifications(prev => 
+        setNotifications(prev =>
             prev.filter(notification => {
                 if (!notification.read || !notification.readTimestamp) return true
-                
+
                 const readTime = new Date(notification.readTimestamp)
                 const hoursDiff = (now.getTime() - readTime.getTime()) / (1000 * 60 * 60)
-                
+
                 return hoursDiff < 24
             })
         )
@@ -495,11 +495,11 @@ export default function PeluqueriaPage() {
                             <div className='space-y-8'>
                                 {/* Sección de Reservas de Hotel */}
                                 {hotelReservations.length > 0 && (
-                                                <div>
+                                    <div>
                                         <div className="flex items-center gap-2 mb-6">
                                             <Hotel className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
-                                                </div>
+                                        </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                             {hotelReservations.map(reservation => (
                                                 <ReservationCard
@@ -509,9 +509,9 @@ export default function PeluqueriaPage() {
                                                     onReject={handleOpenRejectModal}
                                                 />
                                             ))}
-                                                    </div>
-                                                    </div>
-                                                )}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Sección de Reservas Externas */}
                                 {externalReservations.length > 0 && (
@@ -576,8 +576,8 @@ export default function PeluqueriaPage() {
                                                                     ? 'Corte'
                                                                     : reservation.additionalServices[0] ===
                                                                         'bano_especial'
-                                                                      ? 'Baño especial'
-                                                                      : 'Deslanado'}
+                                                                        ? 'Baño especial'
+                                                                        : 'Deslanado'}
                                                             </p>
                                                             {reservation.observations && (
                                                                 <div className='mt-1 flex items-center text-xs text-muted-foreground'>
@@ -663,8 +663,8 @@ export default function PeluqueriaPage() {
                                             service === 'corte'
                                                 ? 'Corte'
                                                 : service === 'bano_especial'
-                                                  ? 'Baño especial'
-                                                  : 'Deslanado',
+                                                    ? 'Baño especial'
+                                                    : 'Deslanado',
                                         )
                                         .join(', ')}
                                     readOnly
@@ -697,7 +697,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                                Subir foto
+                                        Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_before`] && (
                                         <img
@@ -725,7 +725,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                                Subir foto
+                                        Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_after`] && (
                                         <img
@@ -774,8 +774,8 @@ export default function PeluqueriaPage() {
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>
-                            {selectedReservation?.source === 'hotel' 
-                                ? 'Confirmar Reserva de Hotel' 
+                            {selectedReservation?.source === 'hotel'
+                                ? 'Confirmar Reserva de Hotel'
                                 : 'Confirmar Reserva Externa'}
                         </DialogTitle>
                         <DialogDescription>
@@ -883,9 +883,9 @@ export default function PeluqueriaPage() {
                                                                     }}
                                                                     className="pl-4 pr-12 h-12 text-lg"
                                                                 />
-                                                                <Button 
+                                                                <Button
                                                                     type="button"
-                                                                    variant="ghost" 
+                                                                    variant="ghost"
                                                                     className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
                                                                     onClick={() => {
                                                                         const inputs = document.querySelectorAll('input[type="date"]')
@@ -913,9 +913,9 @@ export default function PeluqueriaPage() {
                                                                     }}
                                                                     className="pl-4 pr-12 h-12 text-lg"
                                                                 />
-                                                                <Button 
+                                                                <Button
                                                                     type="button"
-                                                                    variant="ghost" 
+                                                                    variant="ghost"
                                                                     className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
                                                                     onClick={() => {
                                                                         const inputs = document.querySelectorAll('input[type="time"]')
@@ -971,7 +971,7 @@ export default function PeluqueriaPage() {
                             Puedes denegar la cita o proponer una fecha alternativa
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     {reservationToReject && (
                         <div className="py-4">
                             <div className="rounded-lg bg-muted p-4">
@@ -993,21 +993,21 @@ export default function PeluqueriaPage() {
                     )}
 
                     <DialogFooter className="gap-2 sm:gap-0">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setIsPropuestaModalOpen(true)
-                                        setIsRejectModalOpen(false)
-                                    }}
-                                >
-                                    Proponer otra fecha
-                                </Button>
-                                <Button 
-                                    variant="destructive" 
-                                    onClick={handleConfirmReject}
-                                >
-                                    Denegar cita
-                                </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsPropuestaModalOpen(true)
+                                setIsRejectModalOpen(false)
+                            }}
+                        >
+                            Proponer otra fecha
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleConfirmReject}
+                        >
+                            Denegar cita
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -1021,7 +1021,7 @@ export default function PeluqueriaPage() {
                             Selecciona una fecha y hora alternativa para la cita
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Nueva fecha</Label>
@@ -1032,9 +1032,9 @@ export default function PeluqueriaPage() {
                                     onChange={(e) => setPropuestaFecha(prev => ({ ...prev, fecha: e.target.value }))}
                                     className="pl-4 pr-12 h-12 text-lg"
                                 />
-                                <Button 
+                                <Button
                                     type="button"
-                                    variant="ghost" 
+                                    variant="ghost"
                                     className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
                                     onClick={() => {
                                         const input = document.querySelector('input[type="date"]') as HTMLInputElement
@@ -1054,9 +1054,9 @@ export default function PeluqueriaPage() {
                                     onChange={(e) => setPropuestaFecha(prev => ({ ...prev, hora: e.target.value }))}
                                     className="pl-4 pr-12 h-12 text-lg"
                                 />
-                                <Button 
+                                <Button
                                     type="button"
-                                    variant="ghost" 
+                                    variant="ghost"
                                     className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
                                     onClick={() => {
                                         const input = document.querySelector('input[type="time"]') as HTMLInputElement
@@ -1076,9 +1076,9 @@ export default function PeluqueriaPage() {
                                     step="0.01"
                                     min="0"
                                     value={propuestaFecha.precioEstimado || ''}
-                                    onChange={(e) => setPropuestaFecha(prev => ({ 
-                                        ...prev, 
-                                        precioEstimado: parseFloat(e.target.value) || 0 
+                                    onChange={(e) => setPropuestaFecha(prev => ({
+                                        ...prev,
+                                        precioEstimado: parseFloat(e.target.value) || 0
                                     }))}
                                     className="pl-4 pr-12 h-12 text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
@@ -1100,7 +1100,7 @@ export default function PeluqueriaPage() {
                         >
                             Cancelar
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handlePropuestaFecha}
                             disabled={!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado}
                         >
@@ -1114,14 +1114,14 @@ export default function PeluqueriaPage() {
 }
 
 // Componente de tarjeta de reserva actualizado
-function ReservationCard({ 
-    reservation, 
-    onAccept, 
-    onReject 
-}: { 
+function ReservationCard({
+    reservation,
+    onAccept,
+    onReject
+}: {
     reservation: ExtendedReservationWithSubcitas
     onAccept: (r: ExtendedReservationWithSubcitas) => void
-    onReject: (r: ExtendedReservationWithSubcitas) => void 
+    onReject: (r: ExtendedReservationWithSubcitas) => void
 }) {
     return (
         <Card className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200">
@@ -1142,21 +1142,20 @@ function ReservationCard({
                             <p className="text-sm text-muted-foreground">{reservation.client.phone}</p>
                         </div>
                     </div>
-                    <Badge 
+                    <Badge
                         variant="outline"
-                        className={`px-3 py-1.5 whitespace-nowrap font-medium ${
-                            reservation.additionalServices[0] === 'corte'
+                        className={`px-3 py-1.5 whitespace-nowrap font-medium ${reservation.additionalServices[0] === 'corte'
                                 ? 'bg-blue-50 border-blue-200 text-blue-700'
                                 : reservation.additionalServices[0] === 'bano_especial'
-                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                                : 'bg-violet-50 border-violet-200 text-violet-700'
-                        }`}
+                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                    : 'bg-violet-50 border-violet-200 text-violet-700'
+                            }`}
                     >
                         {reservation.additionalServices[0] === 'corte'
                             ? 'Baño y corte'
                             : reservation.additionalServices[0] === 'bano_especial'
-                            ? 'Baño y cepillado'
-                            : 'Deslanado'}
+                                ? 'Baño y cepillado'
+                                : 'Deslanado'}
                     </Badge>
                 </div>
             </CardHeader>
