@@ -7,6 +7,14 @@ service cloud.firestore {
       return request.auth != null // && request.auth.token.isStaff == true; // TODO: Uncomment this when we have a proper auth system
     }
 
+    function isAuthenticated() {
+      return request.auth != null
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId
+    }
+
     // app_versions collection for versioning
     match /app_versions/{appVersionId} {
       allow write: if false; // Only this script has access
@@ -22,6 +30,11 @@ service cloud.firestore {
     match /sales/{saleId} {
       allow read, create, update: if isStaff(); // Only staff can create and update sales
       allow delete: if false; // Prevent deletion of sales records for audit purposes
+    }
+
+    // Reservations collection
+    match /reservations/{reservationId} {
+      allow read, write, update, list: if true; // TODO: Remove this when we have a proper auth system
     }
   }
 }

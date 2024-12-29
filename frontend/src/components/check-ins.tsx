@@ -42,12 +42,12 @@ export function CheckIns() {
     useEffect(() => {
         // Filter and map reservations to checkIns
         const todayCheckIns = reservations
-            .filter(r => r.type === 'hotel' && new Date(r.date).toDateString() === new Date().toDateString())
+            .filter(r => r.type === 'hotel' && new Date(r.checkInDate).toDateString() === new Date().toDateString())
             .map(r => ({
                 id: r.id,
                 clientName: r.client.name,
                 pets: r.pets?.map(pet => ({ name: pet.name, breed: pet.breed })) || [],
-                checkInTime: r.time,
+                checkInTime: r.checkInTime,
                 status: r.status as 'confirmed' | 'pending' | 'Hab.Asignada',
             }))
         setCheckIns(todayCheckIns)
@@ -91,15 +91,15 @@ export function CheckIns() {
                                     checkIn.status === 'Hab.Asignada'
                                         ? 'default'
                                         : checkIn.pets.some(pet => pet.assignedRoom)
-                                          ? 'secondary'
-                                          : 'outline'
+                                            ? 'secondary'
+                                            : 'outline'
                                 }
                             >
                                 {checkIn.status === 'Hab.Asignada'
                                     ? 'Hab.Asignada'
                                     : checkIn.pets.some(pet => pet.assignedRoom)
-                                      ? 'Asignación Parcial'
-                                      : 'Pendiente'}
+                                        ? 'Asignación Parcial'
+                                        : 'Pendiente'}
                             </Badge>
                         </CardTitle>
                     </CardHeader>

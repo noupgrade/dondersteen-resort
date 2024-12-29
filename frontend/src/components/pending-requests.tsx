@@ -41,7 +41,7 @@ export function PendingRequests() {
                 id: r.id,
                 clientName: r.client.name,
                 pets: r.pets || [],
-                checkIn: r.date,
+                checkIn: r.checkInDate,
                 checkOut: r.checkOutDate,
                 totalPrice: r.totalPrice || 0,
                 additionalServices: r.additionalServices,

@@ -44,13 +44,13 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                 <div className='py-4'>
                     <BookingSummary
                         dates={{
-                            from: new Date(reservation.date),
-                            to: new Date(reservation.checkOutDate || reservation.date),
+                            from: new Date(reservation.checkInDate),
+                            to: new Date(reservation.checkOutDate || reservation.checkInDate),
                         }}
                         pets={reservation.pets || []}
                         services={reservation.additionalServices || {}}
                         totalPrice={reservation.totalPrice || 0}
-                        pickupTime={reservation.time}
+                        pickupTime={reservation.checkInTime}
                     />
                 </div>
                 <DialogFooter className='sm:justify-between'>

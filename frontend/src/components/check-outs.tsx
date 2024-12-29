@@ -36,7 +36,7 @@ export function CheckOuts() {
             clientName: r.client.name,
             pets: r.pets || [],
             roomNumber: r.roomNumber,
-            checkOutTime: r.time,
+            checkOutTime: r.checkInTime,
             paymentStatus: r.paymentStatus || 'Pendiente',
             totalAmount: r.totalPrice || 0,
         }))

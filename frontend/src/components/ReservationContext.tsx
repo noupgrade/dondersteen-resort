@@ -1,14 +1,46 @@
-import React, { createContext, useCallback, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext } from 'react'
 
+import { useCollection } from '@/shared/firebase/hooks/useCollection'
+import { FSDocument } from '@/shared/firebase/types'
 import { addDays, format } from 'date-fns'
 
-type Reservation = {
+export type HotelReservation = {
     id: string
-    type: 'hotel' | 'peluqueria'
+    type: 'hotel'
+    checkInDate: string
+    checkInTime: string
+    checkOutDate: string
+    client: {
+        id?: string
+        name: string
+        phone: string
+        email: string
+    }
+    pets: {
+        name: string
+        breed: string
+        weight: number
+        size: 'pequeño' | 'mediano' | 'grande'
+    }[]
+    additionalServices: string[]
+    roomNumber: string
+    status:
+    | 'pending'
+    | 'confirmed'
+    | 'completed'
+    | 'cancelled'
+    totalPrice: number
+    paymentStatus: 'Pagado' | 'Pendiente'
+    specialNeeds?: string
+}
+
+export type HairSalonReservation = {
+    id: string
+    type: 'peluqueria'
     date: string
     time: string
-    checkOutDate?: string
     client: {
+        id?: string
         name: string
         phone: string
         email: string
@@ -19,34 +51,41 @@ type Reservation = {
         weight: number
         size: 'pequeño' | 'mediano' | 'grande'
     }
-    pets: { name: string; size: 'pequeño' | 'mediano' | 'grande'; breed: string; weight: number }[]
     additionalServices: string[]
-    roomNumber: string
     status:
-        | 'pending'
-        | 'confirmed'
-        | 'completed'
-        | 'cancelled'
-        | 'propuesta peluqueria'
-        | 'servicio solicitado'
-        | 'cancelacion solicitada'
+    | 'pending'
+    | 'confirmed'
+    | 'completed'
+    | 'cancelled'
+    | 'propuesta peluqueria'
+    | 'servicio solicitado'
+    | 'cancelacion solicitada'
     totalPrice: number
-    specialNeeds?: string
     paymentStatus: 'Pagado' | 'Pendiente'
+    beforePhoto?: string
+    afterPhoto?: string
+    priceNote?: string
+    source: 'hotel' | 'external'
+    observations?: string
 }
+
+type Reservation = HotelReservation | HairSalonReservation
 
 type CalendarAvailability = {
     [date: string]: number
 }
 
+type ReservationDocument = Reservation & FSDocument
+
 type ReservationContextType = {
-    reservations: Reservation[]
-    addReservation: (reservation: Partial<Reservation>) => Promise<void>
-    updateReservation: (id: string, updatedData: Partial<Reservation>) => Promise<void>
+    reservations: ReservationDocument[]
+    addReservation: (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => Promise<ReservationDocument>
+    updateReservation: (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => Promise<void>
     deleteReservation: (id: string) => Promise<void>
-    getReservationsByClientId: (clientId: string) => Reservation[]
-    getReservationsByDate: (date: string) => Reservation[]
+    getReservationsByClientId: (clientId: string) => ReservationDocument[]
+    getReservationsByDate: (date: string) => ReservationDocument[]
     getCalendarAvailability: (type: 'hotel' | 'peluqueria') => CalendarAvailability
+    isLoading: boolean
 }
 
 const ReservationContext = createContext<ReservationContextType | undefined>(undefined)
@@ -60,53 +99,46 @@ export const useReservation = () => {
 }
 
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [reservations, setReservations] = useState<Reservation[]>([])
+    const {
+        results: reservations,
+        isLoading,
+        addDocument,
+        updateDocument,
+        removeDocument,
+    } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        orderBy: ['createdAt', 'desc'],
+        limit: 100,
+    })
 
-    const addReservation = useCallback(async (reservation: Partial<Reservation>) => {
-        const newReservation: Reservation = {
-            id: Date.now().toString(),
-            type: reservation.type || 'hotel',
-            date: reservation.date || format(new Date(), 'yyyy-MM-dd'),
-            time: reservation.time || '12:00',
-            checkOutDate: reservation.checkOutDate,
-            client: reservation.client || { name: '', phone: '', email: '' },
-            pet: reservation.pet || { name: '', breed: '', weight: 0, size: 'pequeño' },
-            pets: reservation.pets || [{ name: '', breed: '', weight: 0, size: 'pequeño' }],
-            additionalServices: reservation.additionalServices || [],
-            roomNumber: reservation.roomNumber || '',
-            status: reservation.status || 'pending',
-            totalPrice: reservation.totalPrice || 0,
-            paymentStatus: reservation.paymentStatus || 'Pendiente',
-        }
+    const addReservation = useCallback(async (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => {
+        return await addDocument(reservation)
+    }, [addDocument])
 
-        setReservations(prev => [...prev, newReservation])
-    }, [])
-
-    const updateReservation = useCallback(async (id: string, updatedData: Partial<Reservation>) => {
-        console.log('Updating reservation:', { id, updatedData })
-        setReservations(prev => {
-            const newReservations = prev.map(reservation =>
-                reservation.id === id ? { ...reservation, ...updatedData } : reservation,
-            )
-            console.log('New reservations state:', newReservations)
-            return newReservations
-        })
-    }, [])
+    const updateReservation = useCallback(async (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => {
+        await updateDocument(id, updatedData)
+    }, [updateDocument])
 
     const deleteReservation = useCallback(async (id: string) => {
-        setReservations(prev => prev.filter(reservation => reservation.id !== id))
-    }, [])
+        await removeDocument(id)
+    }, [removeDocument])
 
-    const getReservationsByDate = useCallback(
-        (date: string) => {
-            return reservations.filter(r => r.date === date)
+    const getReservationsByClientId = useCallback(
+        (clientId: string) => {
+            return reservations.filter(r => r.client.id === clientId)
         },
         [reservations],
     )
 
-    const getReservationsByClientId = useCallback(
-        (id: string) => {
-            return reservations.filter(r => r.client.id === id)
+    const getReservationsByDate = useCallback(
+        (date: string) => {
+            return reservations.filter(r => {
+                if (r.type === 'hotel') {
+                    return r.checkInDate === date
+                } else {
+                    return r.date === date
+                }
+            })
         },
         [reservations],
     )
@@ -119,9 +151,10 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 reservations
                     .filter(res => res.type === 'hotel' && res.status !== 'cancelled')
                     .forEach(reservation => {
-                        if (reservation.date && reservation.checkOutDate) {
-                            let currentDate = new Date(reservation.date)
-                            const endDate = new Date(reservation.checkOutDate)
+                        const hotelReservation = reservation as HotelReservation
+                        if (hotelReservation.checkInDate && hotelReservation.checkOutDate) {
+                            let currentDate = new Date(hotelReservation.checkInDate)
+                            const endDate = new Date(hotelReservation.checkOutDate)
 
                             while (currentDate <= endDate) {
                                 const dateStr = format(currentDate, 'yyyy-MM-dd')
@@ -131,7 +164,6 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
                         }
                     })
             } else {
-                // Handle peluqueria availability if needed
                 reservations
                     .filter(res => res.type === 'peluqueria' && res.status !== 'cancelled')
                     .forEach(reservation => {
@@ -155,6 +187,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 getReservationsByDate,
                 getReservationsByClientId,
                 getCalendarAvailability,
+                isLoading,
             }}
         >
             {children}

@@ -27,7 +27,7 @@ export default function PanelInterno() {
         setPendingRequests(reservations.filter(r => r.type === 'hotel' && r.status === 'pending'))
         setActiveReservations(
             reservations.filter(
-                r => r.type === 'hotel' && new Date(r.date) <= new Date() && new Date(r.checkOutDate) > new Date(),
+                r => r.type === 'hotel' && new Date(r.checkInDate) <= new Date() && new Date(r.checkOutDate) > new Date(),
             ),
         )
         setGroomingAppointments(todayRes.filter(r => r.type === 'peluqueria'))

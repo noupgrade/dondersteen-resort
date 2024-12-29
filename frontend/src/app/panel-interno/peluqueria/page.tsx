@@ -1,40 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { format, addDays } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { 
-    Calendar, 
-    Check, 
-    Clock, 
-    Info, 
-    X, 
-    Hotel, 
-    Users, 
-    Scissors, 
-    DollarSign, 
-    Upload as UploadIcon,
-    Split,
+import {
+    Calendar,
+    Check,
+    Clock,
+    DollarSign,
+    Hotel,
+    Info,
     Plus,
-    Trash2
+    Trash2,
+    Users,
+    X
 } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
+import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Checkbox } from '@/shared/ui/checkbox'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { ScrollArea } from '@/shared/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Textarea } from '@/shared/ui/textarea'
-import { Checkbox } from '@/shared/ui/checkbox'
-import { useToast } from '@/shared/ui/use-toast'
 import { Upload } from '@/shared/ui/upload'
-import { BaseReservation, ExtendedReservation, ReservationStatus } from '@/types/reservation'
-import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell'
+import { useToast } from '@/shared/ui/use-toast'
+import { ExtendedReservation, ReservationStatus } from '@/types/reservation'
 
 interface SubCita {
     fecha: string

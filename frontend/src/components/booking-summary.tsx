@@ -1,5 +1,3 @@
-'use client'
-
 import { differenceInDays, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Clock, Tag } from 'lucide-react'

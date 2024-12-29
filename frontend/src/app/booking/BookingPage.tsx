@@ -7,7 +7,7 @@ import { differenceInDays, format, isEqual } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
 import * as z from 'zod'
 
-import { useReservation } from '@/components/ReservationContext'
+import { HotelReservation, useReservation } from '@/components/ReservationContext'
 import { AdditionalServices } from '@/components/additional-services'
 import { AvailabilityCalendar } from '@/components/availability-calendar'
 import { BookingSummary } from '@/components/booking-summary'
@@ -21,6 +21,35 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/shared/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+interface PetFormData {
+    name: string
+    breed: string
+    weight: string
+    size: 'pequeño' | 'mediano' | 'grande'
+    age: string
+    personality: string
+}
+
+type PetData = {
+    name: string
+    breed: string
+    weight: number
+    size: 'pequeño' | 'mediano' | 'grande'
+}
+
+interface FormData {
+    pets: PetFormData[]
+    dates: {
+        from: Date
+        to: Date
+    }
+    services: Record<string, string | boolean>
+    clientName: string
+    clientLastName: string
+    clientEmail: string
+    clientPhone: string
+}
+
 const petSchema = z.object({
     name: z.string().min(1, 'El nombre es requerido'),
     breed: z.string().min(1, 'La raza es requerida'),
@@ -28,7 +57,10 @@ const petSchema = z.object({
         .string()
         .regex(/^\d+(\.\d+)?$/, 'El peso debe ser un número')
         .transform(Number),
-    size: z.string().min(1, 'El tamaño es requerido'),
+    size: z.enum(['pequeño', 'mediano', 'grande'], {
+        required_error: 'El tamaño es requerido',
+        invalid_type_error: 'Tamaño inválido',
+    }),
     age: z.string().regex(/^\d+$/, 'La edad debe ser un número entero').transform(Number),
     personality: z.string().min(1, 'La personalidad y hábitos son requeridos'),
 })
@@ -39,7 +71,7 @@ const formSchema = z.object({
         from: z.date(),
         to: z.date(),
     }),
-    services: z.record(z.any()),
+    services: z.record(z.union([z.string(), z.boolean()])),
     clientName: z.string().min(1, 'El nombre es requerido'),
     clientLastName: z.string().min(1, 'Los apellidos son requeridos'),
     clientEmail: z.string().email('Formato de email inválido'),
@@ -49,21 +81,21 @@ const formSchema = z.object({
 export default function BookingPage() {
     const [currentStep, setCurrentStep] = useState(1)
     const [selectedDates, setSelectedDates] = useState<{ from: Date; to: Date } | null>(null)
-    const [selectedServices, setSelectedServices] = useState({})
+    const [selectedServices, setSelectedServices] = useState<Record<string, boolean>>({})
     const [totalPrice, setTotalPrice] = useState(0)
     const [dateError, setDateError] = useState('')
     const [showConfirmation, setShowConfirmation] = useState(false)
     const [formError, setFormError] = useState('')
     const [groomingUnavailable, setGroomingUnavailable] = useState(false)
     const [pickupTime, setPickupTime] = useState('09:00')
-    const [confirmedReservationId, setConfirmedReservationId] = useState('') // Added state for reservation ID
+    const [confirmedReservationId, setConfirmedReservationId] = useState('')
 
     const { addReservation } = useReservation()
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            pets: [{ name: '', breed: '', weight: '', size: '', age: '', personality: '' }],
+            pets: [{ name: '', breed: '', weight: '0', size: 'pequeño', age: '0', personality: '' }],
             services: {},
         },
     })
@@ -141,7 +173,7 @@ export default function BookingPage() {
     const addPet = useCallback(() => {
         const currentPets = form.getValues('pets')
         if (currentPets.length < 2) {
-            const newPets = [...currentPets, { name: '', breed: '', weight: '', size: '', age: '', personality: '' }]
+            const newPets = [...currentPets, { name: '', breed: '', weight: '0', size: 'pequeño' as const, age: '0', personality: '' }]
             form.setValue('pets', newPets)
         }
     }, [form])
@@ -252,29 +284,42 @@ export default function BookingPage() {
 
         const isValid = await form.trigger()
 
-        if (isValid) {
+        if (isValid && selectedDates) {
             const values = form.getValues()
-            const newReservation = {
-                id: Date.now().toString(),
+            console.log('values', values)
+            const transformedPets: PetData[] = values.pets.map(pet => ({
+                name: pet.name,
+                breed: pet.breed,
+                weight: Number(pet.weight),
+                size: pet.size,
+            }))
+
+            const newReservation: Omit<HotelReservation, 'id'> = {
                 type: 'hotel',
-                date: format(selectedDates!.from, 'yyyy-MM-dd'),
-                checkOutDate: format(selectedDates!.to, 'yyyy-MM-dd'),
-                time: pickupTime,
+                checkInDate: format(selectedDates.from, 'yyyy-MM-dd'),
+                checkOutDate: format(selectedDates.to, 'yyyy-MM-dd'),
+                checkInTime: pickupTime,
                 client: {
                     name: `${values.clientName} ${values.clientLastName}`,
                     phone: values.clientPhone,
                     email: values.clientEmail,
                 },
-                pet: values.pets[0],
-                pets: values.pets,
-                services: selectedServices,
-                additionalServices: Object.keys(selectedServices).filter(key => selectedServices[key]),
+                pets: transformedPets,
+                additionalServices: Object.entries(values.services)
+                    .filter(([_, value]) => value === true || value === 'true')
+                    .map(([service]) => service),
                 roomNumber: '',
+                status: 'pending',
+                totalPrice: totalPrice,
+                paymentStatus: 'Pendiente',
             }
-            await addReservation(newReservation)
-            setConfirmedReservationId(newReservation.id)
+            console.log('newReservation', newReservation)
+            const savedReservation = await addReservation(newReservation)
+            console.log('savedReservation', savedReservation)
+            setConfirmedReservationId(savedReservation.id)
             setShowConfirmation(true)
         } else {
+            console.log('errors', form.formState.errors)
             setFormError('Por favor, revisa todos los campos. Hay información incompleta o inválida.')
         }
     }
@@ -526,10 +571,16 @@ export default function BookingPage() {
                                     <Button
                                         type='submit'
                                         onClick={e => {
+                                            console.log('validateAllSteps')
                                             e.preventDefault()
-                                            if (validateAllSteps()) {
-                                                onSubmit(e)
-                                            }
+                                            console.log('prevented default')
+                                            validateAllSteps().then(isValid => {
+                                                console.log('isValid', isValid)
+                                                console.log('form.formState.errors', form.formState.errors)
+                                                if (isValid) {
+                                                    onSubmit(e)
+                                                }
+                                            })
                                         }}
                                         disabled={Object.keys(form.formState.errors).length > 0}
                                     >
@@ -558,7 +609,6 @@ export default function BookingPage() {
                 </Alert>
             )}
             <div>
-                {console.log('Confirmation Dialog State:', { showConfirmation, confirmedReservationId })}
                 <ConfirmationDialog
                     open={showConfirmation}
                     onOpenChange={setShowConfirmation}
