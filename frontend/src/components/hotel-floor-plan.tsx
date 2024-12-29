@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { useReservation } from '@/components/ReservationContext'
+import { useHotelReservations, useReservation } from '@/components/ReservationContext'
 import { RoomDetailsModal } from '@/components/room-details-modal'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { Badge } from '@/shared/ui/badge'
@@ -229,7 +229,7 @@ const hotel2Layout: Room[] = [
 export function HotelFloorPlan({ hotelNumber, reservations: initialReservations }: HotelFloorPlanProps) {
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
     const layout = hotelNumber === 1 ? hotel1Layout : hotel2Layout
-    const { reservations } = useReservation()
+    const { reservations } = useHotelReservations()
     const [localReservations, setLocalReservations] = useState(initialReservations)
 
     useEffect(() => {

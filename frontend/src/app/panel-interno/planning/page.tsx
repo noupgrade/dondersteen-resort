@@ -1,11 +1,11 @@
-import { useReservation } from '@/components/ReservationContext'
+import { useHotelReservations } from '@/components/ReservationContext'
 import { DailyNeedsList } from '@/components/daily-needs-list'
 import { HotelFloorPlan } from '@/components/hotel-floor-plan'
 import { Card } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
 export default function PlanningPage() {
-    const { reservations } = useReservation()
+    const { reservations } = useHotelReservations()
 
     const hotel1Reservations = reservations.filter(
         r => r.roomNumber.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) <= 21,

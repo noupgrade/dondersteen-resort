@@ -10,6 +10,7 @@ import PanelInternoLayout from '../panel-interno/layout'
 import PanelInterno from '../panel-interno/page'
 import PeluqueriaPage from '../panel-interno/peluqueria/page'
 import PlanningPage from '../panel-interno/planning/page'
+import EditReservationPage from '../panel-interno/reservas/[id]/edit/page'
 import ReservationDetailsPage from '../panel-interno/reservas/[id]/page'
 import TiendaPage from '../panel-interno/tienda/page'
 import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
@@ -59,6 +60,7 @@ export const RoutingComponent = () => (
                             <Route path='clientes' element={<ClientesPage />} />
                             <Route path='clientes/:id' element={<ClientDetailsPage />} />
                             <Route path='reservas/:id' element={<ReservationDetailsPage />} />
+                            <Route path='reservas/:id/edit' element={<EditReservationPage />} />
                         </Routes>
                     </PanelInternoLayout>
                 </WithAnonymousUser>

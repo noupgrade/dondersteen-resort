@@ -98,6 +98,16 @@ export const useReservation = () => {
     return context
 }
 
+export const useHotelReservations = () => {
+    const { reservations } = useReservation()
+    return { reservations: reservations.filter(r => r.type === 'hotel') }
+}
+
+export const useHairSalonReservations = () => {
+    const { reservations } = useReservation()
+    return { reservations: reservations.filter(r => r.type === 'peluqueria') }
+}
+
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const {
         results: reservations,

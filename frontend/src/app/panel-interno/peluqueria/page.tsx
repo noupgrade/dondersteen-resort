@@ -14,7 +14,6 @@ import {
     Users
 } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view'
 import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell'
 import { Badge } from '@/shared/ui/badge'
@@ -140,7 +139,6 @@ interface PropuestaFecha {
 }
 
 export default function PeluqueriaPage() {
-    const { reservations } = useReservation()
     const navigate = useNavigate()
     const [pendingReservations, setPendingReservations] = useState<ExtendedReservationWithSubcitas[]>(mockPendingReservations)
     const [confirmedReservations, setConfirmedReservations] = useState<ExtendedReservationWithSubcitas[]>([])
