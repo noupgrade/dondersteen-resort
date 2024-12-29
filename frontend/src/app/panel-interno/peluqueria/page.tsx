@@ -126,11 +126,11 @@ const mockPendingReservations: ExtendedReservationWithSubcitas[] = [
         source: 'hotel',
         date: format(new Date(), 'yyyy-MM-dd'),
         time: '12:30',
-        client: {
+    client: {
             name: 'Laura Sánchez',
             phone: '688777666'
         },
-        pet: {
+    pet: {
             name: 'Toby',
             breed: 'Shih Tzu'
         },
@@ -142,6 +142,7 @@ const mockPendingReservations: ExtendedReservationWithSubcitas[] = [
 interface PropuestaFecha {
     fecha: string
     hora: string
+    precioEstimado: number
 }
 
 export default function PeluqueriaPage() {
@@ -160,7 +161,11 @@ export default function PeluqueriaPage() {
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false)
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
     const [reservationToReject, setReservationToReject] = useState<ExtendedReservationWithSubcitas | null>(null)
-    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ fecha: '', hora: '' })
+    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ 
+        fecha: '', 
+        hora: '', 
+        precioEstimado: 0 
+    })
     const [isPropuestaModalOpen, setIsPropuestaModalOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>([
         {
@@ -281,16 +286,25 @@ export default function PeluqueriaPage() {
     const handlePropuestaFecha = () => {
         if (!reservationToReject) return
         
+        if (!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado) {
+            toast({
+                title: "Error",
+                description: "Por favor, completa todos los campos",
+                variant: "destructive"
+            })
+            return
+        }
+        
         // Aquí iría la lógica para enviar la propuesta al cliente
         toast({
             title: "Propuesta enviada",
-            description: `Se ha enviado una propuesta para el ${format(new Date(propuestaFecha.fecha), 'dd MMM yyyy', { locale: es })} a las ${propuestaFecha.hora}`
+            description: `Se ha enviado una propuesta para el ${format(new Date(propuestaFecha.fecha), 'dd MMM yyyy', { locale: es })} a las ${propuestaFecha.hora} con un precio estimado de ${propuestaFecha.precioEstimado}€`
         })
         
         setIsRejectModalOpen(false)
         setIsPropuestaModalOpen(false)
         setReservationToReject(null)
-        setPropuestaFecha({ fecha: '', hora: '' })
+        setPropuestaFecha({ fecha: '', hora: '', precioEstimado: 0 })
     }
 
     const handleMarkAsRead = (notificationId: string) => {
@@ -312,45 +326,121 @@ export default function PeluqueriaPage() {
         navigate(`/panel-interno/peluqueria/semana?reserva=${notification.reservationId}`)
     }
 
-    const handleUpdateReservationFromNotification = (
+    const handleUpdateReservationFromNotification = async (
         reservationId: string,
         newDate: string,
         newTime: string
     ) => {
-        // Actualizar la reserva en el estado
-        setPendingReservations(prev =>
-            prev.map(reservation =>
-                reservation.id === reservationId
-                    ? { ...reservation, date: newDate, time: newTime }
-                    : reservation
+        try {
+            // Verificar si el horario está disponible
+            const isTimeSlotAvailable = !confirmedReservations.some(
+                reservation => 
+                    reservation.date === newDate && 
+                    reservation.time === newTime &&
+                    reservation.id !== reservationId
             )
-        )
 
-        setConfirmedReservations(prev =>
-            prev.map(reservation =>
-                reservation.id === reservationId
-                    ? { ...reservation, date: newDate, time: newTime }
-                    : reservation
+            if (!isTimeSlotAvailable) {
+                toast({
+                    title: "Error",
+                    description: "El horario seleccionado no está disponible",
+                    variant: "destructive"
+                })
+                return
+            }
+
+            // Actualizar en el estado local
+            setPendingReservations(prev =>
+                prev.map(reservation =>
+                    reservation.id === reservationId
+                        ? { ...reservation, date: newDate, time: newTime }
+                        : reservation
+                )
             )
-        )
 
-        toast({
-            title: "Cita actualizada",
-            description: `La cita ha sido reprogramada para el ${format(new Date(newDate), 'dd MMM yyyy', { locale: es })} a las ${newTime}`
-        })
+            setConfirmedReservations(prev =>
+                prev.map(reservation =>
+                    reservation.id === reservationId
+                        ? { ...reservation, date: newDate, time: newTime }
+                        : reservation
+                )
+            )
+
+            // Aquí iría la llamada a la API para actualizar en la base de datos
+            // await updateReservationInDB(reservationId, { date: newDate, time: newTime })
+
+            toast({
+                title: "Cita actualizada",
+                description: `La cita ha sido reprogramada para el ${format(new Date(newDate), 'dd MMM yyyy', { locale: es })} a las ${newTime}`
+            })
+        } catch (error) {
+            console.error('Error al actualizar la reserva:', error)
+            toast({
+                title: "Error",
+                description: "No se pudo actualizar la reserva. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
 
     const handleRemoveNotification = (notificationId: string) => {
-        setNotifications(prev => prev.filter(notification => notification.id !== notificationId))
-        toast({
-            title: "Notificación eliminada",
-            description: "La notificación ha sido eliminada correctamente"
-        })
+        try {
+            // Obtener la notificación antes de eliminarla
+            const notification = notifications.find(n => n.id === notificationId)
+            
+            if (!notification) return
+
+            // Si la notificación no ha sido leída, marcarla como leída primero
+            if (!notification.read) {
+                handleMarkAsRead(notificationId)
+            }
+
+            // Eliminar la notificación
+            setNotifications(prev => prev.filter(n => n.id !== notificationId))
+
+            // Aquí iría la llamada a la API para eliminar la notificación en la base de datos
+            // await deleteNotificationInDB(notificationId)
+
+            toast({
+                title: "Notificación eliminada",
+                description: "La notificación ha sido eliminada correctamente"
+            })
+        } catch (error) {
+            console.error('Error al eliminar la notificación:', error)
+            toast({
+                title: "Error",
+                description: "No se pudo eliminar la notificación. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
+
+    // Efecto para limpiar notificaciones antiguas
+    useEffect(() => {
+        const now = new Date()
+        setNotifications(prev => 
+            prev.filter(notification => {
+                if (!notification.read || !notification.readTimestamp) return true
+                
+                const readTime = new Date(notification.readTimestamp)
+                const hoursDiff = (now.getTime() - readTime.getTime()) / (1000 * 60 * 60)
+                
+                return hoursDiff < 24
+            })
+        )
+    }, []) // Se ejecuta solo al montar el componente
+
+    // Efecto para monitorear cambios en las reservas
+    useEffect(() => {
+        console.log('Reservas actualizadas:', {
+            pending: pendingReservations,
+            confirmed: confirmedReservations
+        })
+    }, [pendingReservations, confirmedReservations])
 
     return (
         <div className='container mx-auto p-4 md:p-6'>
-            <div className='flex items-center justify-between mb-6'>
+            <div className='flex items-center justify-between'>
                 <h1 className='text-3xl font-bold'>Gestión de Peluquería</h1>
                 <NotificationBell
                     notifications={notifications}
@@ -361,7 +451,19 @@ export default function PeluqueriaPage() {
                 />
             </div>
 
-            <Card className='mb-6'>
+            {/* Banner de notificaciones */}
+            {notifications.some(n => !n.read) && (
+                <div className="mt-4 mb-6 rounded-lg bg-amber-50/80 border border-amber-200 p-4 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                        <Info className="h-5 w-5 text-amber-500" />
+                        <p className="text-amber-800 font-medium">
+                            Cambios de horarios en reservas de peluquería pendientes de gestionar
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <Card className='mt-6'>
                 <CardContent className='flex items-center justify-between p-4'>
                     <div className='flex space-x-4'>
                         <div>
@@ -399,11 +501,11 @@ export default function PeluqueriaPage() {
                             <div className='space-y-8'>
                                 {/* Sección de Reservas de Hotel */}
                                 {hotelReservations.length > 0 && (
-                                    <div>
+                                                <div>
                                         <div className="flex items-center gap-2 mb-6">
                                             <Hotel className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
-                                        </div>
+                                                </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {hotelReservations.map(reservation => (
                                                 <ReservationCard
@@ -413,9 +515,9 @@ export default function PeluqueriaPage() {
                                                     onReject={handleOpenRejectModal}
                                                 />
                                             ))}
-                                        </div>
-                                    </div>
-                                )}
+                                                    </div>
+                                                    </div>
+                                                )}
 
                                 {/* Sección de Reservas Externas */}
                                 {externalReservations.length > 0 && (
@@ -423,7 +525,7 @@ export default function PeluqueriaPage() {
                                         <div className="flex items-center gap-2 mb-6">
                                             <Users className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas Externas</h3>
-                                        </div>
+                                                </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {externalReservations.map(reservation => (
                                                 <ReservationCard
@@ -601,7 +703,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                        Subir foto
+                                                Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_before`] && (
                                         <img
@@ -629,7 +731,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                        Subir foto
+                                                Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_after`] && (
                                         <img
@@ -735,10 +837,7 @@ export default function PeluqueriaPage() {
                                 {crearSubcitas && (
                                     <div className="space-y-6">
                                         {subcitas.map((subcita, index) => (
-                                            <div 
-                                                key={index} 
-                                                className="space-y-4 border rounded-lg p-4 relative"
-                                            >
+                                            <div key={index} className="mb-6 rounded-lg border p-4">
                                                 <div className="flex justify-between items-center mb-4">
                                                     <h4 className="font-medium">Subcita {index + 1}</h4>
                                                     {subcitas.length > 1 && (
@@ -770,38 +869,69 @@ export default function PeluqueriaPage() {
                                                                 setSubcitas(newSubcitas)
                                                             }}
                                                             placeholder="Ej: Baño, Corte, etc."
+                                                            className="h-12 text-lg"
                                                         />
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
-                                                        <div>
+                                                        <div className="space-y-2">
                                                             <Label>Fecha</Label>
-                                                            <Input
-                                                                type="date"
-                                                                value={subcita.fecha}
-                                                                onChange={(e) => {
-                                                                    const newSubcitas = [...subcitas]
-                                                                    newSubcitas[index] = {
-                                                                        ...newSubcitas[index],
-                                                                        fecha: e.target.value
-                                                                    }
-                                                                    setSubcitas(newSubcitas)
-                                                                }}
-                                                            />
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="date"
+                                                                    value={subcita.fecha}
+                                                                    onChange={(e) => {
+                                                                        const newSubcitas = [...subcitas]
+                                                                        newSubcitas[index] = {
+                                                                            ...newSubcitas[index],
+                                                                            fecha: e.target.value
+                                                                        }
+                                                                        setSubcitas(newSubcitas)
+                                                                    }}
+                                                                    className="pl-4 pr-12 h-12 text-lg"
+                                                                />
+                                                                <Button 
+                                                                    type="button"
+                                                                    variant="ghost" 
+                                                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                                                    onClick={() => {
+                                                                        const inputs = document.querySelectorAll('input[type="date"]')
+                                                                        const input = inputs[index] as HTMLInputElement
+                                                                        input?.showPicker()
+                                                                    }}
+                                                                >
+                                                                    <Calendar className="h-6 w-6 text-muted-foreground" />
+                                                                </Button>
+                                                            </div>
                                                         </div>
-                                                        <div>
+                                                        <div className="space-y-2">
                                                             <Label>Hora</Label>
-                                                            <Input
-                                                                type="time"
-                                                                value={subcita.hora}
-                                                                onChange={(e) => {
-                                                                    const newSubcitas = [...subcitas]
-                                                                    newSubcitas[index] = {
-                                                                        ...newSubcitas[index],
-                                                                        hora: e.target.value
-                                                                    }
-                                                                    setSubcitas(newSubcitas)
-                                                                }}
-                                                            />
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="time"
+                                                                    value={subcita.hora}
+                                                                    onChange={(e) => {
+                                                                        const newSubcitas = [...subcitas]
+                                                                        newSubcitas[index] = {
+                                                                            ...newSubcitas[index],
+                                                                            hora: e.target.value
+                                                                        }
+                                                                        setSubcitas(newSubcitas)
+                                                                    }}
+                                                                    className="pl-4 pr-12 h-12 text-lg"
+                                                                />
+                                                                <Button 
+                                                                    type="button"
+                                                                    variant="ghost" 
+                                                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                                                    onClick={() => {
+                                                                        const inputs = document.querySelectorAll('input[type="time"]')
+                                                                        const input = inputs[index] as HTMLInputElement
+                                                                        input?.showPicker()
+                                                                    }}
+                                                                >
+                                                                    <Clock className="h-6 w-6 text-muted-foreground" />
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -901,19 +1031,67 @@ export default function PeluqueriaPage() {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Nueva fecha</Label>
-                            <Input
-                                type="date"
-                                value={propuestaFecha.fecha}
-                                onChange={(e) => setPropuestaFecha(prev => ({ ...prev, fecha: e.target.value }))}
-                            />
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    value={propuestaFecha.fecha}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ ...prev, fecha: e.target.value }))}
+                                    className="pl-4 pr-12 h-12 text-lg"
+                                />
+                                <Button 
+                                    type="button"
+                                    variant="ghost" 
+                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                    onClick={() => {
+                                        const input = document.querySelector('input[type="date"]') as HTMLInputElement
+                                        input?.showPicker()
+                                    }}
+                                >
+                                    <Calendar className="h-6 w-6 text-muted-foreground" />
+                                </Button>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label>Nueva hora</Label>
-                            <Input
-                                type="time"
-                                value={propuestaFecha.hora}
-                                onChange={(e) => setPropuestaFecha(prev => ({ ...prev, hora: e.target.value }))}
-                            />
+                            <div className="relative">
+                                <Input
+                                    type="time"
+                                    value={propuestaFecha.hora}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ ...prev, hora: e.target.value }))}
+                                    className="pl-4 pr-12 h-12 text-lg"
+                                />
+                                <Button 
+                                    type="button"
+                                    variant="ghost" 
+                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                    onClick={() => {
+                                        const input = document.querySelector('input[type="time"]') as HTMLInputElement
+                                        input?.showPicker()
+                                    }}
+                                >
+                                    <Clock className="h-6 w-6 text-muted-foreground" />
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Precio estimado</Label>
+                            <div className="relative">
+                                <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="0.01"
+                                    min="0"
+                                    value={propuestaFecha.precioEstimado || ''}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ 
+                                        ...prev, 
+                                        precioEstimado: parseFloat(e.target.value) || 0 
+                                    }))}
+                                    className="pl-4 pr-12 h-12 text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">
+                                    €
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -923,14 +1101,14 @@ export default function PeluqueriaPage() {
                             onClick={() => {
                                 setIsPropuestaModalOpen(false)
                                 setReservationToReject(null)
-                                setPropuestaFecha({ fecha: '', hora: '' })
+                                setPropuestaFecha({ fecha: '', hora: '', precioEstimado: 0 })
                             }}
                         >
                             Cancelar
                         </Button>
                         <Button 
                             onClick={handlePropuestaFecha}
-                            disabled={!propuestaFecha.fecha || !propuestaFecha.hora}
+                            disabled={!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado}
                         >
                             Enviar propuesta
                         </Button>
