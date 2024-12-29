@@ -10,7 +10,7 @@ command
             const user = await getAuthInstance().getUserByEmail(email)
             const uid = user.uid
 
-            await getAuthInstance().setCustomUserClaims(uid, { isStaff: true })
+            await getAuthInstance().setCustomUserClaims(uid, { admin: true })
             console.log(`User with email ${email} (UID: ${uid}) set as admin successfully.`)
         } catch (error) {
             console.error(`Error setting user as admin: ${error}`)

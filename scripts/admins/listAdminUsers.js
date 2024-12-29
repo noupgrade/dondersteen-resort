@@ -1,5 +1,5 @@
 const { Command } = require('commander')
-const {getAuthInstance} = require('../platform/firebase')
+const { getAuthInstance } = require('../platform/firebase')
 
 const command = new Command('list-admin-users')
 
