@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertCircle, ChevronLeft, Globe, Plus } from 'lucide-react'
 
-import { ClientDetailsCard } from '@/components/client-details-card'
-import { NewReservationModal } from '@/components/new-reservation-modal'
-import { PetCard } from '@/components/pet-card'
-import { ReservationCard } from '@/components/reservation-card'
-import { mockReservations } from '@/mocks/mockReservations'
-import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ClientDetailsCard } from '@/components/client-details-card.tsx'
+import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
+import { PetCard } from '@/components/pet-card.tsx'
+import { ReservationCard } from '@/components/reservation-card.tsx'
+import { mockReservations } from '@/mocks/mockReservations.ts'
+import { Alert, AlertDescription } from '@/shared/ui/alert.tsx'
+import { Button } from '@/shared/ui/button.tsx'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 
 const translations = {
     back: { es: 'Volver', en: 'Back' },
@@ -93,7 +93,7 @@ export default function ClientProfile() {
                 )}
             </AnimatePresence>
             <div className='mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row'>
-                <Link to='/' className='w-full sm:w-auto'>
+                <Link to='/frontend/public' className='w-full sm:w-auto'>
                     <Button variant='outline' className='w-full sm:w-auto'>
                         <ChevronLeft className='mr-2 h-4 w-4' />
                         {t('back')}

@@ -1,8 +1,8 @@
-import { useHotelReservations } from '@/components/ReservationContext'
-import { DailyNeedsList } from '@/components/daily-needs-list'
-import { HotelFloorPlan } from '@/components/hotel-floor-plan'
-import { Card } from '@/shared/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { useHotelReservations } from '@/components/ReservationContext.tsx'
+import { DailyNeedsList } from '@/components/daily-needs-list.tsx'
+import { HotelFloorPlan } from '@/components/hotel-floor-plan.tsx'
+import { Card } from '@/shared/ui/card.tsx'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 
 export default function PlanningPage() {
     const { reservations } = useHotelReservations()

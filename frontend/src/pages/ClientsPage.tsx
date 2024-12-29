@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react'
 
 import { Search } from 'lucide-react'
 
-import { ClientCard } from '@/components/client-card'
-import { Input } from '@/shared/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { ClientCard } from '@/components/client-card.tsx'
+import { Input } from '@/shared/ui/input.tsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 
 type Client = {
     id: string

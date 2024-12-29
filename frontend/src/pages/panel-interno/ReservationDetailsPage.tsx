@@ -5,11 +5,11 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, ChevronLeft, Clock, DollarSign, Home, Pencil } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
-import { Badge } from '@/shared/ui/badge'
-import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Separator } from '@/shared/ui/separator'
+import { useReservation } from '@/components/ReservationContext.tsx'
+import { Badge } from '@/shared/ui/badge.tsx'
+import { Button } from '@/shared/ui/button.tsx'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { Separator } from '@/shared/ui/separator.tsx'
 
 export default function ReservationDetailsPage() {
     const params = useParams()

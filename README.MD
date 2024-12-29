@@ -1,4 +1,4 @@
-# Setup
+ç# Setup
 
 ```bash
 npx firebase init emulators

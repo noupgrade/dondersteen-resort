@@ -3,13 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ChevronLeft, Download, Save } from 'lucide-react'
 
-import { Badge } from '@/shared/ui/badge'
-import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Input } from '@/shared/ui/input'
-import { ScrollArea } from '@/shared/ui/scroll-area'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
-import { Textarea } from '@/shared/ui/textarea'
+import { Badge } from '@/shared/ui/badge.tsx'
+import { Button } from '@/shared/ui/button.tsx'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { Input } from '@/shared/ui/input.tsx'
+import { ScrollArea } from '@/shared/ui/scroll-area.tsx'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table.tsx'
+import { Textarea } from '@/shared/ui/textarea.tsx'
 
 type Client = {
     id: string

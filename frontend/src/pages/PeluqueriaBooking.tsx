@@ -7,16 +7,16 @@ import { format, parse } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
 import * as z from 'zod'
 
-import { useReservation } from '@/components/ReservationContext'
-import type { HairSalonReservation } from '@/components/ReservationContext'
-import { ConfirmationDialog } from '@/components/confirmation-dialog'
-import { PeluqueriaAvailabilityCalendar } from '@/components/peluqueria-availability-calendar'
-import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
-import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
-import { Input } from '@/shared/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { useReservation } from '@/components/ReservationContext.tsx'
+import type { HairSalonReservation } from '@/components/ReservationContext.tsx'
+import { ConfirmationDialog } from '@/components/confirmation-dialog.tsx'
+import { PeluqueriaAvailabilityCalendar } from '@/components/peluqueria-availability-calendar.tsx'
+import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert.tsx'
+import { Button } from '@/shared/ui/button.tsx'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form.tsx'
+import { Input } from '@/shared/ui/input.tsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
@@ -244,7 +244,7 @@ export default function PeluqueriaBookingPage() {
                                 )}
                             />
                             <div className='flex justify-between'>
-                                <Link to='/'>
+                                <Link to='/frontend/public'>
                                     <Button type='button' variant='outline'>
                                         Volver a Inicio
                                     </Button>

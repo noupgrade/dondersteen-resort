@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
-import { Button } from '@/shared/ui/button'
-import { Card } from '@/shared/ui/card'
+import { Button } from '@/shared/ui/button.tsx'
+import { Card } from '@/shared/ui/card.tsx'
 
 export default function Home() {
     return (
