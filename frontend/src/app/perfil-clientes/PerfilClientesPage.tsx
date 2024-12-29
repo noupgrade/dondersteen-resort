@@ -8,6 +8,7 @@ import { ClientDetailsCard } from '@/components/client-details-card'
 import { NewReservationModal } from '@/components/new-reservation-modal'
 import { PetCard } from '@/components/pet-card'
 import { ReservationCard } from '@/components/reservation-card'
+import { mockReservations } from '@/mocks/mockReservations'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -19,36 +20,16 @@ const translations = {
     reservations: { es: 'Reservas', en: 'Reservations' },
     pets: { es: 'Mascotas', en: 'Pets' },
     addNewPet: { es: 'Añadir Nueva Mascota', en: 'Add New Pet' },
-}
+} as const
+
+type TranslationKey = keyof typeof translations
 
 export default function ClientProfile() {
     const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false)
     const [language, setLanguage] = useState<'es' | 'en'>('es')
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
-    const clientReservations = [
-        {
-            id: '1',
-            type: 'grooming',
-            date: '2024-03-15',
-            time: '10:00',
-            services: ['bath', 'haircut'],
-            status: 'Propuesta Peluquería',
-            estimatedPrice: 50,
-            pets: [{ name: 'Max', breed: 'Golden Retriever' }],
-        },
-        {
-            id: '2',
-            type: 'hotel',
-            startDate: '2024-03-18',
-            endDate: '2024-03-20',
-            services: ['accommodation', 'food'],
-            status: 'Confirmada',
-            pets: [
-                { name: 'Luna', breed: 'Siamese' },
-                { name: 'Rocky', breed: 'German Shepherd' },
-            ],
-        },
-    ]
+    const [clientReservations, setClientReservations] = useState(mockReservations)
+
     const mockPets = [
         {
             id: 1,
@@ -82,10 +63,10 @@ export default function ClientProfile() {
         address: 'Calle Principal 123, 28001 Madrid',
     }
 
-    const t = (key: string) => translations[key][language]
+    const t = (key: TranslationKey) => translations[key][language]
 
     const handleReservationDeleted = (reservationId: string) => {
-        console.log('Reservation deleted:', reservationId)
+        setClientReservations(prev => prev.filter(res => res.id !== reservationId))
     }
 
     const handleDateChangeSuccess = (message: string) => {
@@ -104,7 +85,7 @@ export default function ClientProfile() {
                         transition={{ duration: 0.3 }}
                         className='fixed right-4 top-4 z-50'
                     >
-                        <Alert variant='success'>
+                        <Alert>
                             <AlertCircle className='h-4 w-4' />
                             <AlertDescription>{successMessage}</AlertDescription>
                         </Alert>
@@ -112,7 +93,7 @@ export default function ClientProfile() {
                 )}
             </AnimatePresence>
             <div className='mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row'>
-                <Link href='/' className='w-full sm:w-auto'>
+                <Link to='/' className='w-full sm:w-auto'>
                     <Button variant='outline' className='w-full sm:w-auto'>
                         <ChevronLeft className='mr-2 h-4 w-4' />
                         {t('back')}
@@ -144,7 +125,6 @@ export default function ClientProfile() {
                                     reservation={reservation}
                                     language={language}
                                     onReservationDeleted={handleReservationDeleted}
-                                    onDateChangeSuccess={handleDateChangeSuccess}
                                 />
                             ))}
                         </div>

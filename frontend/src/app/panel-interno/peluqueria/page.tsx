@@ -5,15 +5,13 @@ import { addDays, format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
     Calendar,
-    Check,
     Clock,
     DollarSign,
     Hotel,
     Info,
     Plus,
     Trash2,
-    Users,
-    X
+    Users
 } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
@@ -21,7 +19,7 @@ import { AvailabilityCalendarView } from '@/components/availability-calendar-vie
 import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
@@ -122,11 +120,11 @@ const mockPendingReservations: ExtendedReservationWithSubcitas[] = [
         source: 'hotel',
         date: format(new Date(), 'yyyy-MM-dd'),
         time: '12:30',
-        client: {
+    client: {
             name: 'Laura Sánchez',
             phone: '688777666'
         },
-        pet: {
+    pet: {
             name: 'Toby',
             breed: 'Shih Tzu'
         },
@@ -138,6 +136,7 @@ const mockPendingReservations: ExtendedReservationWithSubcitas[] = [
 interface PropuestaFecha {
     fecha: string
     hora: string
+    precioEstimado: number
 }
 
 export default function PeluqueriaPage() {
@@ -156,7 +155,11 @@ export default function PeluqueriaPage() {
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false)
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
     const [reservationToReject, setReservationToReject] = useState<ExtendedReservationWithSubcitas | null>(null)
-    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ fecha: '', hora: '' })
+    const [propuestaFecha, setPropuestaFecha] = useState<PropuestaFecha>({ 
+        fecha: '', 
+        hora: '', 
+        precioEstimado: 0 
+    })
     const [isPropuestaModalOpen, setIsPropuestaModalOpen] = useState(false)
     const [notifications, setNotifications] = useState<Notification[]>([
         {
@@ -277,16 +280,25 @@ export default function PeluqueriaPage() {
     const handlePropuestaFecha = () => {
         if (!reservationToReject) return
         
+        if (!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado) {
+            toast({
+                title: "Error",
+                description: "Por favor, completa todos los campos",
+                variant: "destructive"
+            })
+            return
+        }
+        
         // Aquí iría la lógica para enviar la propuesta al cliente
         toast({
             title: "Propuesta enviada",
-            description: `Se ha enviado una propuesta para el ${format(new Date(propuestaFecha.fecha), 'dd MMM yyyy', { locale: es })} a las ${propuestaFecha.hora}`
+            description: `Se ha enviado una propuesta para el ${format(new Date(propuestaFecha.fecha), 'dd MMM yyyy', { locale: es })} a las ${propuestaFecha.hora} con un precio estimado de ${propuestaFecha.precioEstimado}€`
         })
         
         setIsRejectModalOpen(false)
         setIsPropuestaModalOpen(false)
         setReservationToReject(null)
-        setPropuestaFecha({ fecha: '', hora: '' })
+        setPropuestaFecha({ fecha: '', hora: '', precioEstimado: 0 })
     }
 
     const handleMarkAsRead = (notificationId: string) => {
@@ -308,45 +320,121 @@ export default function PeluqueriaPage() {
         navigate(`/panel-interno/peluqueria/semana?reserva=${notification.reservationId}`)
     }
 
-    const handleUpdateReservationFromNotification = (
+    const handleUpdateReservationFromNotification = async (
         reservationId: string,
         newDate: string,
         newTime: string
     ) => {
-        // Actualizar la reserva en el estado
-        setPendingReservations(prev =>
-            prev.map(reservation =>
-                reservation.id === reservationId
-                    ? { ...reservation, date: newDate, time: newTime }
-                    : reservation
+        try {
+            // Verificar si el horario está disponible
+            const isTimeSlotAvailable = !confirmedReservations.some(
+                reservation => 
+                    reservation.date === newDate && 
+                    reservation.time === newTime &&
+                    reservation.id !== reservationId
             )
-        )
 
-        setConfirmedReservations(prev =>
-            prev.map(reservation =>
-                reservation.id === reservationId
-                    ? { ...reservation, date: newDate, time: newTime }
-                    : reservation
+            if (!isTimeSlotAvailable) {
+                toast({
+                    title: "Error",
+                    description: "El horario seleccionado no está disponible",
+                    variant: "destructive"
+                })
+                return
+            }
+
+            // Actualizar en el estado local
+            setPendingReservations(prev =>
+                prev.map(reservation =>
+                    reservation.id === reservationId
+                        ? { ...reservation, date: newDate, time: newTime }
+                        : reservation
+                )
             )
-        )
 
-        toast({
-            title: "Cita actualizada",
-            description: `La cita ha sido reprogramada para el ${format(new Date(newDate), 'dd MMM yyyy', { locale: es })} a las ${newTime}`
-        })
+            setConfirmedReservations(prev =>
+                prev.map(reservation =>
+                    reservation.id === reservationId
+                        ? { ...reservation, date: newDate, time: newTime }
+                        : reservation
+                )
+            )
+
+            // Aquí iría la llamada a la API para actualizar en la base de datos
+            // await updateReservationInDB(reservationId, { date: newDate, time: newTime })
+
+            toast({
+                title: "Cita actualizada",
+                description: `La cita ha sido reprogramada para el ${format(new Date(newDate), 'dd MMM yyyy', { locale: es })} a las ${newTime}`
+            })
+        } catch (error) {
+            console.error('Error al actualizar la reserva:', error)
+            toast({
+                title: "Error",
+                description: "No se pudo actualizar la reserva. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
 
     const handleRemoveNotification = (notificationId: string) => {
-        setNotifications(prev => prev.filter(notification => notification.id !== notificationId))
-        toast({
-            title: "Notificación eliminada",
-            description: "La notificación ha sido eliminada correctamente"
-        })
+        try {
+            // Obtener la notificación antes de eliminarla
+            const notification = notifications.find(n => n.id === notificationId)
+            
+            if (!notification) return
+
+            // Si la notificación no ha sido leída, marcarla como leída primero
+            if (!notification.read) {
+                handleMarkAsRead(notificationId)
+            }
+
+            // Eliminar la notificación
+            setNotifications(prev => prev.filter(n => n.id !== notificationId))
+
+            // Aquí iría la llamada a la API para eliminar la notificación en la base de datos
+            // await deleteNotificationInDB(notificationId)
+
+            toast({
+                title: "Notificación eliminada",
+                description: "La notificación ha sido eliminada correctamente"
+            })
+        } catch (error) {
+            console.error('Error al eliminar la notificación:', error)
+            toast({
+                title: "Error",
+                description: "No se pudo eliminar la notificación. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
+
+    // Efecto para limpiar notificaciones antiguas
+    useEffect(() => {
+        const now = new Date()
+        setNotifications(prev => 
+            prev.filter(notification => {
+                if (!notification.read || !notification.readTimestamp) return true
+                
+                const readTime = new Date(notification.readTimestamp)
+                const hoursDiff = (now.getTime() - readTime.getTime()) / (1000 * 60 * 60)
+                
+                return hoursDiff < 24
+            })
+        )
+    }, []) // Se ejecuta solo al montar el componente
+
+    // Efecto para monitorear cambios en las reservas
+    useEffect(() => {
+        console.log('Reservas actualizadas:', {
+            pending: pendingReservations,
+            confirmed: confirmedReservations
+        })
+    }, [pendingReservations, confirmedReservations])
 
     return (
         <div className='container mx-auto p-4 md:p-6'>
-            <div className='flex items-center justify-between mb-6'>
+            <div className='flex items-center justify-between'>
                 <h1 className='text-3xl font-bold'>Gestión de Peluquería</h1>
                 <NotificationBell
                     notifications={notifications}
@@ -357,7 +445,19 @@ export default function PeluqueriaPage() {
                 />
             </div>
 
-            <Card className='mb-6'>
+            {/* Banner de notificaciones */}
+            {notifications.some(n => !n.read) && (
+                <div className="mt-4 mb-6 rounded-lg bg-amber-50/80 border border-amber-200 p-4 backdrop-blur-sm">
+                    <div className="flex items-center gap-2">
+                        <Info className="h-5 w-5 text-amber-500" />
+                        <p className="text-amber-800 font-medium">
+                            Cambios de horarios en reservas de peluquería pendientes de gestionar
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <Card className='mt-6'>
                 <CardContent className='flex items-center justify-between p-4'>
                     <div className='flex space-x-4'>
                         <div>
@@ -395,12 +495,12 @@ export default function PeluqueriaPage() {
                             <div className='space-y-8'>
                                 {/* Sección de Reservas de Hotel */}
                                 {hotelReservations.length > 0 && (
-                                    <div>
+                                                <div>
                                         <div className="flex items-center gap-2 mb-6">
                                             <Hotel className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                             {hotelReservations.map(reservation => (
                                                 <ReservationCard
                                                     key={reservation.id}
@@ -409,9 +509,9 @@ export default function PeluqueriaPage() {
                                                     onReject={handleOpenRejectModal}
                                                 />
                                             ))}
-                                        </div>
-                                    </div>
-                                )}
+                                                    </div>
+                                                    </div>
+                                                )}
 
                                 {/* Sección de Reservas Externas */}
                                 {externalReservations.length > 0 && (
@@ -420,7 +520,7 @@ export default function PeluqueriaPage() {
                                             <Users className="h-5 w-5 text-primary" />
                                             <h3 className="text-lg font-semibold">Reservas Externas</h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                                             {externalReservations.map(reservation => (
                                                 <ReservationCard
                                                     key={reservation.id}
@@ -597,7 +697,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                        Subir foto
+                                                Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_before`] && (
                                         <img
@@ -625,7 +725,7 @@ export default function PeluqueriaPage() {
                                             }
                                         }}
                                     >
-                                        Subir foto
+                                                Subir foto
                                     </Upload>
                                     {photos[`${selectedReservation?.id}_after`] && (
                                         <img
@@ -731,10 +831,7 @@ export default function PeluqueriaPage() {
                                 {crearSubcitas && (
                                     <div className="space-y-6">
                                         {subcitas.map((subcita, index) => (
-                                            <div 
-                                                key={index} 
-                                                className="space-y-4 border rounded-lg p-4 relative"
-                                            >
+                                            <div key={index} className="mb-6 rounded-lg border p-4">
                                                 <div className="flex justify-between items-center mb-4">
                                                     <h4 className="font-medium">Subcita {index + 1}</h4>
                                                     {subcitas.length > 1 && (
@@ -766,38 +863,69 @@ export default function PeluqueriaPage() {
                                                                 setSubcitas(newSubcitas)
                                                             }}
                                                             placeholder="Ej: Baño, Corte, etc."
+                                                            className="h-12 text-lg"
                                                         />
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
-                                                        <div>
+                                                        <div className="space-y-2">
                                                             <Label>Fecha</Label>
-                                                            <Input
-                                                                type="date"
-                                                                value={subcita.fecha}
-                                                                onChange={(e) => {
-                                                                    const newSubcitas = [...subcitas]
-                                                                    newSubcitas[index] = {
-                                                                        ...newSubcitas[index],
-                                                                        fecha: e.target.value
-                                                                    }
-                                                                    setSubcitas(newSubcitas)
-                                                                }}
-                                                            />
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="date"
+                                                                    value={subcita.fecha}
+                                                                    onChange={(e) => {
+                                                                        const newSubcitas = [...subcitas]
+                                                                        newSubcitas[index] = {
+                                                                            ...newSubcitas[index],
+                                                                            fecha: e.target.value
+                                                                        }
+                                                                        setSubcitas(newSubcitas)
+                                                                    }}
+                                                                    className="pl-4 pr-12 h-12 text-lg"
+                                                                />
+                                                                <Button 
+                                                                    type="button"
+                                                                    variant="ghost" 
+                                                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                                                    onClick={() => {
+                                                                        const inputs = document.querySelectorAll('input[type="date"]')
+                                                                        const input = inputs[index] as HTMLInputElement
+                                                                        input?.showPicker()
+                                                                    }}
+                                                                >
+                                                                    <Calendar className="h-6 w-6 text-muted-foreground" />
+                                                                </Button>
+                                                            </div>
                                                         </div>
-                                                        <div>
+                                                        <div className="space-y-2">
                                                             <Label>Hora</Label>
-                                                            <Input
-                                                                type="time"
-                                                                value={subcita.hora}
-                                                                onChange={(e) => {
-                                                                    const newSubcitas = [...subcitas]
-                                                                    newSubcitas[index] = {
-                                                                        ...newSubcitas[index],
-                                                                        hora: e.target.value
-                                                                    }
-                                                                    setSubcitas(newSubcitas)
-                                                                }}
-                                                            />
+                                                            <div className="relative">
+                                                                <Input
+                                                                    type="time"
+                                                                    value={subcita.hora}
+                                                                    onChange={(e) => {
+                                                                        const newSubcitas = [...subcitas]
+                                                                        newSubcitas[index] = {
+                                                                            ...newSubcitas[index],
+                                                                            hora: e.target.value
+                                                                        }
+                                                                        setSubcitas(newSubcitas)
+                                                                    }}
+                                                                    className="pl-4 pr-12 h-12 text-lg"
+                                                                />
+                                                                <Button 
+                                                                    type="button"
+                                                                    variant="ghost" 
+                                                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                                                    onClick={() => {
+                                                                        const inputs = document.querySelectorAll('input[type="time"]')
+                                                                        const input = inputs[index] as HTMLInputElement
+                                                                        input?.showPicker()
+                                                                    }}
+                                                                >
+                                                                    <Clock className="h-6 w-6 text-muted-foreground" />
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -897,19 +1025,67 @@ export default function PeluqueriaPage() {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Nueva fecha</Label>
-                            <Input
-                                type="date"
-                                value={propuestaFecha.fecha}
-                                onChange={(e) => setPropuestaFecha(prev => ({ ...prev, fecha: e.target.value }))}
-                            />
+                            <div className="relative">
+                                <Input
+                                    type="date"
+                                    value={propuestaFecha.fecha}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ ...prev, fecha: e.target.value }))}
+                                    className="pl-4 pr-12 h-12 text-lg"
+                                />
+                                <Button 
+                                    type="button"
+                                    variant="ghost" 
+                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                    onClick={() => {
+                                        const input = document.querySelector('input[type="date"]') as HTMLInputElement
+                                        input?.showPicker()
+                                    }}
+                                >
+                                    <Calendar className="h-6 w-6 text-muted-foreground" />
+                                </Button>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label>Nueva hora</Label>
-                            <Input
-                                type="time"
-                                value={propuestaFecha.hora}
-                                onChange={(e) => setPropuestaFecha(prev => ({ ...prev, hora: e.target.value }))}
-                            />
+                            <div className="relative">
+                                <Input
+                                    type="time"
+                                    value={propuestaFecha.hora}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ ...prev, hora: e.target.value }))}
+                                    className="pl-4 pr-12 h-12 text-lg"
+                                />
+                                <Button 
+                                    type="button"
+                                    variant="ghost" 
+                                    className="absolute right-0 top-0 h-12 w-12 px-3 flex items-center justify-center"
+                                    onClick={() => {
+                                        const input = document.querySelector('input[type="time"]') as HTMLInputElement
+                                        input?.showPicker()
+                                    }}
+                                >
+                                    <Clock className="h-6 w-6 text-muted-foreground" />
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Precio estimado</Label>
+                            <div className="relative">
+                                <Input
+                                    type="number"
+                                    inputMode="decimal"
+                                    step="0.01"
+                                    min="0"
+                                    value={propuestaFecha.precioEstimado || ''}
+                                    onChange={(e) => setPropuestaFecha(prev => ({ 
+                                        ...prev, 
+                                        precioEstimado: parseFloat(e.target.value) || 0 
+                                    }))}
+                                    className="pl-4 pr-12 h-12 text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">
+                                    €
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -919,14 +1095,14 @@ export default function PeluqueriaPage() {
                             onClick={() => {
                                 setIsPropuestaModalOpen(false)
                                 setReservationToReject(null)
-                                setPropuestaFecha({ fecha: '', hora: '' })
+                                setPropuestaFecha({ fecha: '', hora: '', precioEstimado: 0 })
                             }}
                         >
                             Cancelar
                         </Button>
                         <Button 
                             onClick={handlePropuestaFecha}
-                            disabled={!propuestaFecha.fecha || !propuestaFecha.hora}
+                            disabled={!propuestaFecha.fecha || !propuestaFecha.hora || !propuestaFecha.precioEstimado}
                         >
                             Enviar propuesta
                         </Button>
@@ -948,103 +1124,109 @@ function ReservationCard({
     onReject: (r: ExtendedReservationWithSubcitas) => void 
 }) {
     return (
-        <Card className='transition-all hover:shadow-lg touch-manipulation'>
-            <CardContent className='p-6'>
-                <div className='space-y-6'>
-                    {/* Header con origen de reserva */}
-                    <div className='flex items-center justify-between'>
-                        <Badge 
-                            variant={reservation.source === 'hotel' ? 'default' : 'secondary'}
-                            className='px-3 py-1.5'
-                        >
-                            {reservation.source === 'hotel' ? (
-                                <div className='flex items-center gap-2'>
-                                    <Hotel className='h-4 w-4' />
-                                    <span>Hotel</span>
-                                </div>
-                            ) : (
-                                <div className='flex items-center gap-2'>
-                                    <Users className='h-4 w-4' />
-                                    <span>Externo</span>
-                                </div>
-                            )}
-                        </Badge>
-                        <Badge 
-                            variant="outline"
-                            className={`px-3 py-1.5 ${
-                                reservation.additionalServices[0] === 'corte'
-                                    ? 'border-blue-500 text-blue-700'
-                                    : reservation.additionalServices[0] === 'bano_especial'
-                                    ? 'border-green-500 text-green-700'
-                                    : 'border-purple-500 text-purple-700'
-                            }`}
-                        >
-                            {reservation.additionalServices[0] === 'corte'
-                                ? 'Baño y corte'
-                                : reservation.additionalServices[0] === 'bano_especial'
-                                ? 'Baño y cepillado'
-                                : 'Deslanado'}
-                        </Badge>
+        <Card className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="flex-none pb-4">
+                <div className="flex justify-between items-start gap-4">
+                    <div className="flex items-center gap-3">
+                        {reservation.source === 'hotel' ? (
+                            <div className="p-2 bg-primary/10 rounded-full">
+                                <Hotel className="h-5 w-5 text-primary" />
+                            </div>
+                        ) : (
+                            <div className="p-2 bg-violet-100 rounded-full">
+                                <Users className="h-5 w-5 text-violet-600" />
+                            </div>
+                        )}
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">{reservation.client.name}</p>
+                            <p className="text-sm text-muted-foreground">{reservation.client.phone}</p>
+                        </div>
                     </div>
+                    <Badge 
+                        variant="outline"
+                        className={`px-3 py-1.5 whitespace-nowrap font-medium ${
+                            reservation.additionalServices[0] === 'corte'
+                                ? 'bg-blue-50 border-blue-200 text-blue-700'
+                                : reservation.additionalServices[0] === 'bano_especial'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : 'bg-violet-50 border-violet-200 text-violet-700'
+                        }`}
+                    >
+                        {reservation.additionalServices[0] === 'corte'
+                            ? 'Baño y corte'
+                            : reservation.additionalServices[0] === 'bano_especial'
+                            ? 'Baño y cepillado'
+                            : 'Deslanado'}
+                    </Badge>
+                </div>
+            </CardHeader>
 
-                    {/* Información principal */}
+            <CardContent className="flex-grow">
+                <div className="space-y-4">
                     <div>
-                        <h3 className='text-xl font-semibold mb-1'>
-                            {reservation.pet.name}
-                        </h3>
-                        <p className='text-sm text-muted-foreground mb-2'>
-                            {reservation.pet.breed}
-                        </p>
-                        <div className='flex items-center gap-4 text-sm text-muted-foreground'>
-                            <div className='flex items-center gap-1.5'>
-                                <Calendar className='h-4 w-4' />
+                        <div className="flex items-center gap-2 mb-1">
+                            <h3 className='text-xl font-semibold text-gray-900'>
+                                {reservation.pet.name}
+                            </h3>
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                {reservation.pet.breed}
+                            </span>
+                        </div>
+                        <div className='flex items-center gap-4 text-sm text-muted-foreground mt-3'>
+                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                <Calendar className='h-4 w-4 text-gray-500' />
                                 <span>
                                     {format(new Date(reservation.date), 'dd MMM', {
                                         locale: es,
                                     })}
                                 </span>
                             </div>
-                            <div className='flex items-center gap-1.5'>
-                                <Clock className='h-4 w-4' />
+                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                <Clock className='h-4 w-4 text-gray-500' />
                                 <span>{reservation.time}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Botones de acción */}
-                    <div className='flex gap-3 pt-2'>
-                        {reservation.source === 'hotel' ? (
-                            <Button
-                                variant='default'
-                                className='flex-1 min-h-[44px]'
-                                onClick={() => onAccept(reservation)}
-                            >
-                                <Calendar className='mr-2 h-5 w-5' />
-                                Organizar cita
-                            </Button>
-                        ) : (
-                            <>
-                                <Button
-                                    variant='destructive'
-                                    className='flex-1 min-h-[44px]'
-                                    onClick={() => onReject(reservation)}
-                                >
-                                    <X className='mr-2 h-5 w-5' />
-                                    Denegar
-                                </Button>
-                                <Button
-                                    variant='default'
-                                    className='flex-1 min-h-[44px]'
-                                    onClick={() => onAccept(reservation)}
-                                >
-                                    <Check className='mr-2 h-5 w-5' />
-                                    Aceptar
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                    {reservation.observations && (
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <p className="text-sm text-gray-600">{reservation.observations}</p>
+                        </div>
+                    )}
                 </div>
             </CardContent>
+
+            <CardFooter className="flex-none pt-4 border-t">
+                <div className="flex justify-end gap-3 w-full">
+                    {reservation.source === 'hotel' ? (
+                        <Button
+                            className="w-full bg-primary hover:bg-primary/90 text-white transition-colors"
+                            onClick={() => onAccept(reservation)}
+                        >
+                            <Calendar className="mr-2 h-5 w-5" />
+                            Organizar cita
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onReject(reservation)}
+                                className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                            >
+                                Rechazar
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={() => onAccept(reservation)}
+                                className="bg-primary hover:bg-primary/90 text-white transition-colors"
+                            >
+                                Aceptar
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </CardFooter>
         </Card>
     )
 }
