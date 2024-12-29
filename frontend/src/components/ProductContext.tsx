@@ -19,7 +19,6 @@ type Category = {
 
 type Sale = {
     id: string
-    date: string
     productId: string
     productName: string
     price: number

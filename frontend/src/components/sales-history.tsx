@@ -110,7 +110,7 @@ export function SalesHistory() {
                                 filteredSales.map((sale, index) => (
                                     <TableRow key={index}>
                                         <TableCell>
-                                            {format(new Date(sale.date), 'dd MMM yyyy HH:mm', { locale: es })}
+                                            {format(new Date(sale.createdAt.toDate()), 'dd MMM yyyy HH:mm', { locale: es })}
                                         </TableCell>
                                         <TableCell>{sale.productName}</TableCell>
                                         <TableCell>{sale.clientName}</TableCell>

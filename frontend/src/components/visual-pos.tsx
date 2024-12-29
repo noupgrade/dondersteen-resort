@@ -126,7 +126,6 @@ export function VisualPOS() {
         if (selectedReservation && cart.length > 0) {
             const totalPrice = getTotalPrice()
             const newSales = cart.map(item => ({
-                date: new Date().toISOString(),
                 productId: item.isGeneric ? 'generic' : item.product.id,
                 productName: item.product.name,
                 price: item.product.price * item.quantity,
