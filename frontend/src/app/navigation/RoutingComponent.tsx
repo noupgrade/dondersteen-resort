@@ -16,6 +16,7 @@ import PeluqueriaBookingPage from '../peluqueria-booking/PeluqueriaBooking'
 import PerfilClientesPage from '../perfil-clientes/PerfilClientesPage'
 import { LoginPage } from '@/pages/login/LoginPage'
 import { ProtectedPage } from './ProtectedPage'
+import { WithAnonymousUser } from './WithAnonymousUser'
 
 export const RoutingComponent = () => (
     <Routes>
@@ -48,7 +49,7 @@ export const RoutingComponent = () => (
         <Route
             path='/panel-interno/*'
             element={
-                <ProtectedPage>
+                <WithAnonymousUser userType='admin'>
                     <PanelInternoLayout>
                         <Routes>
                             <Route index element={<PanelInterno />} />
@@ -60,7 +61,7 @@ export const RoutingComponent = () => (
                             <Route path='reservas/:id' element={<ReservationDetailsPage />} />
                         </Routes>
                     </PanelInternoLayout>
-                </ProtectedPage>
+                </WithAnonymousUser>
             }
         />
         <Route path='*' element={<div>404 - Page not found</div>} />
