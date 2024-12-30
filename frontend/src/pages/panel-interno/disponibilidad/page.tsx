@@ -18,6 +18,10 @@ interface DateRange {
     to: Date | null
 }
 
+function getOrderedDates(date1: Date, date2: Date): [Date, Date] {
+    return date1 < date2 ? [date1, date2] : [date2, date1]
+}
+
 export default function DisponibilidadPage() {
     const {
         blockedDates,
@@ -52,13 +56,10 @@ export default function DisponibilidadPage() {
 
     const handleBlockDates = () => {
         if (selectedRange.from && selectedRange.to) {
-            const dates = eachDayOfInterval({ start: selectedRange.from, end: selectedRange.to })
-            dates.forEach(date => {
-                const dateStr = format(date, 'yyyy-MM-dd')
-                if (!isDateBlocked(dateStr)) {
-                    addBlockedDate(dateStr)
-                }
-            })
+            const [startDate, endDate] = getOrderedDates(selectedRange.from, selectedRange.to)
+            const startDateStr = format(startDate, 'yyyy-MM-dd')
+            const endDateStr = format(endDate, 'yyyy-MM-dd')
+            addBlockedDate(startDateStr, endDateStr)
             setIsBlockDateDialogOpen(false)
             toast({
                 title: 'Fechas bloqueadas',
@@ -69,13 +70,10 @@ export default function DisponibilidadPage() {
 
     const handleAddHolidays = () => {
         if (selectedRange.from && selectedRange.to && holidayName) {
-            const dates = eachDayOfInterval({ start: selectedRange.from, end: selectedRange.to })
-            dates.forEach(date => {
-                const dateStr = format(date, 'yyyy-MM-dd')
-                if (!isHoliday(dateStr)) {
-                    addHoliday(dateStr, holidayName)
-                }
-            })
+            const [startDate, endDate] = getOrderedDates(selectedRange.from, selectedRange.to)
+            const startDateStr = format(startDate, 'yyyy-MM-dd')
+            const endDateStr = format(endDate, 'yyyy-MM-dd')
+            addHoliday(startDateStr, endDateStr, holidayName)
             setHolidayName('')
             setIsHolidayDialogOpen(false)
             toast({
@@ -87,8 +85,9 @@ export default function DisponibilidadPage() {
 
     const handleAddHighSeason = () => {
         if (selectedRange.from && selectedRange.to && seasonPrice) {
-            const startDateStr = format(selectedRange.from, 'yyyy-MM-dd')
-            const endDateStr = format(selectedRange.to, 'yyyy-MM-dd')
+            const [startDate, endDate] = getOrderedDates(selectedRange.from, selectedRange.to)
+            const startDateStr = format(startDate, 'yyyy-MM-dd')
+            const endDateStr = format(endDate, 'yyyy-MM-dd')
             addHighSeasonPeriod(startDateStr, endDateStr, parseFloat(seasonPrice))
             setSeasonPrice('')
             setIsHighSeasonDialogOpen(false)
@@ -122,32 +121,38 @@ export default function DisponibilidadPage() {
 
     const handleRemoveSpecialConditions = () => {
         if (selectedRange.from && selectedRange.to) {
-            const dates = eachDayOfInterval({ start: selectedRange.from, end: selectedRange.to })
+            const [startDate, endDate] = getOrderedDates(selectedRange.from, selectedRange.to)
+            const startDateStr = format(startDate, 'yyyy-MM-dd')
+            const endDateStr = format(endDate, 'yyyy-MM-dd')
 
-            // Eliminar bloqueos y festivos
-            dates.forEach(date => {
-                const dateStr = format(date, 'yyyy-MM-dd')
-                if (isDateBlocked(dateStr)) {
-                    removeBlockedDate(dateStr)
-                }
-                if (isHoliday(dateStr)) {
-                    removeHoliday(dateStr)
+            // Buscar y eliminar bloqueados que se solapen
+            blockedDates.forEach(block => {
+                if (
+                    new Date(block.startDate) <= new Date(endDateStr) &&
+                    new Date(block.endDate) >= new Date(startDateStr)
+                ) {
+                    removeBlockedDate(block.startDate, block.endDate)
                 }
             })
 
-            // Manejar periodos de temporada alta
-            const affectedPeriods = new Set(
-                dates.flatMap(date => {
-                    const dateStr = format(date, 'yyyy-MM-dd')
-                    return highSeasonPeriods.filter(
-                        p => new Date(dateStr) >= new Date(p.startDate) &&
-                            new Date(dateStr) <= new Date(p.endDate)
-                    )
-                })
-            )
+            // Buscar y eliminar festivos que se solapen
+            holidays.forEach(holiday => {
+                if (
+                    new Date(holiday.startDate) <= new Date(endDateStr) &&
+                    new Date(holiday.endDate) >= new Date(startDateStr)
+                ) {
+                    removeHoliday(holiday.startDate, holiday.endDate)
+                }
+            })
 
-            affectedPeriods.forEach(period => {
-                removeHighSeasonPeriod(period.startDate, period.endDate)
+            // Buscar y eliminar temporadas altas que se solapen
+            highSeasonPeriods.forEach(period => {
+                if (
+                    new Date(period.startDate) <= new Date(endDateStr) &&
+                    new Date(period.endDate) >= new Date(startDateStr)
+                ) {
+                    removeHighSeasonPeriod(period.startDate, period.endDate)
+                }
             })
 
             setIsBlockDateDialogOpen(false)

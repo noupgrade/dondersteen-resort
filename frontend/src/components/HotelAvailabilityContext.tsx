@@ -5,11 +5,13 @@ import { useDocument } from '@/shared/firebase/hooks/useDocument'
 import { FSDocument } from '@/shared/firebase/types'
 
 interface BlockedDate {
-    date: string
+    startDate: string
+    endDate: string
 }
 
 interface Holiday {
-    date: string
+    startDate: string
+    endDate: string
     name: string
 }
 
@@ -29,10 +31,10 @@ interface HotelAvailabilityContextType {
     blockedDates: BlockedDate[]
     holidays: Holiday[]
     highSeasonPeriods: HighSeasonPeriod[]
-    addBlockedDate: (date: string) => void
-    removeBlockedDate: (date: string) => void
-    addHoliday: (date: string, name: string) => void
-    removeHoliday: (date: string) => void
+    addBlockedDate: (startDate: string, endDate: string) => void
+    removeBlockedDate: (startDate: string, endDate: string) => void
+    addHoliday: (startDate: string, endDate: string, name: string) => void
+    removeHoliday: (startDate: string, endDate: string) => void
     addHighSeasonPeriod: (startDate: string, endDate: string, price: number) => void
     removeHighSeasonPeriod: (startDate: string, endDate: string) => void
     isDateBlocked: (date: string) => boolean
@@ -57,27 +59,31 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         defaultValue: defaultData,
     })
 
-    const addBlockedDate = (date: string) => {
+    const addBlockedDate = (startDate: string, endDate: string) => {
         setData({
-            blockedDates: [...data.blockedDates, { date }],
+            blockedDates: [...data.blockedDates, { startDate, endDate }],
         })
     }
 
-    const removeBlockedDate = (date: string) => {
+    const removeBlockedDate = (startDate: string, endDate: string) => {
         setData({
-            blockedDates: data.blockedDates.filter(d => d.date !== date),
+            blockedDates: data.blockedDates.filter(
+                d => d.startDate !== startDate || d.endDate !== endDate
+            ),
         })
     }
 
-    const addHoliday = (date: string, name: string) => {
+    const addHoliday = (startDate: string, endDate: string, name: string) => {
         setData({
-            holidays: [...data.holidays, { date, name }],
+            holidays: [...data.holidays, { startDate, endDate, name }],
         })
     }
 
-    const removeHoliday = (date: string) => {
+    const removeHoliday = (startDate: string, endDate: string) => {
         setData({
-            holidays: data.holidays.filter(h => h.date !== date),
+            holidays: data.holidays.filter(
+                h => h.startDate !== startDate || h.endDate !== endDate
+            ),
         })
     }
 
@@ -96,11 +102,15 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
     }
 
     const isDateBlocked = (date: string) => {
-        return data.blockedDates.some(d => d.date === date)
+        return data.blockedDates.some(
+            d => new Date(date) >= new Date(d.startDate) && new Date(date) <= new Date(d.endDate)
+        )
     }
 
     const isHoliday = (date: string) => {
-        return data.holidays.some(h => h.date === date)
+        return data.holidays.some(
+            h => new Date(date) >= new Date(h.startDate) && new Date(date) <= new Date(h.endDate)
+        )
     }
 
     const getHighSeasonPrice = (date: string) => {
