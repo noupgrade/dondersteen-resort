@@ -60,16 +60,18 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
                             onValueChange={onRoomAssign}
                             defaultValue={pet.roomNumber}
                         >
-                            <SelectTrigger className="w-full min-h-[2.75rem]">
+                            <SelectTrigger
+                                className={`w-full min-h-[2.75rem] ${!pet.roomNumber ? 'bg-amber-50 border-amber-200 hover:bg-amber-100' : ''}`}
+                            >
                                 <div className="flex items-center gap-2 w-full">
-                                    <Home className="h-4 w-4 shrink-0" />
+                                    <Home className={`h-4 w-4 shrink-0 ${!pet.roomNumber ? 'text-amber-500' : ''}`} />
                                     {pet.roomNumber ? (
                                         <RoomDisplay
                                             room={pet.roomNumber}
                                             pets={currentPetsInRooms[pet.roomNumber]}
                                         />
                                     ) : (
-                                        <span>Asignar Habitación</span>
+                                        <span className="text-amber-700">Asignar Habitación</span>
                                     )}
                                 </div>
                             </SelectTrigger>
