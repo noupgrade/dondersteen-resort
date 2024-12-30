@@ -83,6 +83,7 @@ export function useDocument<T extends FSDocument>({
                     onDocumentChange: (doc: T) => setDocumentInStore(docPath, doc),
                 })
                 if (doc === undefined && defaultValue !== undefined) {
+                    setIsLoading(false)
                     return
                 }
                 setDocumentInStore(docPath, doc)

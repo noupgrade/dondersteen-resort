@@ -26,6 +26,11 @@ service cloud.firestore {
       allow read, write: if isStaff(); // Only staff can modify store config
     }
 
+    // Hotel availability configuration
+    match /configs/hotel-availability {
+      allow read, write: if true;
+    }
+
     // Sales collection
     match /sales/{saleId} {
       allow read, create, update: if isStaff(); // Only staff can create and update sales

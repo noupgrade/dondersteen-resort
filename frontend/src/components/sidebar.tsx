@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart } from 'lucide-react'
+import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Calendar } from 'lucide-react'
 
 const Sidebar = () => {
     const location = useLocation()
@@ -46,6 +46,16 @@ const Sidebar = () => {
                         >
                             <LayoutGrid className='h-5 w-5' />
                             {isOpen && <span className='ml-3'>Planning</span>}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            to='/panel-interno/disponibilidad'
+                            className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/disponibilidad')}`}
+                            title='Disponibilidad'
+                        >
+                            <Calendar className='h-5 w-5' />
+                            {isOpen && <span className='ml-3'>Disponibilidad</span>}
                         </Link>
                     </li>
                     <li>
