@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { Clock, PawPrint, PlusCircle, Users, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell } from 'lucide-react'
+import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell } from 'lucide-react'
 
 import { HotelReservation, useReservation } from '@/components/ReservationContext.tsx'
 import { CheckIns } from '@/components/check-ins.tsx'
@@ -10,7 +10,6 @@ import { CheckOuts } from '@/components/check-outs.tsx'
 import { PendingRequests } from '@/components/pending-requests.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
-import { Progress } from '@/shared/ui/progress.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
 
@@ -104,80 +103,45 @@ export default function PanelInterno() {
                 </Button>
             </div>
 
-            <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
-                <Card className='bg-gradient-to-br from-[#4B6BFB] to-[#4B6BFB]/80 text-white'>
-                    <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                        <CardTitle className='text-lg font-medium'>Reservas Activas</CardTitle>
-                        <PawPrint className='h-5 w-5 text-[#E5E7EB]' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold'>{activeReservations.length}</div>
-                        <p className='text-xs text-[#E5E7EB]'>Estancias en curso</p>
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-gradient-to-br from-[#12B76A] to-[#12B76A]/80 text-white'>
-                    <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                        <CardTitle className='text-lg font-medium'>Solicitudes Pendientes</CardTitle>
-                        <Clock className='h-5 w-5 text-[#E5E7EB]' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold'>{pendingRequests.length}</div>
-                        <p className='text-xs text-[#E5E7EB]'>Solicitudes por revisar</p>
-                    </CardContent>
-                </Card>
-
-                <Card className='bg-gradient-to-br from-[#F79009] to-[#F79009]/80 text-white'>
-                    <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                        <CardTitle className='text-lg font-medium'>Ocupación Actual</CardTitle>
-                        <Users className='h-5 w-5 text-[#E5E7EB]' />
-                    </CardHeader>
-                    <CardContent>
-                        <div className='text-2xl font-bold'>{occupancy.toFixed(0)}%</div>
-                        <Progress value={occupancy} className='mt-2 bg-[#E5E7EB]/30 [&>div]:bg-[#E5E7EB]' />
-                    </CardContent>
-                </Card>
-            </div>
-
-            <Tabs defaultValue='pending' className='space-y-4'>
+            <Tabs defaultValue='active' className='space-y-4'>
                 <TabsList className='grid w-full grid-cols-4 gap-4 bg-transparent p-0'>
                     <TabsTrigger
-                        value='pending'
-                        className='relative flex items-center justify-center gap-2 data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
-                    >
-                        <span>Solicitudes pendientes</span>
-                        {pendingRequests.length > 0 && (
-                            <Badge
-                                variant="destructive"
-                                className="h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs shrink-0"
-                            >
-                                {pendingRequests.length}
-                            </Badge>
-                        )}
-                    </TabsTrigger>
-                    <TabsTrigger
                         value='active'
-                        className='relative flex items-center justify-center gap-2 data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
-                        <span>Reservas activas</span>
+                        Reservas activas
                         {activeReservations.length > 0 && (
                             <Badge
                                 variant="destructive"
-                                className="h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs shrink-0"
+                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                             >
                                 {activeReservations.length}
                             </Badge>
                         )}
                     </TabsTrigger>
                     <TabsTrigger
-                        value='check-ins'
-                        className='relative flex items-center justify-center gap-2 data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                        value='pending'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
-                        <span>Entradas</span>
+                        Solicitudes pendientes
+                        {pendingRequests.length > 0 && (
+                            <Badge
+                                variant="destructive"
+                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                            >
+                                {pendingRequests.length}
+                            </Badge>
+                        )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='check-ins'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Entradas
                         {checkIns.length > 0 && (
                             <Badge
                                 variant="destructive"
-                                className="h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs shrink-0"
+                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                             >
                                 {checkIns.length}
                             </Badge>
@@ -185,13 +149,13 @@ export default function PanelInterno() {
                     </TabsTrigger>
                     <TabsTrigger
                         value='check-outs'
-                        className='relative flex items-center justify-center gap-2 data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
-                        <span>Salidas</span>
+                        Salidas
                         {checkOuts.length > 0 && (
                             <Badge
                                 variant="destructive"
-                                className="h-6 w-6 rounded-full p-0 flex items-center justify-center text-xs shrink-0"
+                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                             >
                                 {checkOuts.length}
                             </Badge>
