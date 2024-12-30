@@ -1,8 +1,9 @@
-import React, { createContext, useCallback, useContext } from 'react'
+import React, { createContext, useCallback, useContext, useMemo } from 'react'
 
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { addDays, format } from 'date-fns'
+import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
 
 export type HotelReservation = {
     id: string
@@ -21,6 +22,8 @@ export type HotelReservation = {
         breed: string
         weight: number
         size: 'pequeño' | 'mediano' | 'grande'
+        sex: 'M' | 'F'
+        roomNumber?: string
     }[]
     additionalServices: string[]
     roomNumber: string
@@ -110,7 +113,7 @@ export const useHairSalonReservations = () => {
 
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const {
-        results: reservations,
+        results: dbReservations,
         isLoading,
         addDocument,
         updateDocument,
@@ -121,15 +124,47 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         limit: 100,
     })
 
+    // Combine database reservations with example reservations
+    const reservations = useMemo(() => {
+        const allReservations = [...dbReservations]
+
+        // Only add example reservations if they don't conflict with existing ones
+        EXAMPLE_RESERVATIONS.forEach(example => {
+            if (!allReservations.some(r => r.id === example.id)) {
+                allReservations.push(example as ReservationDocument)
+            }
+        })
+
+        return allReservations
+    }, [dbReservations])
+
     const addReservation = useCallback(async (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => {
+        // If it's an example reservation (you could add a flag or check the ID pattern)
+        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
+            const newReservation = {
+                ...reservation,
+                id: `EXAMPLE_${Date.now()}`,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            } as ReservationDocument
+            return newReservation
+        }
         return await addDocument(reservation)
     }, [addDocument])
 
     const updateReservation = useCallback(async (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => {
+        // If it's an example reservation, just return
+        if (id.startsWith('EXAMPLE_')) {
+            return
+        }
         await updateDocument(id, updatedData)
     }, [updateDocument])
 
     const deleteReservation = useCallback(async (id: string) => {
+        // If it's an example reservation, just return
+        if (id.startsWith('EXAMPLE_')) {
+            return
+        }
         await removeDocument(id)
     }, [removeDocument])
 
