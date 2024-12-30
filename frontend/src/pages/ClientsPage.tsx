@@ -83,7 +83,7 @@ export default function ClientesPage() {
 
     return (
         <div className='container mx-auto space-y-6 p-6'>
-            <h1 className='text-3xl font-bold'>Gestión de Clientes</h1>
+            <h1 className='text-3xl font-bold'>Clientes</h1>
 
             <div className='flex flex-wrap items-center justify-between gap-4'>
                 <div className='min-w-[300px] flex-1'>

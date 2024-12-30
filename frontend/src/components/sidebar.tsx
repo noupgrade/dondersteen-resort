@@ -32,10 +32,10 @@ const Sidebar = () => {
                         <Link
                             to='/panel-interno'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno')}`}
-                            title='Home'
+                            title='Hotel'
                         >
                             <Home className='h-5 w-5' />
-                            {isOpen && <span className='ml-3'>Home</span>}
+                            {isOpen && <span className='ml-3'>Hotel</span>}
                         </Link>
                     </li>
                     <li>

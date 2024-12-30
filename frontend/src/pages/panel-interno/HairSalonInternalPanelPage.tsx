@@ -451,7 +451,7 @@ export default function PeluqueriaPage() {
     return (
         <div className='container mx-auto p-4 md:p-6'>
             <div className='flex items-center justify-between mb-4'>
-                <h1 className='text-3xl font-bold'>Gestión de Peluquería</h1>
+                <h1 className='text-3xl font-bold'>Peluquería</h1>
             </div>
 
             {/* Banner de notificaciones */}
