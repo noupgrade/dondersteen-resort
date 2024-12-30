@@ -1,5 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-import * as daisyui from 'daisyui'
 import * as tailwindAnimate from 'tailwindcss-animate'
 import * as colors from 'tailwindcss/colors'
 
@@ -87,22 +86,5 @@ export default {
             },
         },
     },
-    daisyui: {
-        themes: [
-            {
-                mytheme: {
-                    primary: '#3fc1c9',
-                    secondary: '#3F7CC9',
-                    accent: '#3FC98C',
-                    neutral: '#12323a',
-                    'base-100': '#effcfc',
-                    info: '#b7f0fe',
-                    success: '#00aa6f',
-                    warning: '#ffc000',
-                    error: '#FECACA',
-                },
-            },
-        ], // TODO add dark theme
-    },
-    plugins: [daisyui, tailwindAnimate],
+    plugins: [tailwindAnimate],
 }
