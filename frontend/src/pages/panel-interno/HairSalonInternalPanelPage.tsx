@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { addDays, format } from 'date-fns'
+import { addDays, format, addHours } from 'date-fns'
 import { es } from 'date-fns/locale'
 import {
     Calendar,
@@ -11,11 +11,11 @@ import {
     Info,
     Plus,
     Trash2,
-    Users
+    Users,
+    ChevronDown
 } from 'lucide-react'
 
 import { AvailabilityCalendarView } from '@/components/availability-calendar-view.tsx'
-import { NotificationBell, type Notification } from '@/components/notifications/NotificationBell.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
@@ -28,6 +28,23 @@ import { Textarea } from '@/shared/ui/textarea.tsx'
 import { Upload } from '@/shared/ui/upload.tsx'
 import { useToast } from '@/shared/ui/use-toast.ts'
 import { ExtendedReservation, ReservationStatus } from '@/types/reservation.ts'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover.tsx'
+import { ScrollArea } from '@/shared/ui/scroll-area.tsx'
+import { cn } from '@/shared/lib/styles/class-merge.ts'
+
+interface Notification {
+    id: string
+    petName: string
+    reservationId: string
+    currentDate?: string
+    currentTime?: string
+    newDate: string
+    newTime: string
+    timestamp: string
+    read: boolean
+    readTimestamp?: string
+    message: string
+}
 
 interface SubCita {
     fecha: string
@@ -185,6 +202,7 @@ export default function PeluqueriaPage() {
             message: 'La reserva de Rocky se ha retrasado'
         }
     ])
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
 
     // Función para ordenar las reservas por origen (hotel primero)
     const sortedReservations = [...pendingReservations].sort((a, b) => {
@@ -432,47 +450,117 @@ export default function PeluqueriaPage() {
 
     return (
         <div className='container mx-auto p-4 md:p-6'>
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between mb-4'>
                 <h1 className='text-3xl font-bold'>Gestión de Peluquería</h1>
-                <NotificationBell
-                    notifications={notifications}
-                    onMarkAsRead={handleMarkAsRead}
-                    onNotificationClick={handleNotificationClick}
-                    onUpdateReservation={handleUpdateReservationFromNotification}
-                    onRemoveNotification={handleRemoveNotification}
-                />
             </div>
 
             {/* Banner de notificaciones */}
             {notifications.some(n => !n.read) && (
-                <div className="mt-4 mb-6 rounded-lg bg-amber-50/80 border border-amber-200 p-4 backdrop-blur-sm">
-                    <div className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-amber-500" />
-                        <p className="text-amber-800 font-medium">
-                            Cambios de horarios en reservas de peluquería pendientes de gestionar
-                        </p>
+                <div className="space-y-2">
+                    <div
+                        className="rounded-lg bg-amber-50/80 border border-amber-200 p-4 backdrop-blur-sm cursor-pointer hover:bg-amber-100/50 transition-colors"
+                        onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Info className="h-5 w-5 text-amber-500" />
+                                <p className="text-amber-800 font-medium">
+                                    Cambios de horarios en reservas de peluquería pendientes de gestionar
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Badge
+                                    variant="destructive"
+                                    className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                >
+                                    {notifications.filter(n => !n.read).length}
+                                </Badge>
+                                <ChevronDown className={cn(
+                                    "h-4 w-4 text-amber-500 transition-transform duration-200",
+                                    isNotificationsOpen && "transform rotate-180"
+                                )} />
+                            </div>
+                        </div>
                     </div>
+                    {isNotificationsOpen && (
+                        <div className="space-y-2">
+                            {notifications.map((notification) => (
+                                <div
+                                    key={notification.id}
+                                    className={cn(
+                                        "w-full text-left",
+                                        !notification.read && "bg-amber-50/50"
+                                    )}
+                                >
+                                    <div
+                                        className="rounded-lg bg-amber-50/80 border border-amber-200 p-4 backdrop-blur-sm hover:bg-amber-100/50 transition-colors cursor-pointer"
+                                        onClick={() => {
+                                            handleMarkAsRead(notification.id)
+                                            handleNotificationClick(notification)
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Info className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                                            <div className="flex-1">
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div>
+                                                        <p className="text-amber-800 font-medium">
+                                                            {notification.petName}
+                                                        </p>
+                                                        <p className="text-sm text-amber-700/80">
+                                                            {notification.message}
+                                                        </p>
+                                                    </div>
+                                                    {notification.read && notification.readTimestamp && (
+                                                        <p className="text-xs text-amber-600/60 whitespace-nowrap">
+                                                            Se eliminará {format(addHours(new Date(notification.readTimestamp), 24), 'dd MMM HH:mm', { locale: es })}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-4 text-xs text-amber-600/80 mt-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="h-3 w-3" />
+                                                        <span>
+                                                            {format(new Date(notification.timestamp), 'dd MMM yyyy', { locale: es })}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <Clock className="h-3 w-3" />
+                                                        <span>
+                                                            {format(new Date(notification.timestamp), 'HH:mm', { locale: es })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
-            <Card className='mt-6'>
-                <CardContent className='flex items-center justify-between p-4'>
-                    <div className='flex space-x-4'>
-                        <div>
-                            <p className='text-sm text-muted-foreground'>Reservas pendientes</p>
-                            <p className='text-2xl font-bold'>{pendingReservations.length}</p>
+            <div className="mt-6">
+                <Card>
+                    <CardContent className='flex items-center justify-between p-4'>
+                        <div className='flex space-x-4'>
+                            <div>
+                                <p className='text-sm text-muted-foreground'>Reservas pendientes</p>
+                                <p className='text-2xl font-bold'>{pendingReservations.length}</p>
+                            </div>
+                            <div>
+                                <p className='text-sm text-muted-foreground'>Citas confirmadas</p>
+                                <p className='text-2xl font-bold'>{confirmedReservations.length}</p>
+                            </div>
+                            <div>
+                                <p className='text-sm text-muted-foreground'>Huecos libres</p>
+                                <p className='text-2xl font-bold'>{timeSlots.length - confirmedReservations.length}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className='text-sm text-muted-foreground'>Citas confirmadas</p>
-                            <p className='text-2xl font-bold'>{confirmedReservations.length}</p>
-                        </div>
-                        <div>
-                            <p className='text-sm text-muted-foreground'>Huecos libres</p>
-                            <p className='text-2xl font-bold'>{timeSlots.length - confirmedReservations.length}</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
 
             <Tabs defaultValue='pending' className='space-y-4'>
                 <TabsList>
@@ -1143,10 +1231,10 @@ function ReservationCard({
                     <Badge
                         variant="outline"
                         className={`px-3 py-1.5 whitespace-nowrap font-medium ${reservation.additionalServices[0] === 'corte'
-                                ? 'bg-blue-50 border-blue-200 text-blue-700'
-                                : reservation.additionalServices[0] === 'bano_especial'
-                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                                    : 'bg-violet-50 border-violet-200 text-violet-700'
+                            ? 'bg-blue-50 border-blue-200 text-blue-700'
+                            : reservation.additionalServices[0] === 'bano_especial'
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : 'bg-violet-50 border-violet-200 text-violet-700'
                             }`}
                     >
                         {reservation.additionalServices[0] === 'corte'
