@@ -126,14 +126,7 @@ export default function PanelInterno() {
                     </Card>
                 </TabsContent>
                 <TabsContent value='check-ins'>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Entradas del Día</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <CheckIns />
-                        </CardContent>
-                    </Card>
+                    <CheckIns />
                 </TabsContent>
                 <TabsContent value='check-outs'>
                     <Card>

@@ -28,6 +28,19 @@ type PetCardProps = {
     currentPetsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> }
 }
 
+function RoomDisplay({ room, pets }: { room: string, pets?: Array<{ name: string; breed: string; sex: string }> }) {
+    return (
+        <div className="flex flex-col gap-0.25 pl-2 min-w-0">
+            <div className="text-start font-medium truncate">{room}</div>
+            {pets && pets.length > 0 && (
+                <div className="text-xs text-muted-foreground truncate">
+                    {pets.map(p => `${p.name} (${p.breed}) ${p.sex === 'M' ? '♂️' : '♀️'}`).join(', ')}
+                </div>
+            )}
+        </div>
+    )
+}
+
 function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsInRooms }: PetCardProps) {
     return (
         <Card className="mb-4 last:mb-0">
@@ -47,27 +60,34 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
                             onValueChange={onRoomAssign}
                             defaultValue={pet.roomNumber}
                         >
-                            <SelectTrigger className="w-full">
-                                <div className="flex items-center">
-                                    <Home className="mr-2 h-4 w-4" />
-                                    <SelectValue placeholder="Asignar Habitación" />
+                            <SelectTrigger className="w-full min-h-[2.75rem]">
+                                <div className="flex items-center gap-2 w-full">
+                                    <Home className="h-4 w-4 shrink-0" />
+                                    {pet.roomNumber ? (
+                                        <RoomDisplay
+                                            room={pet.roomNumber}
+                                            pets={currentPetsInRooms[pet.roomNumber]}
+                                        />
+                                    ) : (
+                                        <span>Asignar Habitación</span>
+                                    )}
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
-                                {availableRooms.map(room => (
-                                    <SelectItem key={room} value={room}>
-                                        <div>
-                                            <div className="font-medium">{room}</div>
-                                            {currentPetsInRooms[room]?.length > 0 && (
-                                                <div className="text-xs text-muted-foreground">
-                                                    Ocupada por: {currentPetsInRooms[room].map(p =>
-                                                        `${p.name} (${p.breed}) ${p.sex === 'M' ? '♂️' : '♀️'}`
-                                                    ).join(', ')}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </SelectItem>
-                                ))}
+                                <div className="max-h-[300px] overflow-auto">
+                                    {availableRooms.map(room => (
+                                        <SelectItem
+                                            key={room}
+                                            value={room}
+                                            className="py-2"
+                                        >
+                                            <RoomDisplay
+                                                room={room}
+                                                pets={currentPetsInRooms[room]}
+                                            />
+                                        </SelectItem>
+                                    ))}
+                                </div>
                             </SelectContent>
                         </Select>
                     </div>
@@ -77,9 +97,9 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
                             onValueChange={onSizeChange}
                             defaultValue={pet.size}
                         >
-                            <SelectTrigger className="w-full">
-                                <div className="flex items-center">
-                                    <Ruler className="mr-2 h-4 w-4" />
+                            <SelectTrigger className="w-full min-h-[2.75rem]">
+                                <div className="flex items-center gap-2">
+                                    <Ruler className="h-4 w-4 shrink-0" />
                                     <SelectValue placeholder="Seleccionar Tamaño" />
                                 </div>
                             </SelectTrigger>
@@ -244,12 +264,6 @@ export function CheckIns() {
                             />
                         ))}
                     </CardContent>
-                    <CardFooter className="bg-muted/50 px-6 py-4">
-                        <div className="flex justify-between w-full text-sm">
-                            <span>Precio Total:</span>
-                            <span className="font-semibold">{reservation.totalPrice}€</span>
-                        </div>
-                    </CardFooter>
                 </Card>
             ))}
         </div>
