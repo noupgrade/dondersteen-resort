@@ -181,5 +181,14 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
             unscheduledReservations: state.unscheduledReservations.filter((r: ExtendedReservation) => r.id !== reservation.id),
             scheduledReservations: [...state.scheduledReservations, { ...reservation, date, time }]
         }))
+    },
+
+    updateReservation: async (updatedReservation: ExtendedReservation) => {
+        // Simulate API call
+        set((state: any) => ({
+            scheduledReservations: state.scheduledReservations.map((r: ExtendedReservation) =>
+                r.id === updatedReservation.id ? updatedReservation : r
+            )
+        }))
     }
 })) 

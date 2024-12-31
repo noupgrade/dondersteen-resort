@@ -100,9 +100,9 @@ export function HairSalonCalendarWidget() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid">
+                        <div className="relative">
                             {view === 'day' ? (
-                                <div className="grid">
+                                <div className="relative grid auto-rows-[4rem]">
                                     {timeSlots.map((time) => (
                                         <TimeSlot
                                             key={time}
@@ -130,7 +130,7 @@ export function HairSalonCalendarWidget() {
                                     {/* Grid de slots */}
                                     <div className="col-span-7 grid grid-cols-7">
                                         {weekDays.map((day) => (
-                                            <div key={day.date} className="relative grid">
+                                            <div key={day.date} className="relative grid auto-rows-[4rem]">
                                                 {timeSlots.map((time) => (
                                                     <TimeSlot
                                                         key={`${day.date}-${time}`}

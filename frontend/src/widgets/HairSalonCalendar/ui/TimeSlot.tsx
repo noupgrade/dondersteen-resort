@@ -14,6 +14,7 @@ import { Label } from '@/shared/ui/label'
 import { Input } from '@/shared/ui/input'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Textarea } from '@/shared/ui/textarea'
+import { useToast } from '@/shared/ui/use-toast'
 
 interface TimeSlotProps {
     time: string
@@ -22,13 +23,14 @@ interface TimeSlotProps {
 }
 
 export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
-    const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations } = useCalendarStore()
+    const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [selectedReservation, setSelectedReservation] = useState<ExtendedReservation | null>(null)
     const [duration, setDuration] = useState('60')
     const [price, setPrice] = useState('')
     const [createSubcitas, setCreateSubcitas] = useState(false)
     const [subcitas, setSubcitas] = useState<Array<{ fecha: string; descripcion: string }>>([])
+    const { toast } = useToast()
 
     const reservation = scheduledReservations.find(r => r.date === date && r.time === time)
 
@@ -57,24 +59,38 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
         setSelectedReservation(res)
         setDuration(res.duration?.toString() || '60')
         setPrice(res.precioEstimado?.toString() || '')
-        setCreateSubcitas(false)
-        setSubcitas([])
+        setCreateSubcitas(!!res.subcitas?.length)
+        setSubcitas(res.subcitas || [])
         setIsDialogOpen(true)
     }
 
     const handleSaveConfig = async () => {
         if (!selectedReservation) return
 
-        // TODO: Implementar la lógica para guardar la configuración
-        console.log('Guardando configuración:', {
-            reservation: selectedReservation,
-            duration,
-            price,
-            createSubcitas,
-            subcitas
-        })
+        try {
+            const updatedReservation: ExtendedReservation = {
+                ...selectedReservation,
+                duration: parseInt(duration),
+                precioEstimado: price ? parseFloat(price) : undefined,
+                subcitas: createSubcitas ? subcitas : undefined
+            }
 
-        setIsDialogOpen(false)
+            await updateReservation(updatedReservation)
+
+            toast({
+                title: "Cambios guardados",
+                description: "La configuración de la cita se ha actualizado correctamente."
+            })
+
+            setIsDialogOpen(false)
+        } catch (error) {
+            console.error('Error al guardar la configuración:', error)
+            toast({
+                title: "Error",
+                description: "No se pudieron guardar los cambios. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
 
     return (
@@ -82,19 +98,29 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
             <div
                 ref={drop}
                 className={cn(
-                    'relative border-b border-r p-1 transition-colors',
+                    'relative border-b border-r transition-colors',
                     isAvailable ? 'bg-white hover:bg-gray-50' : 'bg-gray-100',
                     isOver && canDrop && 'bg-blue-50',
                     !isAvailable && 'cursor-not-allowed',
-                    !reservation && isAvailable && 'cursor-pointer',
-                    !reservation && 'h-16'
+                    !reservation && isAvailable && 'cursor-pointer'
                 )}
-                style={reservation ? { height: `${Math.ceil((reservation.duration || 60) / 60) * 4}rem` } : undefined}
+                style={
+                    reservation 
+                        ? { 
+                            height: `${Math.ceil((reservation.duration || 60) / 30) * 2}rem`,
+                            position: 'relative',
+                            zIndex: reservation.duration && reservation.duration > 60 ? 10 : 'auto'
+                        } 
+                        : { height: '4rem' }
+                }
             >
                 <div className="flex h-full flex-col">
-                    <span className="text-xs text-gray-500">{time}</span>
+                    <span className="text-xs text-gray-500 px-2 py-1">{time}</span>
                     {reservation && (
-                        <div onClick={() => handleReservationClick(reservation)} className="flex-1">
+                        <div 
+                            onClick={() => handleReservationClick(reservation)} 
+                            className="absolute inset-0"
+                        >
                             <DraggableReservation
                                 reservation={reservation}
                                 date={date}
@@ -123,6 +149,8 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
                                 value={duration}
                                 onChange={(e) => setDuration(e.target.value)}
                                 className="col-span-3"
+                                min="30"
+                                step="30"
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -135,6 +163,8 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
                                 className="col-span-3"
+                                min="0"
+                                step="0.01"
                             />
                         </div>
                         <div className="flex items-center space-x-2">

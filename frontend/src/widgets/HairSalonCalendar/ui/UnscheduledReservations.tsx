@@ -50,7 +50,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                             reservation={reservation}
                             date={reservation.date}
                             time=""
-                            className="bg-gray-50 hover:bg-gray-100"
+                            className="hover:opacity-90"
                         />
                     ))}
                 </div>

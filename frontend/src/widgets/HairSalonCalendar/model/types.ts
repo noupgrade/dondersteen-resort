@@ -30,6 +30,7 @@ export interface CalendarActions {
     moveReservation: (reservation: ExtendedReservation, newDate: string, newTime: string) => Promise<void>
     createReservation: (reservation: Omit<ExtendedReservation, 'id'>) => Promise<void>
     scheduleUnscheduledReservation: (reservation: ExtendedReservation, date: string, time: string) => Promise<void>
+    updateReservation: (updatedReservation: ExtendedReservation) => Promise<void>
 }
 
 export interface TimeSlot {

@@ -54,32 +54,36 @@ export function DraggableReservation({
         <div
             ref={drag}
             className={cn(
-                'flex h-full cursor-move flex-col gap-1 rounded-md border p-2 transition-opacity',
+                'flex cursor-move flex-col rounded-none border-0 transition-opacity h-full',
                 isDragging && 'opacity-50',
-                reservation.source === 'hotel' ? 'bg-blue-200 border-blue-300' : 'bg-emerald-200 border-emerald-300',
+                reservation.source === 'hotel' ? 'bg-blue-200' : 'bg-emerald-200',
                 className
             )}
         >
-            <div className="flex items-center justify-between gap-2">
-                <span className="font-medium">{reservation.pet.name}</span>
-                <Badge variant="outline" className="text-[10px]">
-                    {serviceTypeLabels[reservation.additionalServices[0] as keyof typeof serviceTypeLabels]}
-                </Badge>
+            <div className="flex flex-col h-full p-1.5">
+                <div className="flex items-start justify-between gap-1 min-h-[20px]">
+                    <span className="font-medium text-sm truncate">{reservation.pet.name}</span>
+                    <Badge variant="outline" className="text-[10px] shrink-0 whitespace-nowrap">
+                        {serviceTypeLabels[reservation.additionalServices[0] as keyof typeof serviceTypeLabels]}
+                    </Badge>
+                </div>
+                <div className="flex flex-col justify-end flex-1 gap-0.5 mt-0.5">
+                    {showPrice && (
+                        <div className="text-[10px] text-gray-600 truncate">
+                            {reservation.precioEstimado ? `${reservation.precioEstimado}€` : 'Sin precio estimado'}
+                        </div>
+                    )}
+                    {isUnscheduled ? (
+                        <div className="text-[10px] text-gray-600 truncate">
+                            {format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}
+                        </div>
+                    ) : time && (
+                        <div className="text-[10px] text-gray-600 truncate">
+                            {time} ({reservation.duration || 60} min)
+                        </div>
+                    )}
+                </div>
             </div>
-            {showPrice && (
-                <div className="text-xs text-gray-600">
-                    {reservation.precioEstimado ? `Precio estimado: ${reservation.precioEstimado}€` : 'Sin precio estimado'}
-                </div>
-            )}
-            {isUnscheduled ? (
-                <div className="mt-1 text-xs text-gray-600">
-                    {format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}
-                </div>
-            ) : time && (
-                <div className="mt-1 text-xs text-gray-600">
-                    {time} ({reservation.duration || 60} min)
-                </div>
-            )}
         </div>
     )
 } 
