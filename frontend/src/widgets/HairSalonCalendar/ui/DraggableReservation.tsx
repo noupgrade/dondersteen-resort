@@ -64,7 +64,10 @@ export function DraggableReservation({
                 <div className="flex items-start justify-between gap-1 min-h-[20px]">
                     <span className="font-medium text-sm truncate">{reservation.pet.name}</span>
                     <Badge variant="outline" className="text-[10px] shrink-0 whitespace-nowrap">
-                        {serviceTypeLabels[reservation.additionalServices[0] as keyof typeof serviceTypeLabels]}
+                        {reservation.observations?.startsWith('Subcita') 
+                            ? 'Subcita'
+                            : serviceTypeLabels[reservation.additionalServices[0] as keyof typeof serviceTypeLabels]
+                        }
                     </Badge>
                 </div>
                 <div className="flex flex-col justify-end flex-1 gap-0.5 mt-0.5">

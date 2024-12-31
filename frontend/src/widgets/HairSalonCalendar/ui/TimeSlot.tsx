@@ -23,7 +23,7 @@ interface TimeSlotProps {
 }
 
 export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
-    const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
+    const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation, createReservation } = useCalendarStore()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [selectedReservation, setSelectedReservation] = useState<ExtendedReservation | null>(null)
     const [duration, setDuration] = useState('60')
@@ -68,6 +68,7 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
         if (!selectedReservation) return
 
         try {
+            // Actualizar la reserva principal
             const updatedReservation: ExtendedReservation = {
                 ...selectedReservation,
                 duration: parseInt(duration),
@@ -77,9 +78,31 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
 
             await updateReservation(updatedReservation)
 
+            // Si hay subcitas y es una reserva de hotel, crear nuevas citas
+            if (createSubcitas && selectedReservation.source === 'hotel' && subcitas.length > 0) {
+                for (const subcita of subcitas) {
+                    const newReservation: Omit<ExtendedReservation, 'id'> = {
+                        type: 'peluqueria',
+                        source: 'hotel',
+                        date: subcita.fecha,
+                        time: '', // Se asignará después desde la sección de citas sin asignar
+                        client: selectedReservation.client,
+                        pet: selectedReservation.pet,
+                        additionalServices: [subcita.descripcion],
+                        status: 'confirmed',
+                        duration: 60, // Duración por defecto
+                        precioEstimado: undefined, // Se establecerá cuando se asigne la hora
+                        observations: `Subcita de la reserva ${selectedReservation.id} - ${subcita.descripcion}`
+                    }
+                    await createReservation(newReservation)
+                }
+            }
+
             toast({
                 title: "Cambios guardados",
-                description: "La configuración de la cita se ha actualizado correctamente."
+                description: createSubcitas && selectedReservation.source === 'hotel' 
+                    ? "La configuración se ha actualizado y se han creado las subcitas."
+                    : "La configuración de la cita se ha actualizado correctamente."
             })
 
             setIsDialogOpen(false)
@@ -167,25 +190,41 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
                                 step="0.01"
                             />
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                                id="subcitas"
-                                checked={createSubcitas}
-                                onCheckedChange={(checked) => {
-                                    setCreateSubcitas(checked as boolean)
-                                    if (checked) {
-                                        setSubcitas([{ fecha: date, descripcion: '' }])
-                                    } else {
-                                        setSubcitas([])
-                                    }
-                                }}
-                            />
-                            <Label htmlFor="subcitas">Dividir en subcitas</Label>
-                        </div>
-                        {createSubcitas && (
+                        {selectedReservation?.source === 'hotel' && (
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                    id="subcitas"
+                                    checked={createSubcitas}
+                                    onCheckedChange={(checked) => {
+                                        setCreateSubcitas(checked as boolean)
+                                        if (checked) {
+                                            setSubcitas([{ fecha: date, descripcion: 'Baño' }])
+                                        } else {
+                                            setSubcitas([])
+                                        }
+                                    }}
+                                />
+                                <Label htmlFor="subcitas">Crear subcitas adicionales</Label>
+                            </div>
+                        )}
+                        {createSubcitas && selectedReservation?.source === 'hotel' && (
                             <div className="space-y-4">
+                                <p className="text-sm text-muted-foreground">
+                                    Las subcitas se crearán como nuevas citas pendientes de asignar hora.
+                                </p>
                                 {subcitas.map((subcita, index) => (
-                                    <div key={index} className="grid gap-2">
+                                    <div key={index} className="grid gap-2 border rounded-lg p-4">
+                                        <Label>Tipo de servicio</Label>
+                                        <Input
+                                            value={subcita.descripcion}
+                                            onChange={(e) => {
+                                                const newSubcitas = [...subcitas]
+                                                newSubcitas[index].descripcion = e.target.value
+                                                setSubcitas(newSubcitas)
+                                            }}
+                                            placeholder="Ej: Baño, Corte, etc."
+                                        />
+                                        <Label className="mt-2">Fecha</Label>
                                         <Input
                                             type="date"
                                             value={subcita.fecha}
@@ -194,27 +233,34 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
                                                 newSubcitas[index].fecha = e.target.value
                                                 setSubcitas(newSubcitas)
                                             }}
-                                            placeholder="Fecha"
                                         />
-                                        <Textarea
-                                            value={subcita.descripcion}
-                                            onChange={(e) => {
-                                                const newSubcitas = [...subcitas]
-                                                newSubcitas[index].descripcion = e.target.value
-                                                setSubcitas(newSubcitas)
-                                            }}
-                                            placeholder="Descripción"
-                                        />
+                                        {subcitas.length > 1 && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                className="mt-2"
+                                                onClick={() => {
+                                                    setSubcitas(subcitas.filter((_, i) => i !== index))
+                                                }}
+                                            >
+                                                Eliminar subcita
+                                            </Button>
+                                        )}
                                     </div>
                                 ))}
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={() => setSubcitas([...subcitas, { fecha: date, descripcion: '' }])}
+                                    onClick={() => setSubcitas([...subcitas, { fecha: date, descripcion: 'Baño' }])}
                                 >
-                                    Añadir subcita
+                                    Añadir otra subcita
                                 </Button>
                             </div>
+                        )}
+                        {createSubcitas && selectedReservation?.source !== 'hotel' && (
+                            <p className="text-sm text-red-500">
+                                La creación de subcitas solo está disponible para reservas de hotel.
+                            </p>
                         )}
                     </div>
                     <DialogFooter>

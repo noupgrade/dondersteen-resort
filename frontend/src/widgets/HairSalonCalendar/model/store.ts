@@ -168,11 +168,21 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
         // Simulate API call
         const newReservation = {
             ...reservation,
-            id: Math.random().toString(36).substr(2, 9)
+            id: Math.random().toString(36).substr(2, 9),
+            status: 'confirmed'
         }
-        set((state: any) => ({
-            scheduledReservations: [...state.scheduledReservations, newReservation]
-        }))
+
+        // Si la reserva no tiene hora asignada, va a unscheduledReservations
+        set((state: any) => {
+            if (!newReservation.time) {
+                return {
+                    unscheduledReservations: [...state.unscheduledReservations, newReservation]
+                }
+            }
+            return {
+                scheduledReservations: [...state.scheduledReservations, newReservation]
+            }
+        })
     },
 
     scheduleUnscheduledReservation: async (reservation: ExtendedReservation, date: string, time: string) => {

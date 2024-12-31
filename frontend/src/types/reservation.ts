@@ -25,16 +25,24 @@ export interface BaseReservation {
 
 export interface ExtendedReservation {
     id: string
-    pet: {
-        id: string
-        name: string
-    }
-    additionalServices: string[]
+    type: 'peluqueria'
     source: 'hotel' | 'external'
     date?: string
     time?: string
+    client: {
+        name: string
+        phone: string
+    }
+    pet: {
+        id: string
+        name: string
+        breed: string
+    }
+    additionalServices: string[]
+    status: ReservationStatus
     duration?: number
     precioEstimado?: number
+    observations?: string
     subcitas?: Array<{
         fecha: string
         descripcion: string
