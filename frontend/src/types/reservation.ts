@@ -23,6 +23,20 @@ export interface BaseReservation {
     priceNote?: string
 }
 
-export interface ExtendedReservation extends BaseReservation {
-    source: ReservationSource
+export interface ExtendedReservation {
+    id: string
+    pet: {
+        id: string
+        name: string
+    }
+    additionalServices: string[]
+    source: 'hotel' | 'external'
+    date?: string
+    time?: string
+    duration?: number
+    precioEstimado?: number
+    subcitas?: Array<{
+        fecha: string
+        descripcion: string
+    }>
 } 

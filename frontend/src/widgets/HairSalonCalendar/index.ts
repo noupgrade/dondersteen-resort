@@ -1,0 +1,1 @@
+export { HairSalonCalendarWidget } from './ui/HairSalonCalendarWidget' 

@@ -31,6 +31,7 @@ import { ExtendedReservation, ReservationStatus } from '@/types/reservation.ts'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover.tsx'
 import { ScrollArea } from '@/shared/ui/scroll-area.tsx'
 import { cn } from '@/shared/lib/styles/class-merge.ts'
+import { HairSalonCalendarWidget } from '@/widgets/HairSalonCalendar'
 
 interface Notification {
     id: string
@@ -677,16 +678,10 @@ export default function PeluqueriaPage() {
                             Reservas pendientes
                         </TabsTrigger>
                         <TabsTrigger
-                            value='confirmed'
+                            value='calendar'
                             className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
                         >
-                            Citas del día
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value='availability'
-                            className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
-                        >
-                            Disponibilidad
+                            Calendario
                         </TabsTrigger>
                     </TabsList>
 
@@ -751,96 +746,16 @@ export default function PeluqueriaPage() {
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value='confirmed'>
+                    <TabsContent value='calendar' className='mt-6'>
                         <Card>
                             <CardHeader>
-                                <CardTitle>Citas del día</CardTitle>
+                                <CardTitle className="text-2xl">Calendario de Peluquería</CardTitle>
+                                <CardDescription>
+                                    Gestiona las citas y la disponibilidad de la peluquería
+                                </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className='grid grid-cols-1 gap-4'>
-                                    {timeSlots.map(slot => {
-                                        const reservation = confirmedReservations.find(r => r.time === slot)
-                                        return (
-                                            <div key={slot} className='flex items-center border-b py-2'>
-                                                <span className='w-20 font-semibold'>{slot}</span>
-                                                {reservation ? (
-                                                    <div className='ml-4 flex-1'>
-                                                        <div className='flex items-start justify-between'>
-                                                            <div>
-                                                                <h4 className='font-semibold'>
-                                                                    {reservation.pet.name} ({reservation.client.name})
-                                                                    {reservation.status === 'pending_client_confirmation' && (
-                                                                        <Badge variant="outline" className="ml-2">
-                                                                            Pendiente confirmación
-                                                                        </Badge>
-                                                                    )}
-                                                                </h4>
-                                                                <p className='text-sm text-muted-foreground'>
-                                                                    {reservation.pet.breed}
-                                                                </p>
-                                                                <p className='text-xs text-muted-foreground'>
-                                                                    {reservation.additionalServices[0] === 'corte'
-                                                                        ? 'Corte'
-                                                                        : reservation.additionalServices[0] ===
-                                                                            'bano_especial'
-                                                                            ? 'Baño especial'
-                                                                            : 'Deslanado'}
-                                                                </p>
-                                                                {reservation.observations && (
-                                                                    <div className='mt-1 flex items-center text-xs text-muted-foreground'>
-                                                                        <Info className='mr-1 h-3 w-3' />
-                                                                        <span className='max-w-[200px] truncate'>
-                                                                            {reservation.observations}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <div>
-                                                                <Button
-                                                                    onClick={() => {
-                                                                        setSelectedReservation(reservation)
-                                                                        setIsDetailsOpen(true)
-                                                                    }}
-                                                                    variant='outline'
-                                                                    size='sm'
-                                                                    className='mr-2'
-                                                                >
-                                                                    Detalles
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className='ml-4 flex flex-1 items-center justify-between'>
-                                                        <span className='text-muted-foreground'>Sin cita</span>
-                                                        <Button
-                                                            variant='outline'
-                                                            size='sm'
-                                                            onClick={() => {
-                                                                const dateString = format(new Date(), 'yyyy-MM-dd')
-                                                                navigate(
-                                                                    `/peluqueria-booking?date=${dateString}&time=${slot}`,
-                                                                )
-                                                            }}
-                                                        >
-                                                            Añadir cita
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value='availability'>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Calendario de Disponibilidad</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <AvailabilityCalendarView />
+                                <HairSalonCalendarWidget />
                             </CardContent>
                         </Card>
                     </TabsContent>
