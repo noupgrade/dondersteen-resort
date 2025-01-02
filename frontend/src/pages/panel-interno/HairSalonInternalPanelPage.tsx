@@ -670,16 +670,16 @@ export default function PeluqueriaPage() {
 
             <div className="mt-6">
                 <Tabs defaultValue='pending' className='space-y-6'>
-                    <TabsList className='w-full justify-start border-b bg-transparent p-0'>
+                    <TabsList className='grid w-full grid-cols-2 gap-4 bg-transparent p-0'>
                         <TabsTrigger
                             value='pending'
-                            className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
+                            className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                         >
                             Reservas pendientes
                         </TabsTrigger>
                         <TabsTrigger
                             value='calendar'
-                            className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
+                            className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                         >
                             Calendario
                         </TabsTrigger>

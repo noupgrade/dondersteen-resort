@@ -11,22 +11,22 @@ export default function StorePage() {
             <h1 className='text-3xl font-bold mb-6'>Tienda</h1>
 
             <Tabs defaultValue='pos' className='space-y-6'>
-                <TabsList className='w-full justify-start border-b bg-transparent p-0'>
+                <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
                     <TabsTrigger
                         value='pos'
-                        className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         TPV Visual
                     </TabsTrigger>
                     <TabsTrigger
                         value='products'
-                        className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Productos
                     </TabsTrigger>
                     <TabsTrigger
                         value='sales'
-                        className='relative rounded-md border-transparent bg-transparent px-4 py-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Histórico de Ventas
                     </TabsTrigger>

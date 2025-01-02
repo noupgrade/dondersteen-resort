@@ -21,10 +21,25 @@ export default function PlanningPage() {
             </div>
 
             <Tabs defaultValue='daily-needs' className='space-y-4'>
-                <TabsList>
-                    <TabsTrigger value='daily-needs'>Necesidades Diarias</TabsTrigger>
-                    <TabsTrigger value='hotel1'>Hotel 1</TabsTrigger>
-                    <TabsTrigger value='hotel2'>Hotel 2</TabsTrigger>
+                <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
+                    <TabsTrigger 
+                        value='daily-needs'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Necesidades Diarias
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value='hotel1'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Hotel 1
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value='hotel2'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Hotel 2
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent value='daily-needs'>
                     <Card className='p-6'>
