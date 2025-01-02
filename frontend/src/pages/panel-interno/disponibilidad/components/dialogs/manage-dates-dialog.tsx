@@ -1,9 +1,9 @@
-import { format, eachDayOfInterval } from 'date-fns'
+import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Ban, CalendarDays, DollarSign, Trash2 } from 'lucide-react'
+import { Calendar, Ban, CalendarClock } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { DateRange } from '../../types'
 
 interface ManageDatesDialogProps {
@@ -12,7 +12,7 @@ interface ManageDatesDialogProps {
     selectedRange: DateRange
     onBlockDates: () => void
     onOpenHolidayDialog: () => void
-    onOpenHighSeasonDialog: () => void
+    onHighSeasonClick: () => void
     onRemoveSpecialConditions: () => void
     hasSpecialConditions: boolean
 }
@@ -23,7 +23,7 @@ export function ManageDatesDialog({
     selectedRange,
     onBlockDates,
     onOpenHolidayDialog,
-    onOpenHighSeasonDialog,
+    onHighSeasonClick,
     onRemoveSpecialConditions,
     hasSpecialConditions,
 }: ManageDatesDialogProps) {
@@ -37,43 +37,27 @@ export function ManageDatesDialog({
                             <div className='mt-2 text-sm'>
                                 {format(selectedRange.from, "d 'de' MMMM", { locale: es })} -{' '}
                                 {format(selectedRange.to, "d 'de' MMMM", { locale: es })}
-                                <br />
-                                {eachDayOfInterval({ start: selectedRange.from, end: selectedRange.to }).length} días
-                                seleccionados
                             </div>
                         )}
                     </DialogDescription>
                 </DialogHeader>
                 <div className='grid gap-4 py-4'>
-                    <Button onClick={onBlockDates} className='w-full'>
+                    <Button onClick={onBlockDates} variant='outline' className='text-red-500 hover:text-red-600'>
                         <Ban className='mr-2 h-4 w-4' />
-                        Bloquear Fechas
+                        Bloquear fechas
                     </Button>
-                    <Button onClick={onOpenHolidayDialog} variant='outline' className='w-full'>
-                        <CalendarDays className='mr-2 h-4 w-4' />
-                        Marcar como Festivos
+                    <Button onClick={onOpenHolidayDialog} variant='outline' className='text-amber-700 hover:text-amber-800'>
+                        <CalendarClock className='mr-2 h-4 w-4' />
+                        Marcar como festivo
                     </Button>
-                    <Button onClick={onOpenHighSeasonDialog} variant='outline' className='w-full'>
-                        <DollarSign className='mr-2 h-4 w-4' />
-                        Marcar como Temporada Alta
+                    <Button onClick={onHighSeasonClick} variant='outline' className='text-green-500 hover:text-green-600'>
+                        <Calendar className='mr-2 h-4 w-4' />
+                        Marcar como temporada alta
                     </Button>
                     {hasSpecialConditions && (
-                        <>
-                            <div className='relative'>
-                                <div className='absolute inset-0 flex items-center'>
-                                    <span className='w-full border-t' />
-                                </div>
-                                <div className='relative flex justify-center text-xs uppercase'>
-                                    <span className='bg-background px-2 text-muted-foreground'>
-                                        Eliminar condiciones
-                                    </span>
-                                </div>
-                            </div>
-                            <Button onClick={onRemoveSpecialConditions} variant='destructive' className='w-full'>
-                                <Trash2 className='mr-2 h-4 w-4' />
-                                Eliminar Condiciones Especiales
-                            </Button>
-                        </>
+                        <Button onClick={onRemoveSpecialConditions} variant='destructive'>
+                            Eliminar condiciones especiales
+                        </Button>
                     )}
                 </div>
             </DialogContent>

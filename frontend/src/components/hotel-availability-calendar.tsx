@@ -22,7 +22,7 @@ interface HotelAvailabilityCalendarProps {
 export function HotelAvailabilityCalendar({ onDateSelect }: HotelAvailabilityCalendarProps) {
     const [selectedMonths, setSelectedMonths] = useState([new Date(), addMonths(new Date(), 1)])
     const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null })
-    const { isDateBlocked, isHoliday, getHighSeasonPrice } = useHotelAvailability()
+    const { isDateBlocked, isHoliday, isHighSeason } = useHotelAvailability()
 
     const handleMonthNavigation = (direction: 'prev' | 'next') => {
         setSelectedMonths(prevMonths =>
@@ -58,10 +58,9 @@ export function HotelAvailabilityCalendar({ onDateSelect }: HotelAvailabilityCal
         const dateStr = format(date, 'yyyy-MM-dd')
         if (isDateBlocked(dateStr)) return 'blocked'
         if (isHoliday(dateStr)) return 'holiday'
-        const price = getHighSeasonPrice(dateStr)
-        if (price) return 'highSeason'
+        if (isHighSeason(dateStr)) return 'highSeason'
         return 'available'
-    }, [isDateBlocked, isHoliday, getHighSeasonPrice])
+    }, [isDateBlocked, isHoliday, isHighSeason])
 
     const isDateInRange = useCallback((date: Date) => {
         if (!dateRange.from) return false

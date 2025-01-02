@@ -20,7 +20,7 @@ export function useAvailabilityOperations() {
         removeHighSeasonPeriod,
         isDateBlocked,
         isHoliday,
-        getHighSeasonPrice,
+        isHighSeason,
         isLoading,
     } = useHotelAvailability()
 
@@ -56,12 +56,12 @@ export function useAvailabilityOperations() {
         return false
     }
 
-    const handleAddHighSeason = (range: DateRange, price: string) => {
-        if (range.from && range.to && price) {
+    const handleAddHighSeason = (range: DateRange) => {
+        if (range.from && range.to) {
             const [startDate, endDate] = getOrderedDates(range.from, range.to)
             const startDateStr = format(startDate, 'yyyy-MM-dd')
             const endDateStr = format(endDate, 'yyyy-MM-dd')
-            addHighSeasonPeriod(startDateStr, endDateStr, parseFloat(price))
+            addHighSeasonPeriod(startDateStr, endDateStr)
             toast({
                 title: 'Temporada alta añadida',
                 description: 'El periodo de temporada alta ha sido añadido correctamente.',
@@ -128,17 +128,60 @@ export function useAvailabilityOperations() {
             const dateStr = format(date, 'yyyy-MM-dd')
             if (isDateBlocked(dateStr)) hasBlocked = true
             if (isHoliday(dateStr)) hasHolidays = true
-            if (getHighSeasonPrice(dateStr)) hasHighSeason = true
+            if (isHighSeason(dateStr)) hasHighSeason = true
         })
 
         return { hasBlocked, hasHolidays, hasHighSeason }
     }
 
-    const getStats = () => ({
-        blockedCount: blockedDates.length,
-        holidaysCount: holidays.length,
-        highSeasonCount: highSeasonPeriods.length,
-    })
+    const getStats = () => {
+        const currentYear = new Date().getFullYear()
+        const startOfYear = new Date(currentYear, 0, 1)
+        const endOfYear = new Date(currentYear, 11, 31)
+
+        let blockedDaysCount = 0
+        let holidayDaysCount = 0
+        let highSeasonDaysCount = 0
+
+        // Calculate total blocked days
+        blockedDates.forEach(block => {
+            const blockStart = new Date(block.startDate)
+            const blockEnd = new Date(block.endDate)
+            const daysInYear = eachDayOfInterval({
+                start: blockStart < startOfYear ? startOfYear : blockStart,
+                end: blockEnd > endOfYear ? endOfYear : blockEnd,
+            })
+            blockedDaysCount += daysInYear.length
+        })
+
+        // Calculate total holiday days
+        holidays.forEach(holiday => {
+            const holidayStart = new Date(holiday.startDate)
+            const holidayEnd = new Date(holiday.endDate)
+            const daysInYear = eachDayOfInterval({
+                start: holidayStart < startOfYear ? startOfYear : holidayStart,
+                end: holidayEnd > endOfYear ? endOfYear : holidayEnd,
+            })
+            holidayDaysCount += daysInYear.length
+        })
+
+        // Calculate total high season days
+        highSeasonPeriods.forEach(period => {
+            const periodStart = new Date(period.startDate)
+            const periodEnd = new Date(period.endDate)
+            const daysInYear = eachDayOfInterval({
+                start: periodStart < startOfYear ? startOfYear : periodStart,
+                end: periodEnd > endOfYear ? endOfYear : periodEnd,
+            })
+            highSeasonDaysCount += daysInYear.length
+        })
+
+        return {
+            blockedCount: blockedDaysCount,
+            holidaysCount: holidayDaysCount,
+            highSeasonCount: highSeasonDaysCount,
+        }
+    }
 
     return {
         handleBlockDates,
