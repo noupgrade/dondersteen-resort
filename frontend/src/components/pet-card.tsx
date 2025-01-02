@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
-import { CircleDot, MessageCircle, PawPrintIcon, Pencil, Pill, Trash2, User2 } from 'lucide-react'
+import { CircleDot, MessageCircle, PawPrintIcon, Pencil, Pill, Trash2, User2, X } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
@@ -32,29 +32,33 @@ const translations = {
     years: { es: 'años', en: 'years' },
 }
 
+type Pet = {
+    id: number
+    name: string
+    breed: string
+    age: number
+    gender: string
+    food: string
+    medication: string
+    habits: string
+    personality: string
+    comments: string
+}
+
 type PetCardProps = {
-    pet: {
-        id: number
-        name: string
-        breed: string
-        age: number
-        gender: string
-        food: string
-        medication: string
-        habits: string
-        personality: string
-        comments: string
-    }
+    pet: Pet
     language: 'es' | 'en'
 }
+
+type TranslationKey = keyof typeof translations
 
 export function PetCard({ pet, language }: PetCardProps) {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-    const [editedPet, setEditedPet] = useState(pet)
+    const [editedPet, setEditedPet] = useState<Pet>(pet)
 
-    const t = (key: string): string => {
-        return translations[key]?.[language] || key
+    const t = (key: TranslationKey): string => {
+        return translations[key][language]
     }
 
     const handleSave = () => {
@@ -69,57 +73,86 @@ export function PetCard({ pet, language }: PetCardProps) {
         setIsDeleteDialogOpen(false)
     }
 
-    return (
-        <Card className='bg-gray-50 shadow-md transition-shadow hover:shadow-lg'>
-            <CardContent className='p-4'>
-                <h3 className='mb-3 text-xl font-bold text-blue-600'>{pet.name}</h3>
+    type EditablePetKey = Exclude<keyof Pet, 'id'>
 
-                <div className='grid grid-cols-1 gap-3 text-sm md:grid-cols-2'>
-                    <div className='space-y-2'>
-                        <div className='flex items-center'>
-                            <PawPrintIcon className='mr-2 h-4 w-4 text-blue-500' />
-                            <span>
+    return (
+        <Card className='bg-gray-50 shadow-md transition-shadow hover:shadow-lg w-full'>
+            <CardContent className='p-3 sm:p-4'>
+                <h3 className='mb-3 sm:mb-4 text-lg sm:text-xl font-bold text-blue-600'>{pet.name}</h3>
+
+                <div className='grid grid-cols-1 gap-3 sm:gap-4 text-sm'>
+                    <div className='space-y-2 sm:space-y-3'>
+                        <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <PawPrintIcon className='h-4 w-4 text-blue-500 shrink-0' />
+                                <span className='font-semibold'>
+                                    {t('breed')} / {t('age')}:
+                                </span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>
                                 {pet.breed} | {pet.age} {t('years')}
                             </span>
                         </div>
-                        <div className='flex items-center'>
-                            <User2 className='mr-2 h-4 w-4 text-blue-500' />
-                            <span>
+                        <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <User2 className='h-4 w-4 text-blue-500 shrink-0' />
+                                <span className='font-semibold'>
+                                    {t('gender')} / {t('food')}:
+                                </span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>
                                 {pet.gender} | {pet.food}
                             </span>
                         </div>
                     </div>
 
-                    <div className='space-y-2'>
-                        <div className='flex items-start'>
-                            <Pill className='mr-2 mt-1 h-4 w-4 text-red-500' />
-                            <span>{pet.medication || 'N/A'}</span>
+                    <div className='space-y-2 sm:space-y-3'>
+                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <Pill className='h-4 w-4 text-red-500 shrink-0' />
+                                <span className='font-semibold'>{t('medication')}:</span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>{pet.medication || 'N/A'}</span>
                         </div>
-                        <div className='flex items-start'>
-                            <CircleDot className='mr-2 mt-1 h-4 w-4 text-purple-500' />
-                            <span>{pet.habits}</span>
+                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <CircleDot className='h-4 w-4 text-purple-500 shrink-0' />
+                                <span className='font-semibold'>{t('habits')}:</span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>{pet.habits}</span>
                         </div>
-                        <div className='flex items-start'>
-                            <CircleDot className='mr-2 mt-1 h-4 w-4 text-yellow-500' />
-                            <span>{pet.personality}</span>
+                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <CircleDot className='h-4 w-4 text-yellow-500 shrink-0' />
+                                <span className='font-semibold'>{t('personality')}:</span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>{pet.personality}</span>
                         </div>
-                        <div className='flex items-start'>
-                            <MessageCircle className='mr-2 mt-1 h-4 w-4 text-gray-500' />
-                            <span>{pet.comments}</span>
+                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
+                            <div className='flex items-center gap-1.5 sm:gap-2'>
+                                <MessageCircle className='h-4 w-4 text-gray-500 shrink-0' />
+                                <span className='font-semibold'>{t('comments')}:</span>
+                            </div>
+                            <span className='pl-5 sm:pl-0'>{pet.comments}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className='mt-4 flex justify-end space-x-2'>
+                <div className='mt-4 sm:mt-6 flex flex-col gap-2'>
                     <Button
                         onClick={() => setIsEditDialogOpen(true)}
                         size='sm'
-                        className='bg-blue-500 text-white hover:bg-blue-600'
+                        className='w-full bg-blue-500 text-white hover:bg-blue-600'
                     >
                         <Pencil className='mr-1 h-4 w-4' />
                         {t('editPet')}
                     </Button>
-                    <Button variant='destructive' size='sm' onClick={() => setIsDeleteDialogOpen(true)}>
+                    <Button 
+                        variant='destructive' 
+                        size='sm' 
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className='w-full'
+                    >
                         <Trash2 className='mr-1 h-4 w-4' />
                         {t('deletePet')}
                     </Button>
@@ -127,58 +160,124 @@ export function PetCard({ pet, language }: PetCardProps) {
             </CardContent>
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className='sm:max-w-[425px]'>
-                    <DialogHeader>
-                        <DialogTitle>{t('editPet')}</DialogTitle>
+                <DialogContent className="w-[95vw] max-w-[425px] p-3">
+                    <DialogHeader className="pb-2">
+                        <DialogTitle className="text-base font-medium flex items-center justify-between">
+                            {t('editPet')}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsEditDialogOpen(false)}
+                                className="h-6 w-6 p-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </DialogTitle>
                     </DialogHeader>
-                    <div className='grid gap-4 py-4'>
-                        {Object.entries(pet).map(
-                            ([key]) =>
-                                key !== 'id' && (
-                                    <div key={key} className='grid grid-cols-4 items-center gap-4'>
-                                        <Label htmlFor={key} className='text-right'>
-                                            {t(key)}
-                                        </Label>
-                                        {key === 'comments' || key === 'habits' || key === 'personality' ? (
-                                            <Textarea
-                                                id={key}
-                                                value={editedPet[key]}
-                                                onChange={e => setEditedPet({ ...editedPet, [key]: e.target.value })}
-                                                className='col-span-3'
-                                            />
-                                        ) : (
-                                            <Input
-                                                id={key}
-                                                value={editedPet[key]}
-                                                onChange={e => setEditedPet({ ...editedPet, [key]: e.target.value })}
-                                                className='col-span-3'
-                                            />
-                                        )}
-                                    </div>
-                                ),
-                        )}
+                    <div className="grid gap-2 py-2">
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <Label className="text-xs">Nombre</Label>
+                                <Input
+                                    value={editedPet.name}
+                                    onChange={e => setEditedPet({ ...editedPet, name: e.target.value })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                            <div>
+                                <Label className="text-xs">Raza</Label>
+                                <Input
+                                    value={editedPet.breed}
+                                    onChange={e => setEditedPet({ ...editedPet, breed: e.target.value })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <Label className="text-xs">Edad</Label>
+                                <Input
+                                    type="number"
+                                    value={editedPet.age}
+                                    onChange={e => setEditedPet({ ...editedPet, age: parseInt(e.target.value) })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                            <div>
+                                <Label className="text-xs">Género</Label>
+                                <Input
+                                    value={editedPet.gender}
+                                    onChange={e => setEditedPet({ ...editedPet, gender: e.target.value })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <Label className="text-xs">Alimentación</Label>
+                                <Input
+                                    value={editedPet.food}
+                                    onChange={e => setEditedPet({ ...editedPet, food: e.target.value })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                            <div>
+                                <Label className="text-xs">Medicación</Label>
+                                <Input
+                                    value={editedPet.medication}
+                                    onChange={e => setEditedPet({ ...editedPet, medication: e.target.value })}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <Label className="text-xs">Hábitos</Label>
+                            <Textarea
+                                value={editedPet.habits}
+                                onChange={e => setEditedPet({ ...editedPet, habits: e.target.value })}
+                                className="min-h-[40px] text-sm resize-none"
+                            />
+                        </div>
+                        <div>
+                            <Label className="text-xs">Personalidad</Label>
+                            <Textarea
+                                value={editedPet.personality}
+                                onChange={e => setEditedPet({ ...editedPet, personality: e.target.value })}
+                                className="min-h-[40px] text-sm resize-none"
+                            />
+                        </div>
+                        <div>
+                            <Label className="text-xs">Comentarios</Label>
+                            <Textarea
+                                value={editedPet.comments}
+                                onChange={e => setEditedPet({ ...editedPet, comments: e.target.value })}
+                                className="min-h-[40px] text-sm resize-none"
+                            />
+                        </div>
                     </div>
-                    <div className='flex justify-end space-x-2'>
-                        <Button variant='outline' onClick={() => setIsEditDialogOpen(false)}>
-                            {t('cancel')}
+                    <DialogFooter className="flex gap-2 pt-2">
+                        <Button
+                            onClick={handleSave}
+                            className="flex-1 h-8 text-xs font-medium"
+                        >
+                            Guardar
                         </Button>
-                        <Button onClick={handleSave}>{t('save')}</Button>
-                    </div>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogContent>
+                <DialogContent className='w-[95vw] max-w-[425px] p-4 sm:p-6'>
                     <DialogHeader>
                         <DialogTitle>{t('deletePet')}</DialogTitle>
                     </DialogHeader>
-                    <p>{t('confirmDelete')}</p>
-                    <div className='mt-4 flex justify-end space-x-2'>
-                        <Button variant='outline' onClick={() => setIsDeleteDialogOpen(false)}>
-                            {t('no')}
-                        </Button>
-                        <Button variant='destructive' onClick={handleDelete}>
+                    <p className='py-2'>{t('confirmDelete')}</p>
+                    <div className='mt-4 flex flex-col gap-2'>
+                        <Button className='w-full' variant='destructive' onClick={handleDelete}>
                             {t('yes')}
+                        </Button>
+                        <Button className='w-full' variant='outline' onClick={() => setIsDeleteDialogOpen(false)}>
+                            {t('no')}
                         </Button>
                     </div>
                 </DialogContent>

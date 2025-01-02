@@ -460,5 +460,5 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         </Card>
     )
 }
-
 export type { Reservation }
+

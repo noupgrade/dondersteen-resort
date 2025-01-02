@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X } from 'lucide-react'
 
 import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
@@ -410,59 +410,74 @@ export default function ClientProfile() {
             />
 
             <Dialog open={isEditClientModalOpen} onOpenChange={setIsEditClientModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{t('editProfile')}</DialogTitle>
+                <DialogContent className="w-[95vw] max-w-[425px] p-3">
+                    <DialogHeader className="pb-2">
+                        <DialogTitle className="text-base font-medium flex items-center justify-between">
+                            {t('editProfile')}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsEditClientModalOpen(false)}
+                                className="h-6 w-6 p-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Nombre</Label>
+                    <div className="grid gap-2 py-2">
+                        <div>
+                            <Label className="text-xs">Nombre</Label>
                             <Input
                                 value={editedClientDetails.name}
                                 onChange={(e) => setEditedClientDetails(prev => ({
                                     ...prev,
                                     name: e.target.value
                                 }))}
+                                className="h-8 text-sm"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>Teléfono</Label>
-                            <Input
-                                value={editedClientDetails.phone}
-                                onChange={(e) => setEditedClientDetails(prev => ({
-                                    ...prev,
-                                    phone: e.target.value
-                                }))}
-                            />
+                        <div className="grid grid-cols-2 gap-2">
+                            <div>
+                                <Label className="text-xs">Teléfono</Label>
+                                <Input
+                                    value={editedClientDetails.phone}
+                                    onChange={(e) => setEditedClientDetails(prev => ({
+                                        ...prev,
+                                        phone: e.target.value
+                                    }))}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
+                            <div>
+                                <Label className="text-xs">Email</Label>
+                                <Input
+                                    value={editedClientDetails.email}
+                                    onChange={(e) => setEditedClientDetails(prev => ({
+                                        ...prev,
+                                        email: e.target.value
+                                    }))}
+                                    className="h-8 text-sm"
+                                />
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Email</Label>
-                            <Input
-                                type="email"
-                                value={editedClientDetails.email}
-                                onChange={(e) => setEditedClientDetails(prev => ({
-                                    ...prev,
-                                    email: e.target.value
-                                }))}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Dirección</Label>
+                        <div>
+                            <Label className="text-xs">Dirección</Label>
                             <Input
                                 value={editedClientDetails.address}
                                 onChange={(e) => setEditedClientDetails(prev => ({
                                     ...prev,
                                     address: e.target.value
                                 }))}
+                                className="h-8 text-sm"
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsEditClientModalOpen(false)}>
-                            {t('cancel')}
-                        </Button>
-                        <Button onClick={handleSaveClientDetails}>
-                            {t('save')}
+                    <DialogFooter className="flex gap-2 pt-2">
+                        <Button
+                            onClick={handleSaveClientDetails}
+                            className="flex-1 h-8 text-xs font-medium"
+                        >
+                            Guardar
                         </Button>
                     </DialogFooter>
                 </DialogContent>
