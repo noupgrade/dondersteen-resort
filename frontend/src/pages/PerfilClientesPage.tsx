@@ -1,17 +1,85 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { format } from 'date-fns'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Globe, Plus } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon } from 'lucide-react'
 
 import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
 import { PetCard } from '@/components/pet-card.tsx'
-import { ReservationCard } from '@/components/reservation-card.tsx'
-import { mockReservations } from '@/mocks/mockReservations.ts'
+import { ReservationCard, type Reservation } from '@/components/reservation-card.tsx'
 import { Alert, AlertDescription } from '@/shared/ui/alert.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { cn } from '@/shared/lib/styles/class-merge.ts'
+import { Badge } from '@/shared/ui/badge.tsx'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/ui/dialog.tsx'
+import { Label } from '@/shared/ui/label.tsx'
+import { Input } from '@/shared/ui/input.tsx'
+
+const mockReservations: Reservation[] = [
+    {
+        id: '1',
+        type: 'hotel',
+        status: 'confirmed',
+        startDate: '2024-03-01',
+        endDate: '2024-03-05',
+        services: ['Alojamiento estándar'],
+        pets: [{
+            name: 'Max',
+            breed: 'Golden Retriever',
+            weight: 30,
+            size: 'grande'
+        }],
+        estimatedPrice: 240
+    },
+    {
+        id: '2',
+        type: 'peluqueria',
+        status: 'confirmed',
+        date: '2024-03-15',
+        time: '14:00',
+        services: ['Corte y baño'],
+        pets: [{
+            name: 'Luna',
+            breed: 'Yorkshire',
+            weight: 3,
+            size: 'pequeño'
+        }],
+        estimatedPrice: 35
+    },
+    {
+        id: '3',
+        type: 'hotel',
+        status: 'cancelled',
+        startDate: '2024-03-25',
+        endDate: '2024-03-28',
+        services: ['Alojamiento estándar'],
+        pets: [{
+            name: 'Max',
+            breed: 'Golden Retriever',
+            weight: 30,
+            size: 'grande'
+        }],
+        estimatedPrice: 180
+    },
+    {
+        id: '4',
+        type: 'peluqueria',
+        status: 'pending',
+        date: '2024-04-01',
+        time: '11:00',
+        services: ['Corte'],
+        pets: [{
+            name: 'Luna',
+            breed: 'Yorkshire',
+            weight: 3,
+            size: 'pequeño'
+        }],
+        estimatedPrice: 45
+    }
+]
 
 const translations = {
     back: { es: 'Volver', en: 'Back' },
@@ -20,15 +88,30 @@ const translations = {
     reservations: { es: 'Reservas', en: 'Reservations' },
     pets: { es: 'Mascotas', en: 'Pets' },
     addNewPet: { es: 'Añadir Nueva Mascota', en: 'Add New Pet' },
+    showAll: { es: 'Ver todas', en: 'Show all' },
+    showLess: { es: 'Ver menos', en: 'Show less' },
+    editProfile: { es: 'Editar Perfil', en: 'Edit Profile' },
+    save: { es: 'Guardar', en: 'Save' },
+    cancel: { es: 'Cancelar', en: 'Cancel' },
 } as const
 
 type TranslationKey = keyof typeof translations
+
+const mockClientDetails = {
+    name: 'John Doe',
+    phone: '+34 123 456 789',
+    email: 'john.doe@example.com',
+    address: 'Calle Principal 123, 28001 Madrid',
+}
 
 export default function ClientProfile() {
     const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false)
     const [language, setLanguage] = useState<'es' | 'en'>('es')
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
     const [clientReservations, setClientReservations] = useState(mockReservations)
+    const [showAllReservations, setShowAllReservations] = useState(false)
+    const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false)
+    const [editedClientDetails, setEditedClientDetails] = useState(mockClientDetails)
 
     const mockPets = [
         {
@@ -56,12 +139,6 @@ export default function ClientProfile() {
             comments: 'Prefers quiet environments',
         },
     ]
-    const mockClientDetails = {
-        name: 'John Doe',
-        phone: '+34 123 456 789',
-        email: 'john.doe@example.com',
-        address: 'Calle Principal 123, 28001 Madrid',
-    }
 
     const t = (key: TranslationKey) => translations[key][language]
 
@@ -74,8 +151,116 @@ export default function ClientProfile() {
         setTimeout(() => setSuccessMessage(null), 5000)
     }
 
+    const handleSaveClientDetails = () => {
+        // Aquí iría la lógica para guardar los datos del cliente
+        setIsEditClientModalOpen(false)
+        setSuccessMessage('Datos actualizados correctamente')
+    }
+
+    const displayedReservations = showAllReservations 
+        ? clientReservations 
+        : clientReservations.slice(0, 4)
+
+    const CompactReservationCard = ({ reservation }: { reservation: Reservation }) => {
+        const formatDate = (date?: string) => {
+            if (!date) return ''
+            return format(new Date(date), 'dd MMM yyyy')
+        }
+
+        const getStatusStyle = (status: string) => {
+            switch (status) {
+                case 'confirmed':
+                    return 'bg-green-500 text-white hover:bg-green-600'
+                case 'pending':
+                    return 'bg-yellow-500 text-black hover:bg-yellow-600'
+                case 'cancelled':
+                    return 'bg-red-500 text-white hover:bg-red-600'
+                default:
+                    return ''
+            }
+        }
+
+        return (
+            <div className="p-4 hover:bg-accent/50 transition-colors">
+                <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className={cn(
+                                    "p-2 rounded-full",
+                                    reservation.type === 'hotel' ? "bg-blue-100" : "bg-red-100"
+                                )}>
+                                    {reservation.type === 'hotel' ? (
+                                        <Bed className={cn(
+                                            "h-5 w-5",
+                                            "text-blue-600"
+                                        )} />
+                                    ) : (
+                                        <ScissorsIcon className={cn(
+                                            "h-5 w-5",
+                                            "text-red-600"
+                                        )} />
+                                    )}
+                                </div>
+                                <div>
+                                    <p className={cn(
+                                        "text-sm font-semibold",
+                                        reservation.type === 'hotel' ? "text-blue-600" : "text-red-600"
+                                    )}>
+                                        {reservation.type === 'hotel' ? 'Reserva hotel' : 'Reserva peluquería'}
+                                    </p>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                        {reservation.type === 'hotel' ? (
+                                            <>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Calendar className="h-4 w-4" />
+                                                    <span>
+                                                        Entrada: {formatDate(reservation.startDate)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Calendar className="h-4 w-4" />
+                                                    <span>
+                                                        Salida: {formatDate(reservation.endDate)}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Calendar className="h-4 w-4" />
+                                                    <span>
+                                                        {formatDate(reservation.date)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Clock className="h-4 w-4" />
+                                                    <span>{reservation.time}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <span>{reservation.estimatedPrice}€</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={cn(
+                                "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                                getStatusStyle(reservation.status)
+                            )}>
+                                {reservation.status === 'confirmed' ? 'Confirmada' :
+                                 reservation.status === 'pending' ? 'Pendiente' : 'Cancelada'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className='container mx-auto p-4'>
+        <div className='container mx-auto p-4 max-w-3xl'>
             <AnimatePresence>
                 {successMessage && (
                     <motion.div
@@ -92,42 +277,80 @@ export default function ClientProfile() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <div className='mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row'>
-                <Link to='/frontend/public' className='w-full sm:w-auto'>
-                    <Button variant='outline' className='w-full sm:w-auto'>
-                        <ChevronLeft className='mr-2 h-4 w-4' />
-                        {t('back')}
-                    </Button>
-                </Link>
-                <h1 className='order-first text-2xl font-bold sm:order-none'>{t('clientProfile')}</h1>
-                <div className='flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center'>
-                    <Button onClick={() => setIsNewReservationModalOpen(true)} className='w-full sm:w-auto'>
-                        <Plus className='mr-2 h-4 w-4' />
-                        {t('newReservation')}
-                    </Button>
-                    <Button onClick={() => setLanguage(language === 'es' ? 'en' : 'es')} className='w-full sm:w-auto'>
-                        <Globe className='mr-2 h-4 w-4' />
-                        {language === 'es' ? 'EN' : 'ES'}
+            <div className='mb-6 flex flex-col items-center justify-between gap-4'>
+                <div className='flex w-full items-center justify-between'>
+                    <Link to='/frontend/public'>
+                        <Button variant='ghost' size='icon'>
+                            <ChevronLeft className='h-5 w-5' />
+                        </Button>
+                    </Link>
+                    <h1 className='text-xl font-bold'>{t('clientProfile')}</h1>
+                    <Button variant='ghost' size='icon' onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}>
+                        <Globe className='h-5 w-5' />
                     </Button>
                 </div>
+                <Button onClick={() => setIsNewReservationModalOpen(true)} className='w-full'>
+                    <Plus className='mr-2 h-4 w-4' />
+                    {t('newReservation')}
+                </Button>
             </div>
 
-            <div className='grid gap-6'>
+            <div className='grid gap-4'>
                 <Card>
-                    <CardHeader>
-                        <CardTitle>{t('reservations')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='space-y-4'>
-                            {clientReservations.map(reservation => (
-                                <ReservationCard
-                                    key={reservation.id}
-                                    reservation={reservation}
-                                    language={language}
-                                    onReservationDeleted={handleReservationDeleted}
-                                />
-                            ))}
+                    <CardHeader 
+                        className='cursor-pointer select-none border-b hover:bg-accent/50 transition-colors'
+                        onClick={() => setShowAllReservations(!showAllReservations)}
+                    >
+                        <div className='flex items-center justify-between'>
+                            <div className="flex items-center gap-2">
+                                <CardTitle>{t('reservations')}</CardTitle>
+                                <Badge variant="outline" className="ml-2">
+                                    {clientReservations.length}
+                                </Badge>
+                            </div>
+                            <ChevronDown className={cn(
+                                'h-4 w-4 transition-transform duration-200',
+                                showAllReservations && 'rotate-180'
+                            )} />
                         </div>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="divide-y">
+                            {showAllReservations ? (
+                                // Vista expandida con tarjetas completas
+                                displayedReservations.map(reservation => (
+                                    <div key={reservation.id} className="p-4">
+                                        <ReservationCard
+                                            reservation={reservation}
+                                            language={language}
+                                            onReservationDeleted={handleReservationDeleted}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                // Vista compacta con las últimas 4 reservas
+                                displayedReservations.map(reservation => (
+                                    <CompactReservationCard 
+                                        key={reservation.id} 
+                                        reservation={reservation}
+                                    />
+                                ))
+                            )}
+                        </div>
+                        {!showAllReservations && clientReservations.length > 4 && (
+                            <div 
+                                className="border-t p-2 flex items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowAllReservations(true);
+                                }}
+                            >
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <span>Ver {clientReservations.length - 4} más</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -136,18 +359,48 @@ export default function ClientProfile() {
                         <CardTitle>{t('pets')}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className='grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3'>
+                        <div className='grid gap-4'>
                             {mockPets.map(pet => (
                                 <PetCard key={pet.id} pet={pet} language={language} />
                             ))}
                         </div>
-                        <Button className='mt-6 w-full'>
+                        <Button className='mt-4 w-full'>
                             <Plus className='mr-2 h-4 w-4' />
                             {t('addNewPet')}
                         </Button>
                     </CardContent>
                 </Card>
-                <ClientDetailsCard client={mockClientDetails} language={language} />
+
+                <button 
+                    className="w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+                    onClick={() => setIsEditClientModalOpen(true)}
+                >
+                    <Card className='hover:bg-accent/50 transition-colors'>
+                        <CardHeader>
+                            <CardTitle>{t('clientProfile')}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className='space-y-4'>
+                                <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                    <span className='text-muted-foreground'>Nombre:</span>
+                                    <span>{mockClientDetails.name}</span>
+                                </div>
+                                <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                    <span className='text-muted-foreground'>Teléfono:</span>
+                                    <span>{mockClientDetails.phone}</span>
+                                </div>
+                                <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                    <span className='text-muted-foreground'>Email:</span>
+                                    <span>{mockClientDetails.email}</span>
+                                </div>
+                                <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                    <span className='text-muted-foreground'>Dirección:</span>
+                                    <span>{mockClientDetails.address}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </button>
             </div>
 
             <NewReservationModal
@@ -155,6 +408,65 @@ export default function ClientProfile() {
                 onClose={() => setIsNewReservationModalOpen(false)}
                 language={language}
             />
+
+            <Dialog open={isEditClientModalOpen} onOpenChange={setIsEditClientModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{t('editProfile')}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label>Nombre</Label>
+                            <Input
+                                value={editedClientDetails.name}
+                                onChange={(e) => setEditedClientDetails(prev => ({
+                                    ...prev,
+                                    name: e.target.value
+                                }))}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Teléfono</Label>
+                            <Input
+                                value={editedClientDetails.phone}
+                                onChange={(e) => setEditedClientDetails(prev => ({
+                                    ...prev,
+                                    phone: e.target.value
+                                }))}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Email</Label>
+                            <Input
+                                type="email"
+                                value={editedClientDetails.email}
+                                onChange={(e) => setEditedClientDetails(prev => ({
+                                    ...prev,
+                                    email: e.target.value
+                                }))}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Dirección</Label>
+                            <Input
+                                value={editedClientDetails.address}
+                                onChange={(e) => setEditedClientDetails(prev => ({
+                                    ...prev,
+                                    address: e.target.value
+                                }))}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsEditClientModalOpen(false)}>
+                            {t('cancel')}
+                        </Button>
+                        <Button onClick={handleSaveClientDetails}>
+                            {t('save')}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

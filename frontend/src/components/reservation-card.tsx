@@ -172,7 +172,16 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         return serviceTranslations[service as keyof typeof serviceTranslations] || service
     }
 
-    const statusColor = localReservation.status === 'confirmed' ? 'bg-green-500' : 'bg-yellow-500'
+    const statusColor = (status: string) => {
+        switch (status) {
+            case 'confirmed':
+                return 'bg-green-500'
+            case 'cancelled':
+                return 'bg-red-500'
+            default:
+                return 'bg-yellow-500'
+        }
+    }
 
     const handleChangeDates = async () => {
         if (newDates.from && newDates.to) {
@@ -225,7 +234,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                         </>
                     )}
                 </div>
-                <Badge className={`${statusColor} whitespace-nowrap`}>{translateStatus(localReservation.status)}</Badge>
+                <Badge className={`${statusColor(localReservation.status)} whitespace-nowrap`}>{translateStatus(localReservation.status)}</Badge>
             </CardHeader>
             <CardContent className='px-4 pt-4 sm:px-6'>
                 <div className='mb-4'>
