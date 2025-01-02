@@ -348,7 +348,7 @@ export default function PeluqueriaPage() {
                 prev.filter(notification => {
                     // Mantener todas las notificaciones no leídas
                     if (!notification.read) return true;
-                    
+
                     // Para notificaciones leídas, verificar el tiempo transcurrido
                     if (notification.readTimestamp) {
                         const readTime = new Date(notification.readTimestamp);
@@ -356,7 +356,7 @@ export default function PeluqueriaPage() {
                         // Mantener si han pasado menos de 24 horas desde que se leyó
                         return hoursDiff < 24;
                     }
-                    
+
                     return true;
                 })
             );
@@ -367,8 +367,8 @@ export default function PeluqueriaPage() {
 
     const handleNotificationClick = (notification: Notification) => {
         const reservation = pendingReservations.find(r => r.id === notification.reservationId) ||
-                          confirmedReservations.find(r => r.id === notification.reservationId);
-        
+            confirmedReservations.find(r => r.id === notification.reservationId);
+
         if (reservation) {
             setSelectedReservation(reservation);
             setScheduleChangeDetails({
@@ -451,7 +451,7 @@ export default function PeluqueriaPage() {
         try {
             // Verificar si realmente hay cambios
             const hasChanges = selectedReservation.date !== scheduleChangeDetails.newDate ||
-                             selectedReservation.time !== scheduleChangeDetails.newTime;
+                selectedReservation.time !== scheduleChangeDetails.newTime;
 
             if (!hasChanges) {
                 toast({
@@ -539,7 +539,7 @@ export default function PeluqueriaPage() {
                 prev.filter(notification => {
                     // Mantener notificaciones no leídas
                     if (!notification.read) return true
-                    
+
                     // Si está leída, verificar el tiempo transcurrido
                     if (notification.readTimestamp) {
                         const readTime = new Date(notification.readTimestamp)
@@ -547,7 +547,7 @@ export default function PeluqueriaPage() {
                         // Eliminar si han pasado más de 24 horas desde que se leyó
                         return hoursDiff < 24
                     }
-                    
+
                     return true
                 })
             )
@@ -576,7 +576,7 @@ export default function PeluqueriaPage() {
                     <div
                         className="rounded-lg bg-amber-50 border border-amber-200 p-4 transition-all duration-200 ease-in-out"
                     >
-                        <div 
+                        <div
                             className="flex items-center justify-between cursor-pointer"
                             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                         >
@@ -635,8 +635,8 @@ export default function PeluqueriaPage() {
                                                                     <div className="flex items-center gap-1.5">
                                                                         <Calendar className="h-3.5 w-3.5" />
                                                                         <span>
-                                                                            {notification.currentDate ? 
-                                                                                `${format(new Date(notification.currentDate), 'dd MMM', { locale: es })} → ` 
+                                                                            {notification.currentDate ?
+                                                                                `${format(new Date(notification.currentDate), 'dd MMM', { locale: es })} → `
                                                                                 : ''
                                                                             }
                                                                             {format(new Date(notification.newDate), 'dd MMM', { locale: es })}
@@ -750,9 +750,6 @@ export default function PeluqueriaPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-2xl">Calendario de Peluquería</CardTitle>
-                                <CardDescription>
-                                    Gestiona las citas y la disponibilidad de la peluquería
-                                </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <HairSalonCalendarWidget />
@@ -902,7 +899,7 @@ export default function PeluqueriaPage() {
                                 : 'Confirmar Reserva Externa'}
                         </DialogTitle>
                         <DialogDescription>
-                            {selectedReservation?.status === 'pending' 
+                            {selectedReservation?.status === 'pending'
                                 ? 'Por favor, completa los detalles para confirmar la reserva'
                                 : 'Modificar horario de la cita'}
                         </DialogDescription>
@@ -920,7 +917,7 @@ export default function PeluqueriaPage() {
                                     <div className="flex items-center gap-2 text-sm">
                                         <Calendar className="h-4 w-4 text-muted-foreground" />
                                         <span>
-                                            {selectedReservation?.date ? 
+                                            {selectedReservation?.date ?
                                                 format(new Date(selectedReservation.date), 'dd MMM yyyy', { locale: es })
                                                 : ''}
                                         </span>
@@ -1323,7 +1320,7 @@ export default function PeluqueriaPage() {
                             Revisa y confirma el cambio de horario para esta cita
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     {selectedReservation && scheduleChangeDetails && (
                         <div className="space-y-6 py-4">
                             {/* Información del cliente */}

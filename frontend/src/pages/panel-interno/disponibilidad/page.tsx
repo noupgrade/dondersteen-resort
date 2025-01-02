@@ -7,20 +7,16 @@ import { useAvailabilityOperations } from './hooks/use-availability-operations'
 import { AvailabilityStatsDisplay } from './components/availability-stats'
 import { ManageDatesDialog } from './components/dialogs/manage-dates-dialog'
 import { HolidayDialog } from './components/dialogs/holiday-dialog'
-import { HighSeasonDialog } from './components/dialogs/high-season-dialog'
 import { DateRange } from './types'
 
 export default function DisponibilidadPage() {
     const {
         isBlockDateDialogOpen,
         isHolidayDialogOpen,
-        isHighSeasonDialogOpen,
         selectedRange,
         handleDialogOpenChange,
         handleHolidayDialogOpenChange,
-        handleHighSeasonDialogOpenChange,
         openHolidayDialog,
-        openHighSeasonDialog,
         setSelectedRange,
     } = useAvailabilityDialogs()
 
@@ -61,6 +57,12 @@ export default function DisponibilidadPage() {
     const dateStatus = selectedRange.from && selectedRange.to ? getSelectedDatesStatus(selectedRange) : null
     const hasSpecialConditions = dateStatus ? dateStatus.hasBlocked || dateStatus.hasHolidays || dateStatus.hasHighSeason : false
 
+    const handleHighSeasonClick = () => {
+        if (handleAddHighSeason(selectedRange)) {
+            handleDialogOpenChange(false)
+        }
+    }
+
     return (
         <div className='container mx-auto space-y-6 p-6'>
             <div className='flex items-center justify-between'>
@@ -96,7 +98,7 @@ export default function DisponibilidadPage() {
                     }
                 }}
                 onOpenHolidayDialog={openHolidayDialog}
-                onOpenHighSeasonDialog={openHighSeasonDialog}
+                onHighSeasonClick={handleHighSeasonClick}
                 onRemoveSpecialConditions={() => {
                     if (handleRemoveSpecialConditions(selectedRange)) {
                         handleDialogOpenChange(false)
@@ -112,17 +114,6 @@ export default function DisponibilidadPage() {
                 onSubmit={(holidayName) => {
                     if (handleAddHolidays(selectedRange, holidayName)) {
                         handleHolidayDialogOpenChange(false)
-                    }
-                }}
-            />
-
-            <HighSeasonDialog
-                open={isHighSeasonDialogOpen}
-                onOpenChange={handleHighSeasonDialogOpenChange}
-                selectedRange={selectedRange}
-                onSubmit={(price) => {
-                    if (handleAddHighSeason(selectedRange, price)) {
-                        handleHighSeasonDialogOpenChange(false)
                     }
                 }}
             />

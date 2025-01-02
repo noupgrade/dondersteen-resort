@@ -39,7 +39,7 @@ export function AvailabilityStatsDisplay({ stats }: AvailabilityStatsProps) {
                         <DollarSign className='h-5 w-5 text-green-600' />
                     </div>
                     <div className='flex flex-col justify-center'>
-                        <p className='text-sm font-medium text-muted-foreground'>Temporadas Altas</p>
+                        <p className='text-sm font-medium text-muted-foreground'>Temporada Alta</p>
                         <p className='text-2xl font-bold'>{stats.highSeasonCount}</p>
                     </div>
                 </div>

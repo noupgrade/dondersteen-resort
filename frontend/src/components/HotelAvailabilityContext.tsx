@@ -18,7 +18,6 @@ interface Holiday {
 interface HighSeasonPeriod {
     startDate: string
     endDate: string
-    price: number
 }
 
 interface HotelAvailabilityData extends FSDocument {
@@ -35,11 +34,11 @@ interface HotelAvailabilityContextType {
     removeBlockedDate: (startDate: string, endDate: string) => void
     addHoliday: (startDate: string, endDate: string, name: string) => void
     removeHoliday: (startDate: string, endDate: string) => void
-    addHighSeasonPeriod: (startDate: string, endDate: string, price: number) => void
+    addHighSeasonPeriod: (startDate: string, endDate: string) => void
     removeHighSeasonPeriod: (startDate: string, endDate: string) => void
     isDateBlocked: (date: string) => boolean
     isHoliday: (date: string) => boolean
-    getHighSeasonPrice: (date: string) => number | null
+    isHighSeason: (date: string) => boolean
     isLoading: boolean
 }
 
@@ -87,9 +86,9 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         })
     }
 
-    const addHighSeasonPeriod = (startDate: string, endDate: string, price: number) => {
+    const addHighSeasonPeriod = (startDate: string, endDate: string) => {
         setData({
-            highSeasonPeriods: [...data.highSeasonPeriods, { startDate, endDate, price }],
+            highSeasonPeriods: [...data.highSeasonPeriods, { startDate, endDate }],
         })
     }
 
@@ -113,11 +112,10 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         )
     }
 
-    const getHighSeasonPrice = (date: string) => {
-        const period = data.highSeasonPeriods.find(
+    const isHighSeason = (date: string) => {
+        return data.highSeasonPeriods.some(
             p => new Date(date) >= new Date(p.startDate) && new Date(date) <= new Date(p.endDate)
         )
-        return period ? period.price : null
     }
 
     return (
@@ -134,7 +132,7 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
                 removeHighSeasonPeriod,
                 isDateBlocked,
                 isHoliday,
-                getHighSeasonPrice,
+                isHighSeason,
                 isLoading,
             }}
         >
