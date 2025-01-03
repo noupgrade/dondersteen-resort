@@ -7,6 +7,8 @@ import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Separator } from '@/shared/ui/separator'
+import { ServiceItem } from '@/shared/ui/service-item'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 type Pet = {
     name: string
@@ -22,7 +24,7 @@ type PendingRequest = {
     checkIn: string
     checkOut: string
     totalPrice: number
-    additionalServices: string[]
+    additionalServices: AdditionalService[]
     specialNeeds?: {
         [petName: string]: string
     }
@@ -44,7 +46,7 @@ export function PendingRequests() {
                 checkIn: r.checkInDate,
                 checkOut: r.checkOutDate,
                 totalPrice: r.totalPrice || 0,
-                additionalServices: r.additionalServices,
+                additionalServices: r.additionalServices || [],
                 specialNeeds: r.specialNeeds
                     ? typeof r.specialNeeds === 'string'
                         ? { [r.pets?.[0]?.name || '']: r.specialNeeds }
@@ -141,19 +143,38 @@ export function PendingRequests() {
                                                     <p className='mt-1 text-sm'>{request.specialNeeds[pet.name]}</p>
                                                 </div>
                                             )}
-                                            {request.additionalServices.length > 0 && (
+                                            {/* Services for this pet */}
+                                            {request.additionalServices.filter(service => service.petIndex === index).length > 0 && (
                                                 <div className='mt-2'>
                                                     <span className='text-sm text-gray-500'>
                                                         Servicios adicionales:
                                                     </span>
-                                                    <p className='mt-1 text-sm'>
-                                                        {request.additionalServices.join(', ')}
-                                                    </p>
+                                                    <div className='mt-1 grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]'>
+                                                        {request.additionalServices
+                                                            .filter(service => service.petIndex === index)
+                                                            .map((service, serviceIndex) => (
+                                                                <ServiceItem key={serviceIndex} service={service} />
+                                                            ))}
+                                                    </div>
                                                 </div>
                                             )}
                                             {index < request.pets.length - 1 && <Separator className='my-4' />}
                                         </div>
                                     ))}
+
+                                    {/* General Services Section */}
+                                    {request.additionalServices.filter(service => service.type === 'driver').length > 0 && (
+                                        <div className='rounded-lg bg-white p-4 shadow-sm'>
+                                            <h4 className='mb-2 text-lg font-semibold'>Servicios Generales</h4>
+                                            <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]'>
+                                                {request.additionalServices
+                                                    .filter(service => service.type === 'driver')
+                                                    .map((service, index) => (
+                                                        <ServiceItem key={index} service={service} />
+                                                    ))}
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Price Section */}
                                     <div className='rounded-lg bg-white p-4 shadow-sm'>

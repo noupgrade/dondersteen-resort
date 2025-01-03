@@ -15,6 +15,7 @@ import { Input } from '@/shared/ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 import { Textarea } from '@/shared/ui/textarea.tsx'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 const reservationSchema = z.object({
     clientName: z.string().min(1, 'El nombre del cliente es requerido'),
@@ -27,7 +28,7 @@ const reservationSchema = z.object({
     totalPrice: z.number().min(0, 'El precio no puede ser negativo'),
     paymentStatus: z.enum(['Pagado', 'Pendiente']),
     status: z.enum(['pending', 'confirmed', 'completed', 'cancelled']),
-    additionalServices: z.array(z.string()),
+    additionalServices: z.array(z.custom<AdditionalService>()),
     specialNeeds: z.string().optional(),
 })
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell } from 'lucide-react'
+import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell, Pill, Heart } from 'lucide-react'
 
 import { HotelReservation, useReservation } from '@/components/ReservationContext.tsx'
 import { CheckIns } from '@/components/check-ins.tsx'
@@ -12,6 +12,7 @@ import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
+import { ServiceType } from '@/shared/types/additional-services'
 
 export default function PanelInterno() {
     const { reservations, getReservationsByDate } = useReservation()
@@ -40,55 +41,37 @@ export default function PanelInterno() {
 
     const occupancy = activeReservations.length > 0 ? (activeReservations.length / 20) * 100 : 0
 
-    const formatServiceName = (service: string) => {
-        // Remove index numbers and underscores
-        const baseName = service.replace(/_\d+$/, '').replace('Details', '');
-
-        // Format specific service names
-        switch (baseName) {
-            case 'transport':
-                return 'Transporte';
+    const getServiceIcon = (serviceType: ServiceType) => {
+        switch (serviceType) {
+            case 'driver':
+                return <Truck className="h-4 w-4 text-blue-500" />
+            case 'special_food':
+                return <UtensilsCrossed className="h-4 w-4 text-orange-500" />
             case 'medication':
-                return 'Medicación';
-            case 'specialCare':
-                return 'Curas';
-            case 'customFood':
-                return 'Comida';
-            case 'grooming':
-                return 'Peluquería';
-            case 'groomingService':
-                return 'Peluquería';
-            case 'bath':
-                return 'Baño';
-            case 'food':
-                return 'Comida';
-            case 'training':
-                return 'Adiestramiento';
+                return <Pill className="h-4 w-4 text-red-500" />
+            case 'special_care':
+                return <Heart className="h-4 w-4 text-pink-500" />
+            case 'hairdressing':
+                return <Scissors className="h-4 w-4 text-purple-500" />
             default:
-                return baseName;
+                return null
         }
     }
 
-    const getServiceIcon = (service: string) => {
-        const baseName = service.replace(/_\d+$/, '').replace('Details', '');
-        switch (baseName) {
+    const formatServiceName = (serviceType: ServiceType) => {
+        switch (serviceType) {
+            case 'driver':
+                return 'Servicio de chofer'
+            case 'special_food':
+                return 'Comida especial'
             case 'medication':
-                return <PillIcon className="h-4 w-4 text-[#4B6BFB]" />;
-            case 'specialCare':
-                return <Stethoscope className="h-4 w-4 text-[#4B6BFB]" />;
-            case 'customFood':
-            case 'food':
-                return <UtensilsCrossed className="h-4 w-4 text-[#4B6BFB]" />;
-            case 'transport':
-                return <Truck className="h-4 w-4 text-[#4B6BFB]" />;
-            case 'grooming':
-            case 'groomingService':
-            case 'bath':
-                return <Scissors className="h-4 w-4 text-[#4B6BFB]" />;
-            case 'training':
-                return <Dumbbell className="h-4 w-4 text-[#4B6BFB]" />;
+                return 'Medicación'
+            case 'special_care':
+                return 'Curas'
+            case 'hairdressing':
+                return 'Peluquería'
             default:
-                return null;
+                return 'Servicio desconocido'
         }
     }
 
@@ -209,11 +192,7 @@ export default function PanelInterno() {
                                                 {reservation.pets.map((pet, petIndex) => {
                                                     // Filtrar servicios para esta mascota
                                                     const petServices = reservation.additionalServices
-                                                        .filter(service => {
-                                                            if (!service.includes('_')) return false;
-                                                            const serviceIndex = service.split('_').pop();
-                                                            return serviceIndex === petIndex.toString() && !service.includes('frequency');
-                                                        });
+                                                        .filter(service => service.petIndex === petIndex);
 
                                                     return (
                                                         <div key={petIndex} className="space-y-4 pb-4 border-b last:border-b-0">
@@ -232,25 +211,45 @@ export default function PanelInterno() {
                                                                 {petServices.length > 0 && (
                                                                     <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
                                                                         {petServices.map((service, index) => {
-                                                                            const icon = getServiceIcon(service);
-                                                                            const formattedName = formatServiceName(service);
+                                                                            const icon = getServiceIcon(service.type);
+                                                                            let formattedName = formatServiceName(service.type);
 
-                                                                            // Add frequency information for medication
-                                                                            let extraInfo = '';
-                                                                            if (service.startsWith('medication_')) {
-                                                                                const frequency = reservation.additionalServices.find(
-                                                                                    s => s === `medication_frequency_${petIndex}`
-                                                                                );
-                                                                                if (frequency) {
-                                                                                    extraInfo = ` (${frequency === 'once' ? '1 vez al día' : 'Varias veces al día'})`;
-                                                                                }
+                                                                            // Add extra details based on service type
+                                                                            switch (service.type) {
+                                                                                case 'medication':
+                                                                                    if (service.comment) {
+                                                                                        formattedName += `: ${service.comment}`;
+                                                                                    }
+                                                                                    break;
+                                                                                case 'special_care':
+                                                                                    if (service.comment) {
+                                                                                        formattedName += `: ${service.comment}`;
+                                                                                    }
+                                                                                    break;
+                                                                                case 'special_food':
+                                                                                    formattedName += ` (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`;
+                                                                                    break;
+                                                                                case 'hairdressing':
+                                                                                    formattedName += `: ${service.services.map(s => {
+                                                                                        switch (s) {
+                                                                                            case 'bath_and_brush': return 'Baño y cepillado';
+                                                                                            case 'bath_and_trim': return 'Baño y corte';
+                                                                                            case 'stripping': return 'Stripping';
+                                                                                            case 'deshedding': return 'Deslanado';
+                                                                                            case 'brushing': return 'Cepillado';
+                                                                                            case 'spa': return 'Spa';
+                                                                                            case 'spa_ozone': return 'Spa con ozono';
+                                                                                            default: return s;
+                                                                                        }
+                                                                                    }).join(', ')}`;
+                                                                                    break;
                                                                             }
 
                                                                             return (
                                                                                 <div key={index} className="flex items-center gap-2">
                                                                                     {icon}
                                                                                     <span className="text-sm text-muted-foreground">
-                                                                                        {formattedName}{extraInfo}
+                                                                                        {formattedName}
                                                                                     </span>
                                                                                 </div>
                                                                             );
@@ -263,15 +262,22 @@ export default function PanelInterno() {
                                                 })}
 
                                                 {/* Servicios generales */}
-                                                {reservation.additionalServices.some(service => !service.includes('_')) && (
+                                                {reservation.additionalServices.some(service => service.type === 'driver') && (
                                                     <div className="space-y-4">
                                                         <h4 className="font-semibold">Servicios Generales</h4>
                                                         <div className="space-y-2">
                                                             {reservation.additionalServices
-                                                                .filter(service => !service.includes('_'))
+                                                                .filter(service => service.type === 'driver')
                                                                 .map((service, index) => {
-                                                                    const icon = getServiceIcon(service);
-                                                                    const formattedName = formatServiceName(service);
+                                                                    const icon = getServiceIcon(service.type);
+                                                                    let formattedName = formatServiceName(service.type);
+
+                                                                    // Add driver service details
+                                                                    formattedName += ` (${service.serviceType === 'pickup' ? 'Recogida' :
+                                                                        service.serviceType === 'dropoff' ? 'Entrega' :
+                                                                            'Recogida y entrega'
+                                                                        })`;
+
                                                                     return (
                                                                         <div key={index} className="flex items-center gap-2">
                                                                             {icon}

@@ -25,7 +25,13 @@ const mockReservations: Reservation[] = [
         status: 'confirmed',
         startDate: '2024-03-01',
         endDate: '2024-03-05',
-        services: ['Alojamiento estándar'],
+        services: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ],
         pets: [{
             name: 'Max',
             breed: 'Golden Retriever',
@@ -40,7 +46,13 @@ const mockReservations: Reservation[] = [
         status: 'confirmed',
         date: '2024-03-15',
         time: '14:00',
-        services: ['Corte y baño'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'bath_and_trim']
+            }
+        ],
         pets: [{
             name: 'Luna',
             breed: 'Yorkshire',
@@ -55,7 +67,13 @@ const mockReservations: Reservation[] = [
         status: 'cancelled',
         startDate: '2024-03-25',
         endDate: '2024-03-28',
-        services: ['Alojamiento estándar'],
+        services: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ],
         pets: [{
             name: 'Max',
             breed: 'Golden Retriever',
@@ -70,7 +88,13 @@ const mockReservations: Reservation[] = [
         status: 'pending',
         date: '2024-04-01',
         time: '11:00',
-        services: ['Corte'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            }
+        ],
         pets: [{
             name: 'Luna',
             breed: 'Yorkshire',
@@ -157,8 +181,8 @@ export default function ClientProfile() {
         setSuccessMessage('Datos actualizados correctamente')
     }
 
-    const displayedReservations = showAllReservations 
-        ? clientReservations 
+    const displayedReservations = showAllReservations
+        ? clientReservations
         : clientReservations.slice(0, 4)
 
     const CompactReservationCard = ({ reservation }: { reservation: Reservation }) => {
@@ -250,7 +274,7 @@ export default function ClientProfile() {
                                 getStatusStyle(reservation.status)
                             )}>
                                 {reservation.status === 'confirmed' ? 'Confirmada' :
-                                 reservation.status === 'pending' ? 'Pendiente' : 'Cancelada'}
+                                    reservation.status === 'pending' ? 'Pendiente' : 'Cancelada'}
                             </div>
                         </div>
                     </div>
@@ -297,7 +321,7 @@ export default function ClientProfile() {
 
             <div className='grid gap-4'>
                 <Card>
-                    <CardHeader 
+                    <CardHeader
                         className='cursor-pointer select-none border-b hover:bg-accent/50 transition-colors'
                         onClick={() => setShowAllReservations(!showAllReservations)}
                     >
@@ -330,15 +354,15 @@ export default function ClientProfile() {
                             ) : (
                                 // Vista compacta con las últimas 4 reservas
                                 displayedReservations.map(reservation => (
-                                    <CompactReservationCard 
-                                        key={reservation.id} 
+                                    <CompactReservationCard
+                                        key={reservation.id}
                                         reservation={reservation}
                                     />
                                 ))
                             )}
                         </div>
                         {!showAllReservations && clientReservations.length > 4 && (
-                            <div 
+                            <div
                                 className="border-t p-2 flex items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors"
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -371,7 +395,7 @@ export default function ClientProfile() {
                     </CardContent>
                 </Card>
 
-                <button 
+                <button
                     className="w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
                     onClick={() => setIsEditClientModalOpen(true)}
                 >

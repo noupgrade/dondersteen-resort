@@ -1,3 +1,4 @@
+import { AdditionalService } from '@/shared/types/additional-services'
 import { Reservation } from '@/components/reservation-card'
 
 export const mockReservations: Reservation[] = [
@@ -5,38 +6,60 @@ export const mockReservations: Reservation[] = [
     {
         id: '1',
         type: 'hotel',
-        date: '2023-11-01',
+        date: '2023-11-20',
         time: '10:00',
-        startDate: '2023-11-01',
-        endDate: '2023-11-05',
-        services: ['accommodation', 'food', 'bath'],
-        status: 'confirmed',
-        estimatedPrice: 500,
-        pets: [
-            { 
-                name: 'Buddy',
-                breed: 'Golden Retriever',
-                size: 'grande',
-                weight: 30
+        startDate: '2023-11-20',
+        endDate: '2023-11-24',
+        services: [
+            {
+                type: 'driver',
+                serviceType: 'both',
+                pickupTime: '10:00',
+                dropoffTime: '14:00'
             },
+            {
+                type: 'medication',
+                petIndex: 0,
+                comment: 'Medicación diaria'
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Cuidados especiales diarios'
+            }
+        ] as AdditionalService[],
+        status: 'confirmed',
+        estimatedPrice: 300,
+        pets: [
             {
                 name: 'Luna',
                 breed: 'Labrador',
                 size: 'grande',
-                weight: 28
+                weight: 25
             }
         ]
     },
     {
         id: '2',
         type: 'hotel',
-        date: '2023-11-15',
-        time: '14:00',
-        startDate: '2023-11-15',
-        endDate: '2023-11-20',
-        services: ['accommodation', 'food', 'grooming'],
+        date: '2023-11-22',
+        time: '15:00',
+        startDate: '2023-11-22',
+        endDate: '2023-11-27',
+        services: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'spa']
+            }
+        ] as AdditionalService[],
         status: 'confirmed',
-        estimatedPrice: 600,
+        estimatedPrice: 400,
         pets: [
             {
                 name: 'Rocky',
@@ -54,7 +77,13 @@ export const mockReservations: Reservation[] = [
         time: '09:00',
         startDate: '2023-11-25',
         endDate: '2023-11-30',
-        services: ['accommodation', 'bath'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            }
+        ] as AdditionalService[],
         status: 'servicio solicitado',
         estimatedPrice: 350,
         pets: [
@@ -73,7 +102,13 @@ export const mockReservations: Reservation[] = [
         time: '11:00',
         startDate: '2023-12-01',
         endDate: '2023-12-05',
-        services: ['accommodation', 'food', 'training'],
+        services: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ] as AdditionalService[],
         status: 'servicio solicitado',
         estimatedPrice: 450,
         pets: [
@@ -91,7 +126,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-20',
         time: '10:00',
-        services: ['bath', 'haircut', 'nails'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'bath_and_trim']
+            }
+        ] as AdditionalService[],
         status: 'propuesta peluqueria',
         estimatedPrice: 65,
         pets: [
@@ -108,7 +149,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-22',
         time: '15:30',
-        services: ['bath', 'haircut', 'deshedding'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding']
+            }
+        ] as AdditionalService[],
         status: 'propuesta peluqueria',
         estimatedPrice: 80,
         pets: [
@@ -126,7 +173,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-24',
         time: '11:00',
-        services: ['bath', 'haircut', 'nails'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'bath_and_trim']
+            }
+        ] as AdditionalService[],
         status: 'confirmed',
         estimatedPrice: 55,
         pets: [
@@ -143,7 +196,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-26',
         time: '14:30',
-        services: ['bath', 'haircut', 'deshedding'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding']
+            }
+        ] as AdditionalService[],
         status: 'confirmed',
         estimatedPrice: 75,
         pets: [
@@ -161,7 +220,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-28',
         time: '14:00',
-        services: ['bath', 'haircut'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'bath_and_trim']
+            }
+        ] as AdditionalService[],
         status: 'servicio solicitado',
         estimatedPrice: 45,
         pets: [
@@ -178,7 +243,13 @@ export const mockReservations: Reservation[] = [
         type: 'peluqueria',
         date: '2023-11-30',
         time: '11:30',
-        services: ['bath', 'haircut', 'nails', 'deshedding'],
+        services: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'bath_and_trim', 'deshedding']
+            }
+        ] as AdditionalService[],
         status: 'servicio solicitado',
         estimatedPrice: 90,
         pets: [

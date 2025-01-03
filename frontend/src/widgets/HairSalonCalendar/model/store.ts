@@ -5,7 +5,7 @@ import { addDays, format } from 'date-fns'
 import type { CalendarState, CalendarActions, CalendarView, DraggedReservation } from './types'
 import type { ExtendedReservation } from '@/types/reservation'
 
-interface CalendarStore extends CalendarState, CalendarActions {}
+interface CalendarStore extends CalendarState, CalendarActions { }
 
 // Mock data for testing
 const today = new Date()
@@ -80,7 +80,13 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             name: 'Bella',
             breed: 'Caniche'
         },
-        additionalServices: ['corte'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            }
+        ],
         status: 'confirmed', // Ya aceptada, solo falta asignar hora
         observations: 'Aceptada - Pendiente asignar hora'
     },
@@ -98,7 +104,13 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             name: 'Toby',
             breed: 'Shih Tzu'
         },
-        additionalServices: ['bano_especial'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['spa']
+            }
+        ],
         status: 'confirmed', // Ya aceptada, solo falta asignar hora
         observations: 'Aceptada - Preferencia horario de mañana'
     }
@@ -120,7 +132,13 @@ const pendingReservations = [
             name: 'Nala',
             breed: 'Pastor Alemán'
         },
-        additionalServices: ['deslanado'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['deshedding']
+            }
+        ],
         status: 'pending', // Pendiente de aceptar
         observations: 'Pendiente de aceptar'
     },
@@ -138,7 +156,13 @@ const pendingReservations = [
             name: 'Coco',
             breed: 'Bulldog Francés'
         },
-        additionalServices: ['corte'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            }
+        ],
         status: 'pending', // Pendiente de aceptar
         observations: 'Pendiente de proponer fecha'
     }

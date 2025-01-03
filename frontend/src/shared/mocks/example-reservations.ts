@@ -1,6 +1,7 @@
 import { addDays, format, subDays } from 'date-fns'
 
 import { HotelReservation } from '@/components/ReservationContext'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 // Example reservations that will be managed in the context
 export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
@@ -40,7 +41,18 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 sex: 'M'
             }
         ],
-        additionalServices: ['bath', 'food'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ] as AdditionalService[],
         roomNumber: 'HAB.1',
         status: 'confirmed',
         totalPrice: 300,
@@ -76,7 +88,23 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 sex: 'M'
             }
         ],
-        additionalServices: ['bath', 'food', 'training'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Necesita cuidados especiales'
+            }
+        ] as AdditionalService[],
         roomNumber: 'HAB.2',
         status: 'confirmed',
         totalPrice: 500,
@@ -118,7 +146,23 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 sex: 'F'
             }
         ],
-        additionalServices: ['bath', 'food', 'training'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Necesita cuidados especiales'
+            }
+        ] as AdditionalService[],
         roomNumber: 'HAB.3',
         status: 'pending',
         totalPrice: 600,
@@ -155,7 +199,23 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 roomNumber: 'HAB.4'
             }
         ],
-        additionalServices: ['bath', 'food', 'training'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Necesita cuidados especiales'
+            }
+        ] as AdditionalService[],
         roomNumber: 'HAB.4',
         status: 'confirmed',
         totalPrice: 400,
@@ -200,7 +260,18 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 roomNumber: 'HAB.5'
             }
         ],
-        additionalServices: ['bath', 'food'],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ] as AdditionalService[],
         roomNumber: 'HAB.5',
         status: 'confirmed',
         totalPrice: 700,

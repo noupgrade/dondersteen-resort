@@ -4,6 +4,7 @@ import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { addDays, format } from 'date-fns'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 export type HotelReservation = {
     id: string
@@ -25,7 +26,7 @@ export type HotelReservation = {
         sex: 'M' | 'F'
         roomNumber?: string
     }[]
-    additionalServices: string[]
+    additionalServices: AdditionalService[]
     roomNumber: string
     status:
     | 'pending'
@@ -54,7 +55,7 @@ export type HairSalonReservation = {
         weight: number
         size: 'pequeño' | 'mediano' | 'grande'
     }
-    additionalServices: string[]
+    additionalServices: AdditionalService[]
     status:
     | 'pending'
     | 'confirmed'

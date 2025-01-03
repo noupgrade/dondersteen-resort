@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/di
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
 import { DateRange, SelectRangeEventHandler } from 'react-day-picker'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 type Pet = {
     name: string
@@ -34,7 +35,7 @@ type Pet = {
     weight: number
 }
 
-type ReservationStatus = 
+type ReservationStatus =
     | 'pending'
     | 'confirmed'
     | 'completed'
@@ -52,14 +53,14 @@ interface Reservation {
     time?: string
     startDate?: string
     endDate?: string
-    services: string[]
+    services: AdditionalService[]
     status: ReservationStatus
     estimatedPrice?: number
     pets: Pet[]
 }
 
-type TranslationKey = 'from' | 'to' | 'services' | 'estimatedPrice' | 'acceptProposal' | 'rejectProposal' | 
-    'requestCancellation' | 'changeDates' | 'cancel' | 'submit' | 'pets' | 'changeDatesRequested' | 
+type TranslationKey = 'from' | 'to' | 'services' | 'estimatedPrice' | 'acceptProposal' | 'rejectProposal' |
+    'requestCancellation' | 'changeDates' | 'cancel' | 'submit' | 'pets' | 'changeDatesRequested' |
     'processing' | 'awaitingConfirmation' | 'changeDatesSuccess' | 'callGrooming' | 'rejectReason' | 'rejectAndCall'
 
 type Translations = {
@@ -93,10 +94,10 @@ const translations: Translations = {
     rejectAndCall: { es: 'Rechazar y llamar', en: 'Reject and call' },
 }
 
-export function ReservationCard({ reservation, language, onReservationDeleted }: { 
+export function ReservationCard({ reservation, language, onReservationDeleted }: {
     reservation: Reservation
     language: 'es' | 'en'
-    onReservationDeleted: (id: string) => void 
+    onReservationDeleted: (id: string) => void
 }) {
     const { updateReservation, deleteReservation } = useReservation()
     const [localReservation, setLocalReservation] = useState(reservation)
@@ -162,14 +163,32 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         return statusTranslations[status as keyof typeof statusTranslations] || status
     }
 
-    const translateService = (service: string) => {
-        const serviceTranslations = {
-            bath: language === 'es' ? 'Baño' : 'Bath',
-            haircut: language === 'es' ? 'Corte' : 'Haircut',
-            accommodation: language === 'es' ? 'Alojamiento' : 'Accommodation',
-            food: language === 'es' ? 'Comida' : 'Food'
+    const translateService = (service: AdditionalService) => {
+        switch (service.type) {
+            case 'driver':
+                return `Chofer (${service.serviceType === 'pickup' ? 'Recogida' : service.serviceType === 'dropoff' ? 'Entrega' : 'Recogida y entrega'})`
+            case 'special_food':
+                return `Comida especial (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`
+            case 'medication':
+                return 'Medicación' + (service.comment ? `: ${service.comment}` : '')
+            case 'special_care':
+                return 'Curas' + (service.comment ? `: ${service.comment}` : '')
+            case 'hairdressing':
+                return 'Peluquería: ' + service.services.map(s => {
+                    switch (s) {
+                        case 'bath_and_brush': return 'Baño y cepillado'
+                        case 'bath_and_trim': return 'Baño y corte'
+                        case 'stripping': return 'Stripping'
+                        case 'deshedding': return 'Deslanado'
+                        case 'brushing': return 'Cepillado'
+                        case 'spa': return 'Spa'
+                        case 'spa_ozone': return 'Spa con ozono'
+                        default: return s
+                    }
+                }).join(', ')
+            default:
+                return 'Servicio desconocido'
         }
-        return serviceTranslations[service as keyof typeof serviceTranslations] || service
     }
 
     const statusColor = (status: string) => {

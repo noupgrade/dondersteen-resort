@@ -1,3 +1,5 @@
+import { AdditionalService } from '@/shared/types/additional-services'
+
 export type ReservationSource = 'hotel' | 'external'
 export type ReservationStatus = 'pending' | 'pending_client_confirmation' | 'confirmed' | 'completed'
 
@@ -14,7 +16,7 @@ export interface BaseReservation {
         name: string
         breed: string
     }
-    additionalServices: string[]
+    additionalServices: AdditionalService[]
     observations?: string
     status: ReservationStatus
     beforePhoto?: string
@@ -38,7 +40,7 @@ export interface ExtendedReservation {
         name: string
         breed: string
     }
-    additionalServices: string[]
+    additionalServices: AdditionalService[]
     status: ReservationStatus
     duration?: number
     precioEstimado?: number
