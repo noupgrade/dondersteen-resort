@@ -177,7 +177,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                     <div className="grid gap-2 py-2">
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Nombre</Label>
+                                <Label className="text-xs">{t('name')}</Label>
                                 <Input
                                     value={editedPet.name}
                                     onChange={e => setEditedPet({ ...editedPet, name: e.target.value })}
@@ -185,7 +185,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Raza</Label>
+                                <Label className="text-xs">{t('breed')}</Label>
                                 <Input
                                     value={editedPet.breed}
                                     onChange={e => setEditedPet({ ...editedPet, breed: e.target.value })}
@@ -195,7 +195,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Edad</Label>
+                                <Label className="text-xs">{t('age')}</Label>
                                 <Input
                                     type="number"
                                     value={editedPet.age}
@@ -204,7 +204,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Género</Label>
+                                <Label className="text-xs">{t('gender')}</Label>
                                 <Input
                                     value={editedPet.gender}
                                     onChange={e => setEditedPet({ ...editedPet, gender: e.target.value })}
@@ -214,7 +214,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <Label className="text-xs">Alimentación</Label>
+                                <Label className="text-xs">{t('food')}</Label>
                                 <Input
                                     value={editedPet.food}
                                     onChange={e => setEditedPet({ ...editedPet, food: e.target.value })}
@@ -222,7 +222,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                                 />
                             </div>
                             <div>
-                                <Label className="text-xs">Medicación</Label>
+                                <Label className="text-xs">{t('medication')}</Label>
                                 <Input
                                     value={editedPet.medication}
                                     onChange={e => setEditedPet({ ...editedPet, medication: e.target.value })}
@@ -231,7 +231,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                             </div>
                         </div>
                         <div>
-                            <Label className="text-xs">Hábitos</Label>
+                            <Label className="text-xs">{t('habits')}</Label>
                             <Textarea
                                 value={editedPet.habits}
                                 onChange={e => setEditedPet({ ...editedPet, habits: e.target.value })}
@@ -239,7 +239,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                             />
                         </div>
                         <div>
-                            <Label className="text-xs">Personalidad</Label>
+                            <Label className="text-xs">{t('personality')}</Label>
                             <Textarea
                                 value={editedPet.personality}
                                 onChange={e => setEditedPet({ ...editedPet, personality: e.target.value })}
@@ -247,7 +247,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                             />
                         </div>
                         <div>
-                            <Label className="text-xs">Comentarios</Label>
+                            <Label className="text-xs">{t('comments')}</Label>
                             <Textarea
                                 value={editedPet.comments}
                                 onChange={e => setEditedPet({ ...editedPet, comments: e.target.value })}
@@ -260,7 +260,7 @@ export function PetCard({ pet, language }: PetCardProps) {
                             onClick={handleSave}
                             className="flex-1 h-8 text-xs font-medium"
                         >
-                            Guardar
+                            {t('save')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

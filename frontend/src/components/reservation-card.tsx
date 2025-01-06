@@ -16,7 +16,7 @@ import {
     Phone,
 } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
+import { useReservation, type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -46,6 +46,14 @@ type ReservationStatus =
 
 type ReservationType = 'peluqueria' | 'hotel'
 
+type Proposal = {
+    originalPrice: number
+    discountedPrice: number
+    message: string
+    suggestedDate?: string
+    suggestedTime?: string
+}
+
 interface Reservation {
     id: string
     type: ReservationType
@@ -57,6 +65,7 @@ interface Reservation {
     status: ReservationStatus
     estimatedPrice?: number
     pets: Pet[]
+    proposal?: Proposal
 }
 
 type TranslationKey = 'from' | 'to' | 'services' | 'estimatedPrice' | 'acceptProposal' | 'rejectProposal' |
@@ -95,12 +104,12 @@ const translations: Translations = {
 }
 
 export function ReservationCard({ reservation, language, onReservationDeleted }: {
-    reservation: Reservation
+    reservation: HairSalonReservation | HotelReservation
     language: 'es' | 'en'
     onReservationDeleted: (id: string) => void
 }) {
     const { updateReservation, deleteReservation } = useReservation()
-    const [localReservation, setLocalReservation] = useState(reservation)
+    const [localReservation, setLocalReservation] = useState<HairSalonReservation | HotelReservation>(reservation)
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
     const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
     const [isChangeDatesDialogOpen, setIsChangeDatesDialogOpen] = useState(false)
@@ -116,8 +125,13 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
     const t = (key: TranslationKey) => translations[key][language]
 
     const handleAcceptProposal = () => {
-        updateReservation(localReservation.id, { ...localReservation, status: 'confirmed' })
-        setLocalReservation({ ...localReservation, status: 'confirmed' })
+        if (localReservation.type === 'peluqueria') {
+            const updatedReservation: Partial<HairSalonReservation> = {
+                status: 'confirmed' as const
+            }
+            updateReservation(localReservation.id, updatedReservation)
+            setLocalReservation({ ...localReservation, status: 'confirmed' as const })
+        }
     }
 
     const handleRejectProposal = () => {
@@ -127,9 +141,54 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
     }
 
     const handleRequestCancellation = () => {
-        updateReservation(localReservation.id, { ...localReservation, status: 'cancelacion solicitada' })
-        setLocalReservation({ ...localReservation, status: 'cancelacion solicitada' })
-        setIsCancelDialogOpen(false)
+        if (localReservation.type === 'peluqueria') {
+            const updatedReservation: Partial<HairSalonReservation> = {
+                status: 'cancelacion solicitada' as const
+            }
+            updateReservation(localReservation.id, updatedReservation)
+            setLocalReservation({ ...localReservation, status: 'cancelacion solicitada' as const })
+            setIsCancelDialogOpen(false)
+        }
+    }
+
+    const handleChangeDates = async () => {
+        if (newDates.from && newDates.to && localReservation.type === 'hotel') {
+            setIsProcessing(true)
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 2000))
+
+            const startDate = new Date(newDates.from)
+            let endDate = new Date(newDates.to)
+
+            // Asegurarse de que la fecha de fin sea al menos un día después de la fecha de inicio
+            if (endDate <= startDate) {
+                endDate = new Date(startDate)
+                endDate.setDate(endDate.getDate() + 1)
+            }
+
+            const updatedData: Partial<HotelReservation> = {
+                checkInDate: format(startDate, 'yyyy-MM-dd'),
+                checkOutDate: format(endDate, 'yyyy-MM-dd'),
+                status: 'pending' as const
+            }
+            updateReservation(localReservation.id, updatedData)
+            setLocalReservation({
+                ...localReservation,
+                checkInDate: updatedData.checkInDate!,
+                checkOutDate: updatedData.checkOutDate!,
+                status: 'pending' as const
+            } as HotelReservation)
+            setIsChangeDatesDialogOpen(false)
+            setIsProcessing(false)
+            setShowSuccessMessage(true)
+            setTimeout(() => setShowSuccessMessage(false), 5000)
+        }
+    }
+
+    const handleDateSelect: SelectRangeEventHandler = (range) => {
+        if (range) {
+            setNewDates(range)
+        }
     }
 
     const formatDate = (dateString: string) => {
@@ -137,7 +196,7 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
         try {
             const date = new Date(dateString)
             if (isNaN(date.getTime())) return ''
-            return format(date, 'dd/MM/yyyy')
+            return format(date, 'dd MMM yyyy')
         } catch (error) {
             console.error('Error formatting date:', error)
             return ''
@@ -151,14 +210,13 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
 
     const translateStatus = (status: string) => {
         const statusTranslations = {
-            'propuesta peluqueria': language === 'es' ? 'Propuesta Peluquería' : 'Grooming Proposal',
+            'propuesta peluqueria': language === 'es' ? 'Propuesta de Peluquería' : 'Grooming Proposal',
             'confirmed': language === 'es' ? 'Confirmada' : 'Confirmed',
             'cancelacion solicitada': language === 'es' ? 'Cancelación Solicitada' : 'Cancellation Requested',
             'pending': language === 'es' ? 'Pendiente' : 'Pending',
             'completed': language === 'es' ? 'Completada' : 'Completed',
             'cancelled': language === 'es' ? 'Cancelada' : 'Cancelled',
-            'servicio solicitado': language === 'es' ? 'Servicio Solicitado' : 'Service Requested',
-            'cambio fechas solicitado': language === 'es' ? 'Cambio de Fechas Solicitado' : 'Date Change Requested'
+            'servicio solicitado': language === 'es' ? 'Servicio Solicitado' : 'Service Requested'
         }
         return statusTranslations[status as keyof typeof statusTranslations] || status
     }
@@ -194,46 +252,15 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
     const statusColor = (status: string) => {
         switch (status) {
             case 'confirmed':
-                return 'bg-green-500'
+                return 'bg-green-500 text-white'
+            case 'pending':
+                return 'bg-yellow-500 text-black'
             case 'cancelled':
-                return 'bg-red-500'
+                return 'bg-red-500 text-white'
+            case 'propuesta peluqueria':
+                return 'bg-black text-white'
             default:
-                return 'bg-yellow-500'
-        }
-    }
-
-    const handleChangeDates = async () => {
-        if (newDates.from && newDates.to) {
-            setIsProcessing(true)
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000))
-
-            const startDate = new Date(newDates.from)
-            let endDate = new Date(newDates.to)
-
-            // Asegurarse de que la fecha de fin sea al menos un día después de la fecha de inicio
-            if (endDate <= startDate) {
-                endDate = new Date(startDate)
-                endDate.setDate(endDate.getDate() + 1)
-            }
-
-            const updatedData: Partial<Reservation> = {
-                startDate: format(startDate, 'yyyy-MM-dd'),
-                endDate: format(endDate, 'yyyy-MM-dd'),
-                status: 'servicio solicitado'
-            }
-            updateReservation(localReservation.id, updatedData)
-            setLocalReservation({ ...localReservation, ...updatedData })
-            setIsChangeDatesDialogOpen(false)
-            setIsProcessing(false)
-            setShowSuccessMessage(true)
-            setTimeout(() => setShowSuccessMessage(false), 5000)
-        }
-    }
-
-    const handleDateSelect: SelectRangeEventHandler = (range) => {
-        if (range) {
-            setNewDates(range)
+                return 'bg-yellow-500 text-black'
         }
     }
 
@@ -253,107 +280,134 @@ export function ReservationCard({ reservation, language, onReservationDeleted }:
                         </>
                     )}
                 </div>
-                <Badge className={`${statusColor(localReservation.status)} whitespace-nowrap`}>{translateStatus(localReservation.status)}</Badge>
+                <Badge className={`${statusColor(localReservation.status)} whitespace-nowrap`}>
+                    {translateStatus(localReservation.status)}
+                </Badge>
             </CardHeader>
             <CardContent className='px-4 pt-4 sm:px-6'>
-                <div className='mb-4'>
-                    {localReservation.type === 'peluqueria' ? (
-                        <p className='flex flex-col text-base font-bold sm:flex-row sm:items-center sm:text-lg'>
-                            <span className='mb-2 flex items-center sm:mb-0'>
-                                <CalendarIcon className='mr-2 h-5 w-5 text-gray-500' />
-                                {formatDate(localReservation.date!)}
-                            </span>
-                            <span className='flex items-center sm:ml-4'>
-                                <Clock className='mr-2 h-5 w-5 text-gray-500' />
-                                {formatTime(localReservation.time!)}
-                            </span>
-                        </p>
-                    ) : (
-                        <p className='flex flex-col text-base font-bold sm:flex-row sm:items-center sm:text-lg'>
-                            <CalendarIcon className='mr-2 h-5 w-5 text-gray-500' />
-                            <span>
-                                {t('from')} {formatDate(localReservation.startDate!)} {t('to')}{' '}
-                                {formatDate(localReservation.endDate!)}
-                            </span>
-                        </p>
-                    )}
-                </div>
-                <div className='mb-4'>
-                    <h4 className='mb-2 font-semibold'>{t('services')}:</h4>
-                    <ul className='list-inside list-disc'>
-                        {localReservation.services.map((service, index) => (
-                            <li key={index} className='text-gray-700'>
-                                {translateService(service)}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className='mb-4'>
-                    <h4 className='mb-2 font-semibold'>{t('pets')}:</h4>
-                    <ul className='list-inside list-disc'>
-                        {localReservation.pets.map((pet, index) => (
-                            <li key={index} className='flex items-center text-gray-700'>
-                                <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
-                                {pet.name} ({pet.breed})
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                {localReservation.estimatedPrice && (
-                    <div className='mb-4 flex items-center'>
-                        <Euro className='mr-2 h-5 w-5 text-gray-500' />
-                        <span className='font-semibold'>{t('estimatedPrice')}:</span>
-                        <span className='ml-2'>€{localReservation.estimatedPrice.toFixed(2)}</span>
+                <div className='space-y-4'>
+                    <div className='flex flex-col gap-1'>
+                        {localReservation.type === 'peluqueria' ? (
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-gray-500" />
+                                    <span>{formatDate(localReservation.date)}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Clock className="h-4 w-4 text-gray-500" />
+                                    <span>{formatTime(localReservation.time)}</span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-gray-500" />
+                                    <span>
+                                        {t('from')} {formatDate(localReservation.checkInDate)} {t('to')}{' '}
+                                        {formatDate(localReservation.checkOutDate)}
+                                    </span>
+                                </div>
+                            </>
+                        )}
                     </div>
-                )}
-                <div className='mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-4'>
-                    {localReservation.status.toLowerCase().includes('propuesta') && (
-                        <>
-                            <Button
-                                onClick={handleAcceptProposal}
-                                className='w-full bg-green-500 hover:bg-green-600 sm:w-auto'
-                            >
-                                <Check className='mr-2 h-4 w-4' />
-                                {t('acceptProposal')}
-                            </Button>
-                            <Button
-                                variant='outline'
-                                onClick={() => setIsRejectDialogOpen(true)}
-                                className='w-full border-red-500 text-red-500 hover:bg-red-50 sm:w-auto'
-                            >
-                                <X className='mr-2 h-4 w-4' />
-                                {t('rejectProposal')}
-                            </Button>
-                        </>
+
+                    <div>
+                        <h4 className='font-semibold mb-1'>{t('services')}:</h4>
+                        <ul className='list-disc list-inside'>
+                            {localReservation.additionalServices.map((service, index) => (
+                                <li key={index} className='text-gray-700'>
+                                    {translateService(service)}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className='font-semibold mb-1'>{t('pets')}:</h4>
+                        <ul className='list-inside'>
+                            {localReservation.type === 'peluqueria' ? (
+                                <li className='flex items-center text-gray-700'>
+                                    <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
+                                    {localReservation.pet.name} ({localReservation.pet.breed})
+                                </li>
+                            ) : (
+                                localReservation.pets.map((pet, index) => (
+                                    <li key={index} className='flex items-center text-gray-700'>
+                                        <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
+                                        {pet.name} ({pet.breed})
+                                    </li>
+                                ))
+                            )}
+                        </ul>
+                    </div>
+
+                    {localReservation.totalPrice && (
+                        <div>
+                            <h4 className='font-semibold mb-1'>{t('estimatedPrice')}:</h4>
+                            <div className="flex items-center gap-2">
+                                <Euro className='h-4 w-4 text-gray-500' />
+                                <span>€{localReservation.totalPrice.toFixed(2)}</span>
+                            </div>
+                        </div>
                     )}
-                    {localReservation.status.toLowerCase().includes('confirmada') && (
-                        <>
-                            <Button
-                                variant='outline'
-                                onClick={() => setIsCancelDialogOpen(true)}
-                                className='w-full border-red-500 text-red-500 hover:bg-red-50 sm:w-auto'
-                            >
-                                {t('requestCancellation')}
-                            </Button>
-                            {localReservation.type === 'hotel' && (
+
+                    {localReservation.type === 'peluqueria' && 
+                     localReservation.status === 'propuesta peluqueria' && 
+                     localReservation.priceNote && (
+                        <div className="bg-yellow-50 p-4 rounded-lg">
+                            <p className="text-sm text-yellow-800 mb-2">{localReservation.priceNote}</p>
+                            <div className="flex items-center gap-4">
+                                <p className="text-sm text-yellow-800">
+                                    <span className="font-bold">{localReservation.totalPrice}€</span>
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className='flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-4'>
+                        {localReservation.type === 'peluqueria' && 
+                         localReservation.status === 'propuesta peluqueria' && (
+                            <>
+                                <Button
+                                    onClick={handleAcceptProposal}
+                                    className='w-full bg-green-500 hover:bg-green-600 text-white sm:w-auto'
+                                >
+                                    <Check className='mr-2 h-4 w-4' />
+                                    {t('acceptProposal')}
+                                </Button>
                                 <Button
                                     variant='outline'
-                                    onClick={() => setIsChangeDatesDialogOpen(true)}
-                                    className='w-full border-blue-500 text-blue-500 hover:bg-blue-50 sm:w-auto'
+                                    onClick={() => setIsRejectDialogOpen(true)}
+                                    className='w-full border-red-500 text-red-500 hover:bg-red-50 sm:w-auto'
                                 >
-                                    <CalendarIcon className='mr-2 h-4 w-4' />
-                                    {t('changeDates')}
+                                    <X className='mr-2 h-4 w-4' />
+                                    {t('rejectProposal')}
                                 </Button>
-                            )}
-                        </>
-                    )}
+                            </>
+                        )}
+                        {localReservation.status === 'confirmed' && (
+                            <>
+                                <Button
+                                    variant='outline'
+                                    onClick={() => setIsCancelDialogOpen(true)}
+                                    className='w-full border-red-500 text-red-500 hover:bg-red-50 sm:w-auto'
+                                >
+                                    {t('requestCancellation')}
+                                </Button>
+                                {localReservation.type === 'hotel' && (
+                                    <Button
+                                        variant='outline'
+                                        onClick={() => setIsChangeDatesDialogOpen(true)}
+                                        className='w-full border-blue-500 text-blue-500 hover:bg-blue-50 sm:w-auto'
+                                    >
+                                        <CalendarIcon className='mr-2 h-4 w-4' />
+                                        {t('changeDates')}
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
-                {localReservation.status === 'servicio solicitado' && (
-                    <Badge variant="outline" className='mt-2 flex w-full items-center justify-center sm:w-auto'>
-                        <AlertCircle className='mr-2 h-4 w-4' />
-                        {t('changeDatesRequested')} - {t('awaitingConfirmation')}
-                    </Badge>
-                )}
             </CardContent>
 
             <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
