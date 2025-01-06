@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { ServiceType } from '@/shared/types/additional-services'
+import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
 
 export default function PanelInterno() {
     const { reservations, getReservationsByDate } = useReservation()
@@ -76,7 +77,7 @@ export default function PanelInterno() {
     }
 
     return (
-        <div className='container space-y-8 p-8'>
+        <div className='container mx-auto space-y-6 p-6'>
             <div className='flex items-center justify-between'>
                 <h1 className='text-4xl font-bold text-[#101828]'>Hotel</h1>
                 <Button asChild className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'>
@@ -87,7 +88,7 @@ export default function PanelInterno() {
             </div>
 
             <Tabs defaultValue='active' className='space-y-4'>
-                <TabsList className='grid w-full grid-cols-4 gap-4 bg-transparent p-0'>
+                <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>
                     <TabsTrigger
                         value='active'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
@@ -101,6 +102,12 @@ export default function PanelInterno() {
                                 {activeReservations.length}
                             </Badge>
                         )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='calendar'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Calendario
                     </TabsTrigger>
                     <TabsTrigger
                         value='pending'
@@ -324,6 +331,9 @@ export default function PanelInterno() {
                             <CheckOuts />
                         </CardContent>
                     </Card>
+                </TabsContent>
+                <TabsContent value='calendar'>
+                    <HotelReservationsCalendarWidget />
                 </TabsContent>
             </Tabs>
         </div>
