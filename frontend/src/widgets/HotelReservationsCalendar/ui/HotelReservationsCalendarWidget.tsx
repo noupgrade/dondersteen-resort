@@ -73,7 +73,7 @@ export function HotelReservationsCalendarWidget() {
                             roomNumber === '?' ? "text-amber-800" : "text-primary"
                         )}>
                             <Home className="h-4 w-4" />
-                            <span className="text-base font-bold">Hab. {roomNumber}</span>
+                            <span className="text-base font-bold">{roomNumber}</span>
                         </div>
                         <div className="pl-5 space-y-0.5">
                             {roomReservations.flatMap(reservation =>

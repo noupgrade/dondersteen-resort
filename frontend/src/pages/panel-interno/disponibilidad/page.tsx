@@ -4,7 +4,6 @@ import { Badge } from '@/shared/ui/badge'
 import { HotelAvailabilityCalendar } from '@/components/hotel-availability-calendar'
 import { useAvailabilityDialogs } from './hooks/use-availability-dialogs'
 import { useAvailabilityOperations } from './hooks/use-availability-operations'
-import { AvailabilityStatsDisplay } from './components/availability-stats'
 import { ManageDatesDialog } from './components/dialogs/manage-dates-dialog'
 import { HolidayDialog } from './components/dialogs/holiday-dialog'
 import { DateRange } from './types'
@@ -68,8 +67,6 @@ export default function DisponibilidadPage() {
             <div className='flex items-center justify-between'>
                 <h1 className='text-3xl font-bold'>Disponibilidad del Hotel</h1>
             </div>
-
-            <AvailabilityStatsDisplay stats={stats} />
 
             <HotelAvailabilityCalendar onDateSelect={handleDateRangeSelect} />
 
