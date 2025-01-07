@@ -4,7 +4,6 @@ import { Clock, Calendar, Hotel, Users, X } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
-import { Card } from '@/shared/ui/card'
 import { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { HairdressingServiceType } from '@/shared/types/additional-services'
@@ -43,13 +42,14 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
     const services = hairdressingService?.services as HairdressingServiceType[] || []
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-sm border-t">
-            <div className="container mx-auto">
-                <Card className="p-4">
+        <div className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
+            {/* Content */}
+            <div className="container relative mx-auto p-4">
+                <div className="bg-white rounded-lg shadow-xl border p-4">
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <div className={cn(
-                                "p-2 rounded-full",
+                                "p-2 rounded-full shadow-sm",
                                 reservation.source === 'hotel' ? "bg-primary/10" : "bg-violet-100"
                             )}>
                                 {reservation.source === 'hotel' ? (
@@ -60,22 +60,22 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h3 className="font-medium">{reservation.pet.name}</h3>
-                                    <Badge variant="outline">
+                                    <h3 className="font-medium text-gray-900">{reservation.pet.name}</h3>
+                                    <Badge variant="outline" className="shadow-sm">
                                         {reservation.source === 'hotel' ? 'Hotel' : 'Externo'}
                                     </Badge>
                                 </div>
-                                <div className="text-sm text-muted-foreground mt-1">
+                                <div className="text-sm text-muted-foreground/90 mt-1">
                                     {reservation.client.name} · {reservation.client.phone}
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
-                                    <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground/80 mt-2">
+                                    <div className="flex items-center gap-1.5 bg-gray-50/80 px-2.5 py-1 rounded-md shadow-sm">
                                         <Calendar className="h-3.5 w-3.5" />
                                         <span>
                                             {format(new Date(reservation.date), 'dd MMM yyyy', { locale: es })}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
+                                    <div className="flex items-center gap-1.5 bg-gray-50/80 px-2.5 py-1 rounded-md shadow-sm">
                                         <Clock className="h-3.5 w-3.5" />
                                         <span>{reservation.time}</span>
                                     </div>
@@ -83,7 +83,11 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                                 {services.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mt-2">
                                         {services.map((service, index) => (
-                                            <Badge key={index} variant="secondary">
+                                            <Badge
+                                                key={index}
+                                                variant="secondary"
+                                                className="shadow-sm bg-gray-100/80 text-gray-700 hover:bg-gray-200/80"
+                                            >
                                                 {getServiceLabel(service)}
                                             </Badge>
                                         ))}
@@ -96,6 +100,7 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                                 <Button
                                     variant="default"
                                     onClick={onAccept}
+                                    className="shadow-sm"
                                 >
                                     Aceptar
                                 </Button>
@@ -104,6 +109,7 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                                 <Button
                                     variant="destructive"
                                     onClick={onReject}
+                                    className="shadow-sm"
                                 >
                                     Rechazar
                                 </Button>
@@ -112,12 +118,13 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                                 variant="ghost"
                                 size="icon"
                                 onClick={onClose}
+                                className="hover:bg-gray-100/80"
                             >
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
                     </div>
-                </Card>
+                </div>
             </div>
         </div>
     )
