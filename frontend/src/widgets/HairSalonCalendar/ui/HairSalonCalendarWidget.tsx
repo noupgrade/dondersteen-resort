@@ -13,9 +13,10 @@ import { ManageReservationBanner } from './ManageReservationBanner'
 import { useCalendarStore } from '../model/store'
 import { BUSINESS_HOURS } from '../model/types'
 import { cn } from '@/shared/lib/styles/class-merge'
-import { ExtendedReservation } from '@/types/reservation'
 import { useSearchParams } from 'react-router-dom'
 import { useToast } from '@/shared/ui/use-toast'
+import { useReservation } from '@/components/ReservationContext'
+import { HairSalonReservation } from '@/components/ReservationContext'
 
 const timeSlots = Array.from({ length: BUSINESS_HOURS.end - BUSINESS_HOURS.start }, (_, i) => {
     const hour = BUSINESS_HOURS.start + i
@@ -27,39 +28,16 @@ interface HairSalonCalendarWidgetProps {
 }
 
 export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
-    const { view, selectedDate, setView, setSelectedDate } = useCalendarStore()
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [view, setView] = useState<'day' | 'week'>('day')
     const [searchParams, setSearchParams] = useSearchParams()
     const { toast } = useToast()
-    const [managingReservation, setManagingReservation] = useState<ExtendedReservation | null>(null)
+    const { reservations } = useReservation()
 
-    useEffect(() => {
-        if (managingReservationId) {
-            // Here you would fetch the reservation details from your API
-            // For now we'll use mock data
-            const mockReservation: ExtendedReservation = {
-                id: managingReservationId,
-                type: 'peluqueria',
-                source: 'hotel',
-                date: format(new Date(), 'yyyy-MM-dd'),
-                time: '10:00',
-                client: {
-                    name: 'Juan Pérez',
-                    phone: '666555444'
-                },
-                pet: {
-                    id: '1',
-                    name: 'Luna',
-                    breed: 'Golden Retriever'
-                },
-                additionalServices: ['bath_and_trim'],
-                status: 'pending',
-                observations: 'El pelo está muy enredado, necesita cuidado especial'
-            }
-            setManagingReservation(mockReservation)
-        } else {
-            setManagingReservation(null)
-        }
-    }, [managingReservationId])
+    // Find the reservation being managed
+    const managingReservation = managingReservationId
+        ? reservations.find(r => r.id === managingReservationId && r.type === 'peluqueria') as HairSalonReservation
+        : null
 
     const handleNavigate = (direction: 'prev' | 'next') => {
         if (view === 'week') {

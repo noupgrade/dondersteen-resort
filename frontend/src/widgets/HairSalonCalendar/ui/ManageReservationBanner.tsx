@@ -5,17 +5,43 @@ import { Clock, Calendar, Hotel, Users, X } from 'lucide-react'
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
 import { Card } from '@/shared/ui/card'
-import { ExtendedReservation } from '@/types/reservation'
+import { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
+import { HairdressingServiceType } from '@/shared/types/additional-services'
 
 interface ManageReservationBannerProps {
-    reservation: ExtendedReservation
+    reservation: HairSalonReservation
     onClose: () => void
     onAccept?: () => void
     onReject?: () => void
 }
 
+const getServiceLabel = (service: HairdressingServiceType) => {
+    switch (service) {
+        case 'bath_and_brush':
+            return 'Baño y cepillado'
+        case 'bath_and_trim':
+            return 'Baño y corte'
+        case 'stripping':
+            return 'Stripping'
+        case 'deshedding':
+            return 'Deslanado'
+        case 'brushing':
+            return 'Cepillado'
+        case 'spa':
+            return 'Spa'
+        case 'spa_ozone':
+            return 'Spa con ozono'
+        default:
+            return service
+    }
+}
+
 export function ManageReservationBanner({ reservation, onClose, onAccept, onReject }: ManageReservationBannerProps) {
+    // Find the hairdressing service and get its services array
+    const hairdressingService = reservation.additionalServices.find(service => service.type === 'hairdressing')
+    const services = hairdressingService?.services as HairdressingServiceType[] || []
+
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background/80 backdrop-blur-sm border-t">
             <div className="container mx-auto">
@@ -54,26 +80,33 @@ export function ManageReservationBanner({ reservation, onClose, onAccept, onReje
                                         <span>{reservation.time}</span>
                                     </div>
                                 </div>
+                                {services.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {services.map((service, index) => (
+                                            <Badge key={index} variant="secondary">
+                                                {getServiceLabel(service)}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
-
                         <div className="flex items-center gap-2">
-                            {reservation.source === 'external' && (
-                                <>
-                                    <Button
-                                        variant="destructive"
-                                        onClick={onReject}
-                                        className="gap-2"
-                                    >
-                                        Rechazar
-                                    </Button>
-                                    <Button
-                                        onClick={onAccept}
-                                        className="gap-2"
-                                    >
-                                        Aceptar
-                                    </Button>
-                                </>
+                            {onAccept && (
+                                <Button
+                                    variant="default"
+                                    onClick={onAccept}
+                                >
+                                    Aceptar
+                                </Button>
+                            )}
+                            {onReject && (
+                                <Button
+                                    variant="destructive"
+                                    onClick={onReject}
+                                >
+                                    Rechazar
+                                </Button>
                             )}
                             <Button
                                 variant="ghost"
