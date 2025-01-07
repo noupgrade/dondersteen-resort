@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone } from 'lucide-react'
 
 import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
@@ -32,23 +32,53 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
             phone: '+34 123 456 789',
             email: 'john.doe@example.com'
         },
-        pets: [{
-            name: 'Max',
-            breed: 'Golden Retriever',
-            weight: 30,
-            size: 'grande',
-            sex: 'M'
-        }],
+        pets: [
+            {
+                name: 'Max',
+                breed: 'Golden Retriever',
+                weight: 30,
+                size: 'grande',
+                sex: 'M'
+            },
+            {
+                name: 'Luna',
+                breed: 'Labrador',
+                weight: 25,
+                size: 'grande',
+                sex: 'F'
+            },
+            {
+                name: 'Rocky',
+                breed: 'Yorkshire',
+                weight: 3,
+                size: 'pequeño',
+                sex: 'M'
+            }
+        ],
         additionalServices: [
             {
                 type: 'special_food',
                 petIndex: 0,
                 foodType: 'refrigerated'
+            },
+            {
+                type: 'medication',
+                petIndex: 1,
+                comment: 'Antiinflamatorio cada 12h'
+            },
+            {
+                type: 'special_care',
+                petIndex: 2,
+                comment: 'Revisión diaria de oídos'
+            },
+            {
+                type: 'driver',
+                serviceType: 'both'
             }
         ],
         roomNumber: '101',
         status: 'confirmed',
-        totalPrice: 240,
+        totalPrice: 480,
         paymentStatus: 'Pendiente'
     },
     {
@@ -71,11 +101,16 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush', 'bath_and_trim']
+                services: ['bath_and_brush', 'bath_and_trim', 'spa_ozone']
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Corte de uñas incluido'
             }
         ],
         status: 'confirmed',
-        totalPrice: 35,
+        totalPrice: 55,
         paymentStatus: 'Pendiente',
         source: 'external'
     },
@@ -90,23 +125,41 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
             phone: '+34 123 456 789',
             email: 'john.doe@example.com'
         },
-        pets: [{
-            name: 'Max',
-            breed: 'Golden Retriever',
-            weight: 30,
-            size: 'grande',
-            sex: 'M'
-        }],
+        pets: [
+            {
+                name: 'Toby',
+                breed: 'Bulldog Francés',
+                weight: 12,
+                size: 'mediano',
+                sex: 'M'
+            },
+            {
+                name: 'Milo',
+                breed: 'Bulldog Francés',
+                weight: 11,
+                size: 'mediano',
+                sex: 'M'
+            }
+        ],
         additionalServices: [
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'frozen'
+            },
+            {
+                type: 'special_food',
+                petIndex: 1,
+                foodType: 'frozen'
+            },
+            {
+                type: 'driver',
+                serviceType: 'pickup'
             }
         ],
         roomNumber: '102',
         status: 'cancelled',
-        totalPrice: 180,
+        totalPrice: 280,
         paymentStatus: 'Pendiente'
     },
     {
@@ -129,14 +182,72 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_trim', 'deshedding']
+                services: ['bath_and_trim', 'deshedding', 'spa']
+            },
+            {
+                type: 'driver',
+                serviceType: 'both'
             }
         ],
         status: 'propuesta peluqueria',
-        totalPrice: 45,
+        totalPrice: 65,
         paymentStatus: 'Pendiente',
         source: 'external',
-        priceNote: 'Propuesta para el servicio de baño, corte y deslanado'
+        priceNote: 'Propuesta para el servicio de baño, corte, deslanado y spa'
+    },
+    {
+        id: '5',
+        type: 'hotel',
+        checkInDate: '2024-04-10',
+        checkInTime: '10:00',
+        checkOutDate: '2024-04-15',
+        client: {
+            name: 'John Doe',
+            phone: '+34 123 456 789',
+            email: 'john.doe@example.com'
+        },
+        pets: [
+            {
+                name: 'Max',
+                breed: 'Golden Retriever',
+                weight: 30,
+                size: 'grande',
+                sex: 'M'
+            },
+            {
+                name: 'Luna',
+                breed: 'Labrador',
+                weight: 25,
+                size: 'grande',
+                sex: 'F'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'medication',
+                petIndex: 0,
+                comment: 'Antiparasitario día 12'
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding']
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 1,
+                services: ['bath_and_brush', 'deshedding']
+            }
+        ],
+        roomNumber: '103',
+        status: 'confirmed',
+        totalPrice: 520,
+        paymentStatus: 'Pendiente'
     }
 ]
 
@@ -159,6 +270,24 @@ const translations = {
     cancelled: { es: 'Cancelada', en: 'Cancelled' },
     pending: { es: 'Pendiente', en: 'Pending' },
     proposal: { es: 'Propuesta', en: 'Proposal' },
+    // Service translations
+    driverPickup: { es: 'Servicio de recogida', en: 'Pickup service' },
+    driverDropoff: { es: 'Servicio de entrega', en: 'Dropoff service' },
+    driverBoth: { es: 'Servicio de recogida y entrega', en: 'Pickup and dropoff service' },
+    specialFood: { es: 'Comida especial', en: 'Special food' },
+    refrigerated: { es: 'Refrigerada', en: 'Refrigerated' },
+    frozen: { es: 'Congelada', en: 'Frozen' },
+    medication: { es: 'Medicación', en: 'Medication' },
+    specialCare: { es: 'Cuidados especiales', en: 'Special care' },
+    hairdressing: { es: 'Peluquería', en: 'Grooming' },
+    bathAndBrush: { es: 'Baño y cepillado', en: 'Bath and brush' },
+    bathAndTrim: { es: 'Baño y corte', en: 'Bath and trim' },
+    stripping: { es: 'Stripping', en: 'Stripping' },
+    deshedding: { es: 'Deslanado', en: 'Deshedding' },
+    brushing: { es: 'Cepillado', en: 'Brushing' },
+    spa: { es: 'Spa', en: 'Spa' },
+    spaOzone: { es: 'Spa con ozono', en: 'Ozone spa' },
+    unknownService: { es: 'Servicio desconocido', en: 'Unknown service' },
     // Generic translations
     hotelReservation: { es: 'Hotel Reserva', en: 'Hotel Reservation' },
     groomingReservation: { es: 'Reserva de Peluquería', en: 'Grooming Reservation' },
@@ -175,15 +304,12 @@ const translations = {
     phone: { es: 'Teléfono', en: 'Phone' },
     email: { es: 'Email', en: 'Email' },
     address: { es: 'Dirección', en: 'Address' },
-    // Success messages
-    dataUpdated: { es: 'Datos actualizados correctamente', en: 'Data updated successfully' },
     // Pet edit form
     editPet: { es: 'Editar Mascota', en: 'Edit Pet' },
     breed: { es: 'Raza', en: 'Breed' },
     age: { es: 'Edad', en: 'Age' },
     gender: { es: 'Género', en: 'Gender' },
     food: { es: 'Alimentación', en: 'Food' },
-    medication: { es: 'Medicación', en: 'Medication' },
     habits: { es: 'Hábitos', en: 'Habits' },
     personality: { es: 'Personalidad', en: 'Personality' },
     comments: { es: 'Comentarios', en: 'Comments' },
@@ -315,28 +441,30 @@ export default function ClientProfile() {
         const translateService = (service: AdditionalService) => {
             switch (service.type) {
                 case 'driver':
-                    return `Chofer (${service.serviceType === 'pickup' ? 'Recogida' : service.serviceType === 'dropoff' ? 'Entrega' : 'Recogida y entrega'})`
+                    return service.serviceType === 'pickup' ? t('driverPickup') :
+                           service.serviceType === 'dropoff' ? t('driverDropoff') :
+                           t('driverBoth')
                 case 'special_food':
-                    return `Comida especial (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`
+                    return `${t('specialFood')} (${service.foodType === 'refrigerated' ? t('refrigerated') : t('frozen')})`
                 case 'medication':
-                    return 'Medicación' + (service.comment ? `: ${service.comment}` : '')
+                    return t('medication') + (service.comment ? `: ${service.comment}` : '')
                 case 'special_care':
-                    return 'Curas' + (service.comment ? `: ${service.comment}` : '')
+                    return t('specialCare') + (service.comment ? `: ${service.comment}` : '')
                 case 'hairdressing':
-                    return 'Peluquería: ' + service.services.map((s: string) => {
+                    return t('hairdressing') + ': ' + service.services.map((s: string) => {
                         switch (s) {
-                            case 'bath_and_brush': return 'Baño y cepillado'
-                            case 'bath_and_trim': return 'Baño y corte'
-                            case 'stripping': return 'Stripping'
-                            case 'deshedding': return 'Deslanado'
-                            case 'brushing': return 'Cepillado'
-                            case 'spa': return 'Spa'
-                            case 'spa_ozone': return 'Spa con ozono'
+                            case 'bath_and_brush': return t('bathAndBrush')
+                            case 'bath_and_trim': return t('bathAndTrim')
+                            case 'stripping': return t('stripping')
+                            case 'deshedding': return t('deshedding')
+                            case 'brushing': return t('brushing')
+                            case 'spa': return t('spa')
+                            case 'spa_ozone': return t('spaOzone')
                             default: return s
                         }
                     }).join(', ')
                 default:
-                    return 'Servicio desconocido'
+                    return t('unknownService')
             }
         }
 
@@ -368,18 +496,52 @@ export default function ClientProfile() {
 
         const renderPets = () => {
             if (reservation.type === 'hotel') {
-                return reservation.pets.map((pet, index) => (
-                    <li key={index} className='flex items-center text-gray-700'>
-                        <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
-                        {pet.name} ({pet.breed})
-                    </li>
-                ))
+                return reservation.pets.map((pet, index) => {
+                    const petServices = reservation.additionalServices.filter(service => 
+                        service.petIndex === index || 
+                        (service.type === 'driver' && service.serviceType)
+                    )
+
+                    return (
+                        <div key={index} className='mb-4 last:mb-0'>
+                            <div className='flex items-center text-gray-700 font-semibold mb-2'>
+                                <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
+                                {pet.name} ({pet.breed})
+                            </div>
+                            {petServices.length > 0 && (
+                                <ul className='ml-6 space-y-1'>
+                                    {petServices.map((service, serviceIndex) => (
+                                        <li key={serviceIndex} className='text-sm text-gray-600'>
+                                            {translateService(service)}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )
+                })
             } else {
+                const petServices = reservation.additionalServices.filter(service => 
+                    service.petIndex === 0 || 
+                    (service.type === 'driver' && service.serviceType)
+                )
+                
                 return (
-                    <li className='flex items-center text-gray-700'>
-                        <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
-                        {reservation.pet.name} ({reservation.pet.breed})
-                    </li>
+                    <div className='mb-4'>
+                        <div className='flex items-center text-gray-700 font-semibold mb-2'>
+                            <PawPrint className='mr-2 h-4 w-4 text-gray-500' />
+                            {reservation.pet.name} ({reservation.pet.breed})
+                        </div>
+                        {petServices.length > 0 && (
+                            <ul className='ml-6 space-y-1'>
+                                {petServices.map((service, serviceIndex) => (
+                                    <li key={serviceIndex} className='text-sm text-gray-600'>
+                                        {translateService(service)}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 )
             }
         }
@@ -434,21 +596,10 @@ export default function ClientProfile() {
                             <div className="mt-4">
                                 <div className="space-y-4">
                                     <div>
-                                        <h4 className="font-semibold mb-1">{t('services')}:</h4>
-                                        <ul className="list-disc list-inside">
-                                            {reservation.additionalServices.map((service, index) => (
-                                                <li key={index} className="text-gray-700">
-                                                    {translateService(service)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-semibold mb-1">{t('pets')}:</h4>
-                                        <ul className="list-inside">
+                                        <h4 className="font-semibold mb-2">{t('pets')}:</h4>
+                                        <div className="space-y-2">
                                             {renderPets()}
-                                        </ul>
+                                        </div>
                                     </div>
 
                                     {reservation.totalPrice && (
@@ -646,22 +797,25 @@ export default function ClientProfile() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            <div className='mb-6 flex flex-col items-center justify-between gap-4'>
-                <div className='flex w-full items-center justify-between'>
-                    <Link to='/frontend/public'>
-                        <Button variant='ghost' size='icon'>
-                            <ChevronLeft className='h-5 w-5' />
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                    <Link to="/">
+                        <Button variant="ghost" size="icon">
+                            <ChevronLeft className="h-4 w-4" />
                         </Button>
                     </Link>
-                    <h1 className='text-xl font-bold'>{t('clientProfile')}</h1>
-                    <Button variant='ghost' size='icon' onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}>
-                        <Globe className='h-5 w-5' />
+                    <h1 className="text-2xl font-bold">{t('clientProfile')}</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="font-semibold bg-accent hover:bg-accent/80 min-w-[48px]"
+                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+                    >
+                        {language === 'es' ? 'EN' : 'ES'}
                     </Button>
                 </div>
-                <Button onClick={() => setIsNewReservationModalOpen(true)} className='w-full'>
-                    <Plus className='mr-2 h-4 w-4' />
-                    {t('newReservation')}
-                </Button>
             </div>
 
             <div className='grid gap-4'>
@@ -687,17 +841,24 @@ export default function ClientProfile() {
                                 />
                             ))}
                         </div>
-                        {!showAllReservations && clientReservations.length > 4 && (
+                        {clientReservations.length > 4 && (
                             <div
                                 className="border-t p-2 flex items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors"
                                 onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowAllReservations(true);
+                                    e.stopPropagation()
+                                    setShowAllReservations(!showAllReservations)
                                 }}
                             >
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <span>{t('showMore')} {clientReservations.length - 4} {t('more')}</span>
-                                    <ChevronDown className="h-4 w-4" />
+                                    {showAllReservations ? (
+                                        <span>{t('showLess')}</span>
+                                    ) : (
+                                        <span>{t('showMore')} {clientReservations.length - 4} {t('more')}</span>
+                                    )}
+                                    <ChevronDown className={cn(
+                                        "h-4 w-4 transition-transform",
+                                        showAllReservations ? "rotate-180" : ""
+                                    )} />
                                 </div>
                             </div>
                         )}
