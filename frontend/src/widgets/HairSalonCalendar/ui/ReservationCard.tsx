@@ -128,27 +128,12 @@ export function ReservationCard({
             <CardContent className="flex-none pt-0">
                 <div className="flex flex-col gap-2">
                     <Button
-                        className="w-full"
+                        className="w-full flex items-center justify-center gap-2"
                         onClick={() => onOrganizeCita(reservation)}
                     >
+                        <Calendar className="h-4 w-4" />
                         Organizar cita
                     </Button>
-                    <div className="grid grid-cols-2 gap-2">
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={() => onReject(reservation)}
-                        >
-                            Rechazar
-                        </Button>
-                        <Button
-                            variant="default"
-                            className="w-full"
-                            onClick={() => onAccept(reservation)}
-                        >
-                            Aceptar
-                        </Button>
-                    </div>
                 </div>
             </CardContent>
         </Card>
