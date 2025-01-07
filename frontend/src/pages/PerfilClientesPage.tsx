@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone, Truck } from 'lucide-react'
 
 import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
@@ -324,7 +324,11 @@ const translations = {
         hotelReservation: { es: 'Reserva hotel', en: 'Hotel booking' },
         groomingReservation: { es: 'Reserva peluquería', en: 'Grooming booking' },
         call: { es: 'Llamar', en: 'Call' }
-    }
+    },
+    // Transport translations
+    transportPickup: { es: 'Recogida', en: 'Pickup' },
+    transportDropoff: { es: 'Entrega', en: 'Dropoff' },
+    transportBoth: { es: 'Completo', en: 'Complete' },
 } as const
 
 type TranslationKey = keyof typeof translations
@@ -498,8 +502,7 @@ export default function ClientProfile() {
             if (reservation.type === 'hotel') {
                 return reservation.pets.map((pet, index) => {
                     const petServices = reservation.additionalServices.filter(service => 
-                        service.petIndex === index || 
-                        (service.type === 'driver' && service.serviceType)
+                        service.petIndex === index && service.type !== 'driver'
                     )
 
                     return (
@@ -522,8 +525,7 @@ export default function ClientProfile() {
                 })
             } else {
                 const petServices = reservation.additionalServices.filter(service => 
-                    service.petIndex === 0 || 
-                    (service.type === 'driver' && service.serviceType)
+                    service.petIndex === 0 && service.type !== 'driver'
                 )
                 
                 return (
@@ -544,6 +546,27 @@ export default function ClientProfile() {
                     </div>
                 )
             }
+        }
+
+        const getTransportService = () => {
+            const transportService = reservation.additionalServices.find(service => service.type === 'driver')
+            if (!transportService) return null
+
+            const getTransportText = () => {
+                switch (transportService.serviceType) {
+                    case 'pickup': return t('transportPickup')
+                    case 'dropoff': return t('transportDropoff')
+                    case 'both': return t('transportBoth')
+                    default: return ''
+                }
+            }
+
+            return (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Truck className="h-4 w-4" />
+                    <span>{getTransportText()}</span>
+                </div>
+            )
         }
 
         return (
@@ -580,16 +603,19 @@ export default function ClientProfile() {
                                     </div>
                                 </div>
                             </div>
-                            <Badge className={cn(
-                                getStatusStyle(reservation.status),
-                                "px-2 py-0.5 text-xs font-medium whitespace-nowrap"
-                            )}>
-                                {reservation.status === 'propuesta peluqueria' ? t('proposal') :
-                                 reservation.status === 'confirmed' ? t('confirmed') :
-                                 reservation.status === 'cancelled' ? t('cancelled') :
-                                 reservation.status === 'pending' ? t('pending') :
-                                 reservation.status}
-                            </Badge>
+                            <div className="flex flex-col items-end gap-1">
+                                <Badge className={cn(
+                                    getStatusStyle(reservation.status),
+                                    "px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+                                )}>
+                                    {reservation.status === 'propuesta peluqueria' ? t('proposal') :
+                                     reservation.status === 'confirmed' ? t('confirmed') :
+                                     reservation.status === 'cancelled' ? t('cancelled') :
+                                     reservation.status === 'pending' ? t('pending') :
+                                     reservation.status}
+                                </Badge>
+                                {getTransportService()}
+                            </div>
                         </div>
 
                         {isExpanded && (
@@ -605,9 +631,9 @@ export default function ClientProfile() {
                                     {reservation.totalPrice && (
                                         <div>
                                             <h4 className="font-semibold mb-1">{t('estimatedPrice')}:</h4>
-                                            <div className="flex items-center gap-2">
-                                                <Euro className="h-4 w-4 text-gray-500" />
-                                                <span>€{reservation.totalPrice.toFixed(2)}</span>
+                                            <div className="flex items-center gap-2 text-gray-700">
+                                                <Euro className="h-4 w-4 text-gray-500" aria-hidden="true" />
+                                                <span>{reservation.totalPrice.toFixed(2)}</span>
                                             </div>
                                         </div>
                                     )}
@@ -690,7 +716,7 @@ export default function ClientProfile() {
         }
 
         return (
-            <div className="fixed bottom-6 right-6 z-50">
+            <div className="fixed bottom-6 right-6 z-50 sm:bottom-8 sm:right-8">
                 <AnimatePresence>
                     {isOpen && (
                         <>
@@ -711,14 +737,14 @@ export default function ClientProfile() {
                                 }}
                                 exit={{ scale: 0, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="absolute bottom-7 right-7"
+                                className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8"
                             >
                                 <Button
                                     size="lg"
-                                    className="h-14 w-14 rounded-full bg-blue-500 hover:bg-blue-600 shadow-lg p-0"
+                                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-blue-500 hover:bg-blue-600 shadow-lg p-0"
                                     onClick={handleHotelReservation}
                                 >
-                                    <Bed className="h-6 w-6 text-white" />
+                                    <Bed className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                                 </Button>
                             </motion.div>
                             <motion.div
@@ -730,14 +756,14 @@ export default function ClientProfile() {
                                 }}
                                 exit={{ scale: 0, opacity: 0 }}
                                 transition={{ duration: 0.2, delay: 0.05 }}
-                                className="absolute bottom-7 right-7"
+                                className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8"
                             >
                                 <Button
                                     size="lg"
-                                    className="h-14 w-14 rounded-full bg-red-500 hover:bg-red-600 shadow-lg p-0"
+                                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-red-500 hover:bg-red-600 shadow-lg p-0"
                                     onClick={handleGroomingReservation}
                                 >
-                                    <ScissorsIcon className="h-6 w-6 text-white" />
+                                    <ScissorsIcon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                                 </Button>
                             </motion.div>
                             <motion.div
@@ -749,14 +775,14 @@ export default function ClientProfile() {
                                 }}
                                 exit={{ scale: 0, opacity: 0 }}
                                 transition={{ duration: 0.2, delay: 0.1 }}
-                                className="absolute bottom-7 right-7"
+                                className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8"
                             >
                                 <Button
                                     size="lg"
-                                    className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg p-0"
+                                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-green-500 hover:bg-green-600 shadow-lg p-0"
                                     onClick={handleCall}
                                 >
-                                    <Phone className="h-6 w-6 text-white" />
+                                    <Phone className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                                 </Button>
                             </motion.div>
                         </>
@@ -768,10 +794,10 @@ export default function ClientProfile() {
                 >
                     <Button
                         size="lg"
-                        className="h-14 w-14 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg p-0"
+                        className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg p-0"
                         onClick={() => setIsOpen(!isOpen)}
                     >
-                        <Plus className="h-6 w-6 text-white" />
+                        <Plus className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                     </Button>
                 </motion.div>
             </div>
@@ -779,7 +805,7 @@ export default function ClientProfile() {
     }
 
     return (
-        <div className='container mx-auto p-4 max-w-3xl'>
+        <div className='container mx-auto px-4 py-4 pb-24 max-w-3xl'>
             <FloatingActionButton />
             <AnimatePresence>
                 {successMessage && (

@@ -6,36 +6,51 @@ import { addDays, format } from 'date-fns'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
 import { AdditionalService } from '@/shared/types/additional-services'
 
+export type ShopProduct = {
+    id: string
+    name: string
+    quantity: number
+    unitPrice: number
+    totalPrice: number
+}
+
+export type Client = {
+    id?: string
+    name: string
+    phone: string
+    email: string
+    address?: string
+}
+
 export type HotelReservation = {
     id: string
     type: 'hotel'
     checkInDate: string
     checkInTime: string
     checkOutDate: string
-    client: {
-        id?: string
-        name: string
-        phone: string
-        email: string
-    }
+    checkOutTime?: string
+    client: Client
     pets: {
         name: string
         breed: string
-        weight: number
         size: 'pequeño' | 'mediano' | 'grande'
+        weight: number
         sex: 'M' | 'F'
-        roomNumber?: string
     }[]
-    additionalServices: AdditionalService[]
-    roomNumber: string
-    status:
-    | 'pending'
-    | 'confirmed'
-    | 'completed'
-    | 'cancelled'
+    additionalServices: {
+        type: string
+        petIndex: number
+        services?: string[]
+        comment?: string
+        serviceType?: 'pickup' | 'dropoff' | 'both'
+        foodType?: 'refrigerated' | 'frozen'
+        price?: number
+    }[]
+    shopProducts?: ShopProduct[]
+    status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
     totalPrice: number
-    paymentStatus: 'Pagado' | 'Pendiente'
-    specialNeeds?: string
+    paymentStatus: string
+    roomNumber?: string
 }
 
 export type HairSalonReservation = {
@@ -43,33 +58,24 @@ export type HairSalonReservation = {
     type: 'peluqueria'
     date: string
     time: string
-    client: {
-        id?: string
-        name: string
-        phone: string
-        email: string
-    }
+    client: Client
     pet: {
         name: string
         breed: string
         weight: number
         size: 'pequeño' | 'mediano' | 'grande'
     }
-    additionalServices: AdditionalService[]
-    status:
-    | 'pending'
-    | 'confirmed'
-    | 'completed'
-    | 'cancelled'
-    | 'propuesta peluqueria'
-    | 'servicio solicitado'
-    | 'cancelacion solicitada'
+    additionalServices: {
+        type: string
+        petIndex: number
+        services?: string[]
+        comment?: string
+        price?: number
+    }[]
+    shopProducts?: ShopProduct[]
+    status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
     totalPrice: number
-    paymentStatus: 'Pagado' | 'Pendiente'
-    beforePhoto?: string
-    afterPhoto?: string
-    priceNote?: string
-    source: 'hotel' | 'external'
+    paymentStatus: string
     observations?: string
 }
 

@@ -10,15 +10,17 @@ import { Input } from '@/shared/ui/input.tsx'
 import { ScrollArea } from '@/shared/ui/scroll-area.tsx'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table.tsx'
 import { Textarea } from '@/shared/ui/textarea.tsx'
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
+import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
 
-type Client = {
+type MockClient = {
     id: string
     name: string
     phone: string
     email: string
     address: string
     accumulatedSpending: number
-    classification: 'Rango 1' | 'Rango 2' | 'Rango 3' | 'NEW'
+    classification: 'Rango 1' | 'Rango 2' | 'Rango 3'
     internalNotes: string
     pets: {
         id: string
@@ -30,16 +32,358 @@ type Client = {
         specialFood?: string
         observations?: string
     }[]
-    reservations: {
-        id: string
-        checkIn: string
-        checkOut: string
-        pets: string[]
-        additionalServices: string[]
-        totalPrice: number
-        paymentMethod: string
-    }[]
+    reservations: (HotelReservation | HairSalonReservation)[]
 }
+
+const mockHotelReservation1: HotelReservation = {
+    id: 'res1',
+    type: 'hotel',
+    checkInDate: '2023-12-15',
+    checkInTime: '14:00',
+    checkOutDate: '2023-12-20',
+    checkOutTime: '12:00',
+    client: {
+        name: 'María García',
+        phone: '+34 123 456 789',
+        email: 'maria@example.com'
+    },
+    pets: [
+        {
+            name: 'Rocky',
+            breed: 'Labrador',
+            size: 'grande',
+            weight: 30,
+            sex: 'M'
+        }
+    ],
+    additionalServices: [
+        {
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_brush']
+        },
+        {
+            type: 'special_care',
+            petIndex: 0,
+            comment: 'Paseo extra'
+        }
+    ],
+    shopProducts: [
+        {
+            id: 'prod1',
+            name: 'Royal Canin Maxi Adult',
+            quantity: 2,
+            unitPrice: 15.99,
+            totalPrice: 31.98
+        },
+        {
+            id: 'prod2',
+            name: 'Collar antiparasitario',
+            quantity: 1,
+            unitPrice: 25.50,
+            totalPrice: 25.50
+        }
+    ],
+    status: 'confirmed',
+    totalPrice: 250,
+    paymentStatus: 'Pagado'
+}
+
+const mockHotelReservation2: HotelReservation = {
+    id: 'res2',
+    type: 'hotel',
+    checkInDate: '2023-11-01',
+    checkInTime: '14:00',
+    checkOutDate: '2023-11-03',
+    checkOutTime: '12:00',
+    client: {
+        name: 'María García',
+        phone: '+34 123 456 789',
+        email: 'maria@example.com'
+    },
+    pets: [
+        {
+            name: 'Rocky',
+            breed: 'Labrador',
+            size: 'grande',
+            weight: 30,
+            sex: 'M'
+        },
+        {
+            name: 'Nacho',
+            breed: 'Gato Siamés',
+            size: 'pequeño',
+            weight: 4,
+            sex: 'M'
+        }
+    ],
+    additionalServices: [
+        {
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['brushing']
+        }
+    ],
+    shopProducts: [],
+    status: 'confirmed',
+    totalPrice: 180,
+    paymentStatus: 'Pagado'
+}
+
+const mockHairSalonReservation1: HairSalonReservation = {
+    id: 'res5',
+    type: 'peluqueria',
+    date: '2023-12-05',
+    time: '10:00',
+    client: {
+        name: 'María García',
+        phone: '+34 123 456 789',
+        email: 'maria@example.com'
+    },
+    pet: {
+        name: 'Rocky',
+        breed: 'Labrador',
+        size: 'grande',
+        weight: 30
+    },
+    additionalServices: [
+        {
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_brush', 'deshedding']
+        }
+    ],
+    shopProducts: [
+        {
+            id: 'prod5',
+            name: 'Champú especial',
+            quantity: 1,
+            unitPrice: 15.99,
+            totalPrice: 15.99
+        }
+    ],
+    status: 'confirmed',
+    totalPrice: 75,
+    paymentStatus: 'Pagado'
+}
+
+const mockHairSalonReservation2: HairSalonReservation = {
+    id: 'res6',
+    type: 'peluqueria',
+    date: '2023-11-20',
+    time: '16:00',
+    client: {
+        name: 'María García',
+        phone: '+34 123 456 789',
+        email: 'maria@example.com'
+    },
+    pet: {
+        name: 'Nacho',
+        breed: 'Gato Siamés',
+        size: 'pequeño',
+        weight: 4
+    },
+    additionalServices: [
+        {
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_brush']
+        }
+    ],
+    shopProducts: [],
+    status: 'confirmed',
+    totalPrice: 35,
+    paymentStatus: 'Pagado'
+}
+
+const MOCK_CLIENTS: Record<string, MockClient> = {
+    '1': {
+        id: '1',
+        name: 'María García',
+        phone: '+34 123 456 789',
+        email: 'maria@example.com',
+        address: 'Calle Principal 123, 28001 Madrid',
+        accumulatedSpending: 1500,
+        classification: 'Rango 2',
+        internalNotes: 'Cliente frecuente, prefiere habitaciones tranquilas.',
+        pets: [
+            {
+                id: '1',
+                name: 'Rocky',
+                breed: 'Labrador',
+                size: 'Grande',
+                age: 5,
+                medication: 'Antiinflamatorios cada 12 horas',
+                specialFood: 'Dieta hipoalergénica',
+                observations: 'Juguetón, necesita mucho ejercicio',
+            },
+            {
+                id: '2',
+                name: 'Nacho',
+                breed: 'Gato Siamés',
+                size: 'Mediano',
+                age: 3,
+                observations: 'Tímido con extraños',
+            },
+        ],
+        reservations: [
+            mockHotelReservation1,
+            mockHotelReservation2,
+            mockHairSalonReservation1,
+            mockHairSalonReservation2
+        ]
+    },
+    '2': {
+        id: '2',
+        name: 'Juan Pérez',
+        phone: '+34 987 654 321',
+        email: 'juan@example.com',
+        address: 'Avenida Libertad 45, 28002 Madrid',
+        accumulatedSpending: 800,
+        classification: 'Rango 1',
+        internalNotes: 'Prefiere horarios de mañana.',
+        pets: [
+            {
+                id: '3',
+                name: 'Luna',
+                breed: 'Yorkshire',
+                size: 'Pequeño',
+                age: 2,
+                observations: 'Muy activa',
+            }
+        ],
+        reservations: [
+            {
+                id: 'res3',
+                type: 'hotel',
+                checkInDate: '2023-12-01',
+                checkInTime: '10:00',
+                checkOutDate: '2023-12-05',
+                checkOutTime: '12:00',
+                client: {
+                    name: 'Juan Pérez',
+                    phone: '+34 987 654 321',
+                    email: 'juan@example.com'
+                },
+                pets: [
+                    {
+                        name: 'Luna',
+                        breed: 'Yorkshire',
+                        size: 'pequeño',
+                        weight: 3,
+                        sex: 'F'
+                    }
+                ],
+                additionalServices: [
+                    {
+                        type: 'hairdressing',
+                        petIndex: 0,
+                        services: ['bath_and_trim']
+                    }
+                ],
+                shopProducts: [
+                    {
+                        id: 'prod3',
+                        name: 'Royal Canin Mini Adult',
+                        quantity: 1,
+                        unitPrice: 12.99,
+                        totalPrice: 12.99
+                    }
+                ],
+                status: 'confirmed',
+                totalPrice: 200,
+                paymentStatus: 'Pagado'
+            }
+        ]
+    },
+    '3': {
+        id: '3',
+        name: 'Ana Martínez',
+        phone: '+34 555 123 456',
+        email: 'ana@example.com',
+        address: 'Plaza Mayor 8, 28003 Madrid',
+        accumulatedSpending: 2500,
+        classification: 'Rango 3',
+        internalNotes: 'Cliente VIP, muy exigente con la limpieza.',
+        pets: [
+            {
+                id: '4',
+                name: 'Max',
+                breed: 'Golden Retriever',
+                size: 'Grande',
+                age: 4,
+                medication: 'Vitaminas diarias',
+                observations: 'Muy sociable'
+            },
+            {
+                id: '5',
+                name: 'Bella',
+                breed: 'Persa',
+                size: 'Mediano',
+                age: 6,
+                specialFood: 'Dieta sin cereales',
+                observations: 'Necesita cepillado diario'
+            }
+        ],
+        reservations: [
+            {
+                id: 'res4',
+                type: 'hotel',
+                checkInDate: '2023-12-10',
+                checkInTime: '15:00',
+                checkOutDate: '2023-12-18',
+                checkOutTime: '12:00',
+                client: {
+                    name: 'Ana Martínez',
+                    phone: '+34 555 123 456',
+                    email: 'ana@example.com'
+                },
+                pets: [
+                    {
+                        name: 'Max',
+                        breed: 'Golden Retriever',
+                        size: 'grande',
+                        weight: 35,
+                        sex: 'M'
+                    },
+                    {
+                        name: 'Bella',
+                        breed: 'Persa',
+                        size: 'mediano',
+                        weight: 5,
+                        sex: 'F'
+                    }
+                ],
+                additionalServices: [
+                    {
+                        type: 'hairdressing',
+                        petIndex: 0,
+                        services: ['bath_and_brush', 'spa']
+                    },
+                    {
+                        type: 'special_food',
+                        petIndex: 1,
+                        foodType: 'refrigerated'
+                    }
+                ],
+                shopProducts: [
+                    {
+                        id: 'prod4',
+                        name: 'Premium Cat Food',
+                        quantity: 2,
+                        unitPrice: 20.50,
+                        totalPrice: 41.00
+                    }
+                ],
+                status: 'confirmed',
+                totalPrice: 450,
+                paymentStatus: 'Pagado'
+            }
+        ]
+    }
+} as const
+
+type Client = MockClient
 
 export default function ClientDetailsPage() {
     const params = useParams()
@@ -47,61 +391,15 @@ export default function ClientDetailsPage() {
     const [client, setClient] = useState<Client | null>(null)
     const [internalNotes, setInternalNotes] = useState('')
     const [isEditing, setIsEditing] = useState(false)
+    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | HotelReservation | null>(null)
 
     useEffect(() => {
         // Simular la carga de datos del cliente desde el backend
-        const mockClient: Client = {
-            id: params.id as string,
-            name: 'María García',
-            phone: '+34 123 456 789',
-            email: 'maria@example.com',
-            address: 'Calle Principal 123, 28001 Madrid',
-            accumulatedSpending: 1500,
-            classification: 'Rango 2',
-            internalNotes: 'Cliente frecuente, prefiere habitaciones tranquilas.',
-            pets: [
-                {
-                    id: '1',
-                    name: 'Rocky',
-                    breed: 'Labrador',
-                    size: 'Grande',
-                    age: 5,
-                    medication: 'Antiinflamatorios cada 12 horas',
-                    specialFood: 'Dieta hipoalergénica',
-                    observations: 'Juguetón, necesita mucho ejercicio',
-                },
-                {
-                    id: '2',
-                    name: 'Nacho',
-                    breed: 'Gato Siamés',
-                    size: 'Mediano',
-                    age: 3,
-                    observations: 'Tímido con extraños',
-                },
-            ],
-            reservations: [
-                {
-                    id: 'res1',
-                    checkIn: '2023-12-15',
-                    checkOut: '2023-12-20',
-                    pets: ['Rocky'],
-                    additionalServices: ['Baño', 'Paseo extra'],
-                    totalPrice: 250,
-                    paymentMethod: 'Tarjeta de crédito',
-                },
-                {
-                    id: 'res2',
-                    checkIn: '2023-11-01',
-                    checkOut: '2023-11-03',
-                    pets: ['Rocky', 'Nacho'],
-                    additionalServices: ['Cepillado'],
-                    totalPrice: 180,
-                    paymentMethod: 'Efectivo',
-                },
-            ],
+        const mockClient = MOCK_CLIENTS[params.id as keyof typeof MOCK_CLIENTS]
+        if (mockClient) {
+            setClient(mockClient)
+            setInternalNotes(mockClient.internalNotes)
         }
-        setClient(mockClient)
-        setInternalNotes(mockClient.internalNotes)
     }, [params.id])
 
     const handleSaveNotes = () => {
@@ -123,12 +421,12 @@ export default function ClientDetailsPage() {
     if (!client) return <div>Cargando...</div>
 
     return (
-        <div className='container mx-auto space-y-6 p-6'>
+        <div className="container mx-auto p-4 max-w-7xl">
             <Button variant='outline' onClick={() => navigate(-1)}>
                 <ChevronLeft className='mr-2 h-4 w-4' /> Volver
             </Button>
 
-            <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+            <div className="grid gap-4 md:grid-cols-3">
                 <div className='space-y-6 lg:col-span-2'>
                     <Card>
                         <CardHeader>
@@ -249,23 +547,37 @@ export default function ClientDetailsPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Fecha de Entrada</TableHead>
-                                        <TableHead>Fecha de Salida</TableHead>
+                                        <TableHead>Fecha</TableHead>
                                         <TableHead>Mascotas</TableHead>
-                                        <TableHead>Servicios Adicionales</TableHead>
-                                        <TableHead>Precio Total</TableHead>
-                                        <TableHead>Método de Pago</TableHead>
+                                        <TableHead>Tipo</TableHead>
+                                        <TableHead className="text-right">Total</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {client.reservations.map(reservation => (
-                                        <TableRow key={reservation.id}>
-                                            <TableCell>{reservation.checkIn}</TableCell>
-                                            <TableCell>{reservation.checkOut}</TableCell>
-                                            <TableCell>{reservation.pets.join(', ')}</TableCell>
-                                            <TableCell>{reservation.additionalServices.join(', ')}</TableCell>
-                                            <TableCell>{reservation.totalPrice.toFixed(2)} €</TableCell>
-                                            <TableCell>{reservation.paymentMethod}</TableCell>
+                                    {client?.reservations.map((reservation) => (
+                                        <TableRow
+                                            key={reservation.id}
+                                            className="cursor-pointer hover:bg-accent/50"
+                                            onClick={() => setSelectedReservation(reservation as unknown as HotelReservation | HairSalonReservation)}
+                                        >
+                                            <TableCell>
+                                                {reservation.type === 'hotel' 
+                                                    ? new Date(reservation.checkInDate).toLocaleDateString()
+                                                    : new Date(reservation.date).toLocaleDateString()
+                                                }
+                                            </TableCell>
+                                            <TableCell>
+                                                {reservation.type === 'hotel'
+                                                    ? reservation.pets.map(pet => pet.name).join(', ')
+                                                    : reservation.pet.name
+                                                }
+                                            </TableCell>
+                                            <TableCell>
+                                                {reservation.type === 'hotel' ? 'Hotel' : 'Peluquería'}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                €{reservation.totalPrice.toFixed(2)}
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -290,6 +602,14 @@ export default function ClientDetailsPage() {
                     </Card>
                 </div>
             </div>
+
+            {selectedReservation && (
+                <ReservationViewer
+                    reservation={selectedReservation}
+                    isOpen={!!selectedReservation}
+                    onClose={() => setSelectedReservation(null)}
+                />
+            )}
         </div>
     )
 }
