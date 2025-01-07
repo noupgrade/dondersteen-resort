@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro } from 'lucide-react'
+import { AlertCircle, ChevronLeft, Globe, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone } from 'lucide-react'
 
 import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
@@ -193,7 +193,12 @@ const translations = {
     rejectProposalConfirm: { es: '¿Estás seguro de que quieres rechazar esta propuesta?', en: 'Are you sure you want to reject this proposal?' },
     yes: { es: 'Sí', en: 'Yes' },
     no: { es: 'No', en: 'No' },
-    callEstablishment: { es: 'Llamar al establecimiento', en: 'Call establishment' }
+    callEstablishment: { es: 'Llamar al establecimiento', en: 'Call establishment' },
+    quickActions: {
+        hotelReservation: { es: 'Reserva hotel', en: 'Hotel booking' },
+        groomingReservation: { es: 'Reserva peluquería', en: 'Grooming booking' },
+        call: { es: 'Llamar', en: 'Call' }
+    }
 } as const
 
 type TranslationKey = keyof typeof translations
@@ -241,7 +246,7 @@ export default function ClientProfile() {
         },
     ]
 
-    const t = (key: TranslationKey) => translations[key][language]
+    const t = (key: TranslationKey): string => translations[key][language]
 
     const handleReservationDeleted = (reservationId: string) => {
         setClientReservations(prev => prev.filter(res => res.id !== reservationId))
@@ -516,8 +521,115 @@ export default function ClientProfile() {
         )
     }
 
+    const FloatingActionButton = () => {
+        const [isOpen, setIsOpen] = useState(false)
+
+        const handleHotelReservation = () => {
+            setIsOpen(false)
+            setIsNewReservationModalOpen(true)
+        }
+
+        const handleGroomingReservation = () => {
+            setIsOpen(false)
+            setIsNewReservationModalOpen(true)
+        }
+
+        const handleCall = () => {
+            window.location.href = 'tel:+34666777888'
+        }
+
+        return (
+            <div className="fixed bottom-6 right-6 z-50">
+                <AnimatePresence>
+                    {isOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/20"
+                                onClick={() => setIsOpen(false)}
+                            />
+                            <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                    scale: 1, 
+                                    opacity: 1,
+                                    x: -70,
+                                    y: -70,
+                                }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="absolute bottom-7 right-7"
+                            >
+                                <Button
+                                    size="lg"
+                                    className="h-14 w-14 rounded-full bg-blue-500 hover:bg-blue-600 shadow-lg p-0"
+                                    onClick={handleHotelReservation}
+                                >
+                                    <Bed className="h-6 w-6 text-white" />
+                                </Button>
+                            </motion.div>
+                            <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                    scale: 1, 
+                                    opacity: 1,
+                                    y: -100,
+                                }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, delay: 0.05 }}
+                                className="absolute bottom-7 right-7"
+                            >
+                                <Button
+                                    size="lg"
+                                    className="h-14 w-14 rounded-full bg-red-500 hover:bg-red-600 shadow-lg p-0"
+                                    onClick={handleGroomingReservation}
+                                >
+                                    <ScissorsIcon className="h-6 w-6 text-white" />
+                                </Button>
+                            </motion.div>
+                            <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                    scale: 1, 
+                                    opacity: 1,
+                                    x: -100,
+                                }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, delay: 0.1 }}
+                                className="absolute bottom-7 right-7"
+                            >
+                                <Button
+                                    size="lg"
+                                    className="h-14 w-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg p-0"
+                                    onClick={handleCall}
+                                >
+                                    <Phone className="h-6 w-6 text-white" />
+                                </Button>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+                <motion.div
+                    animate={{ rotate: isOpen ? 135 : 0 }}
+                    transition={{ duration: 0.2 }}
+                >
+                    <Button
+                        size="lg"
+                        className="h-14 w-14 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg p-0"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <Plus className="h-6 w-6 text-white" />
+                    </Button>
+                </motion.div>
+            </div>
+        )
+    }
+
     return (
         <div className='container mx-auto p-4 max-w-3xl'>
+            <FloatingActionButton />
             <AnimatePresence>
                 {successMessage && (
                     <motion.div
@@ -723,3 +835,4 @@ export default function ClientProfile() {
         </div>
     )
 }
+
