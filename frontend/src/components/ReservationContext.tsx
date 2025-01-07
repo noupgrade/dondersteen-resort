@@ -56,14 +56,16 @@ export type HotelReservation = {
 export type HairSalonReservation = {
     id: string
     type: 'peluqueria'
+    source: 'hotel' | 'external'
     date: string
     time: string
     client: Client
     pet: {
+        id: string
         name: string
         breed: string
-        weight: number
         size: 'pequeño' | 'mediano' | 'grande'
+        weight: number
     }
     additionalServices: {
         type: string
@@ -77,6 +79,15 @@ export type HairSalonReservation = {
     totalPrice: number
     paymentStatus: string
     observations?: string
+    subcitas?: {
+        fecha: string
+        hora: string
+        descripcion: string
+    }[]
+    precioEstimado?: number
+    horaDefinitiva?: string
+    finalPrice?: number
+    priceNote?: string
 }
 
 export type Reservation = HotelReservation | HairSalonReservation
@@ -108,12 +119,12 @@ export const useReservation = () => {
     return context
 }
 
-export const useHotelReservations = () => {
+export const useHotelReservations = (): { reservations: HotelReservation[] } => {
     const { reservations } = useReservation()
     return { reservations: reservations.filter(r => r.type === 'hotel') }
 }
 
-export const useHairSalonReservations = () => {
+export const useHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
     const { reservations } = useReservation()
     return { reservations: reservations.filter(r => r.type === 'peluqueria') }
 }

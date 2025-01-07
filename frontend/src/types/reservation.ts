@@ -1,4 +1,4 @@
-import { AdditionalService } from '@/shared/types/additional-services'
+import { HairdressingServiceType } from '@/shared/types/additional-services'
 
 export type ReservationSource = 'hotel' | 'external'
 export type ReservationStatus = 'pending' | 'pending_client_confirmation' | 'confirmed' | 'completed'
@@ -16,7 +16,7 @@ export interface BaseReservation {
         name: string
         breed: string
     }
-    additionalServices: AdditionalService[]
+    additionalServices: HairdressingServiceType[]
     observations?: string
     status: ReservationStatus
     beforePhoto?: string
@@ -29,8 +29,8 @@ export interface ExtendedReservation {
     id: string
     type: 'peluqueria'
     source: 'hotel' | 'external'
-    date?: string
-    time?: string
+    date: string
+    time: string
     client: {
         name: string
         phone: string
@@ -40,7 +40,7 @@ export interface ExtendedReservation {
         name: string
         breed: string
     }
-    additionalServices: AdditionalService[]
+    additionalServices: HairdressingServiceType[]
     status: ReservationStatus
     duration?: number
     precioEstimado?: number

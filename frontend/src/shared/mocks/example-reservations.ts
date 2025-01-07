@@ -1,10 +1,103 @@
 import { addDays, format, subDays } from 'date-fns'
 
-import { HotelReservation } from '@/components/ReservationContext'
-import { AdditionalService } from '@/shared/types/additional-services'
+import { HotelReservation, HairSalonReservation } from '@/components/ReservationContext'
 
 // Example reservations that will be managed in the context
-export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
+export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] = [
+    // Pending hair salon reservations from hotel guests
+    {
+        id: 'EXAMPLE_HAIRSALON_1',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        time: '10:00',
+        client: {
+            id: 'EXAMPLE_CLIENT_1',
+            name: 'John Example',
+            phone: '666555444',
+            email: 'john@example.com'
+        },
+        pet: {
+            id: 'PET_1',
+            name: 'Max',
+            breed: 'Golden Retriever',
+            size: 'grande',
+            weight: 30
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding']
+            }
+        ],
+        status: 'pending',
+        totalPrice: 75,
+        paymentStatus: 'Pendiente',
+        observations: 'Cliente del hotel - Habitación HAB.1'
+    },
+    {
+        id: 'EXAMPLE_HAIRSALON_2',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+        time: '15:00',
+        client: {
+            id: 'EXAMPLE_CLIENT_2',
+            name: 'Alice Example',
+            phone: '666777888',
+            email: 'alice@example.com'
+        },
+        pet: {
+            id: 'PET_2',
+            name: 'Luna',
+            breed: 'Poodle',
+            size: 'pequeño',
+            weight: 5
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim', 'spa']
+            }
+        ],
+        status: 'pending',
+        totalPrice: 65,
+        paymentStatus: 'Pendiente',
+        observations: 'Cliente del hotel - Habitación HAB.2'
+    },
+    {
+        id: 'EXAMPLE_HAIRSALON_3',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+        time: '11:30',
+        client: {
+            id: 'EXAMPLE_CLIENT_3',
+            name: 'Carlos Example',
+            phone: '666999000',
+            email: 'carlos@example.com'
+        },
+        pet: {
+            id: 'PET_3',
+            name: 'Thor',
+            breed: 'Husky',
+            size: 'grande',
+            weight: 28
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding', 'spa_ozone']
+            }
+        ],
+        status: 'pending',
+        totalPrice: 90,
+        paymentStatus: 'Pendiente',
+        observations: 'Cliente del hotel - Habitación HAB.3'
+    },
     // Check-in today - 3 pets
     {
         id: 'EXAMPLE_CHECKIN_1',
@@ -52,12 +145,11 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 petIndex: 0,
                 foodType: 'refrigerated'
             }
-        ] as AdditionalService[],
+        ],
         roomNumber: 'HAB.1',
         status: 'confirmed',
         totalPrice: 300,
-        paymentStatus: 'Pagado',
-        specialNeeds: 'Needs special food'
+        paymentStatus: 'Pagado'
     },
     // Check-in today - 2 pets
     {
@@ -104,7 +196,7 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 petIndex: 0,
                 comment: 'Necesita cuidados especiales'
             }
-        ] as AdditionalService[],
+        ],
         roomNumber: 'HAB.2',
         status: 'confirmed',
         totalPrice: 500,
@@ -162,7 +254,7 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 petIndex: 0,
                 comment: 'Necesita cuidados especiales'
             }
-        ] as AdditionalService[],
+        ],
         roomNumber: 'HAB.3',
         status: 'pending',
         totalPrice: 600,
@@ -187,16 +279,14 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 breed: 'Poodle',
                 weight: 8,
                 size: 'pequeño',
-                sex: 'F',
-                roomNumber: 'HAB.4'
+                sex: 'F'
             },
             {
                 name: 'Charlie',
                 breed: 'Schnauzer',
                 weight: 15,
                 size: 'mediano',
-                sex: 'M',
-                roomNumber: 'HAB.4'
+                sex: 'M'
             }
         ],
         additionalServices: [
@@ -215,7 +305,7 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 petIndex: 0,
                 comment: 'Necesita cuidados especiales'
             }
-        ] as AdditionalService[],
+        ],
         roomNumber: 'HAB.4',
         status: 'confirmed',
         totalPrice: 400,
@@ -240,24 +330,21 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 breed: 'Husky',
                 weight: 28,
                 size: 'grande',
-                sex: 'M',
-                roomNumber: 'HAB.5'
+                sex: 'M'
             },
             {
                 name: 'Nina',
                 breed: 'Cocker Spaniel',
                 weight: 13,
                 size: 'mediano',
-                sex: 'F',
-                roomNumber: 'HAB.5'
+                sex: 'F'
             },
             {
                 name: 'Toby',
                 breed: 'Jack Russell',
                 weight: 6,
                 size: 'pequeño',
-                sex: 'M',
-                roomNumber: 'HAB.5'
+                sex: 'M'
             }
         ],
         additionalServices: [
@@ -271,7 +358,7 @@ export const EXAMPLE_RESERVATIONS: HotelReservation[] = [
                 petIndex: 0,
                 foodType: 'refrigerated'
             }
-        ] as AdditionalService[],
+        ],
         roomNumber: 'HAB.5',
         status: 'confirmed',
         totalPrice: 700,

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { addDays, format, startOfWeek, addWeeks, subWeeks } from 'date-fns'
@@ -9,17 +9,57 @@ import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { TimeSlot } from './TimeSlot'
 import { UnscheduledReservations } from './UnscheduledReservations'
+import { ManageReservationBanner } from './ManageReservationBanner'
 import { useCalendarStore } from '../model/store'
 import { BUSINESS_HOURS } from '../model/types'
 import { cn } from '@/shared/lib/styles/class-merge'
+import { ExtendedReservation } from '@/types/reservation'
+import { useSearchParams } from 'react-router-dom'
+import { useToast } from '@/shared/ui/use-toast'
 
 const timeSlots = Array.from({ length: BUSINESS_HOURS.end - BUSINESS_HOURS.start }, (_, i) => {
     const hour = BUSINESS_HOURS.start + i
     return `${String(hour).padStart(2, '0')}:00`
 })
 
-export function HairSalonCalendarWidget() {
+interface HairSalonCalendarWidgetProps {
+    managingReservationId?: string | null
+}
+
+export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
     const { view, selectedDate, setView, setSelectedDate } = useCalendarStore()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const { toast } = useToast()
+    const [managingReservation, setManagingReservation] = useState<ExtendedReservation | null>(null)
+
+    useEffect(() => {
+        if (managingReservationId) {
+            // Here you would fetch the reservation details from your API
+            // For now we'll use mock data
+            const mockReservation: ExtendedReservation = {
+                id: managingReservationId,
+                type: 'peluqueria',
+                source: 'hotel',
+                date: format(new Date(), 'yyyy-MM-dd'),
+                time: '10:00',
+                client: {
+                    name: 'Juan Pérez',
+                    phone: '666555444'
+                },
+                pet: {
+                    id: '1',
+                    name: 'Luna',
+                    breed: 'Golden Retriever'
+                },
+                additionalServices: ['bath_and_trim'],
+                status: 'pending',
+                observations: 'El pelo está muy enredado, necesita cuidado especial'
+            }
+            setManagingReservation(mockReservation)
+        } else {
+            setManagingReservation(null)
+        }
+    }, [managingReservationId])
 
     const handleNavigate = (direction: 'prev' | 'next') => {
         if (view === 'week') {
@@ -37,6 +77,36 @@ export function HairSalonCalendarWidget() {
             dayNumber: format(date, 'd'),
         }
     })
+
+    const handleCloseBanner = () => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev)
+            newParams.delete('reservationId')
+            return newParams
+        })
+    }
+
+    const handleAcceptReservation = () => {
+        if (!managingReservation) return
+
+        // Here you would handle the reservation acceptance
+        toast({
+            title: "Reserva aceptada",
+            description: "La reserva ha sido aceptada exitosamente."
+        })
+        handleCloseBanner()
+    }
+
+    const handleRejectReservation = () => {
+        if (!managingReservation) return
+
+        // Here you would handle the reservation rejection
+        toast({
+            title: "Reserva rechazada",
+            description: "La reserva ha sido rechazada exitosamente."
+        })
+        handleCloseBanner()
+    }
 
     return (
         <DndProvider backend={HTML5Backend}>
@@ -95,12 +165,15 @@ export function HairSalonCalendarWidget() {
                             {view === 'day'
                                 ? format(selectedDate, "EEEE d 'de' MMMM", { locale: es })
                                 : `Semana del ${format(new Date(weekDays[0].date), "d 'de' MMMM", {
-                                      locale: es,
-                                  })}`}
+                                    locale: es,
+                                })}`}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="relative">
+                        <div className={cn(
+                            "relative",
+                            managingReservation && "pb-32" // Add padding when banner is shown
+                        )}>
                             {view === 'day' ? (
                                 <div className="relative grid auto-rows-[4rem]">
                                     {timeSlots.map((time) => (
@@ -146,6 +219,15 @@ export function HairSalonCalendarWidget() {
                         </div>
                     </CardContent>
                 </Card>
+
+                {managingReservation && (
+                    <ManageReservationBanner
+                        reservation={managingReservation}
+                        onClose={handleCloseBanner}
+                        onAccept={managingReservation.source === 'external' ? handleAcceptReservation : undefined}
+                        onReject={managingReservation.source === 'external' ? handleRejectReservation : undefined}
+                    />
+                )}
             </div>
         </DndProvider>
     )
