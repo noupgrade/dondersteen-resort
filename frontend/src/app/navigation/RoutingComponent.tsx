@@ -14,6 +14,7 @@ import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
 import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage.tsx'
 import TiendaPage from '@/pages/panel-interno/tienda/page'
 import DisponibilidadPage from '@/pages/panel-interno/disponibilidad/page'
+import SetupPage from '@/pages/panel-interno/setup/page'
 import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking.tsx'
 import PerfilClientesPage from '../../pages/PerfilClientesPage.tsx'
 import { LoginPage } from '@/pages/login/LoginPage'
@@ -63,6 +64,7 @@ export const RoutingComponent = () => (
                             <Route path='clientes/:id' element={<ClientDetailsPage />} />
                             <Route path='reservas/:id' element={<ReservationDetailsPage />} />
                             <Route path='reservas/:id/edit' element={<EditReservationPage />} />
+                            <Route path='setup' element={<SetupPage />} />
                         </Routes>
                     </PanelInternoLayout>
                 </WithAnonymousUser>

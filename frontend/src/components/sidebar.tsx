@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Calendar } from 'lucide-react'
+import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Settings } from 'lucide-react'
 
 const Sidebar = () => {
     const location = useLocation()
@@ -50,16 +50,6 @@ const Sidebar = () => {
                     </li>
                     <li>
                         <Link
-                            to='/panel-interno/disponibilidad'
-                            className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/disponibilidad')}`}
-                            title='Disponibilidad'
-                        >
-                            <Calendar className='h-5 w-5' />
-                            {isOpen && <span className='ml-3'>Disponibilidad</span>}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
                             to='/panel-interno/peluqueria'
                             className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/peluqueria')}`}
                             title='Peluquería'
@@ -90,6 +80,16 @@ const Sidebar = () => {
                     </li>
                 </ul>
             </nav>
+            <div className="mt-auto border-t">
+                <Link
+                    to='/panel-interno/setup'
+                    className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/setup')}`}
+                    title='Configuración'
+                >
+                    <Settings className='h-5 w-5' />
+                    {isOpen && <span className='ml-3'>Configuración</span>}
+                </Link>
+            </div>
         </div>
     )
 }
