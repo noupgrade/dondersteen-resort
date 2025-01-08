@@ -141,6 +141,7 @@ const mockHairSalonReservation1: HairSalonReservation = {
         email: 'maria@example.com'
     },
     pet: {
+        id: '1',
         name: 'Rocky',
         breed: 'Labrador',
         size: 'grande',
@@ -164,7 +165,8 @@ const mockHairSalonReservation1: HairSalonReservation = {
     ],
     status: 'confirmed',
     totalPrice: 75,
-    paymentStatus: 'Pagado'
+    paymentStatus: 'Pagado',
+    source: 'hotel'
 }
 
 const mockHairSalonReservation2: HairSalonReservation = {
@@ -178,6 +180,7 @@ const mockHairSalonReservation2: HairSalonReservation = {
         email: 'maria@example.com'
     },
     pet: {
+        id: '2',
         name: 'Nacho',
         breed: 'Gato Siamés',
         size: 'pequeño',
@@ -193,7 +196,8 @@ const mockHairSalonReservation2: HairSalonReservation = {
     shopProducts: [],
     status: 'confirmed',
     totalPrice: 35,
-    paymentStatus: 'Pagado'
+    paymentStatus: 'Pagado',
+    source: 'external'
 }
 
 const MOCK_CLIENTS: Record<string, MockClient> = {
@@ -386,106 +390,117 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
 type Client = MockClient
 
 export default function ClientDetailsPage() {
-    const params = useParams()
+    const { id } = useParams()
     const navigate = useNavigate()
-    const [client, setClient] = useState<Client | null>(null)
-    const [internalNotes, setInternalNotes] = useState('')
+    const [client, setClient] = useState<MockClient | null>(null)
     const [isEditing, setIsEditing] = useState(false)
-    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | HotelReservation | null>(null)
+    const [selectedReservation, setSelectedReservation] = useState<HotelReservation | HairSalonReservation | null>(null)
 
     useEffect(() => {
-        // Simular la carga de datos del cliente desde el backend
-        const mockClient = MOCK_CLIENTS[params.id as keyof typeof MOCK_CLIENTS]
-        if (mockClient) {
-            setClient(mockClient)
-            setInternalNotes(mockClient.internalNotes)
+        if (id && MOCK_CLIENTS[id]) {
+            setClient(MOCK_CLIENTS[id])
         }
-    }, [params.id])
+    }, [id])
 
-    const handleSaveNotes = () => {
-        if (client) {
-            setClient({ ...client, internalNotes })
-            // Aquí iría la lógica para guardar en el backend
-            alert('Notas guardadas correctamente')
-        }
+    if (!client) {
+        return <div>Cliente no encontrado</div>
     }
 
     const handleEditToggle = () => {
         if (isEditing) {
-            // Aquí iría la lógica para guardar los cambios
-            console.log('Guardando cambios:', client)
+            // Aquí iría la lógica para guardar los cambios en el backend
+            setIsEditing(false)
+        } else {
+            setIsEditing(true)
         }
-        setIsEditing(!isEditing)
     }
 
-    if (!client) return <div>Cargando...</div>
+    const handlePetChange = (petId: string, field: keyof MockClient['pets'][0], value: string | number) => {
+        if (!client) return
+
+        const updatedPets = client.pets.map(pet =>
+            pet.id === petId ? { ...pet, [field]: value } : pet
+        )
+
+        setClient({ ...client, pets: updatedPets })
+    }
 
     return (
-        <div className="container mx-auto p-4 max-w-7xl">
-            <Button variant='outline' onClick={() => navigate(-1)}>
-                <ChevronLeft className='mr-2 h-4 w-4' /> Volver
-            </Button>
+        <div className='container mx-auto p-6'>
+            <div className='mb-6 flex items-center justify-between'>
+                <div className='flex items-center gap-4'>
+                    <Button variant='ghost' size='icon' onClick={() => navigate(-1)}>
+                        <ChevronLeft className='h-4 w-4' />
+                    </Button>
+                    <h1 className='text-3xl font-bold'>{client.name}</h1>
+                    <Badge>{client.classification}</Badge>
+                </div>
+            </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className='grid gap-6 lg:grid-cols-3'>
                 <div className='space-y-6 lg:col-span-2'>
                     <Card>
                         <CardHeader>
-                            <CardTitle className='flex items-center justify-between'>
-                                <span>{client.name}</span>
-                                <Badge>{client.classification}</Badge>
-                            </CardTitle>
+                            <CardTitle>Información del Cliente</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className='space-y-2'>
+                            <div className='grid gap-4'>
                                 <div>
-                                    <strong>Teléfono:</strong>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Nombre</label>
+                                    {isEditing ? (
+                                        <Input
+                                            value={client.name}
+                                            onChange={e => setClient({ ...client, name: e.target.value })}
+                                        />
+                                    ) : (
+                                        <p>{client.name}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Teléfono</label>
                                     {isEditing ? (
                                         <Input
                                             value={client.phone}
                                             onChange={e => setClient({ ...client, phone: e.target.value })}
                                         />
                                     ) : (
-                                        <span> {client.phone}</span>
+                                        <p>{client.phone}</p>
                                     )}
                                 </div>
                                 <div>
-                                    <strong>Email:</strong>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Email</label>
                                     {isEditing ? (
                                         <Input
                                             value={client.email}
                                             onChange={e => setClient({ ...client, email: e.target.value })}
                                         />
                                     ) : (
-                                        <span> {client.email}</span>
+                                        <p>{client.email}</p>
                                     )}
                                 </div>
                                 <div>
-                                    <strong>Dirección:</strong>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Dirección</label>
                                     {isEditing ? (
                                         <Input
                                             value={client.address}
                                             onChange={e => setClient({ ...client, address: e.target.value })}
                                         />
                                     ) : (
-                                        <span> {client.address}</span>
+                                        <p>{client.address}</p>
                                     )}
                                 </div>
-                                <p>
-                                    <strong>Gasto acumulado:</strong> {client.accumulatedSpending.toFixed(2)} €
-                                </p>
+                                <div>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Notas Internas</label>
+                                    {isEditing ? (
+                                        <Textarea
+                                            value={client.internalNotes}
+                                            onChange={e => setClient({ ...client, internalNotes: e.target.value })}
+                                        />
+                                    ) : (
+                                        <p>{client.internalNotes}</p>
+                                    )}
+                                </div>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Notas Internas</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea value={internalNotes} onChange={e => setInternalNotes(e.target.value)} rows={4} />
-                            <Button onClick={handleSaveNotes} className='mt-2'>
-                                <Save className='mr-2 h-4 w-4' /> Guardar Notas
-                            </Button>
                         </CardContent>
                     </Card>
 
@@ -494,43 +509,89 @@ export default function ClientDetailsPage() {
                             <CardTitle>Mascotas Asociadas</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <ScrollArea className='h-[300px]'>
+                            <div className='grid gap-6'>
                                 {client.pets.map(pet => (
-                                    <div key={pet.id} className='mb-4 rounded-lg border p-4'>
-                                        <h4 className='font-semibold'>{pet.name}</h4>
-                                        <p>
-                                            <strong>Raza:</strong> {pet.breed}
-                                        </p>
-                                        <p>
-                                            <strong>Tamaño:</strong> {pet.size}
-                                        </p>
-                                        <p>
-                                            <strong>Edad:</strong> {pet.age} años
-                                        </p>
-                                        {pet.medication && (
-                                            <p>
-                                                <strong>Medicación:</strong> {pet.medication}
-                                            </p>
-                                        )}
-                                        {pet.specialFood && (
-                                            <p>
-                                                <strong>Comida especial:</strong> {pet.specialFood}
-                                            </p>
-                                        )}
-                                        <Textarea
-                                            className='mt-2'
-                                            placeholder='Observaciones'
-                                            value={pet.observations || ''}
-                                            onChange={e => {
-                                                const updatedPets = client.pets.map(p =>
-                                                    p.id === pet.id ? { ...p, observations: e.target.value } : p,
-                                                )
-                                                setClient({ ...client, pets: updatedPets })
-                                            }}
-                                        />
+                                    <div key={pet.id} className='overflow-hidden rounded-lg border bg-card'>
+                                        <div className='border-b bg-muted/50 px-4 py-3'>
+                                            <h3 className='text-lg font-semibold'>{pet.name}</h3>
+                                        </div>
+                                        <div className='bg-background p-4'>
+                                            <div className='grid grid-cols-2 gap-x-8 gap-y-4'>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Raza</label>
+                                                    {isEditing ? (
+                                                        <Input
+                                                            value={pet.breed}
+                                                            onChange={e => handlePetChange(pet.id, 'breed', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.breed}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Edad</label>
+                                                    {isEditing ? (
+                                                        <Input
+                                                            type='number'
+                                                            value={pet.age}
+                                                            onChange={e => handlePetChange(pet.id, 'age', parseInt(e.target.value))}
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.age} años</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Tamaño</label>
+                                                    {isEditing ? (
+                                                        <Input
+                                                            value={pet.size}
+                                                            onChange={e => handlePetChange(pet.id, 'size', e.target.value)}
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.size}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Medicación</label>
+                                                    {isEditing ? (
+                                                        <Input
+                                                            value={pet.medication || ''}
+                                                            onChange={e => handlePetChange(pet.id, 'medication', e.target.value)}
+                                                            placeholder='Sin medicación'
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.medication || 'Sin medicación'}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Comida Especial</label>
+                                                    {isEditing ? (
+                                                        <Input
+                                                            value={pet.specialFood || ''}
+                                                            onChange={e => handlePetChange(pet.id, 'specialFood', e.target.value)}
+                                                            placeholder='Sin comida especial'
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.specialFood || 'Sin comida especial'}</p>
+                                                    )}
+                                                </div>
+                                                <div className='col-span-2'>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Observaciones</label>
+                                                    {isEditing ? (
+                                                        <Textarea
+                                                            value={pet.observations || ''}
+                                                            onChange={e => handlePetChange(pet.id, 'observations', e.target.value)}
+                                                            placeholder='Sin observaciones'
+                                                        />
+                                                    ) : (
+                                                        <p>{pet.observations || 'Sin observaciones'}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
-                            </ScrollArea>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -548,34 +609,32 @@ export default function ClientDetailsPage() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Fecha</TableHead>
-                                        <TableHead>Mascotas</TableHead>
+                                        <TableHead>Mascota(s)</TableHead>
                                         <TableHead>Tipo</TableHead>
-                                        <TableHead className="text-right">Total</TableHead>
+                                        <TableHead className='text-right'>Total</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {client?.reservations.map((reservation) => (
+                                    {client.reservations.map(reservation => (
                                         <TableRow
                                             key={reservation.id}
-                                            className="cursor-pointer hover:bg-accent/50"
-                                            onClick={() => setSelectedReservation(reservation as unknown as HotelReservation | HairSalonReservation)}
+                                            className='cursor-pointer hover:bg-gray-50'
+                                            onClick={() => setSelectedReservation(reservation)}
                                         >
                                             <TableCell>
-                                                {reservation.type === 'hotel' 
-                                                    ? new Date(reservation.checkInDate).toLocaleDateString()
-                                                    : new Date(reservation.date).toLocaleDateString()
-                                                }
+                                                {reservation.type === 'hotel'
+                                                    ? `${reservation.checkInDate} - ${reservation.checkOutDate}`
+                                                    : reservation.date}
                                             </TableCell>
                                             <TableCell>
                                                 {reservation.type === 'hotel'
                                                     ? reservation.pets.map(pet => pet.name).join(', ')
-                                                    : reservation.pet.name
-                                                }
+                                                    : reservation.pet.name}
                                             </TableCell>
                                             <TableCell>
                                                 {reservation.type === 'hotel' ? 'Hotel' : 'Peluquería'}
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className='text-right'>
                                                 €{reservation.totalPrice.toFixed(2)}
                                             </TableCell>
                                         </TableRow>
@@ -596,7 +655,14 @@ export default function ClientDetailsPage() {
                                 <Link to='/booking'>Nueva Reserva</Link>
                             </Button>
                             <Button className='w-full' variant='outline' onClick={handleEditToggle}>
-                                {isEditing ? 'Guardar Cambios' : 'Editar Información'}
+                                {isEditing ? (
+                                    <>
+                                        <Save className='mr-2 h-4 w-4' />
+                                        Guardar Cambios
+                                    </>
+                                ) : (
+                                    'Editar Información'
+                                )}
                             </Button>
                         </CardContent>
                     </Card>
@@ -606,8 +672,8 @@ export default function ClientDetailsPage() {
             {selectedReservation && (
                 <ReservationViewer
                     reservation={selectedReservation}
-                    isOpen={!!selectedReservation}
                     onClose={() => setSelectedReservation(null)}
+                    isOpen={!!selectedReservation}
                 />
             )}
         </div>

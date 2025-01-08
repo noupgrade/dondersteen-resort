@@ -3,6 +3,7 @@ Use clean code principles
 This is a pnpm monorepo project, so use the correct commands to install dependencies and run scripts.
 There is a frontend/ a backend/ and a scripts/ folder.
 Do not modify other features of the pages that are not related to the ones you are working on.
+When creating a data model, review the existing ones and try to reuse the same structure if possible.
 
 In the frontend project you must take into account our code structure rules
 

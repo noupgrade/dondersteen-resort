@@ -200,7 +200,7 @@ export default function SetupPage() {
             <h1 className='text-3xl font-bold mb-6'>Configuración</h1>
 
             <Tabs defaultValue='general' className='space-y-6'>
-                <TabsList className='grid w-full grid-cols-4 gap-4 bg-transparent p-0'>
+                <TabsList className='grid w-full grid-cols-2 gap-4 bg-transparent p-0'>
                     <TabsTrigger
                         value='general'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
@@ -208,22 +208,10 @@ export default function SetupPage() {
                         Configuración General
                     </TabsTrigger>
                     <TabsTrigger
-                        value='users'
-                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
-                    >
-                        Usuarios y Roles
-                    </TabsTrigger>
-                    <TabsTrigger
                         value='calendar'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Calendario
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value='templates'
-                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
-                    >
-                        Plantillas
                     </TabsTrigger>
                 </TabsList>
 
@@ -285,12 +273,12 @@ export default function SetupPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Precios Base e Impuestos</CardTitle>
+                                <CardTitle>Precios Base Hotel</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <form className='space-y-4'>
                                     <div className='space-y-2'>
-                                        <Label>Precio por noche - Perro Pequeño</Label>
+                                        <Label>Perro Pequeño (por día)</Label>
                                         <div className='flex items-center gap-2'>
                                             <Input
                                                 type='number'
@@ -304,7 +292,7 @@ export default function SetupPage() {
                                         </div>
                                     </div>
                                     <div className='space-y-2'>
-                                        <Label>Precio por noche - Perro Mediano</Label>
+                                        <Label>Perro Mediano (por día)</Label>
                                         <div className='flex items-center gap-2'>
                                             <Input
                                                 type='number'
@@ -318,7 +306,7 @@ export default function SetupPage() {
                                         </div>
                                     </div>
                                     <div className='space-y-2'>
-                                        <Label>Precio por noche - Perro Grande</Label>
+                                        <Label>Perro Grande (por día)</Label>
                                         <div className='flex items-center gap-2'>
                                             <Input
                                                 type='number'
@@ -383,73 +371,76 @@ export default function SetupPage() {
                             </CardHeader>
                             <CardContent>
                                 <form className='space-y-6'>
-                                    <div className='space-y-4'>
-                                        <h3 className='font-semibold'>Servicio de Chofer</h3>
-                                        <div className='space-y-2'>
-                                            <Label>Recogida</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={hotelServices.driver.pickup.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        driver: {
-                                                            ...hotelServices.driver,
-                                                            pickup: {
-                                                                ...hotelServices.driver.pickup,
-                                                                price: Number(e.target.value)
+                                    <div>
+                                        <h3 className='font-semibold mb-4'>Servicio de Transporte</h3>
+                                        <div className='grid grid-cols-3 gap-4'>
+                                            <div className='space-y-2'>
+                                                <Label className='text-sm text-gray-500'>Recogida</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={hotelServices.driver.pickup.price}
+                                                        onChange={(e) => setHotelServices({
+                                                            ...hotelServices,
+                                                            driver: {
+                                                                ...hotelServices.driver,
+                                                                pickup: {
+                                                                    ...hotelServices.driver.pickup,
+                                                                    price: Number(e.target.value)
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
+                                                        })}
+                                                    />
+                                                    <span>€</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Entrega</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={hotelServices.driver.delivery.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        driver: {
-                                                            ...hotelServices.driver,
-                                                            delivery: {
-                                                                ...hotelServices.driver.delivery,
-                                                                price: Number(e.target.value)
+                                            <div className='space-y-2'>
+                                                <Label className='text-sm text-gray-500'>Entrega</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={hotelServices.driver.delivery.price}
+                                                        onChange={(e) => setHotelServices({
+                                                            ...hotelServices,
+                                                            driver: {
+                                                                ...hotelServices.driver,
+                                                                delivery: {
+                                                                    ...hotelServices.driver.delivery,
+                                                                    price: Number(e.target.value)
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
+                                                        })}
+                                                    />
+                                                    <span>€</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Completo</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={hotelServices.driver.complete.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        driver: {
-                                                            ...hotelServices.driver,
-                                                            complete: {
-                                                                ...hotelServices.driver.complete,
-                                                                price: Number(e.target.value)
+                                            <div className='space-y-2'>
+                                                <Label className='text-sm text-gray-500'>Completo</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={hotelServices.driver.complete.price}
+                                                        onChange={(e) => setHotelServices({
+                                                            ...hotelServices,
+                                                            driver: {
+                                                                ...hotelServices.driver,
+                                                                complete: {
+                                                                    ...hotelServices.driver.complete,
+                                                                    price: Number(e.target.value)
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
+                                                        })}
+                                                    />
+                                                    <span>€</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className='space-y-4'>
-                                        <h3 className='font-semibold'>Comida Especial</h3>
+                                    <div>
+                                        <h3 className='font-semibold mb-4'>Comida Especial</h3>
                                         <div className='space-y-2'>
+                                            <Label className='text-sm text-gray-500'>Precio por día</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
@@ -467,53 +458,56 @@ export default function SetupPage() {
                                         </div>
                                     </div>
 
-                                    <div className='space-y-4'>
-                                        <h3 className='font-semibold'>Medicación</h3>
-                                        <div className='space-y-2'>
-                                            <Label>Una vez al día</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={hotelServices.medication.once.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        medication: {
-                                                            ...hotelServices.medication,
-                                                            once: {
-                                                                ...hotelServices.medication.once,
-                                                                price: Number(e.target.value)
+                                    <div>
+                                        <h3 className='font-semibold mb-4'>Medicación</h3>
+                                        <div className='grid grid-cols-2 gap-4'>
+                                            <div className='space-y-2'>
+                                                <Label className='text-sm text-gray-500'>Una vez al día</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={hotelServices.medication.once.price}
+                                                        onChange={(e) => setHotelServices({
+                                                            ...hotelServices,
+                                                            medication: {
+                                                                ...hotelServices.medication,
+                                                                once: {
+                                                                    ...hotelServices.medication.once,
+                                                                    price: Number(e.target.value)
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
+                                                        })}
+                                                    />
+                                                    <span>€</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Varias veces al día</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={hotelServices.medication.multiple.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        medication: {
-                                                            ...hotelServices.medication,
-                                                            multiple: {
-                                                                ...hotelServices.medication.multiple,
-                                                                price: Number(e.target.value)
+                                            <div className='space-y-2'>
+                                                <Label className='text-sm text-gray-500'>Varias veces al día</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={hotelServices.medication.multiple.price}
+                                                        onChange={(e) => setHotelServices({
+                                                            ...hotelServices,
+                                                            medication: {
+                                                                ...hotelServices.medication,
+                                                                multiple: {
+                                                                    ...hotelServices.medication.multiple,
+                                                                    price: Number(e.target.value)
+                                                                }
                                                             }
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
+                                                        })}
+                                                    />
+                                                    <span>€</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className='space-y-4'>
-                                        <h3 className='font-semibold'>Curas</h3>
+                                    <div>
+                                        <h3 className='font-semibold mb-4'>Curas</h3>
                                         <div className='space-y-2'>
+                                            <Label className='text-sm text-gray-500'>Precio por día</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
@@ -531,9 +525,10 @@ export default function SetupPage() {
                                         </div>
                                     </div>
 
-                                    <div className='space-y-4'>
-                                        <h3 className='font-semibold'>Recogida fuera de horario</h3>
+                                    <div>
+                                        <h3 className='font-semibold mb-4'>Recogida fuera de horario</h3>
                                         <div className='space-y-2'>
+                                            <Label className='text-sm text-gray-500'>Precio</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
@@ -556,272 +551,150 @@ export default function SetupPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Servicios Peluquería</CardTitle>
+                                <CardTitle>Servicios de Peluquería</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <form className='space-y-4'>
-                                    {Object.entries(groomingServices).map(([key, service]) => (
-                                        <div key={key} className='space-y-2'>
-                                            <Label>{service.name}</Label>
-                                            <div className='flex items-center gap-2'>
-                                                <Input
-                                                    type='number'
-                                                    value={service.price}
-                                                    onChange={(e) => setGroomingServices({
-                                                        ...groomingServices,
-                                                        [key]: {
-                                                            ...service,
-                                                            price: Number(e.target.value)
-                                                        }
-                                                    })}
-                                                />
-                                                <span>€</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </form>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value='templates'>
-                    <div className='grid gap-6 md:grid-cols-2'>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Plantillas de Correo - Español</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <form className='space-y-6'>
-                                    <div className='space-y-4'>
-                                        <div className='space-y-2'>
-                                            <Label>Confirmación solicitud de reserva peluquería</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.groomingRequestConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        groomingRequestConfirmation: e.target.value
+                                    <div className='space-y-2'>
+                                        <Label>Baño y cepillado</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.bathAndBrush.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    bathAndBrush: {
+                                                        ...groomingServices.bathAndBrush,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Confirmación solicitud de reserva hotel</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.hotelRequestConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        hotelRequestConfirmation: e.target.value
-                                                    }
-                                                })}
-                                                rows={6}
-                                            />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Confirmación de reserva peluquería</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.groomingBookingConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        groomingBookingConfirmation: e.target.value
-                                                    }
-                                                })}
-                                                rows={6}
-                                            />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Confirmación de reserva hotel</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.hotelBookingConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        hotelBookingConfirmation: e.target.value
-                                                    }
-                                                })}
-                                                rows={6}
-                                            />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Modificación reserva</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.bookingModification}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        bookingModification: e.target.value
-                                                    }
-                                                })}
-                                                rows={6}
-                                            />
-                                        </div>
-                                        <div className='space-y-2'>
-                                            <Label>Propuesta peluquería</Label>
-                                            <Textarea
-                                                value={emailTemplates.es.groomingProposal}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    es: {
-                                                        ...emailTemplates.es,
-                                                        groomingProposal: e.target.value
-                                                    }
-                                                })}
-                                                rows={6}
-                                            />
+                                            <span>€</span>
                                         </div>
                                     </div>
-                                </form>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Email Templates - English</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <form className='space-y-6'>
-                                    <div className='space-y-4'>
-                                        <div className='space-y-2'>
-                                            <Label>Grooming request confirmation</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.groomingRequestConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        groomingRequestConfirmation: e.target.value
+                                    <div className='space-y-2'>
+                                        <Label>Baño y corte</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.bathAndCut.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    bathAndCut: {
+                                                        ...groomingServices.bathAndCut,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
                                         </div>
-                                        <div className='space-y-2'>
-                                            <Label>Hotel booking request confirmation</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.hotelRequestConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        hotelRequestConfirmation: e.target.value
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Stripping</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.stripping.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    stripping: {
+                                                        ...groomingServices.stripping,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
                                         </div>
-                                        <div className='space-y-2'>
-                                            <Label>Grooming booking confirmation</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.groomingBookingConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        groomingBookingConfirmation: e.target.value
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Nudos</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.knots.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    knots: {
+                                                        ...groomingServices.knots,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
                                         </div>
-                                        <div className='space-y-2'>
-                                            <Label>Hotel booking confirmation</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.hotelBookingConfirmation}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        hotelBookingConfirmation: e.target.value
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Deslanado</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.shedding.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    shedding: {
+                                                        ...groomingServices.shedding,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
                                         </div>
-                                        <div className='space-y-2'>
-                                            <Label>Booking modification</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.bookingModification}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        bookingModification: e.target.value
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Cepillado</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.brushing.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    brushing: {
+                                                        ...groomingServices.brushing,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
                                         </div>
-                                        <div className='space-y-2'>
-                                            <Label>Grooming proposal</Label>
-                                            <Textarea
-                                                value={emailTemplates.en.groomingProposal}
-                                                onChange={(e) => setEmailTemplates({
-                                                    ...emailTemplates,
-                                                    en: {
-                                                        ...emailTemplates.en,
-                                                        groomingProposal: e.target.value
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Spa</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.spa.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    spa: {
+                                                        ...groomingServices.spa,
+                                                        price: Number(e.target.value)
                                                     }
                                                 })}
-                                                rows={6}
                                             />
+                                            <span>€</span>
+                                        </div>
+                                    </div>
+                                    <div className='space-y-2'>
+                                        <Label>Spa + Ozono</Label>
+                                        <div className='flex items-center gap-2'>
+                                            <Input
+                                                type='number'
+                                                value={groomingServices.spaOzone.price}
+                                                onChange={(e) => setGroomingServices({
+                                                    ...groomingServices,
+                                                    spaOzone: {
+                                                        ...groomingServices.spaOzone,
+                                                        price: Number(e.target.value)
+                                                    }
+                                                })}
+                                            />
+                                            <span>€</span>
                                         </div>
                                     </div>
                                 </form>
                             </CardContent>
                         </Card>
                     </div>
-                </TabsContent>
-
-                <TabsContent value='users'>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Gestión de Usuarios</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className='space-y-4'>
-                                <div className='flex justify-end'>
-                                    <Button>
-                                        Añadir Usuario
-                                    </Button>
-                                </div>
-                                <div className='border rounded-lg'>
-                                    <table className='w-full'>
-                                        <thead>
-                                            <tr className='border-b'>
-                                                <th className='px-4 py-2 text-left'>Nombre</th>
-                                                <th className='px-4 py-2 text-left'>Email</th>
-                                                <th className='px-4 py-2 text-left'>Rol</th>
-                                                <th className='px-4 py-2 text-right'>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {users.map((user) => (
-                                                <tr key={user.id} className='border-b'>
-                                                    <td className='px-4 py-2'>{user.name}</td>
-                                                    <td className='px-4 py-2'>{user.email}</td>
-                                                    <td className='px-4 py-2'>{user.role}</td>
-                                                    <td className='px-4 py-2 text-right'>
-                                                        <Button variant='outline' size='sm'>
-                                                            Editar
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </TabsContent>
 
                 <TabsContent value='calendar'>
@@ -848,35 +721,41 @@ export default function SetupPage() {
                                     </Badge>
                                 </div>
 
-                                <ManageDatesDialog
-                                    open={isBlockDateDialogOpen}
-                                    onOpenChange={handleDialogOpenChange}
-                                    selectedRange={selectedRange}
-                                    onBlockDates={() => {
-                                        if (handleBlockDates(selectedRange)) {
-                                            handleDialogOpenChange(false)
-                                        }
-                                    }}
-                                    onOpenHolidayDialog={openHolidayDialog}
-                                    onHighSeasonClick={handleHighSeasonClick}
-                                    onRemoveSpecialConditions={() => {
-                                        if (handleRemoveSpecialConditions(selectedRange)) {
-                                            handleDialogOpenChange(false)
-                                        }
-                                    }}
-                                    hasSpecialConditions={hasSpecialConditions}
-                                />
-
-                                <HolidayDialog
-                                    open={isHolidayDialogOpen}
-                                    onOpenChange={handleHolidayDialogOpenChange}
-                                    selectedRange={selectedRange}
-                                    onSubmit={(holidayName) => {
-                                        if (handleAddHolidays(selectedRange, holidayName)) {
-                                            handleHolidayDialogOpenChange(false)
-                                        }
-                                    }}
-                                />
+                                {selectedRange.from && selectedRange.to && (
+                                    <div className='space-y-4'>
+                                        <div className='flex flex-wrap gap-4'>
+                                            <Button
+                                                variant='outline'
+                                                onClick={() => handleDialogOpenChange(true)}
+                                                disabled={dateStatus?.hasBlocked}
+                                            >
+                                                Bloquear fechas
+                                            </Button>
+                                            <Button
+                                                variant='outline'
+                                                onClick={openHolidayDialog}
+                                                disabled={dateStatus?.hasHolidays}
+                                            >
+                                                Marcar como festivo
+                                            </Button>
+                                            <Button
+                                                variant='outline'
+                                                onClick={() => handleAddHighSeason(selectedRange)}
+                                                disabled={dateStatus?.hasHighSeason}
+                                            >
+                                                Marcar como temporada alta
+                                            </Button>
+                                            {hasSpecialConditions && (
+                                                <Button
+                                                    variant='destructive'
+                                                    onClick={() => handleRemoveSpecialConditions(selectedRange)}
+                                                >
+                                                    Eliminar condiciones especiales
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -894,6 +773,24 @@ export default function SetupPage() {
                     </Button>
                 </div>
             )}
+
+            <ManageDatesDialog
+                open={isBlockDateDialogOpen}
+                onOpenChange={handleDialogOpenChange}
+                selectedRange={selectedRange}
+                onBlockDates={() => handleBlockDates(selectedRange)}
+                onOpenHolidayDialog={openHolidayDialog}
+                onHighSeasonClick={() => handleAddHighSeason(selectedRange)}
+                onRemoveSpecialConditions={() => handleRemoveSpecialConditions(selectedRange)}
+                hasSpecialConditions={hasSpecialConditions}
+            />
+
+            <HolidayDialog
+                open={isHolidayDialogOpen}
+                onOpenChange={handleHolidayDialogOpenChange}
+                selectedRange={selectedRange}
+                onSubmit={(holidayName) => handleAddHolidays(selectedRange, holidayName)}
+            />
         </div>
     )
 } 

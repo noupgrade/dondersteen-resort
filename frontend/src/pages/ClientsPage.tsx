@@ -23,7 +23,6 @@ type Client = {
 export default function ClientesPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [classificationFilter, setClassificationFilter] = useState('all')
-    const [statusFilter, setStatusFilter] = useState('all')
     const [clients, setClients] = useState<Client[]>([])
 
     useEffect(() => {
@@ -72,10 +71,7 @@ export default function ClientesPage() {
             (client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 client.phone.includes(searchTerm) ||
                 client.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-            (classificationFilter === 'all' || client.classification === classificationFilter) &&
-            (statusFilter === 'all' ||
-                (statusFilter === 'active' && client.activeReservations > 0) ||
-                (statusFilter === 'inactive' && client.activeReservations === 0)),
+            (classificationFilter === 'all' || client.classification === classificationFilter)
     )
 
     const activeClients = filteredClients.filter(client => client.activeReservations > 0)
@@ -109,16 +105,6 @@ export default function ClientesPage() {
                             <SelectItem value='Rango 1'>Rango 1</SelectItem>
                             <SelectItem value='Rango 2'>Rango 2</SelectItem>
                             <SelectItem value='Rango 3'>Rango 3</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className='w-[180px]'>
-                            <SelectValue placeholder='Estado' />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value='all'>Todos</SelectItem>
-                            <SelectItem value='active'>Con reservas activas</SelectItem>
-                            <SelectItem value='inactive'>Sin reservas activas</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
