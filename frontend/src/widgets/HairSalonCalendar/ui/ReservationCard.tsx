@@ -39,12 +39,22 @@ const getServiceLabel = (service: HairdressingServiceType) => {
 
 const getServiceStyle = (service: HairdressingServiceType) => {
     switch (service) {
-        case 'bath_and_trim':
-            return 'bg-blue-50 border-blue-200 text-blue-700'
         case 'bath_and_brush':
-            return 'bg-emerald-50 border-emerald-200 text-emerald-700'
+            return 'border-blue-200 bg-blue-50 text-blue-700'
+        case 'bath_and_trim':
+            return 'border-green-200 bg-green-50 text-green-700'
+        case 'stripping':
+            return 'border-purple-200 bg-purple-50 text-purple-700'
+        case 'deshedding':
+            return 'border-orange-200 bg-orange-50 text-orange-700'
+        case 'brushing':
+            return 'border-pink-200 bg-pink-50 text-pink-700'
+        case 'spa':
+            return 'border-teal-200 bg-teal-50 text-teal-700'
+        case 'spa_ozone':
+            return 'border-indigo-200 bg-indigo-50 text-indigo-700'
         default:
-            return 'bg-violet-50 border-violet-200 text-violet-700'
+            return 'border-gray-200 bg-gray-50 text-gray-700'
     }
 }
 
@@ -54,8 +64,17 @@ export function ReservationCard({
     onReject,
     onOrganizeCita
 }: ReservationCardProps) {
-    const mainService = reservation.additionalServices[0]
-    const mainServiceType = mainService?.services?.[0] as HairdressingServiceType
+    // Encontrar el servicio de peluquería y obtener el tipo de servicio
+    const mainServiceType = (() => {
+        const service = reservation.additionalServices[0]
+        if (typeof service === 'string') {
+            return service as HairdressingServiceType
+        }
+        if (typeof service === 'object' && 'type' in service && service.type === 'hairdressing' && 'services' in service && Array.isArray(service.services)) {
+            return service.services[0] as HairdressingServiceType
+        }
+        return null
+    })()
 
     return (
         <Card className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200">

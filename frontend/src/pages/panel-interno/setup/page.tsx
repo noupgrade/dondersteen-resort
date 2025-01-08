@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Input } from '@/shared/ui/input'
@@ -126,6 +126,59 @@ export default function SetupPage() {
         }
     }
 
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+    const [originalConfig, setOriginalConfig] = useState<{
+        generalConfig: typeof generalConfig
+        hotelServices: typeof hotelServices
+        groomingServices: typeof groomingServices
+        emailTemplates: typeof emailTemplates
+    } | null>(null)
+
+    // Guardar el estado inicial cuando se carga el componente
+    useEffect(() => {
+        setOriginalConfig({
+            generalConfig,
+            hotelServices,
+            groomingServices,
+            emailTemplates
+        })
+    }, []) // Dependencias vacías para que solo se ejecute al montar el componente
+
+    // Función para detectar cambios
+    useEffect(() => {
+        if (originalConfig) {
+            const hasGeneralChanges = JSON.stringify(originalConfig.generalConfig) !== JSON.stringify(generalConfig)
+            const hasHotelChanges = JSON.stringify(originalConfig.hotelServices) !== JSON.stringify(hotelServices)
+            const hasGroomingChanges = JSON.stringify(originalConfig.groomingServices) !== JSON.stringify(groomingServices)
+            const hasTemplateChanges = JSON.stringify(originalConfig.emailTemplates) !== JSON.stringify(emailTemplates)
+
+            setHasUnsavedChanges(hasGeneralChanges || hasHotelChanges || hasGroomingChanges || hasTemplateChanges)
+        }
+    }, [generalConfig, hotelServices, groomingServices, emailTemplates, originalConfig])
+
+    const handleSave = async () => {
+        // TODO: Implementar la lógica de guardado
+        console.log('Guardando cambios...')
+        setOriginalConfig({
+            generalConfig,
+            hotelServices,
+            groomingServices,
+            emailTemplates
+        })
+        setHasUnsavedChanges(false)
+    }
+
+    const handleCancel = () => {
+        // Restaurar al estado original
+        if (originalConfig) {
+            setGeneralConfig(originalConfig.generalConfig)
+            setHotelServices(originalConfig.hotelServices)
+            setGroomingServices(originalConfig.groomingServices)
+            setEmailTemplates(originalConfig.emailTemplates)
+            setHasUnsavedChanges(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className='container mx-auto p-6'>
@@ -143,7 +196,7 @@ export default function SetupPage() {
     const hasSpecialConditions = dateStatus ? dateStatus.hasBlocked || dateStatus.hasHolidays || dateStatus.hasHighSeason : false
 
     return (
-        <div className='container mx-auto p-6'>
+        <div className='container mx-auto p-6 pb-24'>
             <h1 className='text-3xl font-bold mb-6'>Configuración</h1>
 
             <Tabs defaultValue='general' className='space-y-6'>
@@ -829,6 +882,18 @@ export default function SetupPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            {/* Botones flotantes */}
+            {hasUnsavedChanges && (
+                <div className='fixed bottom-8 left-0 right-0 mx-auto w-fit flex gap-4 bg-white p-4 rounded-lg shadow-lg border'>
+                    <Button variant="outline" onClick={handleCancel}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleSave}>
+                        Guardar cambios
+                    </Button>
+                </div>
+            )}
         </div>
     )
 } 
