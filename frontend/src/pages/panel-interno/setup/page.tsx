@@ -7,11 +7,11 @@ import { Label } from '@/shared/ui/label'
 import { Badge } from '@/shared/ui/badge'
 import { Textarea } from '@/shared/ui/textarea'
 import { HotelAvailabilityCalendar } from '@/components/hotel-availability-calendar'
-import { useAvailabilityDialogs } from '../disponibilidad/hooks/use-availability-dialogs'
-import { useAvailabilityOperations } from '../disponibilidad/hooks/use-availability-operations'
-import { ManageDatesDialog } from '../disponibilidad/components/dialogs/manage-dates-dialog'
-import { HolidayDialog } from '../disponibilidad/components/dialogs/holiday-dialog'
-import { DateRange } from '../disponibilidad/types'
+import { useAvailabilityDialogs } from './disponibilidad/hooks/use-availability-dialogs'
+import { useAvailabilityOperations } from './disponibilidad/hooks/use-availability-operations'
+import { ManageDatesDialog } from './disponibilidad/components/dialogs/manage-dates-dialog'
+import { HolidayDialog } from './disponibilidad/components/dialogs/holiday-dialog'
+import { DateRange } from './disponibilidad/types'
 
 export default function SetupPage() {
     // Estados para la configuración general

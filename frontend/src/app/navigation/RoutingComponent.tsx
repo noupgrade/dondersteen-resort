@@ -13,7 +13,6 @@ import PlanningPage from '@/pages/panel-interno/PlanningPage.tsx'
 import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
 import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage.tsx'
 import TiendaPage from '@/pages/panel-interno/tienda/page'
-import DisponibilidadPage from '@/pages/panel-interno/disponibilidad/page'
 import SetupPage from '@/pages/panel-interno/setup/page'
 import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking.tsx'
 import PerfilClientesPage from '../../pages/PerfilClientesPage.tsx'
@@ -59,7 +58,6 @@ export const RoutingComponent = () => (
                             <Route path='peluqueria' element={<PeluqueriaPage />} />
                             <Route path='tienda' element={<TiendaPage />} />
                             <Route path='planning' element={<PlanningPage />} />
-                            <Route path='disponibilidad' element={<DisponibilidadPage />} />
                             <Route path='clientes' element={<ClientesPage />} />
                             <Route path='clientes/:id' element={<ClientDetailsPage />} />
                             <Route path='reservas/:id' element={<ReservationDetailsPage />} />
