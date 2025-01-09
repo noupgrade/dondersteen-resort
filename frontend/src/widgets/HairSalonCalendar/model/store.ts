@@ -21,12 +21,19 @@ const mockReservations: ExtendedReservation[] = [
             phone: '666555444'
         },
         pet: {
+            id: 'pet1',
             name: 'Luna',
             breed: 'Golden Retriever'
         },
-        additionalServices: ['corte'],
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_trim']
+        }],
         status: 'confirmed',
-        observations: 'El pelo está muy enredado'
+        observations: 'El pelo está muy enredado',
+        totalPrice: 45,
+        paymentStatus: 'pending'
     },
     {
         id: '2',
@@ -39,11 +46,18 @@ const mockReservations: ExtendedReservation[] = [
             phone: '677888999'
         },
         pet: {
+            id: 'pet2',
             name: 'Rocky',
             breed: 'Yorkshire Terrier'
         },
-        additionalServices: ['bano_especial'],
-        status: 'confirmed'
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_trim']
+        }],
+        status: 'confirmed',
+        totalPrice: 35,
+        paymentStatus: 'pending'
     },
     {
         id: '3',
@@ -56,11 +70,18 @@ const mockReservations: ExtendedReservation[] = [
             phone: '644333222'
         },
         pet: {
+            id: 'pet3',
             name: 'Max',
             breed: 'Schnauzer'
         },
-        additionalServices: ['deslanado'],
-        status: 'confirmed'
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['deshedding']
+        }],
+        status: 'confirmed',
+        totalPrice: 40,
+        paymentStatus: 'pending'
     }
 ]
 
@@ -87,7 +108,13 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             services: ['bath_and_trim']
         }],
         status: 'confirmed',
-        observations: 'Aceptada - Pendiente asignar hora'
+        observations: 'Aceptada - Pendiente asignar hora',
+        hotelCheckIn: format(today, 'yyyy-MM-dd'),
+        hotelCheckOut: format(addDays(today, 3), 'yyyy-MM-dd'),
+        hotelCheckOutTime: '12:00',
+        hasDriverService: true,
+        totalPrice: 45,
+        paymentStatus: 'pending'
     },
     {
         id: '5',
@@ -100,6 +127,7 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             phone: '688777666'
         },
         pet: {
+            id: 'pet5',
             name: 'Toby',
             breed: 'Shih Tzu'
         },
@@ -111,7 +139,10 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             }
         ],
         status: 'confirmed',
-        observations: 'Aceptada - Preferencia horario de mañana'
+        observations: 'Aceptada - Preferencia horario de mañana',
+        requestedTime: '10:00',
+        totalPrice: 35,
+        paymentStatus: 'pending'
     },
     {
         id: '8',
@@ -124,6 +155,7 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             phone: '677888999'
         },
         pet: {
+            id: 'pet8',
             name: 'Thor',
             breed: 'Husky Siberiano'
         },
@@ -135,7 +167,13 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             }
         ],
         status: 'confirmed',
-        observations: 'Cliente habitual - Necesita deslanado completo'
+        observations: 'Cliente habitual - Necesita deslanado completo',
+        hotelCheckIn: format(today, 'yyyy-MM-dd'),
+        hotelCheckOut: format(addDays(today, 5), 'yyyy-MM-dd'),
+        hotelCheckOutTime: '14:00',
+        hasDriverService: false,
+        totalPrice: 55,
+        paymentStatus: 'pending'
     },
     {
         id: '9',
@@ -148,6 +186,7 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             phone: '644555777'
         },
         pet: {
+            id: 'pet9',
             name: 'Luna',
             breed: 'Pomerania'
         },
@@ -159,55 +198,10 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             }
         ],
         status: 'confirmed',
-        observations: 'Primera visita'
-    },
-    {
-        id: '10',
-        type: 'peluqueria',
-        source: 'hotel',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Miguel Ángel Ruiz',
-            phone: '633222111'
-        },
-        pet: {
-            name: 'Loki',
-            breed: 'Labrador'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_trim', 'deshedding']
-            }
-        ],
-        status: 'confirmed',
-        observations: 'Necesita baño antialérgico'
-    },
-    {
-        id: '11',
-        type: 'peluqueria',
-        source: 'external',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Elena Moreno',
-            phone: '622333444'
-        },
-        pet: {
-            name: 'Nina',
-            breed: 'Yorkshire'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_trim']
-            }
-        ],
-        status: 'confirmed',
-        observations: 'Corte a tijera'
+        observations: 'Primera visita',
+        requestedTime: '16:30',
+        totalPrice: 40,
+        paymentStatus: 'pending'
     }
 ]
 

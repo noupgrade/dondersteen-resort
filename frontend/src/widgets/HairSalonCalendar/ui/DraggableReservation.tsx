@@ -3,7 +3,7 @@ import { useDrag } from 'react-dnd'
 import type { DragSourceMonitor } from 'react-dnd'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Clock, Euro, Phone } from 'lucide-react'
+import { Clock, Euro, Phone, Car } from 'lucide-react'
 
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import { useCalendarStore } from '../model/store'
@@ -80,46 +80,86 @@ export function DraggableReservation({
             )}
         >
             <div className="flex flex-col h-full justify-between gap-1">
-                {/* Header - Pet Name, Breed and Service */}
-                <div className="flex flex-col gap-1">
-                    <div className="font-medium text-sm truncate">
-                        {reservation.pet.name} ({reservation.pet.breed})
+                {/* Header - Pet Name and Service */}
+                <div className="flex justify-between items-start">
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1 min-w-0">
+                            <div className="font-bold text-sm truncate">
+                                {reservation.pet.name}
+                            </div>
+                            <div className="text-xs text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
+                                ({reservation.pet.breed})
+                            </div>
+                        </div>
+                        <div className="space-y-0.5">
+                            <div className="text-[11px] text-gray-600 truncate">{reservation.client.name}</div>
+                            <div className="flex items-center gap-1 text-[11px] text-gray-600">
+                                <Phone className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{reservation.client.phone}</span>
+                            </div>
+                        </div>
                     </div>
-                    {mainService && serviceTypeLabels[mainService] && (
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap w-fit",
-                                serviceTypeColors[mainService]
-                            )}
-                        >
-                            {serviceTypeLabels[mainService]}
-                        </Badge>
-                    )}
-                </div>
-
-                {/* Client Info */}
-                <div className="space-y-0.5">
-                    <div className="text-[11px] text-gray-600 truncate">{reservation.client.name}</div>
-                    <div className="flex items-center gap-1 text-[11px] text-gray-600">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{reservation.client.phone}</span>
-                    </div>
-                </div>
-
-                {/* Footer - Time */}
-                <div className="flex flex-col gap-0.5 text-[11px] text-gray-600">
-                    <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 flex-shrink-0" />
-                        {isUnscheduled ? (
-                            <span className="truncate">{format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}</span>
-                        ) : (
-                            <span>{time} ({reservation.duration || 60} min)</span>
+                    <div className="flex flex-col items-end gap-1">
+                        {mainService && serviceTypeLabels[mainService] && (
+                            <Badge
+                                variant="outline"
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap w-fit font-normal",
+                                    serviceTypeColors[mainService]
+                                )}
+                            >
+                                {serviceTypeLabels[mainService]}
+                            </Badge>
+                        )}
+                        {reservation.hasDriverService && (
+                            <Car className="h-4 w-4 text-gray-500 mx-auto mt-0.5" />
                         )}
                     </div>
-                    {isUnscheduled && reservation.time && (
-                        <div className="pl-4 truncate">
-                            {reservation.time}
+                </div>
+
+                {/* Footer - Time and Hotel Info */}
+                <div className="flex flex-col gap-0.5 text-[11px] text-gray-600">
+                    {isUnscheduled && (
+                        <>
+                            {reservation.source === 'external' && (
+                                <>
+                                    <div className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3 flex-shrink-0" />
+                                        <span className="truncate">{format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}</span>
+                                    </div>
+                                    {reservation.requestedTime && (
+                                        <div className="pl-4 truncate">
+                                            Hora solicitada: {reservation.requestedTime}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                            {reservation.source === 'hotel' && (
+                                <>
+                                    {reservation.hotelCheckIn && (
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3 flex-shrink-0" />
+                                            <span className="truncate">
+                                                Entrada: {format(new Date(reservation.hotelCheckIn), "d 'de' MMMM", { locale: es })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {reservation.hotelCheckOut && (
+                                        <div className="pl-4 truncate">
+                                            Salida: {format(new Date(reservation.hotelCheckOut), "d 'de' MMMM", { locale: es })}
+                                            {reservation.hotelCheckOutTime && (
+                                                <span> - {reservation.hotelCheckOutTime}</span>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </>
+                    )}
+                    {!isUnscheduled && (
+                        <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3 flex-shrink-0" />
+                            <span>{time} ({reservation.duration || 60} min)</span>
                         </div>
                     )}
                 </div>

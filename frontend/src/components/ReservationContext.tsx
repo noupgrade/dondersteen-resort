@@ -96,6 +96,8 @@ export type HairSalonReservation = {
     // Campo para asignar peluquera
     hairdresser?: 'hairdresser1' | 'hairdresser2'
     duration?: number
+    // Campo para hora solicitada en reservas externas
+    requestedTime?: string
 }
 
 export type Reservation = HotelReservation | HairSalonReservation

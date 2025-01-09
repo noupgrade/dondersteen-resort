@@ -34,14 +34,23 @@ export interface ExtendedReservation {
     client: {
         name: string
         phone: string
+        email?: string
     }
     pet: {
         id: string
         name: string
         breed: string
+        size?: 'pequeño' | 'mediano' | 'grande'
+        weight?: number
     }
-    additionalServices: HairdressingServiceType[]
-    status: ReservationStatus
+    additionalServices: {
+        type: string
+        petIndex: number
+        services?: string[]
+        comment?: string
+        price?: number
+    }[]
+    status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
     duration?: number
     precioEstimado?: number
     observations?: string
@@ -50,4 +59,13 @@ export interface ExtendedReservation {
         descripcion: string
     }>
     hairdresser?: 'hairdresser1' | 'hairdresser2'
+    totalPrice: number
+    paymentStatus: string
+    // Campos para reservas de hotel
+    hotelCheckIn?: string
+    hotelCheckOut?: string
+    hotelCheckOutTime?: string
+    hasDriverService?: boolean
+    // Campo para hora solicitada en reservas externas
+    requestedTime?: string
 } 
