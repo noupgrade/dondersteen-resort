@@ -73,11 +73,14 @@ export function DraggableReservation({
         <div
             ref={drag}
             className={cn(
-                'flex cursor-move flex-col rounded-md border transition-opacity h-full p-1.5',
+                'flex cursor-move flex-col rounded-md border transition-opacity h-full p-1.5 touch-none select-none',
                 isDragging && 'opacity-50',
                 reservation.source === 'hotel' ? 'bg-emerald-50 border-emerald-200' : 'bg-pink-50 border-pink-200',
                 className
             )}
+            role="button"
+            aria-label="Arrastrar reserva"
+            tabIndex={0}
         >
             <div className="flex flex-col h-full justify-between gap-1">
                 {/* Header - Pet Name and Service */}

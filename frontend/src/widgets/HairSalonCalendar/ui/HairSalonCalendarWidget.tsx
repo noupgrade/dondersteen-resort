@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend } from 'react-dnd-touch-backend'
 import { addDays, format, startOfWeek, addWeeks, subWeeks } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarDays, CalendarRange } from 'lucide-react'
@@ -31,6 +32,11 @@ interface HairSalonCalendarWidgetProps {
     managingReservationId?: string | null
 }
 
+// Función para detectar si es un dispositivo táctil
+function isTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+}
+
 export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [view, setView] = useState<'day' | 'week'>('day')
@@ -38,6 +44,9 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
     const [searchParams, setSearchParams] = useSearchParams()
     const { toast } = useToast()
     const { reservations } = useReservation()
+    const [backend, setBackend] = useState(() => 
+        isTouchDevice() ? TouchBackend : HTML5Backend
+    )
 
     // Find the reservation being managed
     const managingReservation = managingReservationId
@@ -92,7 +101,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
     }
 
     return (
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider backend={backend} options={{ enableMouseEvents: true }}>
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">

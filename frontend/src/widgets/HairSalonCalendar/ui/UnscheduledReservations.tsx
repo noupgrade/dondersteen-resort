@@ -6,7 +6,7 @@ import { addDays, format, startOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
-import type { ExtendedReservation } from '@/types/reservation'
+import type { HairSalonReservation } from '@/components/ReservationContext'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
 
 interface UnscheduledReservationsProps {
@@ -15,11 +15,11 @@ interface UnscheduledReservationsProps {
 
 export function UnscheduledReservations({ className }: UnscheduledReservationsProps) {
     const { unscheduledReservations, view, selectedDate, draggedReservation, setDraggedReservation, moveReservation, updateReservation } = useCalendarStore()
-    const [selectedReservation, setSelectedReservation] = useState<ExtendedReservation | null>(null)
+    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
 
     const [{ isOver }, drop] = useDrop({
         accept: 'reservation',
-        drop: async (item: { reservation: ExtendedReservation }) => {
+        drop: async (item: { reservation: HairSalonReservation }) => {
             if (draggedReservation && draggedReservation.sourceTime) {
                 // Solo permitimos mover citas que ya tienen hora asignada
                 const updatedReservation = {
@@ -55,16 +55,16 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         }
     })
 
-    const handleReservationClick = (reservation: ExtendedReservation) => {
+    const handleReservationClick = (reservation: HairSalonReservation) => {
         setSelectedReservation(reservation)
     }
 
-    const handleSaveReservation = async (updatedReservation: ExtendedReservation) => {
+    const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
         await updateReservation(updatedReservation)
         setSelectedReservation(null)
     }
 
-    const handleDeleteReservation = async (reservation: ExtendedReservation) => {
+    const handleDeleteReservation = async (reservation: HairSalonReservation) => {
         // Aquí implementarías la lógica para eliminar la reserva
         // Por ahora solo cerramos el modal
         setSelectedReservation(null)
@@ -90,21 +90,23 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="py-2">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-                        {filteredReservations.map((reservation) => (
-                            <div 
-                                key={reservation.id}
-                                onClick={() => handleReservationClick(reservation)}
-                                className="cursor-pointer"
-                            >
-                                <DraggableReservation
-                                    reservation={reservation}
-                                    date={reservation.date}
-                                    time=""
-                                    className="hover:opacity-90"
-                                />
-                            </div>
-                        ))}
+                    <div className="overflow-x-auto">
+                        <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                            {filteredReservations.map((reservation) => (
+                                <div 
+                                    key={reservation.id}
+                                    onClick={() => handleReservationClick(reservation)}
+                                    className="cursor-pointer w-[300px] flex-shrink-0"
+                                >
+                                    <DraggableReservation
+                                        reservation={reservation}
+                                        date={reservation.date}
+                                        time=""
+                                        className="hover:opacity-90"
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
