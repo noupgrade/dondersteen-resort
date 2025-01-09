@@ -88,6 +88,14 @@ export type HairSalonReservation = {
     horaDefinitiva?: string
     finalPrice?: number
     priceNote?: string
+    // Campos para reservas de hotel
+    hotelCheckIn?: string
+    hotelCheckOut?: string
+    hotelCheckOutTime?: string
+    hasDriverService?: boolean
+    // Campo para asignar peluquera
+    hairdresser?: 'hairdresser1' | 'hairdresser2'
+    duration?: number
 }
 
 export type Reservation = HotelReservation | HairSalonReservation

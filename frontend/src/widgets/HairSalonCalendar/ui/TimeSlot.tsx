@@ -15,68 +15,63 @@ interface TimeSlotProps {
     time: string
     date: string
     isAvailable?: boolean
+    hairdresser?: 'hairdresser1' | 'hairdresser2'
 }
 
-export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
+export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSlotProps) {
     const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedReservation, setSelectedReservation] = useState<ExtendedReservation | null>(null)
+    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
     const { toast } = useToast()
 
-    const reservation = scheduledReservations.find(r => r.date === date && r.time === time)
+    const reservation = scheduledReservations.find(r => 
+        r.date === date && 
+        r.time === time && 
+        (!hairdresser || r.hairdresser === hairdresser)
+    )
 
-    const [{ isOver, canDrop }, drop] = useDrop({
+    const [{ isOver, canDrop }, drop] = useDrop<
+        { reservation: HairSalonReservation },
+        Promise<void>,
+        { isOver: boolean; canDrop: boolean }
+    >({
         accept: 'reservation',
         canDrop: () => isAvailable && !reservation,
-        drop: async (item: { reservation: ExtendedReservation }) => {
+        drop: async (item) => {
             if (draggedReservation) {
+                const updatedReservation = {
+                    ...draggedReservation.reservation,
+                    hairdresser: hairdresser || draggedReservation.reservation.hairdresser
+                }
                 if (draggedReservation.sourceTime) {
                     // Mover una cita existente
-                    await moveReservation(draggedReservation.reservation, date, time)
+                    await moveReservation(updatedReservation, date, time)
                 } else {
                     // Asignar hora a una cita sin hora
-                    await scheduleUnscheduledReservation(draggedReservation.reservation, date, time)
+                    await scheduleUnscheduledReservation(updatedReservation, date, time)
                 }
                 setDraggedReservation(null)
             }
         },
-        collect: (monitor: DropTargetMonitor) => ({
+        collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
         }),
     })
 
-    const handleReservationClick = (res: ExtendedReservation) => {
+    const handleReservationClick = (res: HairSalonReservation) => {
         setSelectedReservation(res)
         setIsModalOpen(true)
     }
 
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
         try {
-            // Convert HairSalonReservation back to ExtendedReservation
-            const extendedReservation: ExtendedReservation = {
-                ...updatedReservation,
-                client: {
-                    name: updatedReservation.client.name,
-                    phone: updatedReservation.client.phone
-                },
-                additionalServices: updatedReservation.additionalServices.flatMap(service => {
-                    if (service.type === 'hairdressing' && service.services) {
-                        return service.services as HairdressingServiceType[]
-                    }
-                    return [] as HairdressingServiceType[]
-                }),
-                status: updatedReservation.status === 'propuesta peluqueria' ? 'pending_client_confirmation' : updatedReservation.status === 'cancelled' ? 'completed' : updatedReservation.status as ReservationStatus,
-                subcitas: updatedReservation.subcitas?.map(subcita => ({
-                    fecha: subcita.fecha,
-                    descripcion: subcita.descripcion
-                }))
-            }
-            await updateReservation(extendedReservation)
+            await updateReservation(updatedReservation)
             toast({
                 title: "Cambios guardados",
                 description: "La configuración de la cita se ha actualizado correctamente."
             })
+            setIsModalOpen(false)
         } catch (error) {
             console.error('Error al guardar la configuración:', error)
             toast({
@@ -129,31 +124,7 @@ export function TimeSlot({ time, date, isAvailable = true }: TimeSlotProps) {
 
             {selectedReservation && (
                 <HairSalonReservationModal
-                    reservation={{
-                        ...selectedReservation,
-                        totalPrice: selectedReservation.precioEstimado || 0,
-                        paymentStatus: 'Pendiente',
-                        additionalServices: [{
-                            type: 'hairdressing',
-                            petIndex: 0,
-                            services: selectedReservation.additionalServices as HairdressingServiceType[]
-                        }],
-                        client: {
-                            ...selectedReservation.client,
-                            email: 'no-email@example.com' // Required by type but not used in this context
-                        } as Client,
-                        pet: {
-                            ...selectedReservation.pet,
-                            size: 'mediano', // Default size
-                            weight: 0 // Default weight
-                        },
-                        status: selectedReservation.status === 'pending_client_confirmation' ? 'pending' : selectedReservation.status === 'completed' ? 'confirmed' : selectedReservation.status,
-                        subcitas: selectedReservation.subcitas?.map(subcita => ({
-                            fecha: subcita.fecha,
-                            hora: selectedReservation.time, // Use the current time as default
-                            descripcion: subcita.descripcion
-                        }))
-                    }}
+                    reservation={selectedReservation}
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSaveReservation}

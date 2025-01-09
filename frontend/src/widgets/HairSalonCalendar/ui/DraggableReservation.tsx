@@ -1,22 +1,22 @@
+import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import type { DragSourceMonitor } from 'react-dnd'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Clock, Euro, Phone } from 'lucide-react'
 
-import type { ExtendedReservation } from '@/types/reservation'
+import type { HairSalonReservation } from '@/components/ReservationContext'
 import { useCalendarStore } from '../model/store'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { Badge } from '@/shared/ui/badge'
 import { HairdressingServiceType } from '@/shared/types/additional-services'
 
 interface DraggableReservationProps {
-    reservation: ExtendedReservation
+    reservation: HairSalonReservation
     date: string
     time: string
     className?: string
     showPrice?: boolean
-    duration?: number
 }
 
 const serviceTypeLabels: Record<HairdressingServiceType, string> = {
@@ -65,10 +65,9 @@ export function DraggableReservation({
     })
 
     const isUnscheduled = !time || time.includes('-')
-    const mainService = reservation.additionalServices?.[0]
-
-    // Calcular altura basada en la duración
-    const heightInRem = Math.max(4, Math.ceil((reservation.duration || 60) / 15))
+    const mainService = reservation.additionalServices?.[0]?.type === 'hairdressing' 
+        ? reservation.additionalServices[0].services?.[0] as HairdressingServiceType
+        : undefined
 
     return (
         <div
@@ -79,22 +78,18 @@ export function DraggableReservation({
                 reservation.source === 'hotel' ? 'bg-emerald-50 border-emerald-200' : 'bg-pink-50 border-pink-200',
                 className
             )}
-            style={{ 
-                minHeight: isUnscheduled ? '6rem' : `${heightInRem}rem`,
-                maxHeight: isUnscheduled ? 'auto' : `${heightInRem}rem`
-            }}
         >
             <div className="flex flex-col h-full justify-between gap-1">
                 {/* Header - Pet Name, Breed and Service */}
-                <div className="flex justify-between items-start gap-2">
-                    <div className="font-medium text-sm">
+                <div className="flex flex-col gap-1">
+                    <div className="font-medium text-sm truncate">
                         {reservation.pet.name} ({reservation.pet.breed})
                     </div>
-                    {mainService && (
+                    {mainService && serviceTypeLabels[mainService] && (
                         <Badge
                             variant="outline"
                             className={cn(
-                                "text-[11px] px-2 py-0.5 border-[1.5px] whitespace-nowrap",
+                                "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap w-fit",
                                 serviceTypeColors[mainService]
                             )}
                         >
@@ -105,27 +100,25 @@ export function DraggableReservation({
 
                 {/* Client Info */}
                 <div className="space-y-0.5">
-                    <div className="text-[11px] text-gray-600">{reservation.client.name}</div>
+                    <div className="text-[11px] text-gray-600 truncate">{reservation.client.name}</div>
                     <div className="flex items-center gap-1 text-[11px] text-gray-600">
-                        <Phone className="h-3 w-3" />
-                        <span>{reservation.client.phone}</span>
+                        <Phone className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{reservation.client.phone}</span>
                     </div>
                 </div>
 
                 {/* Footer - Time */}
                 <div className="flex flex-col gap-0.5 text-[11px] text-gray-600">
                     <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
+                        <Clock className="h-3 w-3 flex-shrink-0" />
                         {isUnscheduled ? (
-                            <>
-                                <span>{format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}</span>
-                            </>
+                            <span className="truncate">{format(new Date(date), "EEEE d 'de' MMMM", { locale: es })}</span>
                         ) : (
                             <span>{time} ({reservation.duration || 60} min)</span>
                         )}
                     </div>
                     {isUnscheduled && reservation.time && (
-                        <div className="pl-4">
+                        <div className="pl-4 truncate">
                             {reservation.time}
                         </div>
                     )}

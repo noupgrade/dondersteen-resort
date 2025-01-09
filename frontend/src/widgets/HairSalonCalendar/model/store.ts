@@ -77,17 +77,16 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
             phone: '655444333'
         },
         pet: {
+            id: 'pet4',
             name: 'Bella',
             breed: 'Caniche'
         },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_trim']
-            }
-        ],
-        status: 'confirmed', // Ya aceptada, solo falta asignar hora
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_trim']
+        }],
+        status: 'confirmed',
         observations: 'Aceptada - Pendiente asignar hora'
     },
     {
@@ -111,8 +110,104 @@ const mockUnscheduledReservations: ExtendedReservation[] = [
                 services: ['spa']
             }
         ],
-        status: 'confirmed', // Ya aceptada, solo falta asignar hora
+        status: 'confirmed',
         observations: 'Aceptada - Preferencia horario de mañana'
+    },
+    {
+        id: '8',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(today, 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            name: 'Roberto Díaz',
+            phone: '677888999'
+        },
+        pet: {
+            name: 'Thor',
+            breed: 'Husky Siberiano'
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['deshedding']
+            }
+        ],
+        status: 'confirmed',
+        observations: 'Cliente habitual - Necesita deslanado completo'
+    },
+    {
+        id: '9',
+        type: 'peluqueria',
+        source: 'external',
+        date: format(today, 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            name: 'Isabel Torres',
+            phone: '644555777'
+        },
+        pet: {
+            name: 'Luna',
+            breed: 'Pomerania'
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            }
+        ],
+        status: 'confirmed',
+        observations: 'Primera visita'
+    },
+    {
+        id: '10',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(today, 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            name: 'Miguel Ángel Ruiz',
+            phone: '633222111'
+        },
+        pet: {
+            name: 'Loki',
+            breed: 'Labrador'
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim', 'deshedding']
+            }
+        ],
+        status: 'confirmed',
+        observations: 'Necesita baño antialérgico'
+    },
+    {
+        id: '11',
+        type: 'peluqueria',
+        source: 'external',
+        date: format(today, 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            name: 'Elena Moreno',
+            phone: '622333444'
+        },
+        pet: {
+            name: 'Nina',
+            breed: 'Yorkshire'
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            }
+        ],
+        status: 'confirmed',
+        observations: 'Corte a tijera'
     }
 ]
 

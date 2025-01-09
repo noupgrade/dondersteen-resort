@@ -49,4 +49,5 @@ export interface ExtendedReservation {
         fecha: string
         descripcion: string
     }>
+    hairdresser?: 'hairdresser1' | 'hairdresser2'
 } 

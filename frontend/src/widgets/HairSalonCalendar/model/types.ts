@@ -1,4 +1,4 @@
-import type { ExtendedReservation } from '@/types/reservation'
+import type { HairSalonReservation } from '@/components/ReservationContext'
 
 export type CalendarView = 'day' | 'week'
 
@@ -6,11 +6,11 @@ export interface CalendarSlot {
     time: string
     date: string
     isAvailable: boolean
-    reservation?: ExtendedReservation
+    reservation?: HairSalonReservation
 }
 
 export interface DraggedReservation {
-    reservation: ExtendedReservation
+    reservation: HairSalonReservation
     sourceDate: string
     sourceTime: string
 }
@@ -19,18 +19,18 @@ export interface CalendarState {
     view: CalendarView
     selectedDate: Date
     draggedReservation: DraggedReservation | null
-    unscheduledReservations: ExtendedReservation[]
-    scheduledReservations: ExtendedReservation[]
+    unscheduledReservations: HairSalonReservation[]
+    scheduledReservations: HairSalonReservation[]
 }
 
 export interface CalendarActions {
     setView: (view: CalendarView) => void
     setSelectedDate: (date: Date) => void
     setDraggedReservation: (reservation: DraggedReservation | null) => void
-    moveReservation: (reservation: ExtendedReservation, newDate: string, newTime: string) => Promise<void>
-    createReservation: (reservation: Omit<ExtendedReservation, 'id'>) => Promise<void>
-    scheduleUnscheduledReservation: (reservation: ExtendedReservation, date: string, time: string) => Promise<void>
-    updateReservation: (updatedReservation: ExtendedReservation) => Promise<void>
+    moveReservation: (reservation: HairSalonReservation, newDate: string, newTime: string) => Promise<void>
+    createReservation: (reservation: Omit<HairSalonReservation, 'id'>) => Promise<void>
+    scheduleUnscheduledReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
+    updateReservation: (updatedReservation: HairSalonReservation) => Promise<void>
 }
 
 export interface TimeSlot {

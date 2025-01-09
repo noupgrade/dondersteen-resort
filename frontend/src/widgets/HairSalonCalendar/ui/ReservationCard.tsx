@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, Clock, Hotel, Users } from 'lucide-react'
+import { Calendar, Clock, Hotel, Users, Car } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
 import { Badge } from '@/shared/ui/badge'
@@ -10,12 +10,12 @@ import { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { HairdressingServiceType } from '@/shared/types/additional-services'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
+import { useCalendarStore } from '../model/store'
 
 interface ReservationCardProps {
     reservation: HairSalonReservation
-    onAccept: (r: HairSalonReservation) => void
-    onReject: (r: HairSalonReservation) => void
     onOrganizeCita: (r: HairSalonReservation) => void
+    isPending?: boolean
 }
 
 const getServiceLabel = (service: HairdressingServiceType) => {
@@ -62,42 +62,57 @@ const getServiceStyle = (service: HairdressingServiceType) => {
 
 export function ReservationCard({
     reservation,
-    onAccept,
-    onReject,
-    onOrganizeCita
+    onOrganizeCita,
+    isPending = false
 }: ReservationCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const { updateReservation } = useCalendarStore()
 
-    // Encontrar el servicio de peluquería y obtener el tipo de servicio
     const mainServiceType = (() => {
         const service = reservation.additionalServices[0]
-        if (typeof service === 'string') {
-            return service as HairdressingServiceType
-        }
-        if (typeof service === 'object' && 'type' in service && service.type === 'hairdressing' && 'services' in service && Array.isArray(service.services)) {
+        if (service && typeof service === 'object' && 'services' in service && Array.isArray(service.services)) {
             return service.services[0] as HairdressingServiceType
         }
         return null
     })()
 
+    const formatDate = (dateStr: string | undefined) => {
+        if (!dateStr) return ''
+        try {
+            return format(new Date(dateStr), 'dd MMM', { locale: es })
+        } catch (error) {
+            console.error('Error formatting date:', error)
+            return ''
+        }
+    }
+
     const handleCardClick = () => {
-        setIsModalOpen(true)
+        if (!isPending) {
+            setIsModalOpen(true)
+        }
     }
 
-    const handleSaveReservation = (updatedReservation: HairSalonReservation) => {
-        // Aquí podrías implementar la lógica para guardar los cambios
-        setIsModalOpen(false)
+    const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
+        try {
+            await updateReservation(updatedReservation)
+            setIsModalOpen(false)
+        } catch (error) {
+            console.error('Error al guardar los cambios:', error)
+        }
     }
 
-    const handleDeleteReservation = (reservation: HairSalonReservation) => {
-        onReject(reservation)
+    const handleDeleteReservation = async (reservation: HairSalonReservation) => {
+        // Aquí podrías implementar la lógica para eliminar la reserva
         setIsModalOpen(false)
     }
 
     return (
         <>
             <Card 
-                className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                className={cn(
+                    "h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200",
+                    !isPending && "cursor-pointer"
+                )}
                 onClick={handleCardClick}
             >
                 <CardHeader className="flex-none pb-4">
@@ -131,74 +146,93 @@ export function ReservationCard({
                     </div>
                 </CardHeader>
 
-                <CardContent className="flex-grow">
-                    <div className="space-y-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <h3 className='text-xl font-semibold text-gray-900'>
-                                    {reservation.pet.name}
-                                </h3>
-                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                                    {reservation.pet.breed}
-                                </span>
-                            </div>
-                            <div className='flex items-center gap-4 text-sm text-muted-foreground mt-3'>
-                                <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
-                                    <Calendar className='h-4 w-4 text-gray-500' />
-                                    <span>
-                                        {format(new Date(reservation.date), 'dd MMM', {
-                                            locale: es,
-                                        })}
+                {!isPending && (
+                    <CardContent className="flex-grow">
+                        <div className="space-y-4">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className='text-xl font-semibold text-gray-900'>
+                                        {reservation.pet.name}
+                                    </h3>
+                                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                        {reservation.pet.breed}
                                     </span>
                                 </div>
-                                {reservation.time && (
-                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
-                                        <Clock className='h-4 w-4 text-gray-500' />
-                                        <span>{reservation.time}</span>
-                                    </div>
-                                )}
+                                <div className='flex flex-col gap-2 text-sm text-muted-foreground mt-3'>
+                                    {reservation.source === 'hotel' ? (
+                                        <>
+                                            <div className="flex items-center gap-4">
+                                                {reservation.hotelCheckIn && (
+                                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                                        <Calendar className='h-4 w-4 text-emerald-600' />
+                                                        <span>
+                                                            Entrada: {formatDate(reservation.hotelCheckIn)}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {reservation.hotelCheckOut && (
+                                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                                        <Calendar className='h-4 w-4 text-red-600' />
+                                                        <span>
+                                                            Salida: {formatDate(reservation.hotelCheckOut)}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {reservation.hotelCheckOutTime && (
+                                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                                        <Clock className='h-4 w-4 text-gray-500' />
+                                                        <span>Hora de salida: {reservation.hotelCheckOutTime}</span>
+                                                    </div>
+                                                )}
+                                                {reservation.hasDriverService && (
+                                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                                        <Car className='h-4 w-4 text-gray-500' />
+                                                        <span>Con servicio de chofer</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {reservation.date && (
+                                                <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                                    <Calendar className='h-4 w-4 text-gray-500' />
+                                                    <span>
+                                                        {formatDate(reservation.date)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {reservation.time && (
+                                                <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md w-fit'>
+                                                    <Clock className='h-4 w-4 text-gray-500' />
+                                                    <span>{reservation.time}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </CardContent>
+                    </CardContent>
+                )}
 
                 <CardContent className="flex-none pt-0">
-                    <div className="flex flex-col gap-2">
-                        <Button
-                            variant="default"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onAccept(reservation)
-                            }}
-                            className="w-full"
-                        >
-                            Aceptar
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onReject(reservation)
-                            }}
-                            className="w-full"
-                        >
-                            Rechazar
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                onOrganizeCita(reservation)
-                            }}
-                            className="w-full"
-                        >
-                            Organizar Cita
-                        </Button>
-                    </div>
+                    <Button
+                        className="w-full flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onOrganizeCita(reservation)
+                        }}
+                    >
+                        <Calendar className="h-4 w-4" />
+                        Organizar cita
+                    </Button>
                 </CardContent>
             </Card>
 
-            {isModalOpen && (
+            {isModalOpen && !isPending && (
                 <HairSalonReservationModal
                     reservation={reservation}
                     isOpen={isModalOpen}

@@ -7,6 +7,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarDays, Cale
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { TimeSlot } from './TimeSlot'
 import { UnscheduledReservations } from './UnscheduledReservations'
 import { ManageReservationBanner } from './ManageReservationBanner'
@@ -17,6 +18,9 @@ import { useSearchParams } from 'react-router-dom'
 import { useToast } from '@/shared/ui/use-toast'
 import { useReservation } from '@/components/ReservationContext'
 import { HairSalonReservation } from '@/components/ReservationContext'
+import { DatePicker } from '@/shared/ui/date-picker'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { Calendar } from '@/shared/ui/calendar'
 
 const timeSlots = Array.from({ length: BUSINESS_HOURS.end - BUSINESS_HOURS.start }, (_, i) => {
     const hour = BUSINESS_HOURS.start + i
@@ -30,6 +34,7 @@ interface HairSalonCalendarWidgetProps {
 export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [view, setView] = useState<'day' | 'week'>('day')
+    const [selectedHairdresser, setSelectedHairdresser] = useState<'hairdresser1' | 'hairdresser2'>('hairdresser1')
     const [searchParams, setSearchParams] = useSearchParams()
     const { toast } = useToast()
     const { reservations } = useReservation()
@@ -116,14 +121,37 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="flex items-center gap-2"
-                                onClick={() => setSelectedDate(new Date())}
-                            >
-                                <CalendarIcon className="h-4 w-4" />
-                                <span>Hoy</span>
-                            </Button>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2 w-[180px] justify-start text-left font-normal"
+                                    >
+                                        <CalendarIcon className="h-4 w-4" />
+                                        {format(selectedDate, "d 'de' MMMM yyyy", { locale: es })}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(date) => date && setSelectedDate(date)}
+                                        initialFocus
+                                        footer={
+                                            <Button
+                                                variant="outline"
+                                                className="w-full mt-2 bg-primary/5 hover:bg-primary/10 border-primary/10 hover:border-primary/20 text-primary"
+                                                onClick={() => {
+                                                    setSelectedDate(new Date())
+                                                }}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                Ir a hoy
+                                            </Button>
+                                        }
+                                    />
+                                </PopoverContent>
+                            </Popover>
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -137,6 +165,20 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
 
                 <UnscheduledReservations className="mb-4" />
 
+                {view === 'week' && (
+                    <Tabs
+                        defaultValue="hairdresser1"
+                        value={selectedHairdresser}
+                        onValueChange={(value) => setSelectedHairdresser(value as 'hairdresser1' | 'hairdresser2')}
+                        className="mb-4"
+                    >
+                        <TabsList className="grid w-[400px] grid-cols-2">
+                            <TabsTrigger value="hairdresser1">Peluquera 1</TabsTrigger>
+                            <TabsTrigger value="hairdresser2">Peluquera 2</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                )}
+
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -144,7 +186,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                                 ? format(selectedDate, "EEEE d 'de' MMMM", { locale: es })
                                 : `Semana del ${format(new Date(weekDays[0].date), "d 'de' MMMM", {
                                     locale: es,
-                                })}`}
+                                })} - ${selectedHairdresser === 'hairdresser1' ? 'Peluquera 1' : 'Peluquera 2'}`}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -153,14 +195,39 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                             managingReservation && "pb-32" // Add padding when banner is shown
                         )}>
                             {view === 'day' ? (
-                                <div className="relative grid auto-rows-[4rem]">
-                                    {timeSlots.map((time) => (
-                                        <TimeSlot
-                                            key={time}
-                                            time={time}
-                                            date={format(selectedDate, 'yyyy-MM-dd')}
-                                        />
-                                    ))}
+                                <div className="grid grid-cols-2 divide-x">
+                                    {/* Columna Peluquera 1 */}
+                                    <div>
+                                        <div className="text-center p-2 font-medium border-b">
+                                            Peluquera 1
+                                        </div>
+                                        <div className="relative grid auto-rows-[4rem]">
+                                            {timeSlots.map((time) => (
+                                                <TimeSlot
+                                                    key={time}
+                                                    time={time}
+                                                    date={format(selectedDate, 'yyyy-MM-dd')}
+                                                    hairdresser="hairdresser1"
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {/* Columna Peluquera 2 */}
+                                    <div>
+                                        <div className="text-center p-2 font-medium border-b">
+                                            Peluquera 2
+                                        </div>
+                                        <div className="relative grid auto-rows-[4rem]">
+                                            {timeSlots.map((time) => (
+                                                <TimeSlot
+                                                    key={time}
+                                                    time={time}
+                                                    date={format(selectedDate, 'yyyy-MM-dd')}
+                                                    hairdresser="hairdresser2"
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-7">
@@ -187,6 +254,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                                                         key={`${day.date}-${time}`}
                                                         time={time}
                                                         date={day.date}
+                                                        hairdresser={selectedHairdresser}
                                                     />
                                                 ))}
                                             </div>
