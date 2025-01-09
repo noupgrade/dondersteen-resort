@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, Clock, Hotel, Users } from 'lucide-react'
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { HairdressingServiceType } from '@/shared/types/additional-services'
+import { HairSalonReservationModal } from './HairSalonReservationModal'
 
 interface ReservationCardProps {
     reservation: HairSalonReservation
@@ -64,6 +66,8 @@ export function ReservationCard({
     onReject,
     onOrganizeCita
 }: ReservationCardProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
     // Encontrar el servicio de peluquería y obtener el tipo de servicio
     const mainServiceType = (() => {
         const service = reservation.additionalServices[0]
@@ -76,85 +80,133 @@ export function ReservationCard({
         return null
     })()
 
-    return (
-        <Card className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="flex-none pb-4">
-                <div className="flex justify-between items-start gap-4">
-                    <div className="flex items-center gap-3">
-                        {reservation.source === 'hotel' ? (
-                            <div className="p-2 bg-primary/10 rounded-full">
-                                <Hotel className="h-5 w-5 text-primary" />
-                            </div>
-                        ) : (
-                            <div className="p-2 bg-violet-100 rounded-full">
-                                <Users className="h-5 w-5 text-violet-600" />
-                            </div>
-                        )}
-                        <div>
-                            <p className="text-sm font-semibold text-gray-900">{reservation.client.name}</p>
-                            <p className="text-sm text-muted-foreground">{reservation.client.phone}</p>
-                        </div>
-                    </div>
-                    {mainServiceType && (
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "px-3 py-1.5 whitespace-nowrap font-medium",
-                                getServiceStyle(mainServiceType)
-                            )}
-                        >
-                            {getServiceLabel(mainServiceType)}
-                        </Badge>
-                    )}
-                </div>
-            </CardHeader>
+    const handleCardClick = () => {
+        setIsModalOpen(true)
+    }
 
-            <CardContent className="flex-grow">
-                <div className="space-y-4">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <h3 className='text-xl font-semibold text-gray-900'>
-                                {reservation.pet.name}
-                            </h3>
-                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                                {reservation.pet.breed}
-                            </span>
+    const handleSaveReservation = (updatedReservation: HairSalonReservation) => {
+        // Aquí podrías implementar la lógica para guardar los cambios
+        setIsModalOpen(false)
+    }
+
+    const handleDeleteReservation = (reservation: HairSalonReservation) => {
+        onReject(reservation)
+        setIsModalOpen(false)
+    }
+
+    return (
+        <>
+            <Card 
+                className="h-full flex flex-col bg-white hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                onClick={handleCardClick}
+            >
+                <CardHeader className="flex-none pb-4">
+                    <div className="flex justify-between items-start gap-4">
+                        <div className="flex items-center gap-3">
+                            {reservation.source === 'hotel' ? (
+                                <div className="p-2 bg-primary/10 rounded-full">
+                                    <Hotel className="h-5 w-5 text-primary" />
+                                </div>
+                            ) : (
+                                <div className="p-2 bg-violet-100 rounded-full">
+                                    <Users className="h-5 w-5 text-violet-600" />
+                                </div>
+                            )}
+                            <div>
+                                <p className="text-sm font-semibold text-gray-900">{reservation.client.name}</p>
+                                <p className="text-sm text-muted-foreground">{reservation.client.phone}</p>
+                            </div>
                         </div>
-                        <div className='flex items-center gap-4 text-sm text-muted-foreground mt-3'>
-                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
-                                <Calendar className='h-4 w-4 text-gray-500' />
-                                <span>
-                                    {format(new Date(reservation.date), 'dd MMM', {
-                                        locale: es,
-                                    })}
+                        {mainServiceType && (
+                            <Badge
+                                variant="outline"
+                                className={cn(
+                                    "px-3 py-1.5 whitespace-nowrap font-medium",
+                                    getServiceStyle(mainServiceType)
+                                )}
+                            >
+                                {getServiceLabel(mainServiceType)}
+                            </Badge>
+                        )}
+                    </div>
+                </CardHeader>
+
+                <CardContent className="flex-grow">
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className='text-xl font-semibold text-gray-900'>
+                                    {reservation.pet.name}
+                                </h3>
+                                <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                                    {reservation.pet.breed}
                                 </span>
                             </div>
-                            <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
-                                <Clock className='h-4 w-4 text-gray-500' />
-                                <span>{reservation.time}</span>
+                            <div className='flex items-center gap-4 text-sm text-muted-foreground mt-3'>
+                                <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                    <Calendar className='h-4 w-4 text-gray-500' />
+                                    <span>
+                                        {format(new Date(reservation.date), 'dd MMM', {
+                                            locale: es,
+                                        })}
+                                    </span>
+                                </div>
+                                {reservation.time && (
+                                    <div className='flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-md'>
+                                        <Clock className='h-4 w-4 text-gray-500' />
+                                        <span>{reservation.time}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
+                </CardContent>
 
-                    {reservation.observations && (
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <p className="text-sm text-gray-600">{reservation.observations}</p>
-                        </div>
-                    )}
-                </div>
-            </CardContent>
+                <CardContent className="flex-none pt-0">
+                    <div className="flex flex-col gap-2">
+                        <Button
+                            variant="default"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onAccept(reservation)
+                            }}
+                            className="w-full"
+                        >
+                            Aceptar
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onReject(reservation)
+                            }}
+                            className="w-full"
+                        >
+                            Rechazar
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onOrganizeCita(reservation)
+                            }}
+                            className="w-full"
+                        >
+                            Organizar Cita
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
-            <CardContent className="flex-none pt-0">
-                <div className="flex flex-col gap-2">
-                    <Button
-                        className="w-full flex items-center justify-center gap-2"
-                        onClick={() => onOrganizeCita(reservation)}
-                    >
-                        <Calendar className="h-4 w-4" />
-                        Organizar cita
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+            {isModalOpen && (
+                <HairSalonReservationModal
+                    reservation={reservation}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={handleSaveReservation}
+                    onDelete={handleDeleteReservation}
+                />
+            )}
+        </>
     )
 } 
