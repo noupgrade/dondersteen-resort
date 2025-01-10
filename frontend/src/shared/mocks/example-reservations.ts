@@ -363,5 +363,52 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
         status: 'confirmed',
         totalPrice: 700,
         paymentStatus: 'Pagado'
+    },
+    // Check-out today - 2 pets with driver service
+    {
+        id: 'EXAMPLE_CHECKOUT_3',
+        type: 'hotel',
+        checkInDate: format(subDays(new Date(), 2), 'yyyy-MM-dd'),
+        checkInTime: '15:00',
+        checkOutDate: format(new Date(), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_6',
+            name: 'Ana Example',
+            phone: '666444555',
+            email: 'ana@example.com'
+        },
+        pets: [
+            {
+                name: 'Milo',
+                breed: 'Shih Tzu',
+                weight: 5,
+                size: 'pequeño',
+                sex: 'M'
+            },
+            {
+                name: 'Lola',
+                breed: 'Maltese',
+                weight: 4,
+                size: 'pequeño',
+                sex: 'F'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'dropoff',
+                price: 30
+            }
+        ],
+        roomNumber: 'HAB.6',
+        status: 'confirmed',
+        totalPrice: 350,
+        paymentStatus: 'Pendiente'
     }
 ] 
