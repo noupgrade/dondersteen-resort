@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { useToast } from '@/shared/ui/use-toast.ts'
 import { HairSalonCalendarWidget } from '@/widgets/HairSalonCalendar'
 import { ReservationCard } from '@/widgets/HairSalonCalendar/ui/ReservationCard'
+import { HairSalonReservationModal } from '@/widgets/HairSalonCalendar/ui/HairSalonReservationModal'
 
 export default function HairSalonInternalPanelPage() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -55,6 +56,20 @@ export default function HairSalonInternalPanelPage() {
             newParams.set('reservationId', reservation.id)
             return newParams
         })
+    }
+
+    const handleShowDetails = (reservation: HairSalonReservation) => {
+        setSelectedReservation(reservation)
+    }
+
+    const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
+        // Aquí implementarías la lógica para guardar los cambios
+        setSelectedReservation(null)
+    }
+
+    const handleDeleteReservation = async (reservation: HairSalonReservation) => {
+        // Aquí implementarías la lógica para eliminar la reserva
+        setSelectedReservation(null)
     }
 
     const handleOpenAcceptModal = (reservation: HairSalonReservation) => {
@@ -131,20 +146,21 @@ export default function HairSalonInternalPanelPage() {
                                     {/* Sección de Reservas de Hotel */}
                                     {hotelReservations.length > 0 && (
                                         <div>
-                                            <div className="flex items-center gap-2 mb-6">
+                                            <div className="flex items-center gap-2 mb-4">
                                                 <Hotel className="h-5 w-5 text-primary" />
                                                 <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                                                {hotelReservations.map(reservation => (
-                                                    <ReservationCard
-                                                        key={reservation.id}
-                                                        reservation={reservation}
-                                                        onAccept={handleOpenAcceptModal}
-                                                        onReject={handleOpenRejectModal}
-                                                        onOrganizeCita={handleOrganizeCita}
-                                                    />
-                                                ))}
+                                            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                                <div className="grid grid-flow-col auto-cols-[calc(33.333%-0.5rem)] md:auto-cols-[300px] gap-4 pb-2">
+                                                    {hotelReservations.map(reservation => (
+                                                        <ReservationCard
+                                                            key={reservation.id}
+                                                            reservation={reservation}
+                                                            onOrganizeCita={handleOrganizeCita}
+                                                            onShowDetails={handleShowDetails}
+                                                        />
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -152,20 +168,21 @@ export default function HairSalonInternalPanelPage() {
                                     {/* Sección de Reservas Externas */}
                                     {externalReservations.length > 0 && (
                                         <div>
-                                            <div className="flex items-center gap-2 mb-6">
+                                            <div className="flex items-center gap-2 mb-4">
                                                 <Users className="h-5 w-5 text-primary" />
                                                 <h3 className="text-lg font-semibold">Reservas Externas</h3>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
-                                                {externalReservations.map(reservation => (
-                                                    <ReservationCard
-                                                        key={reservation.id}
-                                                        reservation={reservation}
-                                                        onAccept={handleOpenAcceptModal}
-                                                        onReject={handleOpenRejectModal}
-                                                        onOrganizeCita={handleOrganizeCita}
-                                                    />
-                                                ))}
+                                            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                                                <div className="grid grid-flow-col auto-cols-[calc(33.333%-0.5rem)] md:auto-cols-[300px] gap-4 pb-2">
+                                                    {externalReservations.map(reservation => (
+                                                        <ReservationCard
+                                                            key={reservation.id}
+                                                            reservation={reservation}
+                                                            onOrganizeCita={handleOrganizeCita}
+                                                            onShowDetails={handleShowDetails}
+                                                        />
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -193,6 +210,16 @@ export default function HairSalonInternalPanelPage() {
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {selectedReservation && (
+                <HairSalonReservationModal
+                    reservation={selectedReservation}
+                    isOpen={!!selectedReservation}
+                    onClose={() => setSelectedReservation(null)}
+                    onSave={handleSaveReservation}
+                    onDelete={handleDeleteReservation}
+                />
+            )}
         </div>
     )
 }

@@ -67,13 +67,7 @@ export type HairSalonReservation = {
         size: 'pequeño' | 'mediano' | 'grande'
         weight: number
     }
-    additionalServices: {
-        type: string
-        petIndex: number
-        services?: string[]
-        comment?: string
-        price?: number
-    }[]
+    additionalServices: AdditionalService[]
     shopProducts?: ShopProduct[]
     status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
     totalPrice: number

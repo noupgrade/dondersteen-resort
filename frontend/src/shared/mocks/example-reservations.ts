@@ -1,16 +1,15 @@
 import { addDays, format, subDays } from 'date-fns'
-
 import { HotelReservation, HairSalonReservation } from '@/components/ReservationContext'
+import { AdditionalService, HairdressingService, DriverService } from '@/shared/types/additional-services'
 
 // Example reservations that will be managed in the context
 export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] = [
-    // Pending hair salon reservations from hotel guests
     {
         id: 'EXAMPLE_HAIRSALON_1',
         type: 'peluqueria',
         source: 'hotel',
         date: format(new Date(), 'yyyy-MM-dd'),
-        time: '10:00',
+        time: '',
         client: {
             id: 'EXAMPLE_CLIENT_1',
             name: 'John Example',
@@ -29,19 +28,28 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
                 type: 'hairdressing',
                 petIndex: 0,
                 services: ['bath_and_brush', 'deshedding']
-            }
+            } satisfies HairdressingService,
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'dropoff'
+            } satisfies DriverService
         ],
         status: 'pending',
         totalPrice: 75,
         paymentStatus: 'Pendiente',
-        observations: 'Cliente del hotel - Habitación HAB.1'
+        observations: 'Cliente del hotel - Habitación HAB.1',
+        hotelCheckIn: format(new Date(), 'yyyy-MM-dd'),
+        hotelCheckOut: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
+        hotelCheckOutTime: '12:00',
+        hasDriverService: true
     },
     {
         id: 'EXAMPLE_HAIRSALON_2',
         type: 'peluqueria',
         source: 'hotel',
         date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-        time: '15:00',
+        time: '',
         client: {
             id: 'EXAMPLE_CLIENT_2',
             name: 'Alice Example',
@@ -60,12 +68,15 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
                 type: 'hairdressing',
                 petIndex: 0,
                 services: ['bath_and_trim', 'spa']
-            }
+            } satisfies HairdressingService
         ],
         status: 'pending',
         totalPrice: 65,
         paymentStatus: 'Pendiente',
-        observations: 'Cliente del hotel - Habitación HAB.2'
+        observations: 'Cliente del hotel - Habitación HAB.2',
+        hotelCheckIn: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+        hotelCheckOut: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
+        hotelCheckOutTime: '14:00'
     },
     {
         id: 'EXAMPLE_HAIRSALON_3',
@@ -402,13 +413,77 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'dropoff',
-                price: 30
-            }
+                serviceType: 'dropoff'
+            } as AdditionalService
         ],
         roomNumber: 'HAB.6',
         status: 'confirmed',
         totalPrice: 350,
         paymentStatus: 'Pendiente'
+    },
+    // External reservations
+    {
+        id: 'EXAMPLE_EXTERNAL_1',
+        type: 'peluqueria',
+        source: 'external',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            id: 'EXAMPLE_CLIENT_4',
+            name: 'María García',
+            phone: '666111222',
+            email: 'maria@example.com'
+        },
+        pet: {
+            id: 'PET_4',
+            name: 'Bella',
+            breed: 'Yorkshire Terrier',
+            size: 'pequeño',
+            weight: 3
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim']
+            } satisfies HairdressingService
+        ],
+        status: 'pending',
+        totalPrice: 45,
+        paymentStatus: 'Pendiente',
+        observations: 'Primera visita',
+        requestedTime: '10:00'
+    },
+    {
+        id: 'EXAMPLE_EXTERNAL_2',
+        type: 'peluqueria',
+        source: 'external',
+        date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            id: 'EXAMPLE_CLIENT_5',
+            name: 'Pedro Sánchez',
+            phone: '666333444',
+            email: 'pedro@example.com'
+        },
+        pet: {
+            id: 'PET_5',
+            name: 'Rocky',
+            breed: 'Bulldog Francés',
+            size: 'mediano',
+            weight: 12
+        },
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'spa']
+            } satisfies HairdressingService
+        ],
+        status: 'pending',
+        totalPrice: 60,
+        paymentStatus: 'Pendiente',
+        observations: 'Cliente habitual',
+        requestedTime: '16:30'
     }
 ] 
