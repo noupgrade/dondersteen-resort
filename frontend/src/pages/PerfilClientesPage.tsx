@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import { AnimatePresence, motion } from 'framer-motion'
@@ -17,6 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog.tsx'
 import { Input } from '@/shared/ui/input.tsx'
 import { Label } from '@/shared/ui/label.tsx'
+import { useAuth } from '@/shared/auth'
+import { useClientProfile } from '@/hooks/use-client-profile'
 
 const mockReservations: (HairSalonReservation | HotelReservation)[] = [
     {
@@ -327,85 +329,22 @@ const translations = {
     dataUpdated: { es: 'Datos actualizados correctamente', en: 'Data updated successfully' },
 } as const
 
-const mockClientDetails: Client = {
-    id: 'client1',
-    name: 'John Doe',
-    phone: '+34 123 456 789',
-    email: 'john.doe@example.com',
-    address: 'Calle Principal 123, 28001 Madrid'
-}
-
-const mockPets: Pet[] = [
-    {
-        id: 'pet1',
-        name: 'Max',
-        breed: 'Golden Retriever',
-        size: 'grande',
-        weight: 30,
-        sex: 'M',
-        additionalServices: [
-            {
-                type: 'special_food',
-                petIndex: 0,
-                foodType: 'refrigerated'
-            },
-            {
-                type: 'medication',
-                petIndex: 0,
-                comment: 'Antiinflamatorio cada 12h'
-            },
-            {
-                type: 'special_care',
-                petIndex: 0,
-                comment: 'Revisión diaria de articulaciones'
-            },
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_brush', 'deshedding', 'spa']
-            }
-        ]
-    },
-    {
-        id: 'pet2',
-        name: 'Luna',
-        breed: 'Yorkshire',
-        size: 'pequeño',
-        weight: 3,
-        sex: 'F',
-        additionalServices: [
-            {
-                type: 'special_food',
-                petIndex: 1,
-                foodType: 'frozen'
-            },
-            {
-                type: 'medication',
-                petIndex: 1,
-                comment: 'Vitaminas por la mañana'
-            },
-            {
-                type: 'special_care',
-                petIndex: 1,
-                comment: 'Limpieza de oídos diaria'
-            },
-            {
-                type: 'hairdressing',
-                petIndex: 1,
-                services: ['bath_and_trim', 'spa_ozone']
-            }
-        ]
-    }
-]
-
 export default function ClientProfile() {
+    const { user } = useAuth()
+    const { data: clientProfile, isLoading } = useClientProfile(user?.uid || '')
     const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false)
     const [language, setLanguage] = useState<Language>('es')
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
     const [clientReservations, setClientReservations] = useState<(HairSalonReservation | HotelReservation)[]>(mockReservations)
     const [showAllReservations, setShowAllReservations] = useState(false)
     const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false)
-    const [editedClientDetails, setEditedClientDetails] = useState(mockClientDetails)
+    const [editedClientDetails, setEditedClientDetails] = useState(clientProfile?.client)
+
+    useEffect(() => {
+        if (clientProfile) {
+            setEditedClientDetails(clientProfile.client)
+        }
+    }, [clientProfile])
 
     const t = useCallback((key: keyof typeof translations) => {
         const translation = translations[key] as TranslationValue
@@ -840,219 +779,227 @@ export default function ClientProfile() {
 
     return (
         <div className='container mx-auto px-4 py-4 pb-24 max-w-3xl'>
-            <FloatingActionButton />
-            <AnimatePresence>
-                {successMessage && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -50 }}
-                        transition={{ duration: 0.3 }}
-                        className='fixed right-4 top-4 z-50'
-                    >
-                        <Alert>
-                            <AlertCircle className='h-4 w-4' />
-                            <AlertDescription>{successMessage}</AlertDescription>
-                        </Alert>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                    <Link to="/">
-                        <Button variant="ghost" size="icon">
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                    </Link>
-                    <h1 className="text-2xl font-bold">{t('clientProfile')}</h1>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="font-semibold bg-accent hover:bg-accent/80 min-w-[48px]"
-                        onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
-                    >
-                        {language === 'es' ? 'EN' : 'ES'}
-                    </Button>
-                </div>
-            </div>
-
-            <div className='grid gap-4'>
-                <Card>
-                    <CardHeader
-                        className='border-b'
-                    >
-                        <div className='flex items-center justify-between'>
-                            <div className="flex items-center gap-2">
-                                <CardTitle>{t('reservations')}</CardTitle>
-                                <Badge variant="outline" className="ml-2">
-                                    {clientReservations.length}
-                                </Badge>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="divide-y">
-                            {displayedReservations.map(reservation => (
-                                <CompactReservationCard
-                                    key={reservation.id}
-                                    reservation={reservation}
-                                />
-                            ))}
-                        </div>
-                        {clientReservations.length > 4 && (
-                            <div
-                                className="border-t p-2 flex items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors"
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setShowAllReservations(!showAllReservations)
-                                }}
+            {isLoading ? (
+                <div>Loading...</div>
+            ) : clientProfile ? (
+                <>
+                    <FloatingActionButton />
+                    <AnimatePresence>
+                        {successMessage && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -50 }}
+                                transition={{ duration: 0.3 }}
+                                className='fixed right-4 top-4 z-50'
                             >
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    {showAllReservations ? (
-                                        <span>{t('showLess')}</span>
-                                    ) : (
-                                        <span>{t('showMore')} {clientReservations.length - 4} {t('more')}</span>
-                                    )}
-                                    <ChevronDown className={cn(
-                                        "h-4 w-4 transition-transform",
-                                        showAllReservations ? "rotate-180" : ""
-                                    )} />
-                                </div>
-                            </div>
+                                <Alert>
+                                    <AlertCircle className='h-4 w-4' />
+                                    <AlertDescription>{successMessage}</AlertDescription>
+                                </Alert>
+                            </motion.div>
                         )}
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('pets')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='grid gap-4'>
-                            {mockPets.map(pet => (
-                                <PetCard key={pet.id} pet={pet} language={language} />
-                            ))}
+                    </AnimatePresence>
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <Link to="/">
+                                <Button variant="ghost" size="icon">
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                            </Link>
+                            <h1 className="text-2xl font-bold">{t('clientProfile')}</h1>
                         </div>
-                        <Button className='mt-4 w-full'>
-                            <Plus className='mr-2 h-4 w-4' />
-                            {t('addNewPet')}
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <button
-                    className="w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
-                    onClick={() => setIsEditClientModalOpen(true)}
-                >
-                    <Card className='hover:bg-accent/50 transition-colors'>
-                        <CardHeader>
-                            <CardTitle>{t('clientProfile')}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className='space-y-4'>
-                                <div className='grid grid-cols-[100px_1fr] gap-2'>
-                                    <span className='text-muted-foreground'>{t('name')}:</span>
-                                    <span>{mockClientDetails.name}</span>
-                                </div>
-                                <div className='grid grid-cols-[100px_1fr] gap-2'>
-                                    <span className='text-muted-foreground'>{t('phone')}:</span>
-                                    <span>{mockClientDetails.phone}</span>
-                                </div>
-                                <div className='grid grid-cols-[100px_1fr] gap-2'>
-                                    <span className='text-muted-foreground'>{t('email')}:</span>
-                                    <span>{mockClientDetails.email}</span>
-                                </div>
-                                <div className='grid grid-cols-[100px_1fr] gap-2'>
-                                    <span className='text-muted-foreground'>{t('address')}:</span>
-                                    <span>{mockClientDetails.address}</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </button>
-            </div>
-
-            <NewReservationModal
-                isOpen={isNewReservationModalOpen}
-                onClose={() => setIsNewReservationModalOpen(false)}
-                language={language}
-            />
-
-            <Dialog open={isEditClientModalOpen} onOpenChange={setIsEditClientModalOpen}>
-                <DialogContent className="w-[95vw] max-w-[425px] p-3">
-                    <DialogHeader className="pb-2">
-                        <DialogTitle className="text-base font-medium flex items-center justify-between">
-                            {t('editProfile')}
+                        <div className="flex items-center gap-2">
                             <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
-                                onClick={() => setIsEditClientModalOpen(false)}
-                                className="h-6 w-6 p-0"
+                                className="font-semibold bg-accent hover:bg-accent/80 min-w-[48px]"
+                                onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
                             >
-                                <X className="h-4 w-4" />
+                                {language === 'es' ? 'EN' : 'ES'}
                             </Button>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-2 py-2">
-                        <div>
-                            <Label className="text-xs">{t('name')}</Label>
-                            <Input
-                                value={editedClientDetails.name}
-                                onChange={(e) => setEditedClientDetails(prev => ({
-                                    ...prev,
-                                    name: e.target.value
-                                }))}
-                                className="h-8 text-sm"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">{t('phone')}</Label>
-                                <Input
-                                    value={editedClientDetails.phone}
-                                    onChange={(e) => setEditedClientDetails(prev => ({
-                                        ...prev,
-                                        phone: e.target.value
-                                    }))}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">{t('email')}</Label>
-                                <Input
-                                    value={editedClientDetails.email}
-                                    onChange={(e) => setEditedClientDetails(prev => ({
-                                        ...prev,
-                                        email: e.target.value
-                                    }))}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <Label className="text-xs">{t('address')}</Label>
-                            <Input
-                                value={editedClientDetails.address}
-                                onChange={(e) => setEditedClientDetails(prev => ({
-                                    ...prev,
-                                    address: e.target.value
-                                }))}
-                                className="h-8 text-sm"
-                            />
                         </div>
                     </div>
-                    <DialogFooter className="flex gap-2 pt-2">
-                        <Button
-                            onClick={handleSaveClientDetails}
-                            className="flex-1 h-8 text-xs font-medium"
+
+                    <div className='grid gap-4'>
+                        <Card>
+                            <CardHeader
+                                className='border-b'
+                            >
+                                <div className='flex items-center justify-between'>
+                                    <div className="flex items-center gap-2">
+                                        <CardTitle>{t('reservations')}</CardTitle>
+                                        <Badge variant="outline" className="ml-2">
+                                            {clientReservations.length}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="divide-y">
+                                    {displayedReservations.map(reservation => (
+                                        <CompactReservationCard
+                                            key={reservation.id}
+                                            reservation={reservation}
+                                        />
+                                    ))}
+                                </div>
+                                {clientReservations.length > 4 && (
+                                    <div
+                                        className="border-t p-2 flex items-center justify-center cursor-pointer hover:bg-accent/50 transition-colors"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setShowAllReservations(!showAllReservations)
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            {showAllReservations ? (
+                                                <span>{t('showLess')}</span>
+                                            ) : (
+                                                <span>{t('showMore')} {clientReservations.length - 4} {t('more')}</span>
+                                            )}
+                                            <ChevronDown className={cn(
+                                                "h-4 w-4 transition-transform",
+                                                showAllReservations ? "rotate-180" : ""
+                                            )} />
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('pets')}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className='grid gap-4'>
+                                    {clientProfile.pets.map(pet => (
+                                        <PetCard key={pet.id} pet={pet} language={language} />
+                                    ))}
+                                </div>
+                                <Button className='mt-4 w-full'>
+                                    <Plus className='mr-2 h-4 w-4' />
+                                    {t('addNewPet')}
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        <button
+                            className="w-full text-left focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+                            onClick={() => setIsEditClientModalOpen(true)}
                         >
-                            {t('save')}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                            <Card className='hover:bg-accent/50 transition-colors'>
+                                <CardHeader>
+                                    <CardTitle>{t('clientProfile')}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className='space-y-4'>
+                                        <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                            <span className='text-muted-foreground'>{t('name')}:</span>
+                                            <span>{clientProfile.client.name}</span>
+                                        </div>
+                                        <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                            <span className='text-muted-foreground'>{t('phone')}:</span>
+                                            <span>{clientProfile.client.phone}</span>
+                                        </div>
+                                        <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                            <span className='text-muted-foreground'>{t('email')}:</span>
+                                            <span>{clientProfile.client.email}</span>
+                                        </div>
+                                        <div className='grid grid-cols-[100px_1fr] gap-2'>
+                                            <span className='text-muted-foreground'>{t('address')}:</span>
+                                            <span>{clientProfile.client.address}</span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </button>
+                    </div>
+
+                    <NewReservationModal
+                        isOpen={isNewReservationModalOpen}
+                        onClose={() => setIsNewReservationModalOpen(false)}
+                        language={language}
+                    />
+
+                    <Dialog open={isEditClientModalOpen} onOpenChange={setIsEditClientModalOpen}>
+                        <DialogContent className="w-[95vw] max-w-[425px] p-3">
+                            <DialogHeader className="pb-2">
+                                <DialogTitle className="text-base font-medium flex items-center justify-between">
+                                    {t('editProfile')}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setIsEditClientModalOpen(false)}
+                                        className="h-6 w-6 p-0"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-2 py-2">
+                                <div>
+                                    <Label className="text-xs">{t('name')}</Label>
+                                    <Input
+                                        value={editedClientDetails.name}
+                                        onChange={(e) => setEditedClientDetails(prev => ({
+                                            ...prev,
+                                            name: e.target.value
+                                        }))}
+                                        className="h-8 text-sm"
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <Label className="text-xs">{t('phone')}</Label>
+                                        <Input
+                                            value={editedClientDetails.phone}
+                                            onChange={(e) => setEditedClientDetails(prev => ({
+                                                ...prev,
+                                                phone: e.target.value
+                                            }))}
+                                            className="h-8 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label className="text-xs">{t('email')}</Label>
+                                        <Input
+                                            value={editedClientDetails.email}
+                                            onChange={(e) => setEditedClientDetails(prev => ({
+                                                ...prev,
+                                                email: e.target.value
+                                            }))}
+                                            className="h-8 text-sm"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <Label className="text-xs">{t('address')}</Label>
+                                    <Input
+                                        value={editedClientDetails.address}
+                                        onChange={(e) => setEditedClientDetails(prev => ({
+                                            ...prev,
+                                            address: e.target.value
+                                        }))}
+                                        className="h-8 text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter className="flex gap-2 pt-2">
+                                <Button
+                                    onClick={handleSaveClientDetails}
+                                    className="flex-1 h-8 text-xs font-medium"
+                                >
+                                    {t('save')}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </>
+            ) : (
+                <div>No client profile found</div>
+            )}
         </div>
     )
 }

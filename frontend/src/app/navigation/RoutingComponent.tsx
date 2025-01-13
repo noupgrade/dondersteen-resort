@@ -2,22 +2,21 @@ import { Route, Routes } from 'react-router-dom'
 
 import { ReservationProvider } from '@/components/ReservationContext'
 
-import BookingPage from '../../pages/BookingPage.tsx'
-import Home from '../../pages/HomePage.tsx'
-import ClientDetailsPage from '../../pages/ClientPage.tsx'
-import ClientesPage from '../../pages/ClientsPage.tsx'
+import { LoginPage } from '@/pages/login/LoginPage'
+import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
 import PanelInternoLayout from '@/pages/panel-interno/layout'
 import PanelInterno from '@/pages/panel-interno/page'
-import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage.tsx'
 import PlanningPage from '@/pages/panel-interno/PlanningPage.tsx'
-import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
 import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage.tsx'
-import TiendaPage from '@/pages/panel-interno/tienda/page'
 import SetupPage from '@/pages/panel-interno/setup/page'
+import TiendaPage from '@/pages/panel-interno/tienda/page'
+import BookingPage from '../../pages/BookingPage.tsx'
+import ClientDetailsPage from '../../pages/ClientPage.tsx'
+import ClientesPage from '../../pages/ClientsPage.tsx'
+import Home from '../../pages/HomePage.tsx'
+import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage.tsx'
 import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking.tsx'
 import PerfilClientesPage from '../../pages/PerfilClientesPage.tsx'
-import { LoginPage } from '@/pages/login/LoginPage'
-import { ProtectedPage } from './ProtectedPage'
 import { WithAnonymousUser } from './WithAnonymousUser'
 
 export const RoutingComponent = () => (
@@ -26,26 +25,32 @@ export const RoutingComponent = () => (
         <Route
             path='/booking'
             element={
-                <ReservationProvider>
-                    <BookingPage />
-                </ReservationProvider>
+                <WithAnonymousUser userType='endUser'>
+                    <ReservationProvider>
+                        <BookingPage />
+                    </ReservationProvider>
+                </WithAnonymousUser>
             }
         />
         <Route path='/login' element={<LoginPage />} />
         <Route
             path='/peluqueria-booking'
             element={
-                <ReservationProvider>
-                    <PeluqueriaBookingPage />
-                </ReservationProvider>
+                <WithAnonymousUser userType='endUser'>
+                    <ReservationProvider>
+                        <PeluqueriaBookingPage />
+                    </ReservationProvider>
+                </WithAnonymousUser>
             }
         />
         <Route
             path='/perfil-clientes'
             element={
-                <ReservationProvider>
-                    <PerfilClientesPage />
-                </ReservationProvider>
+                <WithAnonymousUser userType='endUser'>
+                    <ReservationProvider>
+                        <PerfilClientesPage />
+                    </ReservationProvider>
+                </WithAnonymousUser>
             }
         />
         <Route
