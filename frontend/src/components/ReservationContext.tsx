@@ -22,6 +22,15 @@ export type Client = {
     address?: string
 }
 
+export type Pet = {
+    id?: string
+    name: string
+    breed: string
+    size: 'pequeño' | 'mediano' | 'grande'
+    weight: number
+    sex?: 'M' | 'F'
+}
+
 export type HotelReservation = {
     id: string
     type: 'hotel'
@@ -30,13 +39,7 @@ export type HotelReservation = {
     checkOutDate: string
     checkOutTime?: string
     client: Client
-    pets: {
-        name: string
-        breed: string
-        size: 'pequeño' | 'mediano' | 'grande'
-        weight: number
-        sex: 'M' | 'F'
-    }[]
+    pets: Pet[]
     additionalServices: {
         type: string
         petIndex: number
@@ -62,13 +65,7 @@ export type HairSalonReservation = {
     date: string
     time: string
     client: Client
-    pet: {
-        id: string
-        name: string
-        breed: string
-        size: 'pequeño' | 'mediano' | 'grande'
-        weight: number
-    }
+    pet: Pet
     additionalServices: AdditionalService[]
     shopProducts?: ShopProduct[]
     status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
@@ -154,7 +151,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
         // Add example reservations and update them if they exist in local storage
         const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const parsedExampleReservations = storedExampleReservations 
+        const parsedExampleReservations = storedExampleReservations
             ? JSON.parse(storedExampleReservations) as ReservationDocument[]
             : EXAMPLE_RESERVATIONS as ReservationDocument[]
 
@@ -178,7 +175,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
             }
 
             const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations 
+            const parsedExampleReservations = storedExampleReservations
                 ? JSON.parse(storedExampleReservations) as ReservationDocument[]
                 : EXAMPLE_RESERVATIONS as ReservationDocument[]
 
@@ -193,17 +190,17 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // If it's an example reservation, update it in local storage
         if (id.startsWith('EXAMPLE_')) {
             const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations 
+            const parsedExampleReservations = storedExampleReservations
                 ? JSON.parse(storedExampleReservations) as ReservationDocument[]
                 : EXAMPLE_RESERVATIONS as ReservationDocument[]
 
-            const updatedReservations = parsedExampleReservations.map(r => 
-                r.id === id 
-                    ? { 
-                        ...r, 
-                        ...updatedData, 
-                        updatedAt: new Date().toISOString() 
-                    } 
+            const updatedReservations = parsedExampleReservations.map(r =>
+                r.id === id
+                    ? {
+                        ...r,
+                        ...updatedData,
+                        updatedAt: new Date().toISOString()
+                    }
                     : r
             )
             localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
@@ -216,7 +213,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         // If it's an example reservation, remove it from local storage
         if (id.startsWith('EXAMPLE_')) {
             const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations 
+            const parsedExampleReservations = storedExampleReservations
                 ? JSON.parse(storedExampleReservations) as ReservationDocument[]
                 : EXAMPLE_RESERVATIONS as ReservationDocument[]
 
