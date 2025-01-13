@@ -485,5 +485,220 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
         paymentStatus: 'Pendiente',
         observations: 'Cliente habitual',
         requestedTime: '16:30'
+    },
+    // Active reservations with different transport services
+    {
+        id: 'EXAMPLE_ACTIVE_1',
+        type: 'hotel',
+        checkInDate: format(new Date(), 'yyyy-MM-dd'),
+        checkInTime: '14:00',
+        checkOutDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_7',
+            name: 'Luis Transport',
+            phone: '666777888',
+            email: 'luis@example.com'
+        },
+        pets: [
+            {
+                name: 'Zeus',
+                breed: 'German Shepherd',
+                weight: 35,
+                size: 'grande',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'pickup'
+            } as AdditionalService
+        ],
+        roomNumber: 'HAB.7',
+        status: 'confirmed',
+        totalPrice: 400,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_ACTIVE_2',
+        type: 'hotel',
+        checkInDate: format(new Date(), 'yyyy-MM-dd'),
+        checkInTime: '15:00',
+        checkOutDate: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_8',
+            name: 'Carmen Transport',
+            phone: '666999000',
+            email: 'carmen@example.com'
+        },
+        pets: [
+            {
+                name: 'Luna',
+                breed: 'Husky',
+                weight: 28,
+                size: 'grande',
+                sex: 'F'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'dropoff'
+            } as AdditionalService
+        ],
+        roomNumber: 'HAB.8',
+        status: 'confirmed',
+        totalPrice: 350,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_ACTIVE_3',
+        type: 'hotel',
+        checkInDate: format(new Date(), 'yyyy-MM-dd'),
+        checkInTime: '16:00',
+        checkOutDate: format(addDays(new Date(), 4), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_9',
+            name: 'Sofia Transport',
+            phone: '666444333',
+            email: 'sofia@example.com'
+        },
+        pets: [
+            {
+                name: 'Rocky',
+                breed: 'Golden Retriever',
+                weight: 32,
+                size: 'grande',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'both'
+            } as AdditionalService
+        ],
+        roomNumber: 'HAB.9',
+        status: 'confirmed',
+        totalPrice: 450,
+        paymentStatus: 'Pendiente'
+    },
+    // Ejemplos de guardería (mismo día de check-in y check-out)
+    {
+        id: 'EXAMPLE_DAYCARE_1',
+        type: 'hotel',
+        checkInDate: format(new Date(), 'yyyy-MM-dd'),
+        checkInTime: '09:00',
+        checkOutDate: format(new Date(), 'yyyy-MM-dd'),
+        checkOutTime: '19:00',
+        client: {
+            id: 'EXAMPLE_CLIENT_10',
+            name: 'Laura Daycare',
+            phone: '666123456',
+            email: 'laura@example.com'
+        },
+        pets: [
+            {
+                name: 'Toby',
+                breed: 'French Bulldog',
+                weight: 12,
+                size: 'mediano',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Necesita supervisión constante'
+            }
+        ],
+        roomNumber: 'HAB.10',
+        status: 'confirmed',
+        totalPrice: 25,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_DAYCARE_2',
+        type: 'hotel',
+        checkInDate: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+        checkInTime: '08:00',
+        checkOutDate: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+        checkOutTime: '20:00',
+        client: {
+            id: 'EXAMPLE_CLIENT_11',
+            name: 'Carlos Daycare',
+            phone: '666234567',
+            email: 'carlos.d@example.com'
+        },
+        pets: [
+            {
+                name: 'Luna',
+                breed: 'Poodle',
+                weight: 5,
+                size: 'pequeño',
+                sex: 'F'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'both'
+            } as AdditionalService
+        ],
+        roomNumber: 'HAB.11',
+        status: 'confirmed',
+        totalPrice: 35,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_DAYCARE_3',
+        type: 'hotel',
+        checkInDate: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+        checkInTime: '10:00',
+        checkOutDate: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+        checkOutTime: '18:00',
+        client: {
+            id: 'EXAMPLE_CLIENT_12',
+            name: 'Ana Daycare',
+            phone: '666345678',
+            email: 'ana.d@example.com'
+        },
+        pets: [
+            {
+                name: 'Max',
+                breed: 'Beagle',
+                weight: 15,
+                size: 'mediano',
+                sex: 'M'
+            },
+            {
+                name: 'Rocky',
+                breed: 'Beagle',
+                weight: 14,
+                size: 'mediano',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'special_food',
+                petIndex: 1,
+                foodType: 'refrigerated'
+            }
+        ],
+        roomNumber: 'HAB.12',
+        status: 'confirmed',
+        totalPrice: 50,
+        paymentStatus: 'Pendiente'
     }
 ] 

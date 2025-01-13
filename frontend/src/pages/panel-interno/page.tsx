@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell, Pill, Heart } from 'lucide-react'
+import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell, Pill, Heart, Clock, DollarSign } from 'lucide-react'
 
 import { HotelReservation, useReservation } from '@/components/ReservationContext.tsx'
 import { CheckIns } from '@/components/check-ins.tsx'
@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { ServiceType } from '@/shared/types/additional-services'
 import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 
 export default function PanelInterno() {
     const { reservations, getReservationsByDate } = useReservation()
@@ -21,6 +22,8 @@ export default function PanelInterno() {
     const [activeReservations, setActiveReservations] = useState<HotelReservation[]>([])
     const [checkIns, setCheckIns] = useState<HotelReservation[]>([])
     const [checkOuts, setCheckOuts] = useState<HotelReservation[]>([])
+    const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
+    const [isViewerOpen, setIsViewerOpen] = useState(false)
 
     useEffect(() => {
         const today = format(new Date(), 'yyyy-MM-dd')
@@ -28,9 +31,16 @@ export default function PanelInterno() {
             reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[]
         )
         setActiveReservations(
-            reservations.filter(
-                r => r.type === 'hotel' && new Date(r.checkInDate) <= new Date() && new Date(r.checkOutDate) > new Date(),
-            ) as HotelReservation[]
+            reservations
+                .filter(
+                    r => r.type === 'hotel' && 
+                    new Date(r.checkInDate) <= new Date() && 
+                    new Date(r.checkOutDate) > new Date()
+                )
+                .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) => 
+                    new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() - 
+                    new Date(b.type === 'hotel' ? b.checkOutDate : '').getTime()
+                ) as HotelReservation[]
         )
         setCheckIns(
             reservations.filter(r => r.type === 'hotel' && r.checkInDate === today) as HotelReservation[]
@@ -39,6 +49,16 @@ export default function PanelInterno() {
             reservations.filter(r => r.type === 'hotel' && r.checkOutDate === today) as HotelReservation[]
         )
     }, [reservations])
+
+    const handleViewReservation = (reservation: HotelReservation) => {
+        setSelectedReservation(reservation)
+        setIsViewerOpen(true)
+    }
+
+    const handleCloseViewer = () => {
+        setIsViewerOpen(false)
+        setSelectedReservation(null)
+    }
 
     const occupancy = activeReservations.length > 0 ? (activeReservations.length / 20) * 100 : 0
 
@@ -165,26 +185,51 @@ export default function PanelInterno() {
                 <TabsContent value='active'>
                     <div className="space-y-4">
                         {activeReservations.map((reservation) => (
-                            <Card key={reservation.id} className="overflow-hidden">
+                            <Card 
+                                key={reservation.id} 
+                                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                onClick={() => handleViewReservation(reservation)}
+                            >
                                 <div className="flex">
                                     <div className="w-64 shrink-0 bg-[#4B6BFB]/5 p-6 flex flex-col justify-between space-y-6">
                                         <div className="space-y-6">
                                             <div>
                                                 <CardTitle className="text-lg font-semibold">
-                                                    Habitación {reservation.roomNumber}
+                                                    {reservation.client.name}
                                                 </CardTitle>
-                                                <p className="text-sm text-muted-foreground mt-1">
-                                                    {format(new Date(reservation.checkInDate), 'dd/MM/yyyy')} - {format(new Date(reservation.checkOutDate), 'dd/MM/yyyy')}
-                                                </p>
+                                                <div className="space-y-1 mt-1 text-sm text-muted-foreground">
+                                                    <p>{reservation.client.phone}</p>
+                                                    <p>{reservation.client.email}</p>
+                                                </div>
                                             </div>
 
-                                            <div>
-                                                <h4 className="mb-2 font-semibold">Cliente</h4>
-                                                <div className="space-y-1 text-sm">
-                                                    <p>{reservation.client.name}</p>
-                                                    <p className="text-muted-foreground">{reservation.client.phone}</p>
-                                                    <p className="text-muted-foreground">{reservation.client.email}</p>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    <span className="text-sm text-muted-foreground">
+                                                        {format(new Date(reservation.checkInDate), 'dd/MM/yyyy')} - {format(new Date(reservation.checkOutDate), 'dd/MM/yyyy')}
+                                                    </span>
                                                 </div>
+                                                {reservation.additionalServices.some(service => service.type === 'driver') && (
+                                                    <div className="flex items-center gap-2">
+                                                        <Truck className="h-4 w-4 text-[#4B6BFB]" />
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {(() => {
+                                                                const transportService = reservation.additionalServices.find(service => service.type === 'driver')
+                                                                switch (transportService?.serviceType) {
+                                                                    case 'pickup':
+                                                                        return 'Recogida'
+                                                                    case 'dropoff':
+                                                                        return 'Entrega'
+                                                                    case 'both':
+                                                                        return 'Recogida y entrega'
+                                                                    default:
+                                                                        return 'Transporte'
+                                                                }
+                                                            })()}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
@@ -199,118 +244,47 @@ export default function PanelInterno() {
                                                 {reservation.pets.map((pet, petIndex) => {
                                                     // Filtrar servicios para esta mascota
                                                     const petServices = reservation.additionalServices
-                                                        .filter(service => service.petIndex === petIndex);
+                                                        .filter(service => 
+                                                            service.petIndex === petIndex && 
+                                                            (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
+                                                        );
 
                                                     return (
-                                                        <div key={petIndex} className="space-y-4 pb-4 border-b last:border-b-0">
-                                                            <div className="grid grid-cols-[auto,1fr] gap-6">
-                                                                <div className="flex items-start gap-2">
-                                                                    <PawPrint className="h-4 w-4 mt-1 text-[#4B6BFB]" />
-                                                                    <div>
-                                                                        <p className="font-medium">{pet.name}</p>
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                            {pet.breed} · {pet.size} · {pet.weight}kg
-                                                                        </p>
+                                                        <div key={petIndex} className={`${petIndex < reservation.pets.length - 1 ? 'border-b border-border' : ''}`}>
+                                                            <div className="py-4">
+                                                                <div className="grid grid-cols-[auto,1fr] gap-6">
+                                                                    <div className="flex items-start gap-2">
+                                                                        <PawPrint className="h-4 w-4 mt-1 text-[#4B6BFB]" />
+                                                                        <div>
+                                                                            <p className="font-medium">{pet.name} ({reservation.roomNumber})</p>
+                                                                            <p className="text-sm text-muted-foreground">
+                                                                                {pet.breed} · {pet.size} · {pet.weight}kg
+                                                                            </p>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-
-                                                                {/* Servicios de esta mascota */}
-                                                                {petServices.length > 0 && (
-                                                                    <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
+                                                                    <div className="flex flex-wrap gap-4">
                                                                         {petServices.map((service, index) => {
-                                                                            const icon = getServiceIcon(service.type);
-                                                                            let formattedName = formatServiceName(service.type);
-
-                                                                            // Add extra details based on service type
-                                                                            switch (service.type) {
-                                                                                case 'medication':
-                                                                                    if (service.comment) {
-                                                                                        formattedName += `: ${service.comment}`;
-                                                                                    }
-                                                                                    break;
-                                                                                case 'special_care':
-                                                                                    if (service.comment) {
-                                                                                        formattedName += `: ${service.comment}`;
-                                                                                    }
-                                                                                    break;
-                                                                                case 'special_food':
-                                                                                    formattedName += ` (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`;
-                                                                                    break;
-                                                                                case 'hairdressing':
-                                                                                    formattedName += `: ${service.services.map(s => {
-                                                                                        switch (s) {
-                                                                                            case 'bath_and_brush': return 'Baño y cepillado';
-                                                                                            case 'bath_and_trim': return 'Baño y corte';
-                                                                                            case 'stripping': return 'Stripping';
-                                                                                            case 'deshedding': return 'Deslanado';
-                                                                                            case 'brushing': return 'Cepillado';
-                                                                                            case 'spa': return 'Spa';
-                                                                                            case 'spa_ozone': return 'Spa con ozono';
-                                                                                            default: return s;
-                                                                                        }
-                                                                                    }).join(', ')}`;
-                                                                                    break;
-                                                                            }
-
-                                                                            return (
+                                                                            const icon = getServiceIcon(service.type as ServiceType)
+                                                                            return icon ? (
                                                                                 <div key={index} className="flex items-center gap-2">
                                                                                     {icon}
                                                                                     <span className="text-sm text-muted-foreground">
-                                                                                        {formattedName}
+                                                                                        {formatServiceName(service.type as ServiceType)}
                                                                                     </span>
                                                                                 </div>
-                                                                            );
+                                                                            ) : null
                                                                         })}
                                                                     </div>
-                                                                )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    );
+                                                    )
                                                 })}
 
-                                                {/* Servicios generales */}
-                                                {reservation.additionalServices.some(service => service.type === 'driver') && (
-                                                    <div className="space-y-4">
-                                                        <h4 className="font-semibold">Servicios Generales</h4>
-                                                        <div className="space-y-2">
-                                                            {reservation.additionalServices
-                                                                .filter(service => service.type === 'driver')
-                                                                .map((service, index) => {
-                                                                    const icon = getServiceIcon(service.type);
-                                                                    let formattedName = formatServiceName(service.type);
-
-                                                                    // Add driver service details
-                                                                    formattedName += ` (${service.serviceType === 'pickup' ? 'Recogida' :
-                                                                        service.serviceType === 'dropoff' ? 'Entrega' :
-                                                                            'Recogida y entrega'
-                                                                        })`;
-
-                                                                    return (
-                                                                        <div key={index} className="flex items-center gap-2">
-                                                                            {icon}
-                                                                            <span className="text-sm text-muted-foreground">
-                                                                                {formattedName}
-                                                                            </span>
-                                                                        </div>
-                                                                    );
-                                                                })}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Necesidades Especiales */}
-                                                {reservation.specialNeeds && (
-                                                    <div>
-                                                        <h4 className="mb-2 font-semibold">Necesidades Especiales</h4>
-                                                        <p className="text-sm text-muted-foreground">{reservation.specialNeeds}</p>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Precio Total */}
-                                            <div className="flex items-center justify-between pt-2 border-t mt-6">
-                                                <span className="font-semibold">Precio Total</span>
-                                                <span className="text-lg font-bold">{reservation.totalPrice}€</span>
+                                                <div className="flex items-center justify-between border-t pt-6">
+                                                    <span className="font-semibold">Precio Total</span>
+                                                    <span className="text-lg font-bold">{reservation.totalPrice}€</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -336,6 +310,16 @@ export default function PanelInterno() {
                     <HotelReservationsCalendarWidget />
                 </TabsContent>
             </Tabs>
+
+            {/* Reservation Viewer Modal */}
+            {selectedReservation && (
+                <ReservationViewer
+                    reservation={selectedReservation}
+                    isOpen={isViewerOpen}
+                    onClose={handleCloseViewer}
+                />
+            )}
         </div>
     )
 }
+

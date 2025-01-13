@@ -129,36 +129,32 @@ export function CheckOuts() {
                             <div className='space-y-6'>
                                 <div>
                                     <CardTitle className='text-lg font-semibold'>
-                                        Habitación {checkOut.roomNumber}
+                                        {checkOut.clientName}
                                     </CardTitle>
-                                    <div className='flex flex-col gap-1 mt-1 text-sm text-muted-foreground'>
-                                        <div className='flex items-center gap-2'>
-                                            <Clock className='h-4 w-4' />
-                                            <span>Check-out: 12:00</span>
-                                        </div>
-                                        {checkOut.additionalServices.some(service => 
-                                            service.type === 'driver' && 
-                                            (service.serviceType === 'dropoff' || service.serviceType === 'both')
-                                        ) && (
-                                            <div className='flex items-center gap-2'>
-                                                <Truck className='h-4 w-4 text-[#4B6BFB]' />
-                                                <span>
-                                                    {checkOut.additionalServices.find(service => service.type === 'driver')?.serviceType === 'both'
-                                                        ? 'Recogida y entrega'
-                                                        : 'Entrega'}
-                                                </span>
-                                            </div>
-                                        )}
+                                    <div className='space-y-1 mt-1 text-sm text-muted-foreground'>
+                                        <p>{checkOut.clientPhone}</p>
+                                        <p>{checkOut.clientEmail}</p>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <h4 className='mb-2 font-semibold'>Cliente</h4>
-                                    <div className='space-y-1 text-sm'>
-                                        <p>{checkOut.clientName}</p>
-                                        <p className='text-muted-foreground'>{checkOut.clientPhone}</p>
-                                        <p className='text-muted-foreground'>{checkOut.clientEmail}</p>
+                                <div className='space-y-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <Clock className='h-4 w-4' />
+                                        <span className='text-sm text-muted-foreground'>Check-out: 12:00</span>
                                     </div>
+                                    {checkOut.additionalServices.some(service => 
+                                        service.type === 'driver' && 
+                                        (service.serviceType === 'dropoff' || service.serviceType === 'both')
+                                    ) && (
+                                        <div className='flex items-center gap-2'>
+                                            <Truck className='h-4 w-4 text-[#4B6BFB]' />
+                                            <span className='text-sm text-muted-foreground'>
+                                                {checkOut.additionalServices.find(service => service.type === 'driver')?.serviceType === 'both'
+                                                    ? 'Recogida y entrega'
+                                                    : 'Entrega'}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -188,7 +184,7 @@ export function CheckOuts() {
                                                     <div className='flex items-start gap-2'>
                                                         <PawPrint className='h-4 w-4 mt-1 text-[#4B6BFB]' />
                                                         <div>
-                                                            <p className='font-medium'>{pet.name}</p>
+                                                            <p className='font-medium'>{pet.name} ({checkOut.roomNumber})</p>
                                                             <p className='text-sm text-muted-foreground'>
                                                                 {pet.breed} · {pet.size} · {pet.weight}kg
                                                             </p>

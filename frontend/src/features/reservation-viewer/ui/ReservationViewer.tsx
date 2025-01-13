@@ -580,615 +580,619 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
     }
 
     return (
-        <div className="fixed inset-0 bg-white z-50 overflow-auto">
-            <div className="container mx-auto p-4 space-y-6">
-                <div className="flex items-center justify-between">
-                    <Button variant="outline" onClick={onClose}>
-                        <ChevronLeft className="h-4 w-4 mr-2" />
-                        Volver
-                    </Button>
-                    <div className="flex items-center gap-4">
-                        {editedReservation.type === 'hotel' ? (
-                            <>
-                                <Bed className="h-5 w-5 text-blue-600" />
-                                <span className="text-blue-600">Reserva Hotel</span>
-                            </>
-                        ) : (
-                            <>
-                                <ScissorsIcon className="h-5 w-5 text-red-600" />
-                                <span className="text-red-600">Reserva Peluquería</span>
-                            </>
-                        )}
-                        <Badge className={cn(
-                            getStatusStyle(editedReservation.status),
-                            "ml-2"
-                        )}>
-                            {editedReservation.status === 'propuesta peluqueria' ? 'Propuesta' :
-                             editedReservation.status === 'confirmed' ? 'Confirmada' :
-                             editedReservation.status === 'cancelled' ? 'Cancelada' :
-                             editedReservation.status === 'pending' ? 'Pendiente' :
-                             editedReservation.status}
-                        </Badge>
-                        <Button 
-                            variant={isEditMode ? "default" : "outline"}
-                            size="sm"
-                            className={cn(
-                                "border-2",
-                                isEditMode ? "border-primary" : "hover:border-primary"
-                            )}
-                            onClick={() => setIsEditMode(!isEditMode)}
-                        >
-                            <Pencil className="h-4 w-4 mr-2" />
-                            {isEditMode ? "Modo Edición Activo" : "Editar"}
-                        </Button>
-                    </div>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                    {/* Fechas */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base font-medium">Fechas</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {editedReservation.type === 'hotel' ? (
-                                <>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-4">
-                                            <Calendar className="h-4 w-4 text-gray-500" />
-                                        </div>
-                                        <span className="w-16">Entrada:</span>
-                                        {isEditMode ? (
-                                            <div className="flex items-center gap-4">
-                                                <DatePicker
-                                                    date={editedReservation.checkInDate ? new Date(editedReservation.checkInDate) : new Date()}
-                                                    onSelect={(date) => date && setEditedReservation({
-                                                        ...editedReservation,
-                                                        checkInDate: date.toISOString().split('T')[0]
-                                                    })}
-                                                />
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4 text-gray-500" />
-                                                    <Input 
-                                                        value={editedReservation.checkInTime}
-                                                        onChange={(e) => setEditedReservation({ 
-                                                            ...editedReservation, 
-                                                            checkInTime: e.target.value 
-                                                        })}
-                                                        className="h-8 w-24"
-                                                    />
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-4">
-                                                <span>{formatDate(editedReservation.checkInDate)}</span>
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4 text-gray-500" />
-                                                    <span>{editedReservation.checkInTime}</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-4">
-                                            <Calendar className="h-4 w-4 text-gray-500" />
-                                        </div>
-                                        <span className="w-16">Salida:</span>
-                                        {isEditMode ? (
-                                            <div className="flex items-center gap-4">
-                                                <DatePicker
-                                                    date={editedReservation.checkOutDate ? new Date(editedReservation.checkOutDate) : new Date()}
-                                                    onSelect={(date) => date && setEditedReservation({
-                                                        ...editedReservation,
-                                                        checkOutDate: date.toISOString().split('T')[0]
-                                                    })}
-                                                />
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4 text-gray-500" />
-                                                    <Input 
-                                                        value={editedReservation.checkOutTime || '12:00'}
-                                                        onChange={(e) => setEditedReservation({ 
-                                                            ...editedReservation, 
-                                                            checkOutTime: e.target.value 
-                                                        })}
-                                                        className="h-8 w-24"
-                                                    />
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-4">
-                                                <span>{formatDate(editedReservation.checkOutDate)}</span>
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4 text-gray-500" />
-                                                    <span>{editedReservation.checkOutTime || '12:00'}</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex items-center gap-2 text-sm">
-                                    <Calendar className="h-4 w-4 text-gray-500" />
-                                    <DatePicker
-                                        date={editedReservation.date ? new Date(editedReservation.date) : new Date()}
-                                        onSelect={(date) => date && setEditedReservation({
-                                            ...editedReservation,
-                                            date: date.toISOString().split('T')[0]
-                                        })}
-                                        disabled={!isEditMode}
-                                    />
-                                    <Clock className="h-4 w-4 text-gray-500 ml-2" />
-                                    <Input 
-                                        value={editedReservation.time}
-                                        onChange={(e) => setEditedReservation({ 
-                                            ...editedReservation, 
-                                            time: e.target.value 
-                                        })}
-                                        className="h-8 w-24"
-                                        disabled={!isEditMode}
-                                    />
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Cliente */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base font-medium">Cliente</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-                                <div className="font-medium">Nombre:</div>
-                                <span>{editedReservation.client.name}</span>
-                            </div>
-                            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-                                <div className="font-medium">Teléfono:</div>
-                                <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-gray-500" />
-                                <span>{editedReservation.client.phone}</span>
-                            </div>
-                            </div>
-                            <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-                                <div className="font-medium">Email:</div>
-                                <div className="flex items-center gap-2">
-                                <Mail className="h-4 w-4 text-gray-500" />
-                                <span>{editedReservation.client.email}</span>
-                                </div>
-                            </div>
-                            {editedReservation.client.address && (
-                                <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-                                    <div className="font-medium">Dirección:</div>
-                                    <span>{editedReservation.client.address}</span>
-                                </div>
-                            )}
-                            {editedReservation.client.id && (
-                                <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
-                                    <div className="font-medium">ID Cliente:</div>
-                                    <span>{editedReservation.client.id}</span>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Mascotas y Servicios */}
-                    <Card className="md:col-span-2">
-                        <CardHeader>
-                            <CardTitle className="text-base font-medium">Mascotas y Servicios</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {/* Transporte si existe */}
-                                {getTransportService() && (
+        <div className="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-sm">
+            <div className="fixed inset-0 bg-white">
+                <div className="h-full overflow-auto">
+                    <div className="container mx-auto p-4 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <Button variant="outline" onClick={onClose}>
+                                <ChevronLeft className="h-4 w-4 mr-2" />
+                                Volver
+                            </Button>
+                            <div className="flex items-center gap-4">
+                                {editedReservation.type === 'hotel' ? (
                                     <>
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium">Transporte</h4>
-                                            {getTransportService()}
-                                        </div>
-                                        <Separator />
+                                        <Bed className="h-5 w-5 text-blue-600" />
+                                        <span className="text-blue-600">Reserva Hotel</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <ScissorsIcon className="h-5 w-5 text-red-600" />
+                                        <span className="text-red-600">Reserva Peluquería</span>
                                     </>
                                 )}
+                                <Badge className={cn(
+                                    getStatusStyle(editedReservation.status),
+                                    "ml-2"
+                                )}>
+                                    {editedReservation.status === 'propuesta peluqueria' ? 'Propuesta' :
+                                     editedReservation.status === 'confirmed' ? 'Confirmada' :
+                                     editedReservation.status === 'cancelled' ? 'Cancelada' :
+                                     editedReservation.status === 'pending' ? 'Pendiente' :
+                                     editedReservation.status}
+                                </Badge>
+                                <Button 
+                                    variant={isEditMode ? "default" : "outline"}
+                                    size="sm"
+                                    className={cn(
+                                        "border-2",
+                                        isEditMode ? "border-primary" : "hover:border-primary"
+                                    )}
+                                    onClick={() => setIsEditMode(!isEditMode)}
+                                >
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    {isEditMode ? "Modo Edición Activo" : "Editar"}
+                                </Button>
+                            </div>
+                        </div>
 
-                                {/* Mascotas */}
-                                <div className="space-y-2">
-                                    <h4 className="font-medium">Mascotas</h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {renderPets()}
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                {/* Servicios adicionales */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="font-medium">Servicios adicionales</h4>
-                                    </div>
-                                    <div className="space-y-6">
-                                        {editedReservation.type === 'hotel' && editedReservation.pets.map((pet, petIndex) => (
-                                            <div key={petIndex} className="space-y-2">
-                                                <div className="flex items-center justify-between">
-                                                    <h5 className="text-sm font-medium text-gray-500">Servicios para {pet.name}</h5>
-                                                    {isEditMode && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleAddService(petIndex)}
-                                                        >
-                                                            <Plus className="h-4 w-4 mr-2" />
-                                                            Añadir Servicio
-                                                        </Button>
-                                                    )}
+                        <div className="grid gap-6 md:grid-cols-2">
+                            {/* Fechas */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base font-medium">Fechas</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-2">
+                                    {editedReservation.type === 'hotel' ? (
+                                        <>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-4">
+                                                    <Calendar className="h-4 w-4 text-gray-500" />
                                                 </div>
-                                                <div className="grid gap-4">
-                                                    {servicesByPet[petIndex]?.map((service: AdditionalService, index: number) => (
-                                                        <div key={index} className="grid grid-cols-[1fr_2fr_auto_auto] gap-4 items-center">
-                                                            <div className="text-sm">
-                                                                {isEditMode ? (
-                                                                    <Select
-                                                                        value={service.type}
-                                                                        onValueChange={(value) => handleUpdateService(index, {
-                                                                            ...service,
-                                                                            type: value as typeof service.type
-                                                                        })}
-                                                                    >
-                                                                        <SelectTrigger>
-                                                                            <SelectValue />
-                                                                        </SelectTrigger>
-                                                                        <SelectContent>
-                                                                            <SelectItem value="hairdressing">Peluquería</SelectItem>
-                                                                            <SelectItem value="special_care">Cuidados Especiales</SelectItem>
-                                                                            <SelectItem value="special_food">Comida Especial</SelectItem>
-                                                                            <SelectItem value="medication">Medicación</SelectItem>
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                ) : (
-                                                                    service.type === 'hairdressing' ? 'Peluquería' :
-                                                                    service.type === 'special_care' ? 'Cuidados Especiales' :
-                                                                    service.type === 'special_food' ? 'Comida Especial' :
-                                                                    service.type === 'medication' ? 'Medicación' : 
-                                                                    service.type
-                                                                )}
-                                                            </div>
-                                                            <div className="text-sm">
-                                                                {service.type === 'hairdressing' ? (
-                                                                    isEditMode ? (
-                                                                        <Select
-                                                                            value={service.services?.[0] || 'bath_and_brush'}
-                                                                            onValueChange={(value) => handleUpdateService(index, {
-                                                                                ...service,
-                                                                                services: [value]
-                                                                            })}
-                                                                        >
-                                                                            <SelectTrigger>
-                                                                                <SelectValue />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="bath_and_brush">Baño y cepillado</SelectItem>
-                                                                                <SelectItem value="bath_and_trim">Baño y corte</SelectItem>
-                                                                                <SelectItem value="stripping">Stripping</SelectItem>
-                                                                                <SelectItem value="deshedding">Deslanado</SelectItem>
-                                                                                <SelectItem value="brushing">Cepillado</SelectItem>
-                                                                                <SelectItem value="spa">Spa</SelectItem>
-                                                                                <SelectItem value="spa_ozone">Spa con ozono</SelectItem>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    ) : (
-                                                                        service.services?.map(s => {
-                                                                            switch (s) {
-                                                                                case 'bath_and_brush': return 'Baño y cepillado'
-                                                                                case 'bath_and_trim': return 'Baño y corte'
-                                                                                case 'stripping': return 'Stripping'
-                                                                                case 'deshedding': return 'Deslanado'
-                                                                                case 'brushing': return 'Cepillado'
-                                                                                case 'spa': return 'Spa'
-                                                                                case 'spa_ozone': return 'Spa con ozono'
-                                                                                default: return s
-                                                                            }
-                                                                        }).join(', ')
-                                                                    )
-                                                                ) : (
-                                                                    isEditMode ? (
-                                                                        <Input
-                                                                            value={service.comment || ''}
-                                                                            onChange={(e) => handleUpdateService(index, {
-                                                                                ...service,
-                                                                                comment: e.target.value
-                                                                            })}
-                                                                        />
-                                                                    ) : (
-                                                                        service.comment || '-'
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                            <div className="text-right whitespace-nowrap">
-                                                                {isEditMode ? (
-                                                                    <Input
-                                                                        type="number"
-                                                                        value={service.price || serviceBasePrice}
-                                                                        onChange={(e) => handleUpdateService(index, {
-                                                                            ...service,
-                                                                            price: Number(e.target.value)
-                                                                        })}
-                                                                        className="w-24 text-right"
-                                                                    />
-                                                                ) : (
-                                                                    <span>€{(service.price || serviceBasePrice).toFixed(2)}</span>
-                                                                )}
-                                                            </div>
+                                                <span className="w-16">Entrada:</span>
+                                                {isEditMode ? (
+                                                    <div className="flex items-center gap-4">
+                                                        <DatePicker
+                                                            date={editedReservation.checkInDate ? new Date(editedReservation.checkInDate) : new Date()}
+                                                            onSelect={(date) => date && setEditedReservation({
+                                                                ...editedReservation,
+                                                                checkInDate: date.toISOString().split('T')[0]
+                                                            })}
+                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className="h-4 w-4 text-gray-500" />
+                                                            <Input 
+                                                                value={editedReservation.checkInTime}
+                                                                onChange={(e) => setEditedReservation({ 
+                                                                    ...editedReservation, 
+                                                                    checkInTime: e.target.value 
+                                                                })}
+                                                                className="h-8 w-24"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-4">
+                                                        <span>{formatDate(editedReservation.checkInDate)}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className="h-4 w-4 text-gray-500" />
+                                                            <span>{editedReservation.checkInTime}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-4">
+                                                    <Calendar className="h-4 w-4 text-gray-500" />
+                                                </div>
+                                                <span className="w-16">Salida:</span>
+                                                {isEditMode ? (
+                                                    <div className="flex items-center gap-4">
+                                                        <DatePicker
+                                                            date={editedReservation.checkOutDate ? new Date(editedReservation.checkOutDate) : new Date()}
+                                                            onSelect={(date) => date && setEditedReservation({
+                                                                ...editedReservation,
+                                                                checkOutDate: date.toISOString().split('T')[0]
+                                                            })}
+                                                        />
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className="h-4 w-4 text-gray-500" />
+                                                            <Input 
+                                                                value={editedReservation.checkOutTime || '12:00'}
+                                                                onChange={(e) => setEditedReservation({ 
+                                                                    ...editedReservation, 
+                                                                    checkOutTime: e.target.value 
+                                                                })}
+                                                                className="h-8 w-24"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-4">
+                                                        <span>{formatDate(editedReservation.checkOutDate)}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <Clock className="h-4 w-4 text-gray-500" />
+                                                            <span>{editedReservation.checkOutTime || '12:00'}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Calendar className="h-4 w-4 text-gray-500" />
+                                            <DatePicker
+                                                date={editedReservation.date ? new Date(editedReservation.date) : new Date()}
+                                                onSelect={(date) => date && setEditedReservation({
+                                                    ...editedReservation,
+                                                    date: date.toISOString().split('T')[0]
+                                                })}
+                                                disabled={!isEditMode}
+                                            />
+                                            <Clock className="h-4 w-4 text-gray-500 ml-2" />
+                                            <Input 
+                                                value={editedReservation.time}
+                                                onChange={(e) => setEditedReservation({ 
+                                                    ...editedReservation, 
+                                                    time: e.target.value 
+                                                })}
+                                                className="h-8 w-24"
+                                                disabled={!isEditMode}
+                                            />
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Cliente */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base font-medium">Cliente</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+                                        <div className="font-medium">Nombre:</div>
+                                        <span>{editedReservation.client.name}</span>
+                                    </div>
+                                    <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+                                        <div className="font-medium">Teléfono:</div>
+                                        <div className="flex items-center gap-2">
+                                        <Phone className="h-4 w-4 text-gray-500" />
+                                        <span>{editedReservation.client.phone}</span>
+                                    </div>
+                                    </div>
+                                    <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+                                        <div className="font-medium">Email:</div>
+                                        <div className="flex items-center gap-2">
+                                        <Mail className="h-4 w-4 text-gray-500" />
+                                        <span>{editedReservation.client.email}</span>
+                                        </div>
+                                    </div>
+                                    {editedReservation.client.address && (
+                                        <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+                                            <div className="font-medium">Dirección:</div>
+                                            <span>{editedReservation.client.address}</span>
+                                        </div>
+                                    )}
+                                    {editedReservation.client.id && (
+                                        <div className="grid grid-cols-[100px_1fr] gap-2 items-center">
+                                            <div className="font-medium">ID Cliente:</div>
+                                            <span>{editedReservation.client.id}</span>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Mascotas y Servicios */}
+                            <Card className="md:col-span-2">
+                                <CardHeader>
+                                    <CardTitle className="text-base font-medium">Mascotas y Servicios</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        {/* Transporte si existe */}
+                                        {getTransportService() && (
+                                            <>
+                                                <div className="space-y-2">
+                                                    <h4 className="font-medium">Transporte</h4>
+                                                    {getTransportService()}
+                                                </div>
+                                                <Separator />
+                                            </>
+                                        )}
+
+                                        {/* Mascotas */}
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium">Mascotas</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {renderPets()}
+                                            </div>
+                                        </div>
+
+                                        <Separator />
+
+                                        {/* Servicios adicionales */}
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h4 className="font-medium">Servicios adicionales</h4>
+                                            </div>
+                                            <div className="space-y-6">
+                                                {editedReservation.type === 'hotel' && editedReservation.pets.map((pet, petIndex) => (
+                                                    <div key={petIndex} className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <h5 className="text-sm font-medium text-gray-500">Servicios para {pet.name}</h5>
                                                             {isEditMode && (
-                                                                <div className="flex justify-end">
-                                                                    <Button
-                                                                        variant="destructive"
-                                                                        size="sm"
-                                                                        onClick={() => handleRemoveService(index)}
-                                                                    >
-                                                                        Eliminar
-                                                                    </Button>
-                                                                </div>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() => handleAddService(petIndex)}
+                                                                >
+                                                                    <Plus className="h-4 w-4 mr-2" />
+                                                                    Añadir Servicio
+                                                                </Button>
                                                             )}
                                                         </div>
-                                                    ))}
+                                                        <div className="grid gap-4">
+                                                            {servicesByPet[petIndex]?.map((service: AdditionalService, index: number) => (
+                                                                <div key={index} className="grid grid-cols-[1fr_2fr_auto_auto] gap-4 items-center">
+                                                                    <div className="text-sm">
+                                                                        {isEditMode ? (
+                                                                            <Select
+                                                                                value={service.type}
+                                                                                onValueChange={(value) => handleUpdateService(index, {
+                                                                                    ...service,
+                                                                                    type: value as typeof service.type
+                                                                                })}
+                                                                            >
+                                                                                <SelectTrigger>
+                                                                                    <SelectValue />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent>
+                                                                                    <SelectItem value="hairdressing">Peluquería</SelectItem>
+                                                                                    <SelectItem value="special_care">Cuidados Especiales</SelectItem>
+                                                                                    <SelectItem value="special_food">Comida Especial</SelectItem>
+                                                                                    <SelectItem value="medication">Medicación</SelectItem>
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                        ) : (
+                                                                            service.type === 'hairdressing' ? 'Peluquería' :
+                                                                            service.type === 'special_care' ? 'Cuidados Especiales' :
+                                                                            service.type === 'special_food' ? 'Comida Especial' :
+                                                                            service.type === 'medication' ? 'Medicación' : 
+                                                                            service.type
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-sm">
+                                                                        {service.type === 'hairdressing' ? (
+                                                                            isEditMode ? (
+                                                                                <Select
+                                                                                    value={service.services?.[0] || 'bath_and_brush'}
+                                                                                    onValueChange={(value) => handleUpdateService(index, {
+                                                                                        ...service,
+                                                                                        services: [value]
+                                                                                    })}
+                                                                                >
+                                                                                    <SelectTrigger>
+                                                                                        <SelectValue />
+                                                                                    </SelectTrigger>
+                                                                                    <SelectContent>
+                                                                                        <SelectItem value="bath_and_brush">Baño y cepillado</SelectItem>
+                                                                                        <SelectItem value="bath_and_trim">Baño y corte</SelectItem>
+                                                                                        <SelectItem value="stripping">Stripping</SelectItem>
+                                                                                        <SelectItem value="deshedding">Deslanado</SelectItem>
+                                                                                        <SelectItem value="brushing">Cepillado</SelectItem>
+                                                                                        <SelectItem value="spa">Spa</SelectItem>
+                                                                                        <SelectItem value="spa_ozone">Spa con ozono</SelectItem>
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                            ) : (
+                                                                                service.services?.map(s => {
+                                                                                    switch (s) {
+                                                                                        case 'bath_and_brush': return 'Baño y cepillado'
+                                                                                        case 'bath_and_trim': return 'Baño y corte'
+                                                                                        case 'stripping': return 'Stripping'
+                                                                                        case 'deshedding': return 'Deslanado'
+                                                                                        case 'brushing': return 'Cepillado'
+                                                                                        case 'spa': return 'Spa'
+                                                                                        case 'spa_ozone': return 'Spa con ozono'
+                                                                                        default: return s
+                                                                                    }
+                                                                                }).join(', ')
+                                                                            )
+                                                                        ) : (
+                                                                            isEditMode ? (
+                                                                                <Input
+                                                                                    value={service.comment || ''}
+                                                                                    onChange={(e) => handleUpdateService(index, {
+                                                                                        ...service,
+                                                                                        comment: e.target.value
+                                                                                    })}
+                                                                                />
+                                                                            ) : (
+                                                                                service.comment || '-'
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-right whitespace-nowrap">
+                                                                        {isEditMode ? (
+                                                                            <Input
+                                                                                type="number"
+                                                                                value={service.price || serviceBasePrice}
+                                                                                onChange={(e) => handleUpdateService(index, {
+                                                                                    ...service,
+                                                                                    price: Number(e.target.value)
+                                                                                })}
+                                                                                className="w-24 text-right"
+                                                                            />
+                                                                        ) : (
+                                                                            <span>€{(service.price || serviceBasePrice).toFixed(2)}</span>
+                                                                        )}
+                                                                    </div>
+                                                                    {isEditMode && (
+                                                                        <div className="flex justify-end">
+                                                                            <Button
+                                                                                variant="destructive"
+                                                                                size="sm"
+                                                                                onClick={() => handleRemoveService(index)}
+                                                                            >
+                                                                                Eliminar
+                                                                            </Button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Productos de Tienda */}
+                            <Card className="md:col-span-2">
+                                <CardHeader>
+                                    <CardTitle className="text-base font-medium flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <ShoppingBag className="h-4 w-4" />
+                                            Productos de Tienda
+                                        </div>
+                                        {isEditMode && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={handleAddShopProduct}
+                                            >
+                                                <Plus className="h-4 w-4 mr-2" />
+                                                Añadir Producto
+                                            </Button>
+                                        )}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-[40%]">Producto</TableHead>
+                                                <TableHead className="w-[15%] text-right">Cantidad</TableHead>
+                                                <TableHead className="w-[20%] text-right">Precio Unitario</TableHead>
+                                                <TableHead className="w-[15%] text-right">Total</TableHead>
+                                                {isEditMode && <TableHead className="w-[10%]"></TableHead>}
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {'shopProducts' in editedReservation && editedReservation.shopProducts?.map((product) => (
+                                                <TableRow key={product.id}>
+                                                    <TableCell className="align-middle">
+                                                        {isEditMode ? (
+                                                            <Input
+                                                                value={product.name}
+                                                                onChange={(e) => {
+                                                                    const newProducts = editedReservation.shopProducts?.map(p =>
+                                                                        p.id === product.id
+                                                                            ? { ...p, name: e.target.value }
+                                                                            : p
+                                                                    )
+                                                                    setEditedReservation({
+                                                                        ...editedReservation,
+                                                                        shopProducts: newProducts
+                                                                    })
+                                                                }}
+                                                                className="h-9"
+                                                            />
+                                                        ) : (
+                                                            <span>{product.name}</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right align-middle">
+                                                        {isEditMode ? (
+                                                            <Input
+                                                                type="number"
+                                                                value={product.quantity}
+                                                                onChange={(e) => {
+                                                                    const quantity = Number(e.target.value)
+                                                                    const newProducts = editedReservation.shopProducts?.map(p =>
+                                                                        p.id === product.id
+                                                                            ? {
+                                                                                ...p,
+                                                                                quantity,
+                                                                                totalPrice: quantity * p.unitPrice
+                                                                            }
+                                                                            : p
+                                                                    )
+                                                                    setEditedReservation({
+                                                                        ...editedReservation,
+                                                                        shopProducts: newProducts
+                                                                    })
+                                                                }}
+                                                                className="w-20 text-right h-9"
+                                                            />
+                                                        ) : (
+                                                            <span>{product.quantity}</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right align-middle">
+                                                        {isEditMode ? (
+                                                            <Input
+                                                                type="number"
+                                                                value={product.unitPrice}
+                                                                onChange={(e) => {
+                                                                    const unitPrice = Number(e.target.value)
+                                                                    const newProducts = editedReservation.shopProducts?.map(p =>
+                                                                        p.id === product.id
+                                                                            ? {
+                                                                                ...p,
+                                                                                unitPrice,
+                                                                                totalPrice: p.quantity * unitPrice
+                                                                            }
+                                                                            : p
+                                                                    )
+                                                                    setEditedReservation({
+                                                                        ...editedReservation,
+                                                                        shopProducts: newProducts
+                                                                    })
+                                                                }}
+                                                                className="w-24 text-right h-9"
+                                                            />
+                                                        ) : (
+                                                            <span>€{product.unitPrice.toFixed(2)}</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right align-middle">
+                                                        €{product.totalPrice.toFixed(2)}
+                                                    </TableCell>
+                                                    {isEditMode && (
+                                                        <TableCell>
+                                                            <Button
+                                                                variant="destructive"
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    const newProducts = editedReservation.shopProducts?.filter(
+                                                                        p => p.id !== product.id
+                                                                    )
+                                                                    setEditedReservation({
+                                                                        ...editedReservation,
+                                                                        shopProducts: newProducts
+                                                                    })
+                                                                }}
+                                                            >
+                                                                Eliminar
+                                                            </Button>
+                                                        </TableCell>
+                                                    )}
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
+
+                            {/* Precio */}
+                            <Card className="md:col-span-2">
+                                <CardHeader>
+                                    <CardTitle className="text-base font-medium">Desglose de Precio</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        {editedReservation.type === 'hotel' && (
+                                            <div className="flex items-center justify-between">
+                                                <span>Estancia:</span>
+                                                <div className="flex items-center gap-2 justify-end">
+                                                    {isEditMode ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <Input
+                                                                type="number"
+                                                                value={stayPrice}
+                                                                onChange={(e) => setStayPrice(Number(e.target.value))}
+                                                                className="w-24 text-right"
+                                                                placeholder="€/día"
+                                                            />
+                                                            <span>€/día</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span>€{calculatePriceBreakdown().stayPrice.toFixed(2)}</span>
+                                                    )}
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Productos de Tienda */}
-                    <Card className="md:col-span-2">
-                        <CardHeader>
-                            <CardTitle className="text-base font-medium flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <ShoppingBag className="h-4 w-4" />
-                                    Productos de Tienda
-                                </div>
-                                {isEditMode && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleAddShopProduct}
-                                    >
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Añadir Producto
-                                    </Button>
-                                )}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[40%]">Producto</TableHead>
-                                        <TableHead className="w-[15%] text-right">Cantidad</TableHead>
-                                        <TableHead className="w-[20%] text-right">Precio Unitario</TableHead>
-                                        <TableHead className="w-[15%] text-right">Total</TableHead>
-                                        {isEditMode && <TableHead className="w-[10%]"></TableHead>}
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {'shopProducts' in editedReservation && editedReservation.shopProducts?.map((product) => (
-                                        <TableRow key={product.id}>
-                                            <TableCell className="align-middle">
-                                                {isEditMode ? (
-                                                    <Input
-                                                        value={product.name}
-                                                        onChange={(e) => {
-                                                            const newProducts = editedReservation.shopProducts?.map(p =>
-                                                                p.id === product.id
-                                                                    ? { ...p, name: e.target.value }
-                                                                    : p
-                                                            )
-                                                            setEditedReservation({
-                                                                ...editedReservation,
-                                                                shopProducts: newProducts
-                                                            })
-                                                        }}
-                                                        className="h-9"
-                                                    />
-                                                ) : (
-                                                    <span>{product.name}</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right align-middle">
-                                                {isEditMode ? (
-                                                    <Input
-                                                        type="number"
-                                                        value={product.quantity}
-                                                        onChange={(e) => {
-                                                            const quantity = Number(e.target.value)
-                                                            const newProducts = editedReservation.shopProducts?.map(p =>
-                                                                p.id === product.id
-                                                                    ? {
-                                                                        ...p,
-                                                                        quantity,
-                                                                        totalPrice: quantity * p.unitPrice
-                                                                    }
-                                                                    : p
-                                                            )
-                                                            setEditedReservation({
-                                                                ...editedReservation,
-                                                                shopProducts: newProducts
-                                                            })
-                                                        }}
-                                                        className="w-20 text-right h-9"
-                                                    />
-                                                ) : (
-                                                    <span>{product.quantity}</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right align-middle">
-                                                {isEditMode ? (
-                                                    <Input
-                                                        type="number"
-                                                        value={product.unitPrice}
-                                                        onChange={(e) => {
-                                                            const unitPrice = Number(e.target.value)
-                                                            const newProducts = editedReservation.shopProducts?.map(p =>
-                                                                p.id === product.id
-                                                                    ? {
-                                                                        ...p,
-                                                                        unitPrice,
-                                                                        totalPrice: p.quantity * unitPrice
-                                                                    }
-                                                                    : p
-                                                            )
-                                                            setEditedReservation({
-                                                                ...editedReservation,
-                                                                shopProducts: newProducts
-                                                            })
-                                                        }}
-                                                        className="w-24 text-right h-9"
-                                                    />
-                                                ) : (
-                                                    <span>€{product.unitPrice.toFixed(2)}</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right align-middle">
-                                                €{product.totalPrice.toFixed(2)}
-                                            </TableCell>
-                                            {isEditMode && (
-                                                <TableCell>
-                                                    <Button
-                                                        variant="destructive"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            const newProducts = editedReservation.shopProducts?.filter(
-                                                                p => p.id !== product.id
-                                                            )
-                                                            setEditedReservation({
-                                                                ...editedReservation,
-                                                                shopProducts: newProducts
-                                                            })
-                                                        }}
-                                                    >
-                                                        Eliminar
-                                                    </Button>
-                                                </TableCell>
-                                            )}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-
-                    {/* Precio */}
-                    <Card className="md:col-span-2">
-                        <CardHeader>
-                            <CardTitle className="text-base font-medium">Desglose de Precio</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {editedReservation.type === 'hotel' && (
-                                    <div className="flex items-center justify-between">
-                                        <span>Estancia:</span>
-                                        <div className="flex items-center gap-2 justify-end">
-                                            {isEditMode ? (
-                                                <div className="flex items-center gap-2">
-                                                    <Input
-                                                        type="number"
-                                                        value={stayPrice}
-                                                        onChange={(e) => setStayPrice(Number(e.target.value))}
-                                                        className="w-24 text-right"
-                                                        placeholder="€/día"
-                                                    />
-                                                    <span>€/día</span>
+                                        )}
+                                        <div className="flex items-center justify-between">
+                                            <span>Servicios:</span>
+                                            <div className="flex items-center gap-2 justify-end">
+                                                <span>€{calculatePriceBreakdown().servicesPrice.toFixed(2)}</span>
+                                            </div>
+                                        </div>
+                                        {'shopProducts' in editedReservation && (
+                                            <div className="flex items-center justify-between">
+                                                <span>Productos:</span>
+                                                <div className="flex items-center gap-2 justify-end">
+                                                    <span>€{calculatePriceBreakdown().shopPrice.toFixed(2)}</span>
                                                 </div>
-                                            ) : (
-                                                <span>€{calculatePriceBreakdown().stayPrice.toFixed(2)}</span>
-                                            )}
+                                            </div>
+                                        )}
+                                        <Separator />
+                                        <div className="flex items-center justify-between">
+                                            <span>Base Imponible:</span>
+                                            <div className="flex items-center gap-2 justify-end">
+                                                <span>€{calculatePriceBreakdown().subtotalSinIVA.toFixed(2)}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between">
-                                    <span>Servicios:</span>
-                                    <div className="flex items-center gap-2 justify-end">
-                                        <span>€{calculatePriceBreakdown().servicesPrice.toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                {'shopProducts' in editedReservation && (
-                                    <div className="flex items-center justify-between">
-                                        <span>Productos:</span>
-                                        <div className="flex items-center gap-2 justify-end">
-                                            <span>€{calculatePriceBreakdown().shopPrice.toFixed(2)}</span>
+                                        <div className="flex items-center justify-between">
+                                            <span>IVA (21%):</span>
+                                            <div className="flex items-center gap-2 justify-end">
+                                                <span>€{calculatePriceBreakdown().ivaAmount.toFixed(2)}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                <Separator />
-                                <div className="flex items-center justify-between">
-                                    <span>Base Imponible:</span>
-                                    <div className="flex items-center gap-2 justify-end">
-                                        <span>€{calculatePriceBreakdown().subtotalSinIVA.toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span>IVA (21%):</span>
-                                    <div className="flex items-center gap-2 justify-end">
-                                        <span>€{calculatePriceBreakdown().ivaAmount.toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between font-bold">
-                                    <span>Total:</span>
-                                    <div className="flex items-center gap-2 justify-end">
-                                        {isEditMode ? (
-                                            <Input
-                                                type="number"
-                                                value={editedReservation.totalPrice}
-                                                onChange={(e) => {
-                                                    const newTotal = Number(e.target.value)
-                                                    setEditedReservation({
-                                                    ...editedReservation,
-                                                        totalPrice: newTotal
-                                                    })
-                                                    // Calcular el descuento
-                                                    const calculatedTotal = calculatePriceBreakdown().total
-                                                    setTotalDiscount(calculatedTotal - newTotal)
-                                                }}
-                                                className="w-24 text-right"
-                                            />
-                                        ) : (
-                                            <span>€{editedReservation.totalPrice.toFixed(2)}</span>
+                                        <div className="flex items-center justify-between font-bold">
+                                            <span>Total:</span>
+                                            <div className="flex items-center gap-2 justify-end">
+                                                {isEditMode ? (
+                                                    <Input
+                                                        type="number"
+                                                        value={editedReservation.totalPrice}
+                                                        onChange={(e) => {
+                                                            const newTotal = Number(e.target.value)
+                                                            setEditedReservation({
+                                                            ...editedReservation,
+                                                                totalPrice: newTotal
+                                                            })
+                                                            // Calcular el descuento
+                                                            const calculatedTotal = calculatePriceBreakdown().total
+                                                            setTotalDiscount(calculatedTotal - newTotal)
+                                                        }}
+                                                        className="w-24 text-right"
+                                                    />
+                                                ) : (
+                                                    <span>€{editedReservation.totalPrice.toFixed(2)}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {totalDiscount > 0 && (
+                                            <div className="flex items-center justify-between text-green-600">
+                                                <span>Descuento aplicado:</span>
+                                                <div className="flex items-center gap-2 justify-end">
+                                                    <span>-€{totalDiscount.toFixed(2)}</span>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
-                                </div>
-                                {totalDiscount > 0 && (
-                                    <div className="flex items-center justify-between text-green-600">
-                                        <span>Descuento aplicado:</span>
-                                        <div className="flex items-center gap-2 justify-end">
-                                            <span>-€{totalDiscount.toFixed(2)}</span>
-                                        </div>
-                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Botones de acción */}
+                            <div className="md:col-span-2 flex justify-end gap-4">
+                                {isEditMode && (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                                setEditedReservation(reservation)
+                                                setIsEditMode(false)
+                                            }}
+                                        >
+                                            Cancelar
+                                        </Button>
+                                        <Button onClick={() => {
+                                            // Aquí iría la lógica para guardar los cambios
+                                            console.log('Guardando cambios:', editedReservation)
+                                            setIsEditMode(false)
+                                        }}>
+                                            Guardar Cambios
+                                        </Button>
+                                    </>
                                 )}
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Botones de acción */}
-                    <div className="md:col-span-2 flex justify-end gap-4">
-                        {isEditMode && (
-                            <>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setEditedReservation(reservation)
-                                        setIsEditMode(false)
-                                    }}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button onClick={() => {
-                                    // Aquí iría la lógica para guardar los cambios
-                                    console.log('Guardando cambios:', editedReservation)
-                                    setIsEditMode(false)
-                                }}>
-                                    Guardar Cambios
-                                </Button>
-                            </>
-                        )}
+                        </div>
                     </div>
                 </div>
             </div>

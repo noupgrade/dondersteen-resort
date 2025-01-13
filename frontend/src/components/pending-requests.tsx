@@ -1,212 +1,193 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { format } from 'date-fns'
+import { Clock, PawPrint, Truck, UtensilsCrossed, Pill, Heart, Scissors, Check, X } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
+import { HotelReservation, useReservation } from '@/components/ReservationContext'
+import { ServiceType } from '@/shared/types/additional-services'
 import { Badge } from '@/shared/ui/badge'
+import { Card, CardContent, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Separator } from '@/shared/ui/separator'
-import { ServiceItem } from '@/shared/ui/service-item'
-import { AdditionalService } from '@/shared/types/additional-services'
-
-type Pet = {
-    name: string
-    breed: string
-    weight: number
-    size: string
-}
-
-type PendingRequest = {
-    id: string
-    clientName: string
-    pets: Pet[]
-    checkIn: string
-    checkOut: string
-    totalPrice: number
-    additionalServices: AdditionalService[]
-    specialNeeds?: {
-        [petName: string]: string
-    }
-    status: 'pending' | 'confirmed' | 'rejected'
-}
 
 export function PendingRequests() {
-    const [expandedRequest, setExpandedRequest] = useState<string | null>(null)
     const { reservations, updateReservation } = useReservation()
-    const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([])
+    const pendingRequests = reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[]
 
-    useEffect(() => {
-        const filteredRequests = reservations
-            .filter(r => r.type === 'hotel' && r.status === 'pending')
-            .map(r => ({
-                id: r.id,
-                clientName: r.client.name,
-                pets: r.pets || [],
-                checkIn: r.checkInDate,
-                checkOut: r.checkOutDate,
-                totalPrice: r.totalPrice || 0,
-                additionalServices: r.additionalServices || [],
-                specialNeeds: r.specialNeeds
-                    ? typeof r.specialNeeds === 'string'
-                        ? { [r.pets?.[0]?.name || '']: r.specialNeeds }
-                        : r.specialNeeds
-                    : {},
-                status: r.status || 'pending',
-            }))
-        setPendingRequests(filteredRequests)
-    }, [reservations])
-
-    const toggleRequest = (id: string) => {
-        setExpandedRequest(expandedRequest === id ? null : id)
-    }
-
-    const handleAccept = async (id: string) => {
+    const handleAccept = async (e: React.MouseEvent, reservation: HotelReservation) => {
+        e.stopPropagation() // Evitar que se propague al onClick de la tarjeta
         try {
-            await updateReservation(id, { status: 'confirmed' })
-            setPendingRequests(prev => prev.filter(request => request.id !== id))
+            await updateReservation(reservation.id, { status: 'confirmed' })
         } catch (error) {
             console.error('Error al aceptar la reserva:', error)
         }
     }
 
-    const handleReject = async (id: string) => {
+    const handleReject = async (e: React.MouseEvent, reservation: HotelReservation) => {
+        e.stopPropagation() // Evitar que se propague al onClick de la tarjeta
         try {
-            await updateReservation(id, { status: 'rejected' })
-            setPendingRequests(prev => prev.filter(request => request.id !== id))
+            await updateReservation(reservation.id, { status: 'cancelled' })
         } catch (error) {
             console.error('Error al rechazar la reserva:', error)
         }
     }
 
-    if (pendingRequests.length === 0) {
-        return (
-            <Card>
-                <CardContent className='py-6 text-center'>
-                    <p>No hay solicitudes pendientes en este momento.</p>
-                </CardContent>
-            </Card>
-        )
+    const getServiceIcon = (serviceType: ServiceType) => {
+        switch (serviceType) {
+            case 'driver':
+                return <Truck className="h-4 w-4 text-blue-500" />
+            case 'special_food':
+                return <UtensilsCrossed className="h-4 w-4 text-orange-500" />
+            case 'medication':
+                return <Pill className="h-4 w-4 text-red-500" />
+            case 'special_care':
+                return <Heart className="h-4 w-4 text-pink-500" />
+            case 'hairdressing':
+                return <Scissors className="h-4 w-4 text-purple-500" />
+            default:
+                return null
+        }
+    }
+
+    const formatServiceName = (serviceType: ServiceType) => {
+        switch (serviceType) {
+            case 'driver':
+                return 'Servicio de chofer'
+            case 'special_food':
+                return 'Comida especial'
+            case 'medication':
+                return 'Medicación'
+            case 'special_care':
+                return 'Curas'
+            case 'hairdressing':
+                return 'Peluquería'
+            default:
+                return 'Servicio desconocido'
+        }
     }
 
     return (
-        <div className='space-y-4'>
-            {pendingRequests.map(request => (
-                <Card key={request.id} className='overflow-hidden shadow-md'>
-                    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                        <CardTitle className='text-lg font-semibold'>
-                            {request.clientName} - {request.pets.map(pet => pet.name).join(' y ')}
-                        </CardTitle>
-                        <div className='flex items-center space-x-2'>
-                            <Badge variant='outline'>Pendiente</Badge>
-                            {request.additionalServices.length > 0 && (
-                                <Badge variant='secondary'>Extras incluidos</Badge>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='cursor-pointer space-y-2' onClick={() => toggleRequest(request.id)}>
-                            <div className='space-y-1 text-sm'>
+        <div className="space-y-4">
+            {pendingRequests.map((reservation) => (
+                <Card 
+                    key={reservation.id} 
+                    className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                >
+                    <div className="flex">
+                        <div className="w-64 shrink-0 bg-[#4B6BFB]/5 p-6 flex flex-col justify-between space-y-6">
+                            <div className="space-y-6">
                                 <div>
-                                    <span className='font-medium'>Check-in:</span> {request.checkIn}
-                                </div>
-                                <div>
-                                    <span className='font-medium'>Check-out:</span> {request.checkOut}
-                                </div>
-                            </div>
-                            <div className='text-sm'>
-                                Mascotas: {request.pets.map(pet => `${pet.name} (${pet.breed})`).join(', ')}
-                            </div>
-                            {expandedRequest === request.id && (
-                                <div className='mt-4 space-y-4 rounded-lg bg-gray-50 p-4'>
-                                    {/* Pet Details Section */}
-                                    {request.pets.slice(0, 2).map((pet, index) => (
-                                        <div key={index} className='rounded-lg bg-white p-4 shadow-sm'>
-                                            <h4 className='mb-2 text-lg font-semibold'>
-                                                {pet.name} ({pet.breed})
-                                            </h4>
-                                            <div className='mb-2 grid grid-cols-2 gap-4'>
-                                                <div>
-                                                    <span className='text-sm text-gray-500'>Peso:</span>
-                                                    <span className='ml-2 font-medium'>{pet.weight}kg</span>
-                                                </div>
-                                                <div>
-                                                    <span className='text-sm text-gray-500'>Tamaño:</span>
-                                                    <span className='ml-2 font-medium'>{pet.size}</span>
-                                                </div>
-                                            </div>
-                                            {request.specialNeeds?.[pet.name] && (
-                                                <div className='mt-2'>
-                                                    <span className='text-sm text-gray-500'>
-                                                        Necesidades especiales:
-                                                    </span>
-                                                    <p className='mt-1 text-sm'>{request.specialNeeds[pet.name]}</p>
-                                                </div>
-                                            )}
-                                            {/* Services for this pet */}
-                                            {request.additionalServices.filter(service => service.petIndex === index).length > 0 && (
-                                                <div className='mt-2'>
-                                                    <span className='text-sm text-gray-500'>
-                                                        Servicios adicionales:
-                                                    </span>
-                                                    <div className='mt-1 grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]'>
-                                                        {request.additionalServices
-                                                            .filter(service => service.petIndex === index)
-                                                            .map((service, serviceIndex) => (
-                                                                <ServiceItem key={serviceIndex} service={service} />
-                                                            ))}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {index < request.pets.length - 1 && <Separator className='my-4' />}
-                                        </div>
-                                    ))}
-
-                                    {/* General Services Section */}
-                                    {request.additionalServices.filter(service => service.type === 'driver').length > 0 && (
-                                        <div className='rounded-lg bg-white p-4 shadow-sm'>
-                                            <h4 className='mb-2 text-lg font-semibold'>Servicios Generales</h4>
-                                            <div className='grid gap-2 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]'>
-                                                {request.additionalServices
-                                                    .filter(service => service.type === 'driver')
-                                                    .map((service, index) => (
-                                                        <ServiceItem key={index} service={service} />
-                                                    ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Price Section */}
-                                    <div className='rounded-lg bg-white p-4 shadow-sm'>
-                                        <h4 className='text-lg font-semibold'>Precio Total: {request.totalPrice}€</h4>
+                                    <CardTitle className="text-lg font-semibold">
+                                        {reservation.client.name}
+                                    </CardTitle>
+                                    <div className="space-y-1 mt-1 text-sm text-muted-foreground">
+                                        <p>{reservation.client.phone}</p>
+                                        <p>{reservation.client.email}</p>
                                     </div>
                                 </div>
-                            )}
-                            <div className='mt-4 flex items-center justify-end'>
-                                <div className='flex space-x-2'>
-                                    <Button
-                                        size='sm'
-                                        onClick={e => {
-                                            e.stopPropagation()
-                                            handleAccept(request.id)
-                                        }}
-                                    >
-                                        Aceptar
-                                    </Button>
-                                    <Button
-                                        size='sm'
-                                        variant='destructive'
-                                        onClick={e => {
-                                            e.stopPropagation()
-                                            handleReject(request.id)
-                                        }}
-                                    >
-                                        Rechazar
-                                    </Button>
+
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4" />
+                                        <span className="text-sm text-muted-foreground">
+                                            {format(new Date(reservation.checkInDate), 'dd/MM/yyyy')} - {format(new Date(reservation.checkOutDate), 'dd/MM/yyyy')}
+                                        </span>
+                                    </div>
+                                    {reservation.additionalServices.some(service => service.type === 'driver') && (
+                                        <div className="flex items-center gap-2">
+                                            <Truck className="h-4 w-4 text-[#4B6BFB]" />
+                                            <span className="text-sm text-muted-foreground">
+                                                {(() => {
+                                                    const transportService = reservation.additionalServices.find(service => service.type === 'driver')
+                                                    switch (transportService?.serviceType) {
+                                                        case 'pickup':
+                                                            return 'Recogida'
+                                                        case 'dropoff':
+                                                            return 'Entrega'
+                                                        case 'both':
+                                                            return 'Recogida y entrega'
+                                                        default:
+                                                            return 'Transporte'
+                                                    }
+                                                })()}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+
+                            <Badge variant={reservation.paymentStatus === 'Pagado' ? 'default' : 'destructive'} className="w-fit">
+                                {reservation.paymentStatus}
+                            </Badge>
                         </div>
-                    </CardContent>
+                        <CardContent className="flex-1 p-6">
+                            <div className="flex flex-col h-full">
+                                <div className="flex-grow space-y-6">
+                                    {/* Mascotas y sus servicios */}
+                                    {reservation.pets.map((pet, petIndex) => {
+                                        // Filtrar servicios para esta mascota
+                                        const petServices = reservation.additionalServices
+                                            .filter(service => 
+                                                service.petIndex === petIndex && 
+                                                (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
+                                            );
+
+                                        return (
+                                            <div key={petIndex} className={`${petIndex < reservation.pets.length - 1 ? 'border-b border-border' : ''}`}>
+                                                <div className="py-4">
+                                                    <div className="grid grid-cols-[auto,1fr] gap-6">
+                                                        <div className="flex items-start gap-2">
+                                                            <PawPrint className="h-4 w-4 mt-1 text-[#4B6BFB]" />
+                                                            <div>
+                                                                <p className="font-medium">{pet.name} ({reservation.roomNumber})</p>
+                                                                <p className="text-sm text-muted-foreground">
+                                                                    {pet.breed} · {pet.size} · {pet.weight}kg
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-4">
+                                                            {petServices.map((service, index) => {
+                                                                const icon = getServiceIcon(service.type as ServiceType)
+                                                                return icon ? (
+                                                                    <div key={index} className="flex items-center gap-2">
+                                                                        {icon}
+                                                                        <span className="text-sm text-muted-foreground">
+                                                                            {formatServiceName(service.type as ServiceType)}
+                                                                        </span>
+                                                                    </div>
+                                                                ) : null
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+
+                                    <div className="flex items-center justify-between border-t pt-6">
+                                        <span className="font-semibold">Precio Total</span>
+                                        <span className="text-lg font-bold">{reservation.totalPrice}€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </div>
+                    <div className="flex justify-end gap-2 p-4 bg-gray-50 border-t">
+                        <Button
+                            variant="outline"
+                            className="border-red-500 text-red-500 hover:bg-red-50"
+                            onClick={(e) => handleReject(e, reservation)}
+                        >
+                            <X className="h-4 w-4 mr-2" />
+                            Rechazar
+                        </Button>
+                        <Button
+                            className="bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90"
+                            onClick={(e) => handleAccept(e, reservation)}
+                        >
+                            <Check className="h-4 w-4 mr-2" />
+                            Aceptar
+                        </Button>
+                    </div>
                 </Card>
             ))}
         </div>
