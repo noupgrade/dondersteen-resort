@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { PawPrint, PlusCircle, PillIcon, Stethoscope, UtensilsCrossed, Truck, Scissors, Dumbbell, Pill, Heart, Clock, DollarSign } from 'lucide-react'
+import { PawPrint, PlusCircle, UtensilsCrossed, Truck, Scissors, Pill, Heart, Clock, DollarSign, Search } from 'lucide-react'
 
-import { HotelReservation, useReservation } from '@/components/ReservationContext.tsx'
+import { HotelReservation, HairSalonReservation, useReservation } from '@/components/ReservationContext.tsx'
 import { CheckIns } from '@/components/check-ins.tsx'
 import { CheckOuts } from '@/components/check-outs.tsx'
 import { PendingRequests } from '@/components/pending-requests.tsx'
@@ -12,14 +12,17 @@ import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
+import { Input } from '@/shared/ui/input.tsx'
 import { ServiceType } from '@/shared/types/additional-services'
 import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 
 export default function PanelInterno() {
-    const { reservations, getReservationsByDate } = useReservation()
+    const { reservations } = useReservation()
     const [pendingRequests, setPendingRequests] = useState<HotelReservation[]>([])
     const [activeReservations, setActiveReservations] = useState<HotelReservation[]>([])
+    const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
+    const [searchTerm, setSearchTerm] = useState('')
     const [checkIns, setCheckIns] = useState<HotelReservation[]>([])
     const [checkOuts, setCheckOuts] = useState<HotelReservation[]>([])
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
@@ -30,18 +33,18 @@ export default function PanelInterno() {
         setPendingRequests(
             reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[]
         )
-        setActiveReservations(
-            reservations
-                .filter(
-                    r => r.type === 'hotel' && 
-                    new Date(r.checkInDate) <= new Date() && 
-                    new Date(r.checkOutDate) > new Date()
-                )
-                .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) => 
-                    new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() - 
-                    new Date(b.type === 'hotel' ? b.checkOutDate : '').getTime()
-                ) as HotelReservation[]
-        )
+        const active = reservations
+            .filter(
+                r => r.type === 'hotel' && 
+                new Date(r.checkInDate) <= new Date() && 
+                new Date(r.checkOutDate) > new Date()
+            )
+            .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) => 
+                new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() - 
+                new Date(b.type === 'hotel' ? b.checkOutDate : '').getTime()
+            ) as HotelReservation[]
+        setActiveReservations(active)
+        setFilteredReservations(active)
         setCheckIns(
             reservations.filter(r => r.type === 'hotel' && r.checkInDate === today) as HotelReservation[]
         )
@@ -49,6 +52,21 @@ export default function PanelInterno() {
             reservations.filter(r => r.type === 'hotel' && r.checkOutDate === today) as HotelReservation[]
         )
     }, [reservations])
+
+    useEffect(() => {
+        if (searchTerm) {
+            const filtered = activeReservations.filter(reservation => {
+                const clientName = reservation.client.name.toLowerCase()
+                const petNames = reservation.pets.map(pet => pet.name.toLowerCase())
+                const search = searchTerm.toLowerCase()
+                
+                return clientName.includes(search) || petNames.some(name => name.includes(search))
+            })
+            setFilteredReservations(filtered)
+        } else {
+            setFilteredReservations(activeReservations)
+        }
+    }, [searchTerm, activeReservations])
 
     const handleViewReservation = (reservation: HotelReservation) => {
         setSelectedReservation(reservation)
@@ -184,7 +202,19 @@ export default function PanelInterno() {
                 </TabsContent>
                 <TabsContent value='active'>
                     <div className="space-y-4">
-                        {activeReservations.map((reservation) => (
+                        <div className="flex items-center gap-4">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Buscar por nombre del cliente o mascota..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-8"
+                                />
+                            </div>
+                        </div>
+                        
+                        {filteredReservations.map((reservation) => (
                             <Card 
                                 key={reservation.id} 
                                 className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
@@ -291,6 +321,12 @@ export default function PanelInterno() {
                                 </div>
                             </Card>
                         ))}
+                        
+                        {filteredReservations.length === 0 && searchTerm && (
+                            <div className="text-center py-8 text-muted-foreground">
+                                No se encontraron reservas que coincidan con la búsqueda
+                            </div>
+                        )}
                     </div>
                 </TabsContent>
                 <TabsContent value='check-ins'>
