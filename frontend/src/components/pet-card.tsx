@@ -1,10 +1,11 @@
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import { PawPrint, Pencil, Trash2, User2 } from 'lucide-react'
+import { PawPrint, Pencil, Trash2, User2, Truck, UtensilsCrossed, Pill, Heart, Scissors } from 'lucide-react'
 import { useState } from 'react'
 import { Pet } from './ReservationContext'
 import { EditPetDialog } from '@/features/pet-management/ui/EditPetDialog'
+import { AdditionalService } from '@/shared/types/additional-services'
 
 const translations = {
     breed: { es: 'Raza', en: 'Breed' },
@@ -26,7 +27,13 @@ const translations = {
         en: 'Are you sure you want to delete this pet?'
     },
     yes: { es: 'Sí', en: 'Yes' },
-    no: { es: 'No', en: 'No' }
+    no: { es: 'No', en: 'No' },
+    services: { es: 'Servicios', en: 'Services' },
+    driver: { es: 'Chofer', en: 'Driver' },
+    specialFood: { es: 'Comida especial', en: 'Special food' },
+    medication: { es: 'Medicación', en: 'Medication' },
+    specialCare: { es: 'Curas', en: 'Special care' },
+    hairdressing: { es: 'Peluquería', en: 'Hairdressing' }
 } as const
 
 interface PetCardProps {
@@ -52,11 +59,42 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
 
     const handleSave = (editedPet: Pet) => {
         onSave?.(editedPet)
+        setIsEditDialogOpen(false)
     }
 
     const handleDelete = () => {
         onDelete?.()
         setIsDeleteDialogOpen(false)
+    }
+
+    const getServiceIcon = (service: AdditionalService) => {
+        switch (service.type) {
+            case 'driver':
+                return <Truck className="h-4 w-4 text-blue-500" />
+            case 'special_food':
+                return <UtensilsCrossed className="h-4 w-4 text-blue-500" />
+            case 'medication':
+                return <Pill className="h-4 w-4 text-blue-500" />
+            case 'special_care':
+                return <Heart className="h-4 w-4 text-blue-500" />
+            case 'hairdressing':
+                return <Scissors className="h-4 w-4 text-blue-500" />
+        }
+    }
+
+    const translateService = (service: AdditionalService) => {
+        switch (service.type) {
+            case 'driver':
+                return t('driver')
+            case 'special_food':
+                return t('specialFood')
+            case 'medication':
+                return t('medication')
+            case 'special_care':
+                return t('specialCare')
+            case 'hairdressing':
+                return t('hairdressing')
+        }
     }
 
     return (
@@ -88,6 +126,19 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
                                 {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')}
                             </span>
                         </div>
+                        {pet.additionalServices && pet.additionalServices.length > 0 && (
+                            <div className='flex flex-col gap-1 sm:gap-2'>
+                                <span className='font-semibold'>{t('services')}:</span>
+                                <div className='pl-5 sm:pl-0 flex flex-wrap gap-2'>
+                                    {pet.additionalServices.map((service, index) => (
+                                        <div key={index} className='flex items-center gap-1.5 text-sm text-gray-600'>
+                                            {getServiceIcon(service)}
+                                            <span>{translateService(service)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

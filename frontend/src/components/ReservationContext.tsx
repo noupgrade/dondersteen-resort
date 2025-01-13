@@ -29,6 +29,7 @@ export type Pet = {
     size: 'pequeño' | 'mediano' | 'grande'
     weight: number
     sex?: 'M' | 'F'
+    additionalServices?: AdditionalService[] // TODO DO NOT USE THIS UNTIL WE MIGRATE FROM THE RESERVATION TYPE. THIS IS JUST TO BE USED IN THE CUSTOMER PROFILE
 }
 
 export type HotelReservation = {

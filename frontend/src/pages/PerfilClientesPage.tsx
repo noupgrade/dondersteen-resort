@@ -342,7 +342,29 @@ const mockPets: Pet[] = [
         breed: 'Golden Retriever',
         size: 'grande',
         weight: 30,
-        sex: 'M'
+        sex: 'M',
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'medication',
+                petIndex: 0,
+                comment: 'Antiinflamatorio cada 12h'
+            },
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Revisión diaria de articulaciones'
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding', 'spa']
+            }
+        ]
     },
     {
         id: 'pet2',
@@ -350,7 +372,29 @@ const mockPets: Pet[] = [
         breed: 'Yorkshire',
         size: 'pequeño',
         weight: 3,
-        sex: 'F'
+        sex: 'F',
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 1,
+                foodType: 'frozen'
+            },
+            {
+                type: 'medication',
+                petIndex: 1,
+                comment: 'Vitaminas por la mañana'
+            },
+            {
+                type: 'special_care',
+                petIndex: 1,
+                comment: 'Limpieza de oídos diaria'
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 1,
+                services: ['bath_and_trim', 'spa_ozone']
+            }
+        ]
     }
 ]
 

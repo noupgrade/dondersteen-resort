@@ -27,11 +27,13 @@ export function AdditionalServices({
     initialServices = [],
     petCount,
     groomingUnavailable,
+    hideDriverService,
 }: {
     onServiceChange: (services: AdditionalService[]) => void
     initialServices?: AdditionalService[]
     petCount: number
     groomingUnavailable?: boolean
+    hideDriverService?: boolean
 }) {
     const {
         services,
@@ -69,123 +71,127 @@ export function AdditionalServices({
                 <h3 className='font-semibold'>Servicios Adicionales</h3>
 
                 {/* Driver Service */}
-                <div className='space-y-4'>
-                    <div className='flex items-center space-x-2'>
-                        <Checkbox
-                            id='transport'
-                            checked={!!driverService}
-                            onCheckedChange={checked => {
-                                if (checked) {
-                                    addOrUpdateDriverService('both')
-                                } else {
-                                    removeDriverService()
-                                }
-                            }}
-                        />
-                        <Label htmlFor='transport' className='flex items-center'>
-                            <Truck className='mr-2 h-4 w-4' />
-                            Chofer
-                        </Label>
-                    </div>
-                    {driverService && (
-                        <div className='ml-6 space-y-4'>
-                            <div className='space-y-2'>
-                                <Label>Tipo de servicio</Label>
-                                <Select
-                                    value={driverService.serviceType}
-                                    onValueChange={value => {
-                                        addOrUpdateDriverService(
-                                            value as 'pickup' | 'dropoff' | 'both',
-                                            driverService.pickupTime,
-                                            driverService.dropoffTime,
-                                            driverService.isOutOfHours
-                                        )
-                                    }}
-                                >
-                                    <SelectTrigger className='w-[180px]'>
-                                        <SelectValue placeholder='Selecciona el tipo' />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value='pickup'>Solo recogida</SelectItem>
-                                        <SelectItem value='dropoff'>Solo entrega</SelectItem>
-                                        <SelectItem value='both'>Recogida y entrega</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {(driverService.serviceType === 'pickup' || driverService.serviceType === 'both') && (
-                                <div className='space-y-2'>
-                                    <Label>Hora de recogida</Label>
-                                    <Select
-                                        value={driverService.pickupTime}
-                                        onValueChange={value => {
-                                            const isOutOfHoursTime = isOutOfHours(value)
-                                            addOrUpdateDriverService(
-                                                driverService.serviceType,
-                                                value,
-                                                driverService.dropoffTime,
-                                                isOutOfHoursTime
-                                            )
-                                        }}
-                                    >
-                                        <SelectTrigger className='w-[180px]'>
-                                            <SelectValue placeholder='Selecciona la hora' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {HOURS.map(hour => (
-                                                <SelectItem
-                                                    key={hour}
-                                                    value={hour}
-                                                    className={isOutOfHours(hour) ? 'text-yellow-500' : ''}
-                                                >
-                                                    {hour}{isOutOfHours(hour) ? ' (Fuera de horario)' : ''}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
-
-                            {(driverService.serviceType === 'dropoff' || driverService.serviceType === 'both') && (
-                                <div className='space-y-2'>
-                                    <Label>Hora de entrega</Label>
-                                    <Select
-                                        value={driverService.dropoffTime}
-                                        onValueChange={value => {
-                                            const isOutOfHoursTime = isOutOfHours(value)
-                                            addOrUpdateDriverService(
-                                                driverService.serviceType,
-                                                driverService.pickupTime,
-                                                value,
-                                                isOutOfHoursTime
-                                            )
-                                        }}
-                                    >
-                                        <SelectTrigger className='w-[180px]'>
-                                            <SelectValue placeholder='Selecciona la hora' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {HOURS.map(hour => (
-                                                <SelectItem
-                                                    key={hour}
-                                                    value={hour}
-                                                    className={isOutOfHours(hour) ? 'text-yellow-500' : ''}
-                                                >
-                                                    {hour}{isOutOfHours(hour) ? ' (Fuera de horario)' : ''}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
+                {!hideDriverService && (
+                    <div className='space-y-4'>
+                        <div className='flex items-center space-x-2'>
+                            <Checkbox
+                                id='transport'
+                                checked={!!driverService}
+                                onCheckedChange={checked => {
+                                    if (checked) {
+                                        addOrUpdateDriverService('both')
+                                    } else {
+                                        removeDriverService()
+                                    }
+                                }}
+                            />
+                            <Label htmlFor='transport' className='flex items-center'>
+                                <Truck className='mr-2 h-4 w-4' />
+                                Chofer
+                            </Label>
                         </div>
-                    )}
-                </div>
+                        {driverService && (
+                            <div className='ml-6 space-y-4'>
+                                <div className='space-y-2'>
+                                    <Label>Tipo de servicio</Label>
+                                    <Select
+                                        value={driverService.serviceType}
+                                        onValueChange={value => {
+                                            addOrUpdateDriverService(
+                                                value as 'pickup' | 'dropoff' | 'both',
+                                                driverService.pickupTime,
+                                                driverService.dropoffTime,
+                                                driverService.isOutOfHours
+                                            )
+                                        }}
+                                    >
+                                        <SelectTrigger className='w-[180px]'>
+                                            <SelectValue placeholder='Selecciona el tipo' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value='pickup'>Solo recogida</SelectItem>
+                                            <SelectItem value='dropoff'>Solo entrega</SelectItem>
+                                            <SelectItem value='both'>Recogida y entrega</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {(driverService.serviceType === 'pickup' || driverService.serviceType === 'both') && (
+                                    <div className='space-y-2'>
+                                        <Label>Hora de recogida</Label>
+                                        <Select
+                                            value={driverService.pickupTime}
+                                            onValueChange={value => {
+                                                const isOutOfHoursTime = isOutOfHours(value)
+                                                addOrUpdateDriverService(
+                                                    driverService.serviceType,
+                                                    value,
+                                                    driverService.dropoffTime,
+                                                    isOutOfHoursTime
+                                                )
+                                            }}
+                                        >
+                                            <SelectTrigger className='w-[180px]'>
+                                                <SelectValue placeholder='Selecciona la hora' />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {HOURS.map(hour => (
+                                                    <SelectItem
+                                                        key={hour}
+                                                        value={hour}
+                                                        className={isOutOfHours(hour) ? 'text-yellow-500' : ''}
+                                                    >
+                                                        {hour}{isOutOfHours(hour) ? ' (Fuera de horario)' : ''}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+
+                                {(driverService.serviceType === 'dropoff' || driverService.serviceType === 'both') && (
+                                    <div className='space-y-2'>
+                                        <Label>Hora de entrega</Label>
+                                        <Select
+                                            value={driverService.dropoffTime}
+                                            onValueChange={value => {
+                                                const isOutOfHoursTime = isOutOfHours(value)
+                                                addOrUpdateDriverService(
+                                                    driverService.serviceType,
+                                                    driverService.pickupTime,
+                                                    value,
+                                                    isOutOfHoursTime
+                                                )
+                                            }}
+                                        >
+                                            <SelectTrigger className='w-[180px]'>
+                                                <SelectValue placeholder='Selecciona la hora' />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {HOURS.map(hour => (
+                                                    <SelectItem
+                                                        key={hour}
+                                                        value={hour}
+                                                        className={isOutOfHours(hour) ? 'text-yellow-500' : ''}
+                                                    >
+                                                        {hour}{isOutOfHours(hour) ? ' (Fuera de horario)' : ''}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Per Pet Services */}
                 {Array.from({ length: petCount }).map((_, index) => (
                     <div key={index} className='space-y-4'>
-                        <h4 className='font-medium'>Servicios para mascota {index + 1}</h4>
+                        {petCount > 1 && (
+                            <h4 className='font-medium'>Servicios para mascota {index + 1}</h4>
+                        )}
 
                         {/* Special Food */}
                         <div className='space-y-4'>
