@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { format } from 'date-fns'
 import { PawPrint, PlusCircle, UtensilsCrossed, Truck, Scissors, Pill, Heart, Clock, DollarSign, Search } from 'lucide-react'
@@ -19,6 +19,8 @@ import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationV
 
 export default function PanelInterno() {
     const { reservations } = useReservation()
+    const [searchParams] = useSearchParams()
+    const [activeTab, setActiveTab] = useState('active')
     const [pendingRequests, setPendingRequests] = useState<HotelReservation[]>([])
     const [activeReservations, setActiveReservations] = useState<HotelReservation[]>([])
     const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
@@ -67,6 +69,13 @@ export default function PanelInterno() {
             setFilteredReservations(activeReservations)
         }
     }, [searchTerm, activeReservations])
+
+    useEffect(() => {
+        const pendingReservationId = searchParams.get('pendingReservationId')
+        if (pendingReservationId) {
+            setActiveTab('calendar')
+        }
+    }, [searchParams])
 
     const handleViewReservation = (reservation: HotelReservation) => {
         setSelectedReservation(reservation)
@@ -125,7 +134,7 @@ export default function PanelInterno() {
                 </Button>
             </div>
 
-            <Tabs defaultValue='active' className='space-y-4'>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
                 <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>
                     <TabsTrigger
                         value='active'

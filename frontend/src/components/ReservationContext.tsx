@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
@@ -51,6 +51,8 @@ export type HotelReservation = {
     totalPrice: number
     paymentStatus: string
     roomNumber?: string
+    createdAt?: string
+    updatedAt?: string
 }
 
 export type HairSalonReservation = {
@@ -150,10 +152,15 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const reservations = useMemo(() => {
         const allReservations = [...dbReservations]
 
-        // Only add example reservations if they don't conflict with existing ones
-        EXAMPLE_RESERVATIONS.forEach(example => {
+        // Add example reservations and update them if they exist in local storage
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const parsedExampleReservations = storedExampleReservations 
+            ? JSON.parse(storedExampleReservations) as ReservationDocument[]
+            : EXAMPLE_RESERVATIONS as ReservationDocument[]
+
+        parsedExampleReservations.forEach(example => {
             if (!allReservations.some(r => r.id === example.id)) {
-                allReservations.push(example as ReservationDocument)
+                allReservations.push(example)
             }
         })
 
@@ -161,31 +168,61 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }, [dbReservations])
 
     const addReservation = useCallback(async (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => {
-        // If it's an example reservation (you could add a flag or check the ID pattern)
+        // If it's an example reservation
         if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-            const newReservation = {
+            const newReservation: ReservationDocument = {
                 ...reservation,
                 id: `EXAMPLE_${Date.now()}`,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            } as ReservationDocument
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+
+            const storedExampleReservations = localStorage.getItem('exampleReservations')
+            const parsedExampleReservations = storedExampleReservations 
+                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
+                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+
+            const updatedReservations = [...parsedExampleReservations, newReservation]
+            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
             return newReservation
         }
         return await addDocument(reservation)
     }, [addDocument])
 
     const updateReservation = useCallback(async (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => {
-        // If it's an example reservation, just return
+        // If it's an example reservation, update it in local storage
         if (id.startsWith('EXAMPLE_')) {
-            return
+            const storedExampleReservations = localStorage.getItem('exampleReservations')
+            const parsedExampleReservations = storedExampleReservations 
+                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
+                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+
+            const updatedReservations = parsedExampleReservations.map(r => 
+                r.id === id 
+                    ? { 
+                        ...r, 
+                        ...updatedData, 
+                        updatedAt: new Date().toISOString() 
+                    } 
+                    : r
+            )
+            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+            return Promise.resolve()
         }
         await updateDocument(id, updatedData)
     }, [updateDocument])
 
     const deleteReservation = useCallback(async (id: string) => {
-        // If it's an example reservation, just return
+        // If it's an example reservation, remove it from local storage
         if (id.startsWith('EXAMPLE_')) {
-            return
+            const storedExampleReservations = localStorage.getItem('exampleReservations')
+            const parsedExampleReservations = storedExampleReservations 
+                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
+                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+
+            const updatedReservations = parsedExampleReservations.filter(r => r.id !== id)
+            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+            return Promise.resolve()
         }
         await removeDocument(id)
     }, [removeDocument])

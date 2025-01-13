@@ -700,5 +700,135 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
         status: 'confirmed',
         totalPrice: 50,
         paymentStatus: 'Pendiente'
+    },
+    // Reserva pendiente de hotel 1
+    {
+        id: 'EXAMPLE_PENDING_HOTEL_1',
+        type: 'hotel',
+        checkInDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
+        checkInTime: '14:00',
+        checkOutDate: format(addDays(new Date(), 8), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_PENDING_1',
+            name: 'María Ejemplo',
+            phone: '666111222',
+            email: 'maria@example.com'
+        },
+        pets: [
+            {
+                name: 'Bella',
+                breed: 'Cavalier King Charles',
+                weight: 8,
+                size: 'pequeño',
+                sex: 'F'
+            },
+            {
+                name: 'Charlie',
+                breed: 'Cavalier King Charles',
+                weight: 9,
+                size: 'pequeño',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            }
+        ],
+        roomNumber: 'HAB.4',
+        status: 'pending',
+        totalPrice: 240,
+        paymentStatus: 'Pendiente'
+    },
+    // Reserva pendiente de hotel 2
+    {
+        id: 'EXAMPLE_PENDING_HOTEL_2',
+        type: 'hotel',
+        checkInDate: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
+        checkInTime: '12:00',
+        checkOutDate: format(addDays(new Date(), 7), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_PENDING_2',
+            name: 'Pedro Example',
+            phone: '666333444',
+            email: 'pedro@example.com'
+        },
+        pets: [
+            {
+                name: 'Simba',
+                breed: 'Maine Coon',
+                weight: 7,
+                size: 'mediano',
+                sex: 'M'
+            },
+            {
+                name: 'Nina',
+                breed: 'Siamese',
+                weight: 4,
+                size: 'pequeño',
+                sex: 'F'
+            },
+            {
+                name: 'Toby',
+                breed: 'Persian',
+                weight: 5,
+                size: 'pequeño',
+                sex: 'M'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_care',
+                petIndex: 0,
+                comment: 'Medicación diaria'
+            }
+        ],
+        roomNumber: 'HAB.5',
+        status: 'pending',
+        totalPrice: 400,
+        paymentStatus: 'Pendiente'
+    },
+    // Reserva pendiente de hotel 3
+    {
+        id: 'EXAMPLE_PENDING_HOTEL_3',
+        type: 'hotel',
+        checkInDate: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+        checkInTime: '12:00',
+        checkOutDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_PENDING_3',
+            name: 'Ana Example',
+            phone: '666555666',
+            email: 'ana@example.com'
+        },
+        pets: [
+            {
+                name: 'Milo',
+                breed: 'Shih Tzu',
+                weight: 5,
+                size: 'pequeño',
+                sex: 'M'
+            },
+            {
+                name: 'Lola',
+                breed: 'Shih Tzu',
+                weight: 4,
+                size: 'pequeño',
+                sex: 'F'
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'both'
+            }
+        ],
+        roomNumber: 'HAB.6',
+        status: 'pending',
+        totalPrice: 320,
+        paymentStatus: 'Pendiente'
     }
 ] 

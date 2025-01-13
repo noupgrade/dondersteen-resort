@@ -1,6 +1,8 @@
-import { addDays, format, startOfWeek, addWeeks, subWeeks, isSameDay } from 'date-fns'
+import { addDays, format, startOfWeek, addWeeks, subWeeks, isSameDay, parse } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Truck } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { useEffect } from 'react'
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -9,6 +11,7 @@ import { cn } from '@/shared/lib/styles/class-merge'
 import { HotelReservation, useReservation } from '@/components/ReservationContext'
 import { Badge } from '@/shared/ui/badge'
 import { Calendar } from '@/shared/ui/calendar'
+import { PendingReservationBanner } from './PendingReservationBanner'
 import {
     Popover,
     PopoverContent,
@@ -17,7 +20,84 @@ import {
 
 export function HotelReservationsCalendarWidget() {
     const { view, selectedDate, setView, setSelectedDate } = useCalendarStore()
-    const { reservations } = useReservation()
+    const { reservations, updateReservation } = useReservation()
+    const [searchParams, setSearchParams] = useSearchParams()
+    
+    const pendingReservationId = searchParams.get('pendingReservationId')
+    const dateParam = searchParams.get('date')
+
+    // Actualizar la fecha seleccionada cuando cambie el parámetro date
+    useEffect(() => {
+        if (dateParam) {
+            const date = parse(dateParam, 'yyyy-MM-dd', new Date())
+            setSelectedDate(date)
+        }
+    }, [dateParam, setSelectedDate])
+    
+    const pendingReservation = pendingReservationId 
+        ? reservations.find((r): r is HotelReservation => r.id === pendingReservationId && r.type === 'hotel')
+        : null
+
+    useEffect(() => {
+        if (pendingReservation) {
+            console.log('Found pending reservation:', pendingReservation)
+        }
+    }, [pendingReservation])
+
+    // Añadir efecto para monitorear cambios en las reservas
+    useEffect(() => {
+        console.log('Reservations updated:', reservations.filter(r => r.type === 'hotel'))
+    }, [reservations])
+
+    const handleAccept = async (reservation: HotelReservation) => {
+        try {
+            console.log('Accepting reservation:', reservation)
+            // Asegurarnos de que todos los campos necesarios están presentes
+            const updatedReservation: Partial<HotelReservation> = {
+                ...reservation,
+                status: 'confirmed',
+                type: 'hotel',
+                updatedAt: new Date().toISOString()
+            }
+            
+            // Actualizar en la base de datos
+            await updateReservation(reservation.id, updatedReservation)
+            console.log('Reservation accepted successfully')
+            
+            // Limpiar los parámetros de la URL
+            const newParams = new URLSearchParams(searchParams)
+            newParams.delete('pendingReservationId')
+            newParams.delete('date')
+            setSearchParams(newParams)
+        } catch (error) {
+            console.error('Error al aceptar la reserva:', error)
+        }
+    }
+
+    const handleReject = async (reservation: HotelReservation) => {
+        try {
+            console.log('Rejecting reservation:', reservation)
+            // Asegurarnos de que todos los campos necesarios están presentes
+            const updatedReservation: Partial<HotelReservation> = {
+                ...reservation,
+                status: 'cancelled',
+                type: 'hotel',
+                updatedAt: new Date().toISOString()
+            }
+            
+            // Actualizar en la base de datos
+            await updateReservation(reservation.id, updatedReservation)
+            console.log('Reservation rejected successfully')
+            
+            // Limpiar los parámetros de la URL
+            const newParams = new URLSearchParams(searchParams)
+            newParams.delete('pendingReservationId')
+            newParams.delete('date')
+            setSearchParams(newParams)
+        } catch (error) {
+            console.error('Error al rechazar la reserva:', error)
+        }
+    }
 
     const handleNavigate = (direction: 'prev' | 'next') => {
         if (view === 'week') {
@@ -37,12 +117,15 @@ export function HotelReservationsCalendarWidget() {
     })
 
     const getReservationsForDate = (date: string) => {
-        return reservations.filter(
+        const filteredReservations = reservations.filter(
             (reservation): reservation is HotelReservation =>
                 reservation.type === 'hotel' &&
+                reservation.status === 'confirmed' &&  // Solo mostrar reservas confirmadas
                 new Date(reservation.checkInDate) <= new Date(date) &&
                 new Date(reservation.checkOutDate) >= new Date(date)
         )
+        console.log('Filtered reservations for date', date, ':', filteredReservations)
+        return filteredReservations
     }
 
     const getReservationStyle = (reservation: HotelReservation, date: string) => {
@@ -200,6 +283,13 @@ export function HotelReservationsCalendarWidget() {
 
     return (
         <div className="space-y-4">
+            {pendingReservation && (
+                <PendingReservationBanner
+                    reservation={pendingReservation}
+                    onAccept={handleAccept}
+                    onReject={handleReject}
+                />
+            )}
             <div className="flex items-center justify-between border-b pb-4">
                 <div className="flex items-center gap-4">
                     <Button

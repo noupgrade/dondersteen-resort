@@ -1,7 +1,9 @@
 'use client'
 
 import { format } from 'date-fns'
-import { Clock, PawPrint, Truck, UtensilsCrossed, Pill, Heart, Scissors, Check, X } from 'lucide-react'
+import { Clock, PawPrint, Truck, UtensilsCrossed, Pill, Heart, Scissors, CalendarRange } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { useMemo } from 'react'
 
 import { HotelReservation, useReservation } from '@/components/ReservationContext'
 import { ServiceType } from '@/shared/types/additional-services'
@@ -10,25 +12,30 @@ import { Card, CardContent, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
 
 export function PendingRequests() {
-    const { reservations, updateReservation } = useReservation()
-    const pendingRequests = reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[]
+    const { reservations } = useReservation()
+    const [searchParams, setSearchParams] = useSearchParams()
+    
+    // Filtrar solo las reservas pendientes de hotel
+    const pendingRequests = useMemo(() => 
+        reservations.filter(r => 
+            r.type === 'hotel' && 
+            r.status === 'pending'
+        ) as HotelReservation[],
+        [reservations]
+    )
 
-    const handleAccept = async (e: React.MouseEvent, reservation: HotelReservation) => {
-        e.stopPropagation() // Evitar que se propague al onClick de la tarjeta
-        try {
-            await updateReservation(reservation.id, { status: 'confirmed' })
-        } catch (error) {
-            console.error('Error al aceptar la reserva:', error)
-        }
-    }
-
-    const handleReject = async (e: React.MouseEvent, reservation: HotelReservation) => {
-        e.stopPropagation() // Evitar que se propague al onClick de la tarjeta
-        try {
-            await updateReservation(reservation.id, { status: 'cancelled' })
-        } catch (error) {
-            console.error('Error al rechazar la reserva:', error)
-        }
+    const handleCheckAvailability = (reservation: HotelReservation) => {
+        console.log('Checking availability for reservation:', reservation)
+        const checkInDate = new Date(reservation.checkInDate)
+        const dateStr = format(checkInDate, 'yyyy-MM-dd')
+        
+        // Mantener los parámetros existentes y añadir los nuevos
+        const newParams = new URLSearchParams(searchParams)
+        newParams.set('pendingReservationId', reservation.id)
+        newParams.set('date', dateStr)
+        
+        console.log('Setting search params:', Object.fromEntries(newParams.entries()))
+        setSearchParams(newParams)
     }
 
     const getServiceIcon = (serviceType: ServiceType) => {
@@ -70,7 +77,7 @@ export function PendingRequests() {
             {pendingRequests.map((reservation) => (
                 <Card 
                     key={reservation.id} 
-                    className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                    className="overflow-hidden"
                 >
                     <div className="flex">
                         <div className="w-64 shrink-0 bg-[#4B6BFB]/5 p-6 flex flex-col justify-between space-y-6">
@@ -129,7 +136,7 @@ export function PendingRequests() {
                                             .filter(service => 
                                                 service.petIndex === petIndex && 
                                                 (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
-                                            );
+                                            )
 
                                         return (
                                             <div key={petIndex} className={`${petIndex < reservation.pets.length - 1 ? 'border-b border-border' : ''}`}>
@@ -173,19 +180,11 @@ export function PendingRequests() {
                     </div>
                     <div className="flex justify-end gap-2 p-4 bg-gray-50 border-t">
                         <Button
-                            variant="outline"
-                            className="border-red-500 text-red-500 hover:bg-red-50"
-                            onClick={(e) => handleReject(e, reservation)}
-                        >
-                            <X className="h-4 w-4 mr-2" />
-                            Rechazar
-                        </Button>
-                        <Button
                             className="bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90"
-                            onClick={(e) => handleAccept(e, reservation)}
+                            onClick={() => handleCheckAvailability(reservation)}
                         >
-                            <Check className="h-4 w-4 mr-2" />
-                            Aceptar
+                            <CalendarRange className="h-4 w-4 mr-2" />
+                            Comprobar Disponibilidad
                         </Button>
                     </div>
                 </Card>
