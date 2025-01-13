@@ -1,9 +1,8 @@
-import { create } from 'zustand'
-import type { StateCreator } from 'zustand'
 import { addDays, format } from 'date-fns'
+import { create } from 'zustand'
 
-import type { CalendarState, CalendarActions, CalendarView, DraggedReservation } from './types'
 import type { ExtendedReservation } from '@/types/reservation'
+import type { CalendarActions, CalendarState, CalendarView, DraggedReservation } from './types'
 
 interface CalendarStore extends CalendarState, CalendarActions { }
 
