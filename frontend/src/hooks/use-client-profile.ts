@@ -78,6 +78,13 @@ const mockClientProfile: ClientProfile = {
 }
 
 export function useClientProfile(userId: string): { data: ClientProfile | null, isLoading: boolean } {
+    if (userId === '') {
+        return {
+            data: null,
+            isLoading: false
+        }
+    }
+
     // In future iterations, this will fetch data based on userId
     return {
         data: mockClientProfile,

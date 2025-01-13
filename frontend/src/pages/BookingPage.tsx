@@ -1,23 +1,30 @@
 'use client'
 
+import { useClientProfile } from '@/hooks/use-client-profile'
 import { AlertCircle } from 'lucide-react'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
-import { ConfirmationDialog } from '@/components/confirmation-dialog'
 import { BookingSummary } from '@/components/booking-summary'
+import { ConfirmationDialog } from '@/components/confirmation-dialog'
+import { useBookingCalculations } from '@/features/booking/model/useBookingCalculations'
+import { useBookingForm } from '@/features/booking/model/useBookingForm'
+import {
+    AdditionalServicesStep,
+    ConfirmationStep,
+    DateSelectionStep,
+    PetInformationStep,
+} from '@/features/booking/ui/BookingSteps'
+import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Form } from '@/shared/ui/form'
-import { useBookingForm } from '@/features/booking/model/useBookingForm'
-import { useBookingCalculations } from '@/features/booking/model/useBookingCalculations'
-import { AdditionalService } from '@/shared/types/additional-services'
-import {
-    PetInformationStep,
-    DateSelectionStep,
-    AdditionalServicesStep,
-    ConfirmationStep,
-} from '@/features/booking/ui/BookingSteps'
 
 export default function BookingPage() {
+    const [searchParams] = useSearchParams()
+    const userId = searchParams.get('userId')
+    const { data: clientProfile } = useClientProfile(userId || '')
+
     const {
         form,
         state,
@@ -27,7 +34,54 @@ export default function BookingPage() {
         handleSubmit,
         nextStep,
         prevStep,
-    } = useBookingForm()
+        clearForm,
+    } = useBookingForm({
+        defaultValues: {
+            pets: clientProfile?.pets.map(pet => ({
+                name: pet.name,
+                breed: pet.breed,
+                weight: String(pet.weight),
+                size: pet.size,
+                age: '0',
+                personality: '',
+                sex: pet.sex || 'M'
+            })) || [{
+                name: '',
+                breed: '',
+                weight: '0',
+                size: 'pequeño' as const,
+                age: '0',
+                personality: '',
+                sex: 'M' as const
+            }],
+            dates: null,
+            services: clientProfile?.pets.map(pet => pet.additionalServices).flat() || [],
+            clientName: clientProfile?.client.name.split(' ')[0] || '',
+            clientLastName: clientProfile?.client.name.split(' ').slice(1).join(' ') || '',
+            clientEmail: clientProfile?.client.email || '',
+            clientPhone: clientProfile?.client.phone || ''
+        }
+    })
+
+    // Update form values when clientProfile changes
+    useEffect(() => {
+        if (clientProfile) {
+            form.setValue('clientName', clientProfile.client.name.split(' ')[0])
+            form.setValue('clientLastName', clientProfile.client.name.split(' ').slice(1).join(' '))
+            form.setValue('clientEmail', clientProfile.client.email)
+            form.setValue('clientPhone', clientProfile.client.phone)
+            form.setValue('pets', clientProfile.pets.map(pet => ({
+                name: pet.name,
+                breed: pet.breed,
+                weight: String(pet.weight),
+                size: pet.size,
+                age: '0',
+                personality: '',
+                sex: pet.sex || 'M'
+            })))
+            form.setValue('services', clientProfile.pets.map(pet => pet.additionalServices).flat())
+        }
+    }, [clientProfile, form])
 
     const { calculateCapacity } = useBookingCalculations()
 
@@ -37,6 +91,14 @@ export default function BookingPage() {
 
     return (
         <div className='container mx-auto max-w-4xl py-8'>
+            <div className='fixed left-5 top-5'>
+                <Button
+                    variant='outline'
+                    onClick={clearForm}
+                >
+                    Limpiar reserva
+                </Button>
+            </div>
             <h1 className='mb-8 text-center text-3xl font-bold'>Reserva tu estancia en Dondersteen</h1>
             <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
                 <div className='lg:col-span-2'>

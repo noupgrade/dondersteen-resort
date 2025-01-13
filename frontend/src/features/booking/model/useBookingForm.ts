@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AdditionalService } from '@/shared/types/additional-services'
@@ -14,7 +14,11 @@ import {
     bookingFormSchema
 } from '../types/booking.types'
 
-export function useBookingForm() {
+interface UseBookingFormProps {
+    defaultValues?: Partial<BookingFormData>
+}
+
+export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     const [state, setState] = useState<BookingState>({
         currentStep: 1,
         selectedDates: null,
@@ -46,6 +50,7 @@ export function useBookingForm() {
             clientLastName: '',
             clientEmail: '',
             clientPhone: '',
+            ...defaultValues
         },
     })
 
@@ -184,14 +189,40 @@ export function useBookingForm() {
             const cleanedServices = (values.services as AdditionalService[])
                 .filter(Boolean)
                 .map(service => {
-                    // Create a new object with only the defined properties
-                    const cleanService: Record<string, any> = {}
-                    Object.entries(service).forEach(([key, value]) => {
-                        if (value !== undefined && value !== null) {
-                            cleanService[key] = value
-                        }
-                    })
-                    return cleanService
+                    switch (service.type) {
+                        case 'driver':
+                            return {
+                                type: 'driver',
+                                petIndex: service.petIndex,
+                                serviceType: service.serviceType
+                            }
+                        case 'special_food':
+                            return {
+                                type: 'special_food',
+                                petIndex: service.petIndex,
+                                foodType: service.foodType
+                            }
+                        case 'medication':
+                            return {
+                                type: 'medication',
+                                petIndex: service.petIndex,
+                                comment: service.comment
+                            }
+                        case 'special_care':
+                            return {
+                                type: 'special_care',
+                                petIndex: service.petIndex,
+                                comment: service.comment
+                            }
+                        case 'hairdressing':
+                            return {
+                                type: 'hairdressing',
+                                petIndex: service.petIndex,
+                                services: service.services
+                            }
+                        default:
+                            return service
+                    }
                 })
 
             const newReservation = {
@@ -278,6 +309,37 @@ export function useBookingForm() {
         }))
     }, [])
 
+    const clearForm = useCallback(() => {
+        localStorage.removeItem('bookingFormData')
+        form.reset({
+            pets: [{
+                name: '',
+                breed: '',
+                weight: '0',
+                size: 'pequeño' as const,
+                age: '0',
+                personality: '',
+                sex: 'M' as const
+            }],
+            dates: null,
+            services: [],
+            clientName: '',
+            clientLastName: '',
+            clientEmail: '',
+            clientPhone: '',
+        })
+        setState({
+            currentStep: 1,
+            selectedDates: null,
+            totalPrice: 0,
+            dateError: '',
+            formError: '',
+            groomingUnavailable: false,
+            pickupTime: '09:00',
+            confirmedReservationId: '',
+        })
+    }, [form])
+
     return {
         form,
         state,
@@ -288,5 +350,6 @@ export function useBookingForm() {
         handleSubmit,
         nextStep,
         prevStep,
+        clearForm,
     }
 } 

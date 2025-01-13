@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
@@ -18,6 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/shared/ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useClientProfile } from '@/hooks/use-client-profile'
 
 const formSchema = z.object({
     date: z.date({
@@ -40,21 +41,37 @@ export default function PeluqueriaBookingPage() {
     const { addReservation } = useReservation()
 
     const [searchParams] = useSearchParams()
+    const userId = searchParams.get('userId')
+    const { data: clientProfile } = useClientProfile(userId || '')
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             serviceType: '',
-            clientName: '',
-            clientPhone: '',
-            clientEmail: '',
-            petName: '',
-            petBreed: '',
-            petWeight: 0,
+            clientName: clientProfile?.client.name || '',
+            clientPhone: clientProfile?.client.phone || '',
+            clientEmail: clientProfile?.client.email || '',
+            petName: clientProfile?.pets[0]?.name || '',
+            petBreed: clientProfile?.pets[0]?.breed || '',
+            petWeight: clientProfile?.pets[0]?.weight || 0,
             date: searchParams?.get('date') ? parse(searchParams.get('date')!, 'yyyy-MM-dd', new Date()) : undefined,
             time: searchParams?.get('time') || '',
         },
     })
+
+    // Update form values when clientProfile changes
+    useEffect(() => {
+        if (clientProfile) {
+            form.setValue('clientName', clientProfile.client.name)
+            form.setValue('clientPhone', clientProfile.client.phone)
+            form.setValue('clientEmail', clientProfile.client.email)
+            if (clientProfile.pets[0]) {
+                form.setValue('petName', clientProfile.pets[0].name)
+                form.setValue('petBreed', clientProfile.pets[0].breed)
+                form.setValue('petWeight', clientProfile.pets[0].weight)
+            }
+        }
+    }, [clientProfile, form])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!values.date || !values.time) {
@@ -76,22 +93,21 @@ export default function PeluqueriaBookingPage() {
                 name: values.petName,
                 breed: values.petBreed,
                 weight: values.petWeight,
-                size: 'pequeño',
+                size: clientProfile?.pets[0]?.size || 'pequeño',
+                sex: clientProfile?.pets[0]?.sex || 'M',
             },
-            additionalServices: [values.serviceType],
+            serviceType: values.serviceType,
             status: 'pending',
-            totalPrice: 0,
             paymentStatus: 'Pendiente',
-            source: 'external',
-            beforePhoto: '',
-            afterPhoto: '',
-            priceNote: '',
-            observations: '',
         }
 
-        const savedReservation = await addReservation(newReservation)
-        setConfirmedReservationId(savedReservation.id)
-        setShowConfirmation(true)
+        try {
+            const savedReservation = await addReservation(newReservation)
+            setConfirmedReservationId(savedReservation.id)
+            setShowConfirmation(true)
+        } catch (error) {
+            console.error('Error saving reservation:', error)
+        }
     }
 
     const handleDateTimeSelect = (date: Date, time: string) => {

@@ -1,11 +1,10 @@
 import { format } from 'date-fns'
 import { useState, useCallback, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertCircle, Bed, ChevronDown, ChevronLeft, Euro, PawPrint, Phone, Plus, Scissors as ScissorsIcon, Truck, X } from 'lucide-react'
 
-import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
 import { PetCard } from '@/components/pet-card.tsx'
 import { type HairSalonReservation, type HotelReservation, type Client, type Pet } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge.ts'
@@ -331,17 +330,22 @@ const translations = {
 
 export default function ClientProfile() {
     const { user } = useAuth()
+    const navigate = useNavigate()
     const { data: clientProfile, isLoading } = useClientProfile(user?.uid || '')
-    const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false)
     const [language, setLanguage] = useState<Language>('es')
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
     const [clientReservations, setClientReservations] = useState<(HairSalonReservation | HotelReservation)[]>(mockReservations)
     const [showAllReservations, setShowAllReservations] = useState(false)
     const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false)
-    const [editedClientDetails, setEditedClientDetails] = useState(clientProfile?.client)
+    const [editedClientDetails, setEditedClientDetails] = useState<Client>({
+        name: '',
+        phone: '',
+        email: '',
+        address: ''
+    })
 
     useEffect(() => {
-        if (clientProfile) {
+        if (clientProfile?.client) {
             setEditedClientDetails(clientProfile.client)
         }
     }, [clientProfile])
@@ -676,12 +680,12 @@ export default function ClientProfile() {
 
         const handleHotelReservation = () => {
             setIsOpen(false)
-            setIsNewReservationModalOpen(true)
+            navigate(`/booking?userId=${user?.uid}`)
         }
 
         const handleGroomingReservation = () => {
             setIsOpen(false)
-            setIsNewReservationModalOpen(true)
+            navigate(`/peluqueria-booking?userId=${user?.uid}`)
         }
 
         const handleCall = () => {
@@ -916,12 +920,6 @@ export default function ClientProfile() {
                             </Card>
                         </button>
                     </div>
-
-                    <NewReservationModal
-                        isOpen={isNewReservationModalOpen}
-                        onClose={() => setIsNewReservationModalOpen(false)}
-                        language={language}
-                    />
 
                     <Dialog open={isEditClientModalOpen} onOpenChange={setIsEditClientModalOpen}>
                         <DialogContent className="w-[95vw] max-w-[425px] p-3">
