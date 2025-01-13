@@ -1,24 +1,22 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
+import { useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, ChevronLeft, Plus, ChevronDown, Calendar, Clock, Bed, Scissors as ScissorsIcon, X, PawPrint, Euro, Phone, Truck } from 'lucide-react'
+import { AlertCircle, Bed, ChevronDown, ChevronLeft, Euro, PawPrint, Phone, Plus, Scissors as ScissorsIcon, Truck, X } from 'lucide-react'
 
-import { ClientDetailsCard } from '@/components/client-details-card.tsx'
 import { NewReservationModal } from '@/components/new-reservation-modal.tsx'
 import { PetCard } from '@/components/pet-card.tsx'
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
-import { ReservationCard } from '@/components/reservation-card.tsx'
+import { type HairSalonReservation, type HotelReservation, type Client, type Pet } from '@/components/ReservationContext'
+import { cn } from '@/shared/lib/styles/class-merge.ts'
+import { AdditionalService, DriverService, HairdressingService, MedicationService, SpecialCareService, SpecialFoodService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription } from '@/shared/ui/alert.tsx'
+import { Badge } from '@/shared/ui/badge.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
-import { cn } from '@/shared/lib/styles/class-merge.ts'
-import { Badge } from '@/shared/ui/badge.tsx'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/ui/dialog.tsx'
-import { Label } from '@/shared/ui/label.tsx'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog.tsx'
 import { Input } from '@/shared/ui/input.tsx'
-import { AdditionalService } from '@/shared/types/additional-services'
+import { Label } from '@/shared/ui/label.tsx'
 
 const mockReservations: (HairSalonReservation | HotelReservation)[] = [
     {
@@ -60,21 +58,22 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
                 type: 'special_food',
                 petIndex: 0,
                 foodType: 'refrigerated'
-            },
+            } as SpecialFoodService,
             {
                 type: 'medication',
                 petIndex: 1,
                 comment: 'Antiinflamatorio cada 12h'
-            },
+            } as MedicationService,
             {
                 type: 'special_care',
                 petIndex: 2,
                 comment: 'Revisión diaria de oídos'
-            },
+            } as SpecialCareService,
             {
                 type: 'driver',
+                petIndex: 0,
                 serviceType: 'both'
-            }
+            } as DriverService
         ],
         roomNumber: '101',
         status: 'confirmed',
@@ -84,6 +83,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
     {
         id: '2',
         type: 'peluqueria',
+        source: 'external',
         date: '2024-03-15',
         time: '14:00',
         client: {
@@ -102,17 +102,11 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
                 type: 'hairdressing',
                 petIndex: 0,
                 services: ['bath_and_brush', 'bath_and_trim', 'spa_ozone']
-            },
-            {
-                type: 'special_care',
-                petIndex: 0,
-                comment: 'Corte de uñas incluido'
-            }
+            } as HairdressingService
         ],
         status: 'confirmed',
         totalPrice: 55,
-        paymentStatus: 'Pendiente',
-        source: 'external'
+        paymentStatus: 'Pendiente'
     },
     {
         id: '3',
@@ -146,16 +140,17 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
                 type: 'special_food',
                 petIndex: 0,
                 foodType: 'frozen'
-            },
+            } as SpecialFoodService,
             {
                 type: 'special_food',
                 petIndex: 1,
                 foodType: 'frozen'
-            },
+            } as SpecialFoodService,
             {
                 type: 'driver',
+                petIndex: 0,
                 serviceType: 'pickup'
-            }
+            } as DriverService
         ],
         roomNumber: '102',
         status: 'cancelled',
@@ -165,6 +160,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
     {
         id: '4',
         type: 'peluqueria',
+        source: 'external',
         date: '2024-04-01',
         time: '11:00',
         client: {
@@ -183,16 +179,11 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
                 type: 'hairdressing',
                 petIndex: 0,
                 services: ['bath_and_trim', 'deshedding', 'spa']
-            },
-            {
-                type: 'driver',
-                serviceType: 'both'
-            }
+            } as HairdressingService
         ],
         status: 'propuesta peluqueria',
         totalPrice: 65,
         paymentStatus: 'Pendiente',
-        source: 'external',
         priceNote: 'Propuesta para el servicio de baño, corte, deslanado y spa'
     },
     {
@@ -227,29 +218,33 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
                 type: 'special_food',
                 petIndex: 0,
                 foodType: 'refrigerated'
-            },
+            } as SpecialFoodService,
             {
                 type: 'medication',
                 petIndex: 0,
                 comment: 'Antiparasitario día 12'
-            },
+            } as MedicationService,
             {
                 type: 'hairdressing',
                 petIndex: 0,
                 services: ['bath_and_brush', 'deshedding']
-            },
+            } as HairdressingService,
             {
                 type: 'hairdressing',
                 petIndex: 1,
                 services: ['bath_and_brush', 'deshedding']
-            }
+            } as HairdressingService
         ],
         roomNumber: '103',
         status: 'confirmed',
         totalPrice: 520,
         paymentStatus: 'Pendiente'
     }
-]
+] as const
+
+type Language = 'es' | 'en'
+type TranslationValue = { [K in Language]: string }
+type Translations = { [K: string]: TranslationValue }
 
 const translations = {
     back: { es: 'Volver', en: 'Back' },
@@ -329,54 +324,49 @@ const translations = {
     transportPickup: { es: 'Recogida', en: 'Pickup' },
     transportDropoff: { es: 'Entrega', en: 'Dropoff' },
     transportBoth: { es: 'Completo', en: 'Complete' },
+    dataUpdated: { es: 'Datos actualizados correctamente', en: 'Data updated successfully' },
 } as const
 
-type TranslationKey = keyof typeof translations
-
-const mockClientDetails = {
+const mockClientDetails: Client = {
+    id: 'client1',
     name: 'John Doe',
     phone: '+34 123 456 789',
     email: 'john.doe@example.com',
-    address: 'Calle Principal 123, 28001 Madrid',
+    address: 'Calle Principal 123, 28001 Madrid'
 }
+
+const mockPets: Pet[] = [
+    {
+        id: 'pet1',
+        name: 'Max',
+        breed: 'Golden Retriever',
+        size: 'grande',
+        weight: 30,
+        sex: 'M'
+    },
+    {
+        id: 'pet2',
+        name: 'Luna',
+        breed: 'Yorkshire',
+        size: 'pequeño',
+        weight: 3,
+        sex: 'F'
+    }
+]
 
 export default function ClientProfile() {
     const [isNewReservationModalOpen, setIsNewReservationModalOpen] = useState(false)
-    const [language, setLanguage] = useState<'es' | 'en'>('es')
+    const [language, setLanguage] = useState<Language>('es')
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
-    const [clientReservations, setClientReservations] = useState(mockReservations)
+    const [clientReservations, setClientReservations] = useState<(HairSalonReservation | HotelReservation)[]>(mockReservations)
     const [showAllReservations, setShowAllReservations] = useState(false)
     const [isEditClientModalOpen, setIsEditClientModalOpen] = useState(false)
     const [editedClientDetails, setEditedClientDetails] = useState(mockClientDetails)
 
-    const mockPets = [
-        {
-            id: 1,
-            name: 'Max',
-            breed: 'Golden Retriever',
-            age: 5,
-            gender: 'Male',
-            food: 'BARF diet',
-            medication: 'None',
-            habits: 'Loves walks',
-            personality: 'Friendly',
-            comments: 'Allergic to chicken',
-        },
-        {
-            id: 2,
-            name: 'Luna',
-            breed: 'Siamese',
-            age: 3,
-            gender: 'Female',
-            food: 'Dry food',
-            medication: 'None',
-            habits: 'Sleeps a lot',
-            personality: 'Independent',
-            comments: 'Prefers quiet environments',
-        },
-    ]
-
-    const t = (key: TranslationKey): string => translations[key][language]
+    const t = useCallback((key: keyof typeof translations) => {
+        const translation = translations[key] as TranslationValue
+        return translation[language]
+    }, [language])
 
     const handleReservationDeleted = (reservationId: string) => {
         setClientReservations(prev => prev.filter(res => res.id !== reservationId))
@@ -397,7 +387,7 @@ export default function ClientProfile() {
         ? clientReservations
         : clientReservations.slice(0, 4)
 
-    const CompactReservationCard = ({ reservation }: { reservation: HairSalonReservation | HotelReservation }) => {
+    const CompactReservationCard = useCallback(({ reservation }: { reservation: HairSalonReservation | HotelReservation }) => {
         const [isExpanded, setIsExpanded] = useState(false)
         const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
 
@@ -427,7 +417,7 @@ export default function ClientProfile() {
                     ...reservation,
                     status: 'confirmed' as const
                 }
-                setClientReservations(prev => 
+                setClientReservations(prev =>
                     prev.map(res => res.id === reservation.id ? updatedReservation : res)
                 )
                 setSuccessMessage(t('proposalAccepted'))
@@ -446,8 +436,8 @@ export default function ClientProfile() {
             switch (service.type) {
                 case 'driver':
                     return service.serviceType === 'pickup' ? t('driverPickup') :
-                           service.serviceType === 'dropoff' ? t('driverDropoff') :
-                           t('driverBoth')
+                        service.serviceType === 'dropoff' ? t('driverDropoff') :
+                            t('driverBoth')
                 case 'special_food':
                     return `${t('specialFood')} (${service.foodType === 'refrigerated' ? t('refrigerated') : t('frozen')})`
                 case 'medication':
@@ -455,7 +445,7 @@ export default function ClientProfile() {
                 case 'special_care':
                     return t('specialCare') + (service.comment ? `: ${service.comment}` : '')
                 case 'hairdressing':
-                    return t('hairdressing') + ': ' + service.services.map((s: string) => {
+                    return t('hairdressing') + ': ' + service.services.map(s => {
                         switch (s) {
                             case 'bath_and_brush': return t('bathAndBrush')
                             case 'bath_and_trim': return t('bathAndTrim')
@@ -470,6 +460,27 @@ export default function ClientProfile() {
                 default:
                     return t('unknownService')
             }
+        }
+
+        const getTransportService = (services: (SpecialFoodService | MedicationService | SpecialCareService | HairdressingService | DriverService)[]) => {
+            const transportService = services.find(service => service.type === 'driver') as DriverService | undefined
+            if (!transportService) return null
+
+            const getTransportText = () => {
+                switch (transportService.serviceType) {
+                    case 'pickup': return t('transportPickup')
+                    case 'dropoff': return t('transportDropoff')
+                    case 'both': return t('transportBoth')
+                    default: return ''
+                }
+            }
+
+            return (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Truck className="h-4 w-4" />
+                    <span>{getTransportText()}</span>
+                </div>
+            )
         }
 
         const renderDates = () => {
@@ -501,9 +512,9 @@ export default function ClientProfile() {
         const renderPets = () => {
             if (reservation.type === 'hotel') {
                 return reservation.pets.map((pet, index) => {
-                    const petServices = reservation.additionalServices.filter(service => 
+                    const petServices = reservation.additionalServices.filter(service =>
                         service.petIndex === index && service.type !== 'driver'
-                    )
+                    ) as (SpecialFoodService | MedicationService | SpecialCareService | HairdressingService)[]
 
                     return (
                         <div key={index} className='mb-4 last:mb-0'>
@@ -524,10 +535,10 @@ export default function ClientProfile() {
                     )
                 })
             } else {
-                const petServices = reservation.additionalServices.filter(service => 
+                const petServices = reservation.additionalServices.filter(service =>
                     service.petIndex === 0 && service.type !== 'driver'
-                )
-                
+                ) as (SpecialFoodService | MedicationService | SpecialCareService | HairdressingService)[]
+
                 return (
                     <div className='mb-4'>
                         <div className='flex items-center text-gray-700 font-semibold mb-2'>
@@ -546,27 +557,6 @@ export default function ClientProfile() {
                     </div>
                 )
             }
-        }
-
-        const getTransportService = () => {
-            const transportService = reservation.additionalServices.find(service => service.type === 'driver')
-            if (!transportService) return null
-
-            const getTransportText = () => {
-                switch (transportService.serviceType) {
-                    case 'pickup': return t('transportPickup')
-                    case 'dropoff': return t('transportDropoff')
-                    case 'both': return t('transportBoth')
-                    default: return ''
-                }
-            }
-
-            return (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Truck className="h-4 w-4" />
-                    <span>{getTransportText()}</span>
-                </div>
-            )
         }
 
         return (
@@ -609,12 +599,12 @@ export default function ClientProfile() {
                                     "px-2 py-0.5 text-xs font-medium whitespace-nowrap"
                                 )}>
                                     {reservation.status === 'propuesta peluqueria' ? t('proposal') :
-                                     reservation.status === 'confirmed' ? t('confirmed') :
-                                     reservation.status === 'cancelled' ? t('cancelled') :
-                                     reservation.status === 'pending' ? t('pending') :
-                                     reservation.status}
+                                        reservation.status === 'confirmed' ? t('confirmed') :
+                                            reservation.status === 'cancelled' ? t('cancelled') :
+                                                reservation.status === 'pending' ? t('pending') :
+                                                    reservation.status}
                                 </Badge>
-                                {getTransportService()}
+                                {getTransportService(reservation.additionalServices as (SpecialFoodService | MedicationService | SpecialCareService | HairdressingService | DriverService)[])}
                             </div>
                         </div>
 
@@ -638,33 +628,33 @@ export default function ClientProfile() {
                                         </div>
                                     )}
 
-                                    {reservation.type === 'peluqueria' && 
-                                     reservation.status === 'propuesta peluqueria' && 
-                                     reservation.priceNote && (
-                                        <div className="bg-yellow-50 p-4 rounded-lg">
-                                            <div className="flex flex-col gap-2">
-                                                <Button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        handleAcceptProposal()
-                                                    }}
-                                                    className="w-full bg-green-500 hover:bg-green-600 text-white"
-                                                >
-                                                    {t('acceptProposal')}
-                                                </Button>
-                                                <Button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setIsRejectDialogOpen(true)
-                                                    }}
-                                                    variant="outline"
-                                                    className="w-full border-red-500 text-red-500 hover:bg-red-50"
-                                                >
-                                                    {t('rejectProposal')}
-                                                </Button>
+                                    {reservation.type === 'peluqueria' &&
+                                        reservation.status === 'propuesta peluqueria' &&
+                                        reservation.priceNote && (
+                                            <div className="bg-yellow-50 p-4 rounded-lg">
+                                                <div className="flex flex-col gap-2">
+                                                    <Button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleAcceptProposal()
+                                                        }}
+                                                        className="w-full bg-green-500 hover:bg-green-600 text-white"
+                                                    >
+                                                        {t('acceptProposal')}
+                                                    </Button>
+                                                    <Button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setIsRejectDialogOpen(true)
+                                                        }}
+                                                        variant="outline"
+                                                        className="w-full border-red-500 text-red-500 hover:bg-red-50"
+                                                    >
+                                                        {t('rejectProposal')}
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
                                 </div>
                             </div>
                         )}
@@ -681,9 +671,9 @@ export default function ClientProfile() {
                             <Button className='w-full' variant='destructive' onClick={handleRejectProposal}>
                                 {t('yes')}
                             </Button>
-                            <Button 
-                                className='w-full' 
-                                variant='outline' 
+                            <Button
+                                className='w-full'
+                                variant='outline'
                                 onClick={() => {
                                     window.location.href = 'tel:+34666777888'
                                     setIsRejectDialogOpen(false)
@@ -696,7 +686,7 @@ export default function ClientProfile() {
                 </Dialog>
             </>
         )
-    }
+    }, [t, setClientReservations, setSuccessMessage])
 
     const FloatingActionButton = () => {
         const [isOpen, setIsOpen] = useState(false)
@@ -729,8 +719,8 @@ export default function ClientProfile() {
                             />
                             <motion.div
                                 initial={{ scale: 0, opacity: 0 }}
-                                animate={{ 
-                                    scale: 1, 
+                                animate={{
+                                    scale: 1,
                                     opacity: 1,
                                     x: -70,
                                     y: -70,
@@ -749,8 +739,8 @@ export default function ClientProfile() {
                             </motion.div>
                             <motion.div
                                 initial={{ scale: 0, opacity: 0 }}
-                                animate={{ 
-                                    scale: 1, 
+                                animate={{
+                                    scale: 1,
                                     opacity: 1,
                                     y: -100,
                                 }}
@@ -768,8 +758,8 @@ export default function ClientProfile() {
                             </motion.div>
                             <motion.div
                                 initial={{ scale: 0, opacity: 0 }}
-                                animate={{ 
-                                    scale: 1, 
+                                animate={{
+                                    scale: 1,
                                     opacity: 1,
                                     x: -100,
                                 }}

@@ -1,79 +1,63 @@
-import { useState } from 'react'
-
-import { CircleDot, MessageCircle, PawPrintIcon, Pencil, Pill, Trash2, User2, X } from 'lucide-react'
-
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/ui/dialog'
-import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { PawPrint, Pencil, Trash2, User2 } from 'lucide-react'
+import { useState } from 'react'
+import { Pet } from './ReservationContext'
+import { EditPetDialog } from '@/features/pet-management/ui/EditPetDialog'
 
 const translations = {
-    name: { es: 'Nombre', en: 'Name' },
     breed: { es: 'Raza', en: 'Breed' },
-    age: { es: 'Edad', en: 'Age' },
-    gender: { es: 'Género', en: 'Gender' },
-    food: { es: 'Alimentación', en: 'Food' },
-    medication: { es: 'Medicación', en: 'Medication' },
-    habits: { es: 'Hábitos', en: 'Habits' },
-    personality: { es: 'Personalidad', en: 'Personality' },
-    comments: { es: 'Comentarios', en: 'Comments' },
+    weight: { es: 'Peso', en: 'Weight' },
+    size: { es: 'Tamaño', en: 'Size' },
+    sex: { es: 'Sexo', en: 'Sex' },
+    edit: { es: 'Editar', en: 'Edit' },
+    delete: { es: 'Eliminar', en: 'Delete' },
+    pequeño: { es: 'Pequeño', en: 'Small' },
+    mediano: { es: 'Mediano', en: 'Medium' },
+    grande: { es: 'Grande', en: 'Large' },
+    kg: { es: 'kg', en: 'kg' },
+    male: { es: 'Macho', en: 'Male' },
+    female: { es: 'Hembra', en: 'Female' },
     editPet: { es: 'Editar Mascota', en: 'Edit Pet' },
     deletePet: { es: 'Eliminar Mascota', en: 'Delete Pet' },
-    save: { es: 'Guardar', en: 'Save' },
-    cancel: { es: 'Cancelar', en: 'Cancel' },
     confirmDelete: {
         es: '¿Estás seguro de que quieres eliminar esta mascota?',
-        en: 'Are you sure you want to delete this pet?',
+        en: 'Are you sure you want to delete this pet?'
     },
     yes: { es: 'Sí', en: 'Yes' },
-    no: { es: 'No', en: 'No' },
-    years: { es: 'años', en: 'years' },
-}
+    no: { es: 'No', en: 'No' }
+} as const
 
-type Pet = {
-    id: number
-    name: string
-    breed: string
-    age: number
-    gender: string
-    food: string
-    medication: string
-    habits: string
-    personality: string
-    comments: string
-}
-
-type PetCardProps = {
+interface PetCardProps {
     pet: Pet
     language: 'es' | 'en'
+    onSave?: (pet: Pet) => void
+    onDelete?: () => void
 }
 
-type TranslationKey = keyof typeof translations
-
-export function PetCard({ pet, language }: PetCardProps) {
+export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-    const [editedPet, setEditedPet] = useState<Pet>(pet)
 
-    const t = (key: TranslationKey): string => {
-        return translations[key][language]
+    const t = (key: keyof typeof translations) => translations[key][language]
+
+    const translateSize = (size: Pet['size']) => {
+        return t(size)
     }
 
-    const handleSave = () => {
-        // Logic to save the edited pet
-        console.log('Saving edited pet', editedPet)
-        setIsEditDialogOpen(false)
+    const translateSex = (sex: 'M' | 'F') => {
+        return sex === 'M' ? t('male') : t('female')
+    }
+
+    const handleSave = (editedPet: Pet) => {
+        onSave?.(editedPet)
     }
 
     const handleDelete = () => {
-        // Logic to delete the pet
-        console.log('Deleting pet', pet.id)
+        onDelete?.()
         setIsDeleteDialogOpen(false)
     }
-
-    type EditablePetKey = Exclude<keyof Pet, 'id'>
 
     return (
         <Card className='bg-gray-50 shadow-md transition-shadow hover:shadow-lg w-full'>
@@ -84,56 +68,25 @@ export function PetCard({ pet, language }: PetCardProps) {
                     <div className='space-y-2 sm:space-y-3'>
                         <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
                             <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <PawPrintIcon className='h-4 w-4 text-blue-500 shrink-0' />
+                                <PawPrint className='h-4 w-4 text-blue-500 shrink-0' />
                                 <span className='font-semibold'>
-                                    {t('breed')} / {t('age')}:
+                                    {t('breed')} / {t('size')}:
                                 </span>
                             </div>
                             <span className='pl-5 sm:pl-0'>
-                                {pet.breed} | {pet.age} {t('years')}
+                                {pet.breed} | {translateSize(pet.size)}
                             </span>
                         </div>
                         <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
                             <div className='flex items-center gap-1.5 sm:gap-2'>
                                 <User2 className='h-4 w-4 text-blue-500 shrink-0' />
                                 <span className='font-semibold'>
-                                    {t('gender')} / {t('food')}:
+                                    {t('sex')} / {t('weight')}:
                                 </span>
                             </div>
                             <span className='pl-5 sm:pl-0'>
-                                {pet.gender} | {pet.food}
+                                {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')}
                             </span>
-                        </div>
-                    </div>
-
-                    <div className='space-y-2 sm:space-y-3'>
-                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
-                            <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <Pill className='h-4 w-4 text-red-500 shrink-0' />
-                                <span className='font-semibold'>{t('medication')}:</span>
-                            </div>
-                            <span className='pl-5 sm:pl-0'>{pet.medication || 'N/A'}</span>
-                        </div>
-                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
-                            <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <CircleDot className='h-4 w-4 text-purple-500 shrink-0' />
-                                <span className='font-semibold'>{t('habits')}:</span>
-                            </div>
-                            <span className='pl-5 sm:pl-0'>{pet.habits}</span>
-                        </div>
-                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
-                            <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <CircleDot className='h-4 w-4 text-yellow-500 shrink-0' />
-                                <span className='font-semibold'>{t('personality')}:</span>
-                            </div>
-                            <span className='pl-5 sm:pl-0'>{pet.personality}</span>
-                        </div>
-                        <div className='flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-2'>
-                            <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <MessageCircle className='h-4 w-4 text-gray-500 shrink-0' />
-                                <span className='font-semibold'>{t('comments')}:</span>
-                            </div>
-                            <span className='pl-5 sm:pl-0'>{pet.comments}</span>
                         </div>
                     </div>
                 </div>
@@ -147,9 +100,9 @@ export function PetCard({ pet, language }: PetCardProps) {
                         <Pencil className='mr-1 h-4 w-4' />
                         {t('editPet')}
                     </Button>
-                    <Button 
-                        variant='destructive' 
-                        size='sm' 
+                    <Button
+                        variant='destructive'
+                        size='sm'
                         onClick={() => setIsDeleteDialogOpen(true)}
                         className='w-full'
                     >
@@ -159,112 +112,13 @@ export function PetCard({ pet, language }: PetCardProps) {
                 </div>
             </CardContent>
 
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="w-[95vw] max-w-[425px] p-3">
-                    <DialogHeader className="pb-2">
-                        <DialogTitle className="text-base font-medium flex items-center justify-between">
-                            {t('editPet')}
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setIsEditDialogOpen(false)}
-                                className="h-6 w-6 p-0"
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-2 py-2">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">{t('name')}</Label>
-                                <Input
-                                    value={editedPet.name}
-                                    onChange={e => setEditedPet({ ...editedPet, name: e.target.value })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">{t('breed')}</Label>
-                                <Input
-                                    value={editedPet.breed}
-                                    onChange={e => setEditedPet({ ...editedPet, breed: e.target.value })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">{t('age')}</Label>
-                                <Input
-                                    type="number"
-                                    value={editedPet.age}
-                                    onChange={e => setEditedPet({ ...editedPet, age: parseInt(e.target.value) })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">{t('gender')}</Label>
-                                <Input
-                                    value={editedPet.gender}
-                                    onChange={e => setEditedPet({ ...editedPet, gender: e.target.value })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">{t('food')}</Label>
-                                <Input
-                                    value={editedPet.food}
-                                    onChange={e => setEditedPet({ ...editedPet, food: e.target.value })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">{t('medication')}</Label>
-                                <Input
-                                    value={editedPet.medication}
-                                    onChange={e => setEditedPet({ ...editedPet, medication: e.target.value })}
-                                    className="h-8 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <Label className="text-xs">{t('habits')}</Label>
-                            <Textarea
-                                value={editedPet.habits}
-                                onChange={e => setEditedPet({ ...editedPet, habits: e.target.value })}
-                                className="min-h-[40px] text-sm resize-none"
-                            />
-                        </div>
-                        <div>
-                            <Label className="text-xs">{t('personality')}</Label>
-                            <Textarea
-                                value={editedPet.personality}
-                                onChange={e => setEditedPet({ ...editedPet, personality: e.target.value })}
-                                className="min-h-[40px] text-sm resize-none"
-                            />
-                        </div>
-                        <div>
-                            <Label className="text-xs">{t('comments')}</Label>
-                            <Textarea
-                                value={editedPet.comments}
-                                onChange={e => setEditedPet({ ...editedPet, comments: e.target.value })}
-                                className="min-h-[40px] text-sm resize-none"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter className="flex gap-2 pt-2">
-                        <Button
-                            onClick={handleSave}
-                            className="flex-1 h-8 text-xs font-medium"
-                        >
-                            {t('save')}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <EditPetDialog
+                pet={pet}
+                isOpen={isEditDialogOpen}
+                onClose={() => setIsEditDialogOpen(false)}
+                onSave={handleSave}
+                language={language}
+            />
 
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent className='w-[95vw] max-w-[425px] p-4 sm:p-6'>
