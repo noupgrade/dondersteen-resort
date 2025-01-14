@@ -37,6 +37,7 @@ interface ReservationViewerProps {
 }
 
 export function ReservationViewer({ reservation, onClose }: ReservationViewerProps) {
+    console.log({ reservation })
     const [editedReservation, setEditedReservation] = useState<HotelReservation | HairSalonReservation>(reservation)
     const [isEditMode, setIsEditMode] = useState(false)
     const [stayPrice, setStayPrice] = useState(50) // precio por día predeterminado
