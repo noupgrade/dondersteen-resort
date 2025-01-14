@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 
 import { format, parse } from 'date-fns'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, ArrowRight, Clock } from 'lucide-react'
 import * as z from 'zod'
 
 import { useReservation } from '@/components/ReservationContext.tsx'
@@ -14,6 +14,7 @@ import { PeluqueriaAvailabilityCalendar } from '@/components/peluqueria-availabi
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog.tsx'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form.tsx'
 import { Input } from '@/shared/ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
@@ -48,6 +49,64 @@ const HAIRDRESSING_SERVICES = [
     { value: 'knots', label: 'Nudos' },
     { value: 'extremely_dirty', label: 'Extremadamente sucio' },
 ] as const
+
+function DaycareBanner() {
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const navigate = useNavigate()
+
+    return (
+        <>
+            <Alert 
+                className="mt-2 cursor-pointer bg-yellow-50 hover:bg-yellow-100/80 transition-colors group px-3 sm:px-4" 
+                onClick={() => setIsDialogOpen(true)}
+            >
+                <div className="flex justify-between items-start">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 shrink-0 text-yellow-800" />
+                            <AlertDescription className="text-yellow-800 font-medium text-sm sm:text-base">
+                                Servicio de guardería:
+                            </AlertDescription>
+                        </div>
+                        <AlertDescription className="text-yellow-800 font-medium text-sm sm:text-base ml-6">
+                            Recogida hasta las 18:00
+                        </AlertDescription>
+                    </div>
+                    <div className="flex items-center gap-1 text-yellow-800">
+                        <span className="text-sm">Reservar</span>
+                        <ArrowRight className="h-4 w-4 transform transition-transform group-hover:translate-x-1" />
+                    </div>
+                </div>
+            </Alert>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="sm:max-w-[425px] w-[95vw] sm:w-full">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg sm:text-xl">Servicio de Guardería</DialogTitle>
+                        <DialogDescription className="pt-2 space-y-2">
+                            <p>Las reservas para el servicio de guardería se realizan desde el motor de reservas de hotel.</p>
+                            <p>Durante el proceso de reserva podrás agregar sin problema los servicios de peluquería que necesites a través de los servicios adicionales.</p>
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="sm:justify-end">
+                        <Button onClick={() => navigate('/booking')} className="w-full sm:w-auto gap-2">
+                            Ir al motor de reservas de hotel
+                            <ArrowRight className="h-4 w-4" />
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </>
+    )
+}
+
+function FormSubtitle({ children }: { children: React.ReactNode }) {
+    return (
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+            {children}
+        </h3>
+    )
+}
 
 export default function PeluqueriaBookingPage() {
     const [showConfirmation, setShowConfirmation] = useState(false)
@@ -156,26 +215,26 @@ export default function PeluqueriaBookingPage() {
     }
 
     return (
-        <div className='container py-8'>
+        <div className='container py-4 sm:py-8 px-4 sm:px-6'>
             <Card className='mx-auto max-w-2xl'>
-                <CardHeader>
-                    <CardTitle>Reserva de Peluquería</CardTitle>
-                    <CardDescription>
+                <CardHeader className="px-4 sm:px-6">
+                    <CardTitle className="text-2xl sm:text-3xl">Reserva de Peluquería</CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
                         {searchParams.get('date') && searchParams.get('time')
                             ? `Reserva para el ${format(parse(searchParams.get('date')!, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy')} a las ${searchParams.get('time')}`
                             : 'Completa el formulario para reservar un servicio de peluquería para tu mascota.'}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 sm:px-6">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6 sm:space-y-8'>
                             <FormField
                                 control={form.control}
                                 name='services'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Servicios</FormLabel>
-                                        <div className="space-y-2">
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Servicios</FormSubtitle>
+                                        <div className="space-y-2 ml-1">
                                             {HAIRDRESSING_SERVICES.map((service) => (
                                                 <div key={service.value} className="flex items-center space-x-2">
                                                     <FormControl>
@@ -191,13 +250,13 @@ export default function PeluqueriaBookingPage() {
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <Label htmlFor={`service-${service.value}`} className="text-sm">
+                                                    <Label htmlFor={`service-${service.value}`} className="text-sm sm:text-base">
                                                         {service.label}
                                                     </Label>
                                                 </div>
                                             ))}
                                         </div>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -205,8 +264,8 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='date'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Fecha y hora del servicio</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Fecha y hora del servicio</FormSubtitle>
                                         <FormControl>
                                             <PeluqueriaAvailabilityCalendar
                                                 onSelect={handleDateTimeSelect}
@@ -214,27 +273,28 @@ export default function PeluqueriaBookingPage() {
                                                 selectedTime={form.watch('time')}
                                             />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
+                            <DaycareBanner />
                             {dateTimeError && (
                                 <Alert variant='destructive'>
                                     <AlertCircle className='h-4 w-4' />
                                     <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>{dateTimeError}</AlertDescription>
+                                    <AlertDescription className="text-sm">{dateTimeError}</AlertDescription>
                                 </Alert>
                             )}
                             <FormField
                                 control={form.control}
                                 name='clientName'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nombre del cliente</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Nombre del cliente</FormSubtitle>
                                         <FormControl>
-                                            <Input placeholder='Nombre completo' {...field} />
+                                            <Input placeholder='Nombre completo' className="text-sm sm:text-base" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -242,12 +302,12 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='clientPhone'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Teléfono</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Teléfono</FormSubtitle>
                                         <FormControl>
-                                            <Input type='tel' placeholder='+34 ' {...field} />
+                                            <Input type='tel' placeholder='+34 ' className="text-sm sm:text-base" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -255,12 +315,12 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='clientEmail'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Email</FormSubtitle>
                                         <FormControl>
-                                            <Input type='email' placeholder='tu@email.com' {...field} />
+                                            <Input type='email' placeholder='tu@email.com' className="text-sm sm:text-base" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -268,12 +328,12 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='petName'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Nombre de la mascota</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Nombre de la mascota</FormSubtitle>
                                         <FormControl>
-                                            <Input placeholder='Nombre de la mascota' {...field} />
+                                            <Input placeholder='Nombre de la mascota' className="text-sm sm:text-base" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -281,12 +341,12 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='petBreed'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Raza de la mascota</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Raza de la mascota</FormSubtitle>
                                         <FormControl>
-                                            <Input placeholder='Raza' {...field} />
+                                            <Input placeholder='Raza' className="text-sm sm:text-base" {...field} />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
@@ -294,22 +354,23 @@ export default function PeluqueriaBookingPage() {
                                 control={form.control}
                                 name='petWeight'
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Peso de la mascota (kg)</FormLabel>
+                                    <FormItem className="space-y-4">
+                                        <FormSubtitle>Peso de la mascota (kg)</FormSubtitle>
                                         <FormControl>
                                             <Input
                                                 type='number'
                                                 step='0.1'
+                                                className="text-sm sm:text-base"
                                                 {...field}
                                                 onChange={e => field.onChange(parseFloat(e.target.value))}
                                             />
                                         </FormControl>
-                                        <FormMessage />
+                                        <FormMessage className="text-sm" />
                                     </FormItem>
                                 )}
                             />
-                            <div className='flex justify-end'>
-                                <Button type='submit'>Reservar</Button>
+                            <div className='flex justify-end pt-4'>
+                                <Button type='submit' className="w-full sm:w-auto">Reservar</Button>
                             </div>
                         </form>
                     </Form>
