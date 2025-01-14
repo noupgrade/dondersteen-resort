@@ -1,26 +1,40 @@
-import { useHotelReservations } from '@/components/ReservationContext.tsx'
-import { DailyNeedsList } from '@/components/daily-needs-list.tsx'
-import { HotelFloorPlan } from '@/components/hotel-floor-plan.tsx'
-import { Card } from '@/shared/ui/card.tsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
+import { useHotelReservations } from '@/components/ReservationContext'
+import { DailyNeedsList } from '@/components/daily-needs-list'
+import { HotelFloorPlan } from '@/components/hotel-floor-plan'
+import { SpecialConditionsLegend } from '@/components/special-conditions-legend'
+import { Card } from '@/shared/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+
+interface HotelReservation {
+    id: string
+    roomNumber: string
+    pets: Array<{
+        name: string
+        breed: string
+        size: string
+        medication?: string
+        specialFood?: string
+        observations?: string
+    }>
+}
 
 export default function PlanningPage() {
     const { reservations } = useHotelReservations()
 
     const hotel1Reservations = reservations.filter(
-        r => r.roomNumber.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) <= 21,
+        r => r.roomNumber?.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) <= 21,
     )
     const hotel2Reservations = reservations.filter(
-        r => r.roomNumber.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) >= 25,
+        r => r.roomNumber?.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) >= 25,
     )
 
     return (
-        <div className='container mx-auto space-y-6 p-6'>
+        <div className='h-screen flex flex-col p-4 gap-2'>
             <div className='flex items-center justify-between'>
-                <h1 className='text-3xl font-bold'>Planning</h1>
+                <h1 className='text-2xl font-bold'>Planning</h1>
             </div>
 
-            <Tabs defaultValue='daily-needs' className='space-y-4'>
+            <Tabs defaultValue='daily-needs' className='flex-1 flex flex-col min-h-0'>
                 <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
                     <TabsTrigger 
                         value='daily-needs'
@@ -41,19 +55,26 @@ export default function PlanningPage() {
                         Hotel 2
                     </TabsTrigger>
                 </TabsList>
-                <TabsContent value='daily-needs'>
-                    <Card className='p-6'>
+
+                <TabsContent value='daily-needs' className='flex-1 mt-2'>
+                    <Card className='p-4 h-full'>
                         <DailyNeedsList />
                     </Card>
                 </TabsContent>
-                <TabsContent value='hotel1'>
-                    <Card className='p-6'>
-                        <HotelFloorPlan hotelNumber={1} reservations={hotel1Reservations} />
+                <TabsContent value='hotel1' className='flex-1 mt-2'>
+                    <Card className='p-4 h-full flex flex-col gap-2'>
+                        <SpecialConditionsLegend />
+                        <div className='flex-1 min-h-0'>
+                            <HotelFloorPlan hotelNumber={1} reservations={hotel1Reservations} />
+                        </div>
                     </Card>
                 </TabsContent>
-                <TabsContent value='hotel2'>
-                    <Card className='p-6'>
-                        <HotelFloorPlan hotelNumber={2} reservations={hotel2Reservations} />
+                <TabsContent value='hotel2' className='flex-1 mt-2'>
+                    <Card className='p-4 h-full flex flex-col gap-2'>
+                        <SpecialConditionsLegend />
+                        <div className='flex-1 min-h-0'>
+                            <HotelFloorPlan hotelNumber={2} reservations={hotel2Reservations} />
+                        </div>
                     </Card>
                 </TabsContent>
             </Tabs>

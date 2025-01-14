@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/shared/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Textarea } from '@/shared/ui/textarea'
+import { SPECIAL_CONDITIONS } from '@/shared/types/special-conditions'
 
 interface Room {
     id: string
@@ -41,19 +42,11 @@ interface PetInfo {
 }
 
 const sizeOptions = ['pequeño', 'mediano', 'grande', 'extra grande']
-const conditionOptions = [
-    { value: 'medication', label: 'Medicación', icon: 'O' },
-    { value: 'specialFood', label: 'Comida personalizada', icon: '□' },
-    { value: 'noBed', label: 'Sin cama', icon: '△' },
-    { value: 'allergic', label: 'Alérgico', icon: 'A' },
-    { value: 'bites', label: 'Cuidado muerde', icon: '†' },
-    { value: 'escapist', label: 'Escapista', icon: 'E' },
-    { value: 'ownFood', label: 'Pienso propio', icon: '*' },
-    { value: 'addMeat', label: 'Añadir carne/lata al pienso', icon: '■' },
-    { value: 'freshMeat', label: 'Carne fresca', icon: '□' },
-    { value: 'ownCan', label: 'Lata propia', icon: 'L' },
-    { value: 'littleFood', label: 'Poco pienso', icon: '-' },
-]
+const conditionOptions = SPECIAL_CONDITIONS.map(condition => ({
+    value: condition.symbol,
+    label: condition.label,
+    icon: condition.symbol
+}))
 
 export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
     const { reservations, updateReservation } = useReservation()
