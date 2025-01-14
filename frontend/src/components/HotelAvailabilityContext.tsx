@@ -3,6 +3,7 @@
 import { createContext, useContext, ReactNode } from 'react'
 import { useDocument } from '@/shared/firebase/hooks/useDocument'
 import { FSDocument } from '@/shared/firebase/types'
+import { getDay } from 'date-fns'
 
 interface BlockedDate {
     startDate: string
@@ -39,6 +40,7 @@ interface HotelAvailabilityContextType {
     isDateBlocked: (date: string) => boolean
     isHoliday: (date: string) => boolean
     isHighSeason: (date: string) => boolean
+    isWeekend: (date: string) => boolean
     isLoading: boolean
 }
 
@@ -118,6 +120,11 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         )
     }
 
+    const isWeekend = (date: string) => {
+        const day = getDay(new Date(date))
+        return day === 0 // 0 is Sunday
+    }
+
     return (
         <HotelAvailabilityContext.Provider
             value={{
@@ -133,6 +140,7 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
                 isDateBlocked,
                 isHoliday,
                 isHighSeason,
+                isWeekend,
                 isLoading,
             }}
         >

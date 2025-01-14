@@ -12,6 +12,7 @@ import { UnauthenticatedProviders } from '../providers'
 import '../styles/index.css'
 import '../versions/versionListener.ts'
 import { DocumentsProvider } from '@/shared/firebase/hooks/useDocument.tsx'
+import { HotelAvailabilityProvider } from '@/components/HotelAvailabilityContext.tsx'
 
 TrackingService.init()
 
@@ -20,9 +21,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Sentry.ErrorBoundary fallback={<ErrorPage />} showDialog>
             <DocumentsProvider>
                 <UnauthenticatedProviders>
-                    <BrowserRouter>
-                        <RoutingComponent />
-                    </BrowserRouter>
+                    <HotelAvailabilityProvider>
+                        <BrowserRouter>
+                            <RoutingComponent />
+                        </BrowserRouter>
+                    </HotelAvailabilityProvider>
                 </UnauthenticatedProviders>
             </DocumentsProvider>
         </Sentry.ErrorBoundary>
