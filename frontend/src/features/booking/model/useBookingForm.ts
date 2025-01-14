@@ -185,7 +185,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 weight: Number(pet.weight),
                 size: pet.size,
                 sex: pet.sex,
-                isNeutered: pet.isNeutered
+                isNeutered: pet.isNeutered || false
             }))
 
             // Filter out any undefined or null values from services
