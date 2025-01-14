@@ -38,6 +38,8 @@ const translateService = (service: AdditionalService) => {
                     case 'brushing': return 'Cepillado'
                     case 'spa': return 'Spa'
                     case 'spa_ozone': return 'Spa con ozono'
+                    case 'knots': return 'Nudos'
+                    case 'extremely_dirty': return 'Extremadamente sucio'
                     default: return s
                 }
             }).join(', ')

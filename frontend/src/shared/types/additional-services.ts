@@ -34,6 +34,8 @@ export type HairdressingServiceType =
     | 'brushing'
     | 'spa'
     | 'spa_ozone'
+    | 'knots'
+    | 'extremely_dirty'
 
 export interface HairdressingService extends BaseService {
     type: 'hairdressing'

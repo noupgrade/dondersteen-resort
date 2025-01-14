@@ -20,6 +20,8 @@ const HAIRDRESSING_SERVICES = [
     { value: 'brushing', label: 'Cepillado' },
     { value: 'spa', label: 'Spa' },
     { value: 'spa_ozone', label: 'Spa+ozono' },
+    { value: 'knots', label: 'Nudos' },
+    { value: 'extremely_dirty', label: 'Extremadamente sucio' },
 ] as const
 
 export function AdditionalServices({

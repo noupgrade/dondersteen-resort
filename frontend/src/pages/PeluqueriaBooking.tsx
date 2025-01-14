@@ -19,13 +19,16 @@ import { Input } from '@/shared/ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useClientProfile } from '@/hooks/use-client-profile'
+import { type HairdressingServiceType } from '@/shared/types/additional-services'
+import { Checkbox } from '@/shared/ui/checkbox'
+import { Label } from '@/shared/ui/label'
 
 const formSchema = z.object({
     date: z.date({
         required_error: 'La fecha del servicio es requerida.',
     }),
     time: z.string().min(1, 'La hora del servicio es requerida.'),
-    serviceType: z.string().min(1, 'El tipo de servicio es requerido.'),
+    services: z.array(z.string()).min(1, 'El tipo de servicio es requerido.'),
     clientName: z.string().min(1, 'El nombre del cliente es requerido.'),
     clientPhone: z.string().min(9, 'El teléfono debe tener al menos 9 dígitos.'),
     clientEmail: z.string().email('Correo electrónico inválido.'),
@@ -33,6 +36,18 @@ const formSchema = z.object({
     petBreed: z.string().min(1, 'La raza de la mascota es requerida.'),
     petWeight: z.number().min(0.1, 'El peso debe ser mayor que 0.'),
 })
+
+const HAIRDRESSING_SERVICES = [
+    { value: 'bath_and_brush', label: 'Baño y cepillado' },
+    { value: 'bath_and_trim', label: 'Baño y arreglo (corte)' },
+    { value: 'stripping', label: 'Stripping' },
+    { value: 'deshedding', label: 'Desalanado (extraccion muda)' },
+    { value: 'brushing', label: 'Cepillado' },
+    { value: 'spa', label: 'Spa' },
+    { value: 'spa_ozone', label: 'Spa+ozono' },
+    { value: 'knots', label: 'Nudos' },
+    { value: 'extremely_dirty', label: 'Extremadamente sucio' },
+] as const
 
 export default function PeluqueriaBookingPage() {
     const [showConfirmation, setShowConfirmation] = useState(false)
@@ -47,7 +62,7 @@ export default function PeluqueriaBookingPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            serviceType: '',
+            services: [],
             clientName: clientProfile?.client.name || '',
             clientPhone: clientProfile?.client.phone || '',
             clientEmail: clientProfile?.client.email || '',
@@ -82,6 +97,7 @@ export default function PeluqueriaBookingPage() {
 
         const newReservation: Omit<HairSalonReservation, 'id'> = {
             type: 'peluqueria',
+            source: 'external',
             date: format(values.date, 'yyyy-MM-dd'),
             time: values.time,
             client: {
@@ -96,9 +112,14 @@ export default function PeluqueriaBookingPage() {
                 size: clientProfile?.pets[0]?.size || 'pequeño',
                 sex: clientProfile?.pets[0]?.sex || 'M',
             },
-            serviceType: values.serviceType,
+            additionalServices: [{
+                type: 'hairdressing',
+                petIndex: 0,
+                services: values.services as HairdressingServiceType[]
+            }],
             status: 'pending',
             paymentStatus: 'Pendiente',
+            totalPrice: 0, // This will be calculated by the backend
         }
 
         try {
@@ -132,22 +153,32 @@ export default function PeluqueriaBookingPage() {
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
                             <FormField
                                 control={form.control}
-                                name='serviceType'
+                                name='services'
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tipo de servicio</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder='Selecciona un servicio' />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value='bano_especial'>Baño especial</SelectItem>
-                                                <SelectItem value='corte'>Corte</SelectItem>
-                                                <SelectItem value='deslanado'>Deslanado</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <FormLabel>Servicios</FormLabel>
+                                        <div className="space-y-2">
+                                            {HAIRDRESSING_SERVICES.map((service) => (
+                                                <div key={service.value} className="flex items-center space-x-2">
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            id={`service-${service.value}`}
+                                                            checked={field.value.includes(service.value)}
+                                                            onCheckedChange={(checked) => {
+                                                                if (checked) {
+                                                                    field.onChange([...field.value, service.value])
+                                                                } else {
+                                                                    field.onChange(field.value.filter((value) => value !== service.value))
+                                                                }
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <Label htmlFor={`service-${service.value}`} className="text-sm">
+                                                        {service.label}
+                                                    </Label>
+                                                </div>
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}

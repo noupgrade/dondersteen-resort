@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import { ReservationProvider } from '@/components/ReservationContext'
+import { HotelAvailabilityProvider } from '@/components/HotelAvailabilityContext'
 
 import { LoginPage } from '@/pages/login/LoginPage'
 import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
@@ -38,7 +39,9 @@ export const RoutingComponent = () => (
             element={
                 <WithAnonymousUser userType='endUser'>
                     <ReservationProvider>
-                        <PeluqueriaBookingPage />
+                        <HotelAvailabilityProvider>
+                            <PeluqueriaBookingPage />
+                        </HotelAvailabilityProvider>
                     </ReservationProvider>
                 </WithAnonymousUser>
             }
