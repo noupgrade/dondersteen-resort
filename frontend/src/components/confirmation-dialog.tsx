@@ -13,6 +13,7 @@ import {
     DialogTitle,
 } from '@/shared/ui/dialog'
 import { isHairdressingService, type AdditionalService } from '@/shared/types/additional-services'
+import { PetFormData } from '@/features/booking/types/booking.types'
 
 type ConfirmationDialogProps = {
     open: boolean
@@ -28,17 +29,27 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
 
     const renderContent = () => {
         if (reservation.type === 'hotel') {
+            const petsFormData: PetFormData[] = reservation.pets.map(pet => ({
+                name: pet.name,
+                breed: pet.breed,
+                weight: String(pet.weight),
+                size: pet.size,
+                age: '0',
+                personality: '',
+                sex: pet.sex || 'M',
+                isNeutered: pet.isNeutered || false
+            }))
+
             return (
                 <div className='py-4'>
                     <BookingSummary
                         dates={{
-                            startDate: new Date(reservation.checkInDate),
-                            endDate: new Date(reservation.checkOutDate),
+                            from: new Date(reservation.checkInDate),
+                            to: new Date(reservation.checkOutDate),
                         }}
-                        pets={reservation.pets}
-                        services={reservation.additionalServices.reduce<Record<string, boolean>>((acc, service) => ({ ...acc, [service.type]: true }), {})}
+                        pets={petsFormData}
+                        services={reservation.additionalServices}
                         totalPrice={reservation.totalPrice}
-                        pickupTime={reservation.checkInTime}
                     />
                 </div>
             )

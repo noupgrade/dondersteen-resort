@@ -31,7 +31,7 @@ export default function ClientesPage() {
             {
                 id: '1',
                 name: 'María García',
-                phone: '+34 123 456 789',
+                phone: '+34123456789',
                 email: 'maria@example.com',
                 pets: ['Rocky', 'Nacho'],
                 activeReservations: 2,

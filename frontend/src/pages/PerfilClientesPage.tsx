@@ -28,7 +28,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
         checkOutDate: '2024-03-05',
         client: {
             name: 'John Doe',
-            phone: '+34 123 456 789',
+            phone: '+34123456789',
             email: 'john.doe@example.com'
         },
         pets: [
@@ -89,7 +89,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
         time: '14:00',
         client: {
             name: 'John Doe',
-            phone: '+34 123 456 789',
+            phone: '+34123456789',
             email: 'john.doe@example.com'
         },
         pet: {
@@ -117,7 +117,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
         checkOutDate: '2024-03-28',
         client: {
             name: 'John Doe',
-            phone: '+34 123 456 789',
+            phone: '+34123456789',
             email: 'john.doe@example.com'
         },
         pets: [
@@ -166,7 +166,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
         time: '11:00',
         client: {
             name: 'John Doe',
-            phone: '+34 123 456 789',
+            phone: '+34123456789',
             email: 'john.doe@example.com'
         },
         pet: {
@@ -195,7 +195,7 @@ const mockReservations: (HairSalonReservation | HotelReservation)[] = [
         checkOutDate: '2024-04-15',
         client: {
             name: 'John Doe',
-            phone: '+34 123 456 789',
+            phone: '+34123456789',
             email: 'john.doe@example.com'
         },
         pets: [

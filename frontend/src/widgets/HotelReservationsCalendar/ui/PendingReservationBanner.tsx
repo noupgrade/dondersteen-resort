@@ -14,16 +14,16 @@ interface PendingReservationBannerProps {
     onReject: (reservation: HotelReservation) => void
 }
 
-export function PendingReservationBanner({ 
-    reservation, 
-    onAccept, 
+export function PendingReservationBanner({
+    reservation,
+    onAccept,
     onReject,
 }: PendingReservationBannerProps) {
     if (!reservation) return null
 
     return (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 p-4">
-            <Card className="w-[60vw] overflow-hidden">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 p-4 w-[80%]">
+            <Card className="overflow-hidden">
                 <div className="flex">
                     <div className="w-64 shrink-0 bg-[#4B6BFB]/5 p-4 flex flex-col justify-between">
                         <div>

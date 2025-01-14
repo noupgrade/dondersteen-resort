@@ -46,7 +46,7 @@ const mockHotelReservation1: HotelReservation = {
     checkOutTime: '12:00',
     client: {
         name: 'María García',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'maria@example.com'
     },
     pets: [
@@ -100,7 +100,7 @@ const mockHotelReservation2: HotelReservation = {
     checkOutTime: '12:00',
     client: {
         name: 'María García',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'maria@example.com'
     },
     pets: [
@@ -139,7 +139,7 @@ const mockHairSalonReservation1: HairSalonReservation = {
     time: '10:00',
     client: {
         name: 'María García',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'maria@example.com'
     },
     pet: {
@@ -178,7 +178,7 @@ const mockHairSalonReservation2: HairSalonReservation = {
     time: '16:00',
     client: {
         name: 'María García',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'maria@example.com'
     },
     pet: {
@@ -206,7 +206,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
     '1': {
         id: '1',
         name: 'María García',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'maria@example.com',
         address: 'Calle Principal 123, 28001 Madrid',
         accumulatedSpending: 1500,

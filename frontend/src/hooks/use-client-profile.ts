@@ -9,7 +9,7 @@ const mockClientProfile: ClientProfile = {
     client: {
         id: 'client1',
         name: 'John Doe',
-        phone: '+34 123 456 789',
+        phone: '+34123456789',
         email: 'john.doe@example.com',
         address: 'Calle Principal 123, 28001 Madrid'
     },

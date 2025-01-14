@@ -58,7 +58,9 @@ export default function BookingPage() {
                 isNeutered: false
             }],
             dates: null,
-            services: clientProfile?.pets.map(pet => pet.additionalServices).flat() || [],
+            services: clientProfile?.pets
+                .map(pet => pet.additionalServices || [])
+                .flat() || [],
             clientName: clientProfile?.client.name.split(' ')[0] || '',
             clientLastName: clientProfile?.client.name.split(' ').slice(1).join(' ') || '',
             clientEmail: clientProfile?.client.email || '',
@@ -80,9 +82,13 @@ export default function BookingPage() {
                 size: pet.size,
                 age: '0',
                 personality: '',
-                sex: pet.sex || 'M'
+                sex: pet.sex || 'M',
+                isNeutered: pet.isNeutered || false
             })))
-            form.setValue('services', clientProfile.pets.map(pet => pet.additionalServices).flat())
+            form.setValue('services', clientProfile.pets
+                .map(pet => pet.additionalServices || [])
+                .flat()
+            )
         }
     }, [clientProfile, form])
 
