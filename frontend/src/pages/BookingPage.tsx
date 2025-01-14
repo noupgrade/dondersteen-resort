@@ -167,10 +167,7 @@ export default function BookingPage() {
                 <div className='lg:col-span-1'>
                     <BookingSummary
                         pets={form.getValues('pets')}
-                        dates={state.selectedDates ? {
-                            startDate: state.selectedDates.from,
-                            endDate: state.selectedDates.to
-                        } : null}
+                        dates={state.selectedDates}
                         services={form.getValues('services')}
                         totalPrice={state.totalPrice}
                     />
