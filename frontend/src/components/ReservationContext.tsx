@@ -41,15 +41,7 @@ export type HotelReservation = {
     checkOutTime?: string
     client: Client
     pets: Pet[]
-    additionalServices: {
-        type: string
-        petIndex: number
-        services?: string[]
-        comment?: string
-        serviceType?: 'pickup' | 'dropoff' | 'both'
-        foodType?: 'refrigerated' | 'frozen'
-        price?: number
-    }[]
+    additionalServices: AdditionalService[]
     shopProducts?: ShopProduct[]
     status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
     totalPrice: number
