@@ -13,6 +13,8 @@ import {
     ChevronLeft,
     ShoppingBag,
     Plus,
+    Save,
+    X,
     Pencil
 } from 'lucide-react'
 
@@ -339,11 +341,39 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
                                         "border-2",
                                         isEditMode ? "border-primary" : "hover:border-primary"
                                     )}
-                                    onClick={() => setIsEditMode(!isEditMode)}
+                                    onClick={() => {
+                                        if (isEditMode) {
+                                            // Aquí iría la lógica para guardar los cambios
+                                            console.log('Guardando cambios:', editedReservation)
+                                        }
+                                        setIsEditMode(!isEditMode)
+                                    }}
                                 >
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    {isEditMode ? "Modo Edición Activo" : "Editar"}
+                                    {isEditMode ? (
+                                        <>
+                                            <Save className="h-4 w-4 mr-2" />
+                                            Guardar
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Pencil className="h-4 w-4 mr-2" />
+                                            Editar
+                                        </>
+                                    )}
                                 </Button>
+                                {isEditMode && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            setEditedReservation(reservation)
+                                            setIsEditMode(false)
+                                        }}
+                                    >
+                                        <X className="h-4 w-4 mr-2" />
+                                        Cancelar
+                                    </Button>
+                                )}
                             </div>
                         </div>
 
@@ -600,26 +630,6 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
 
                             {/* Botones de acción */}
                             <div className="md:col-span-2 flex justify-end gap-4">
-                                {isEditMode && (
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => {
-                                                setEditedReservation(reservation)
-                                                setIsEditMode(false)
-                                            }}
-                                        >
-                                            Cancelar
-                                        </Button>
-                                        <Button onClick={() => {
-                                            // Aquí iría la lógica para guardar los cambios
-                                            console.log('Guardando cambios:', editedReservation)
-                                            setIsEditMode(false)
-                                        }}>
-                                            Guardar Cambios
-                                        </Button>
-                                    </>
-                                )}
                             </div>
                         </div>
                     </div>
