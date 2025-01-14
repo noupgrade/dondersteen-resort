@@ -1,6 +1,6 @@
 import { format, isValid } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Clock } from 'lucide-react'
+import { Bed, Clock } from 'lucide-react'
 
 import { AdditionalService } from '@/shared/types/additional-services'
 import { formatCurrency } from '@/shared/utils/format'
@@ -46,14 +46,17 @@ export function BookingSummary({
                 {/* Dates */}
                 {dates && isValid(dates.from) && isValid(dates.to) && (
                     <div>
-                        <h3 className="font-medium mb-2">Fechas</h3>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <div>
-                                <p>
-                                    {format(dates.from, 'PPP', { locale: es })} -{' '}
-                                    {format(dates.to, 'PPP', { locale: es })}
-                                </p>
+                        <div className="space-y-2 text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                <p>Entrada: {format(dates.from, 'PPP', { locale: es })}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                <p>Salida: {format(dates.to, 'PPP', { locale: es })}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Bed className="h-4 w-4" />
                                 <p className="text-sm">{nights} noches</p>
                             </div>
                         </div>
@@ -77,11 +80,14 @@ export function BookingSummary({
                 {servicesByPet.map(({ pet, services, breakdown }, index) => (
                     <div key={index}>
                         <h3 className="font-medium mb-2">
-                            {pet.name} ({pet.breed}, {pet.size})
+                            {pet.name} ({pet.breed})
                         </h3>
                         <div className="space-y-2 pl-4">
                             <div className="flex items-center justify-between text-sm text-muted-foreground">
-                                <span>Estancia ({nights} noches)</span>
+                                <div className="flex items-center gap-2">
+                                    <Bed className="h-4 w-4" />
+                                    <span>Estancia ({pet.size})</span>
+                                </div>
                                 <span>{formatCurrency(breakdown.basePrice)}</span>
                             </div>
                             {services.map((service, serviceIndex) => (
