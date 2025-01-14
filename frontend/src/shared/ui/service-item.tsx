@@ -25,9 +25,9 @@ const translateService = (service: AdditionalService) => {
         case 'special_food':
             return `Comida especial (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`
         case 'medication':
-            return 'Medicación' + (service.comment ? `: ${service.comment}` : '')
+            return 'Medicación'
         case 'special_care':
-            return 'Curas' + (service.comment ? `: ${service.comment}` : '')
+            return 'Curas'
         case 'hairdressing':
             return 'Peluquería: ' + service.services.map(s => {
                 switch (s) {

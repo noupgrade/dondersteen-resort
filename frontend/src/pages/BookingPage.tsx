@@ -4,6 +4,7 @@ import { useClientProfile } from '@/hooks/use-client-profile'
 import { AlertCircle } from 'lucide-react'
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useWatch } from 'react-hook-form'
 
 import { BookingSummary } from '@/components/booking-summary'
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
@@ -89,6 +90,16 @@ export default function BookingPage() {
         form.setValue('services', services)
     }
 
+    const watchedPets = useWatch({
+        control: form.control,
+        name: 'pets'
+    })
+
+    const watchedServices = useWatch({
+        control: form.control,
+        name: 'services'
+    })
+
     return (
         <div className='container mx-auto max-w-4xl py-8'>
             <div className='fixed left-5 top-5'>
@@ -166,9 +177,9 @@ export default function BookingPage() {
                 </div>
                 <div className='lg:col-span-1'>
                     <BookingSummary
-                        pets={form.getValues('pets')}
+                        pets={watchedPets}
                         dates={state.selectedDates}
-                        services={form.getValues('services')}
+                        services={watchedServices}
                         totalPrice={state.totalPrice}
                     />
                 </div>
