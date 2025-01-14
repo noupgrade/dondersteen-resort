@@ -50,7 +50,7 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
                     {pet.name}
                 </CardTitle>
                 <CardDescription>
-                    {pet.breed} - {pet.sex === 'M' ? '♂️' : '♀️'}
+                    {pet.breed} - {pet.sex === 'M' ? '♂️' : '♀️'} - {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
                 </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">

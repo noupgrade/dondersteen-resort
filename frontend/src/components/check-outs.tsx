@@ -24,6 +24,8 @@ type CheckOut = {
         breed: string
         size: 'pequeño' | 'mediano' | 'grande'
         weight: number
+        sex: 'M' | 'H'
+        isNeutered: boolean
     }>
     roomNumber: string
     checkInDate: string
@@ -142,24 +144,24 @@ export function CheckOuts() {
                                         <Clock className='h-4 w-4' />
                                         <span className='text-sm text-muted-foreground'>Check-out: 12:00</span>
                                     </div>
-                                    {checkOut.additionalServices.some(service => 
-                                        service.type === 'driver' && 
+                                    {checkOut.additionalServices.some(service =>
+                                        service.type === 'driver' &&
                                         (service.serviceType === 'dropoff' || service.serviceType === 'both')
                                     ) && (
-                                        <div className='flex items-center gap-2'>
-                                            <Truck className='h-4 w-4 text-[#4B6BFB]' />
-                                            <span className='text-sm text-muted-foreground'>
-                                                {checkOut.additionalServices.find(service => service.type === 'driver')?.serviceType === 'both'
-                                                    ? 'Recogida y entrega'
-                                                    : 'Entrega'}
-                                            </span>
-                                        </div>
-                                    )}
+                                            <div className='flex items-center gap-2'>
+                                                <Truck className='h-4 w-4 text-[#4B6BFB]' />
+                                                <span className='text-sm text-muted-foreground'>
+                                                    {checkOut.additionalServices.find(service => service.type === 'driver')?.serviceType === 'both'
+                                                        ? 'Recogida y entrega'
+                                                        : 'Entrega'}
+                                                </span>
+                                            </div>
+                                        )}
                                 </div>
                             </div>
 
-                            <Badge 
-                                variant={checkOut.paymentStatus === 'Pagado' ? 'default' : 'destructive'} 
+                            <Badge
+                                variant={checkOut.paymentStatus === 'Pagado' ? 'default' : 'destructive'}
                                 className='w-fit'
                             >
                                 {checkOut.paymentStatus}
@@ -173,8 +175,8 @@ export function CheckOuts() {
                                     {checkOut.pets.map((pet, petIndex) => {
                                         // Filtrar servicios para esta mascota
                                         const petServices = checkOut.additionalServices
-                                            .filter(service => 
-                                                service.petIndex === petIndex && 
+                                            .filter(service =>
+                                                service.petIndex === petIndex &&
                                                 service.type !== 'driver' // Excluir servicio de transporte
                                             )
 
@@ -186,7 +188,7 @@ export function CheckOuts() {
                                                         <div>
                                                             <p className='font-medium'>{pet.name} ({checkOut.roomNumber})</p>
                                                             <p className='text-sm text-muted-foreground'>
-                                                                {pet.breed} · {pet.size} · {pet.weight}kg
+                                                                {pet.breed} · {pet.size} · {pet.weight}kg · {pet.sex === 'M' ? 'Macho' : 'Hembra'} · {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
                                                             </p>
                                                         </div>
                                                     </div>

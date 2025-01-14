@@ -37,12 +37,12 @@ export default function PanelInterno() {
         )
         const active = reservations
             .filter(
-                r => r.type === 'hotel' && 
-                new Date(r.checkInDate) <= new Date() && 
-                new Date(r.checkOutDate) > new Date()
+                r => r.type === 'hotel' &&
+                    new Date(r.checkInDate) <= new Date() &&
+                    new Date(r.checkOutDate) > new Date()
             )
-            .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) => 
-                new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() - 
+            .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) =>
+                new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() -
                 new Date(b.type === 'hotel' ? b.checkOutDate : '').getTime()
             ) as HotelReservation[]
         setActiveReservations(active)
@@ -61,7 +61,7 @@ export default function PanelInterno() {
                 const clientName = reservation.client.name.toLowerCase()
                 const petNames = reservation.pets.map(pet => pet.name.toLowerCase())
                 const search = searchTerm.toLowerCase()
-                
+
                 return clientName.includes(search) || petNames.some(name => name.includes(search))
             })
             setFilteredReservations(filtered)
@@ -222,10 +222,10 @@ export default function PanelInterno() {
                                 />
                             </div>
                         </div>
-                        
+
                         {filteredReservations.map((reservation) => (
-                            <Card 
-                                key={reservation.id} 
+                            <Card
+                                key={reservation.id}
                                 className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                                 onClick={() => handleViewReservation(reservation)}
                             >
@@ -283,8 +283,8 @@ export default function PanelInterno() {
                                                 {reservation.pets.map((pet, petIndex) => {
                                                     // Filtrar servicios para esta mascota
                                                     const petServices = reservation.additionalServices
-                                                        .filter(service => 
-                                                            service.petIndex === petIndex && 
+                                                        .filter(service =>
+                                                            service.petIndex === petIndex &&
                                                             (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
                                                         );
 
@@ -297,7 +297,7 @@ export default function PanelInterno() {
                                                                         <div>
                                                                             <p className="font-medium">{pet.name} ({reservation.roomNumber})</p>
                                                                             <p className="text-sm text-muted-foreground">
-                                                                                {pet.breed} · {pet.size} · {pet.weight}kg
+                                                                                {pet.breed} · {pet.size} · {pet.weight}kg · {pet.sex === 'M' ? 'Macho' : 'Hembra'} · {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -330,7 +330,7 @@ export default function PanelInterno() {
                                 </div>
                             </Card>
                         ))}
-                        
+
                         {filteredReservations.length === 0 && searchTerm && (
                             <div className="text-center py-8 text-muted-foreground">
                                 No se encontraron reservas que coincidan con la búsqueda

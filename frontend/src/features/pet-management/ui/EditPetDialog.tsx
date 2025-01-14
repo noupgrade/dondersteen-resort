@@ -20,7 +20,10 @@ const translations = {
     female: { es: 'Hembra', en: 'Female' },
     small: { es: 'Pequeño', en: 'Small' },
     medium: { es: 'Mediano', en: 'Medium' },
-    large: { es: 'Grande', en: 'Large' }
+    large: { es: 'Grande', en: 'Large' },
+    neutered: { es: 'Castrado/Esterilizado', en: 'Neutered/Spayed' },
+    yes: { es: 'Sí', en: 'Yes' },
+    no: { es: 'No', en: 'No' }
 } as const
 
 const SIZES = ['pequeño', 'mediano', 'grande'] as const
@@ -129,6 +132,22 @@ export function EditPetDialog({ pet, isOpen, onClose, onSave, language }: EditPe
                                     <SelectContent>
                                         <SelectItem value="M">{t('male')}</SelectItem>
                                         <SelectItem value="F">{t('female')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium">{t('neutered')}</label>
+                                <Select
+                                    value={editedPet.isNeutered ? 'yes' : 'no'}
+                                    onValueChange={(value: 'yes' | 'no') => setEditedPet(prev => ({ ...prev, isNeutered: value === 'yes' }))}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="yes">{t('yes')}</SelectItem>
+                                        <SelectItem value="no">{t('no')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

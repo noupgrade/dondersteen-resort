@@ -33,7 +33,9 @@ const translations = {
     specialFood: { es: 'Comida especial', en: 'Special food' },
     medication: { es: 'Medicación', en: 'Medication' },
     specialCare: { es: 'Curas', en: 'Special care' },
-    hairdressing: { es: 'Peluquería', en: 'Hairdressing' }
+    hairdressing: { es: 'Peluquería', en: 'Hairdressing' },
+    neutered: { es: 'Castrado/a', en: 'Neutered/Spayed' },
+    notNeutered: { es: 'No castrado/a', en: 'Not neutered/spayed' }
 } as const
 
 interface PetCardProps {
@@ -123,7 +125,7 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
                                 </span>
                             </div>
                             <span className='pl-5 sm:pl-0'>
-                                {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')}
+                                {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')} | {pet.isNeutered ? t('neutered') : t('notNeutered')}
                             </span>
                         </div>
                         {pet.additionalServices && pet.additionalServices.length > 0 && (

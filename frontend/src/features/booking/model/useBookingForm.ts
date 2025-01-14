@@ -42,7 +42,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 size: 'pequeño' as const,
                 age: '0',
                 personality: '',
-                sex: 'M' as const
+                sex: 'M' as const,
+                isNeutered: false
             }],
             dates: null,
             services: [],
@@ -127,7 +128,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 size: 'pequeño' as const,
                 age: '0',
                 personality: '',
-                sex: 'M' as const
+                sex: 'M' as const,
+                isNeutered: false
             }]
             form.setValue('pets', newPets)
         }
@@ -183,45 +185,46 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 weight: Number(pet.weight),
                 size: pet.size,
                 sex: pet.sex,
+                isNeutered: pet.isNeutered
             }))
 
             // Filter out any undefined or null values from services
-            const cleanedServices = (values.services as AdditionalService[])
-                .filter(Boolean)
+            const cleanedServices: AdditionalService[] = values.services
+                .filter(service => service !== null)
                 .map(service => {
                     switch (service.type) {
                         case 'driver':
                             return {
-                                type: 'driver',
+                                type: 'driver' as const,
                                 petIndex: service.petIndex,
                                 serviceType: service.serviceType
                             }
                         case 'special_food':
                             return {
-                                type: 'special_food',
+                                type: 'special_food' as const,
                                 petIndex: service.petIndex,
                                 foodType: service.foodType
                             }
                         case 'medication':
                             return {
-                                type: 'medication',
+                                type: 'medication' as const,
                                 petIndex: service.petIndex,
                                 comment: service.comment
                             }
                         case 'special_care':
                             return {
-                                type: 'special_care',
+                                type: 'special_care' as const,
                                 petIndex: service.petIndex,
                                 comment: service.comment
                             }
                         case 'hairdressing':
                             return {
-                                type: 'hairdressing',
+                                type: 'hairdressing' as const,
                                 petIndex: service.petIndex,
                                 services: service.services
                             }
                         default:
-                            return service
+                            return service as AdditionalService
                     }
                 })
 
@@ -319,7 +322,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 size: 'pequeño' as const,
                 age: '0',
                 personality: '',
-                sex: 'M' as const
+                sex: 'M' as const,
+                isNeutered: false
             }],
             dates: null,
             services: [],

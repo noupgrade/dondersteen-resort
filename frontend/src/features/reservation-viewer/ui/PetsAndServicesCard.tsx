@@ -94,6 +94,27 @@ export function PetsAndServicesCard({
                                     <div className="mt-1">{pet.sex === 'M' ? 'Macho' : 'Hembra'}</div>
                                 )}
                             </div>
+                            <div>
+                                <span className="font-medium">Estado:</span>
+                                {isEditMode ? (
+                                    <Select
+                                        value={pet.isNeutered ? 'yes' : 'no'}
+                                        onValueChange={(value: 'yes' | 'no') => {
+                                            // Handle neutered status change
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-8 w-32 mt-1">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="yes">Castrado/a</SelectItem>
+                                            <SelectItem value="no">No castrado/a</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    <div className="mt-1">{pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

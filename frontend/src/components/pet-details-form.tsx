@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
 import { Textarea } from '@/shared/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
 type PetDetailsFormProps = {
     form: UseFormReturn<any>
@@ -125,6 +126,30 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                                     className='min-h-[100px]'
                                     {...field}
                                 />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name={`pets.${petIndex}.isNeutered`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Castrado/Esterilizado</FormLabel>
+                            <FormControl>
+                                <Select
+                                    value={field.value ? 'yes' : 'no'}
+                                    onValueChange={(value: 'yes' | 'no') => field.onChange(value === 'yes')}
+                                >
+                                    <SelectTrigger className={`${field.value ? 'bg-green-50' : 'bg-amber-50'}`}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="yes">Sí</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

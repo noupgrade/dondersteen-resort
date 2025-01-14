@@ -45,7 +45,8 @@ export default function BookingPage() {
                 size: pet.size,
                 age: '0',
                 personality: '',
-                sex: pet.sex || 'M'
+                sex: pet.sex || 'M',
+                isNeutered: pet.isNeutered || false
             })) || [{
                 name: '',
                 breed: '',
@@ -53,7 +54,8 @@ export default function BookingPage() {
                 size: 'pequeño' as const,
                 age: '0',
                 personality: '',
-                sex: 'M' as const
+                sex: 'M' as const,
+                isNeutered: false
             }],
             dates: null,
             services: clientProfile?.pets.map(pet => pet.additionalServices).flat() || [],

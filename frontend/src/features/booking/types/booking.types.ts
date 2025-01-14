@@ -14,6 +14,7 @@ export interface PetFormData {
     age: string
     personality: string
     sex: 'M' | 'F'
+    isNeutered: boolean
 }
 
 export type PetData = {
@@ -22,6 +23,7 @@ export type PetData = {
     weight: number
     size: 'pequeño' | 'mediano' | 'grande'
     sex: 'M' | 'F'
+    isNeutered: boolean
 }
 
 export const petFormSchema = z.object({
@@ -31,7 +33,8 @@ export const petFormSchema = z.object({
     size: z.enum(['pequeño', 'mediano', 'grande']),
     age: z.string().min(1, 'La edad es requerida'),
     personality: z.string(),
-    sex: z.enum(['M', 'F'])
+    sex: z.enum(['M', 'F']),
+    isNeutered: z.boolean()
 })
 
 export const bookingFormSchema = z.object({

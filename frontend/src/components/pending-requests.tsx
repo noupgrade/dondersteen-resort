@@ -14,11 +14,11 @@ import { Button } from '@/shared/ui/button'
 export function PendingRequests() {
     const { reservations } = useReservation()
     const [searchParams, setSearchParams] = useSearchParams()
-    
+
     // Filtrar solo las reservas pendientes de hotel
-    const pendingRequests = useMemo(() => 
-        reservations.filter(r => 
-            r.type === 'hotel' && 
+    const pendingRequests = useMemo(() =>
+        reservations.filter(r =>
+            r.type === 'hotel' &&
             r.status === 'pending'
         ) as HotelReservation[],
         [reservations]
@@ -28,12 +28,12 @@ export function PendingRequests() {
         console.log('Checking availability for reservation:', reservation)
         const checkInDate = new Date(reservation.checkInDate)
         const dateStr = format(checkInDate, 'yyyy-MM-dd')
-        
+
         // Mantener los parámetros existentes y añadir los nuevos
         const newParams = new URLSearchParams(searchParams)
         newParams.set('pendingReservationId', reservation.id)
         newParams.set('date', dateStr)
-        
+
         console.log('Setting search params:', Object.fromEntries(newParams.entries()))
         setSearchParams(newParams)
     }
@@ -75,8 +75,8 @@ export function PendingRequests() {
     return (
         <div className="space-y-4">
             {pendingRequests.map((reservation) => (
-                <Card 
-                    key={reservation.id} 
+                <Card
+                    key={reservation.id}
                     className="overflow-hidden"
                 >
                     <div className="flex">
@@ -133,8 +133,8 @@ export function PendingRequests() {
                                     {reservation.pets.map((pet, petIndex) => {
                                         // Filtrar servicios para esta mascota
                                         const petServices = reservation.additionalServices
-                                            .filter(service => 
-                                                service.petIndex === petIndex && 
+                                            .filter(service =>
+                                                service.petIndex === petIndex &&
                                                 (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
                                             )
 
@@ -147,7 +147,7 @@ export function PendingRequests() {
                                                             <div>
                                                                 <p className="font-medium">{pet.name} ({reservation.roomNumber})</p>
                                                                 <p className="text-sm text-muted-foreground">
-                                                                    {pet.breed} · {pet.size} · {pet.weight}kg
+                                                                    {pet.breed} · {pet.size} · {pet.weight}kg · {pet.sex === 'M' ? 'Macho' : 'Hembra'} · {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
                                                                 </p>
                                                             </div>
                                                         </div>

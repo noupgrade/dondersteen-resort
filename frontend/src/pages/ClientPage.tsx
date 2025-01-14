@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/shared/ui/textarea.tsx'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 
 type MockClient = {
     id: string
@@ -31,6 +32,7 @@ type MockClient = {
         medication?: string
         specialFood?: string
         observations?: string
+        isNeutered: boolean
     }[]
     reservations: (HotelReservation | HairSalonReservation)[]
 }
@@ -220,6 +222,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 medication: 'Antiinflamatorios cada 12 horas',
                 specialFood: 'Dieta hipoalergénica',
                 observations: 'Juguetón, necesita mucho ejercicio',
+                isNeutered: false
             },
             {
                 id: '2',
@@ -228,6 +231,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Mediano',
                 age: 3,
                 observations: 'Tímido con extraños',
+                isNeutered: false
             },
         ],
         reservations: [
@@ -254,6 +258,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Pequeño',
                 age: 2,
                 observations: 'Muy activa',
+                isNeutered: false
             }
         ],
         reservations: [
@@ -317,7 +322,8 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Grande',
                 age: 4,
                 medication: 'Vitaminas diarias',
-                observations: 'Muy sociable'
+                observations: 'Muy sociable',
+                isNeutered: false
             },
             {
                 id: '5',
@@ -326,7 +332,8 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Mediano',
                 age: 6,
                 specialFood: 'Dieta sin cereales',
-                observations: 'Necesita cepillado diario'
+                observations: 'Necesita cepillado diario',
+                isNeutered: false
             }
         ],
         reservations: [
@@ -585,6 +592,25 @@ export default function ClientDetailsPage() {
                                                         />
                                                     ) : (
                                                         <p>{pet.observations || 'Sin observaciones'}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Estado</label>
+                                                    {isEditing ? (
+                                                        <Select
+                                                            value={pet.isNeutered ? 'yes' : 'no'}
+                                                            onValueChange={(value: 'yes' | 'no') => handlePetChange(pet.id, 'isNeutered', value === 'yes')}
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="yes">Castrado/a</SelectItem>
+                                                                <SelectItem value="no">No castrado/a</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    ) : (
+                                                        <p>{pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}</p>
                                                     )}
                                                 </div>
                                             </div>
