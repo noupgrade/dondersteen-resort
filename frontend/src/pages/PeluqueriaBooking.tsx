@@ -290,12 +290,7 @@ export default function PeluqueriaBookingPage() {
                                     </FormItem>
                                 )}
                             />
-                            <div className='flex justify-between'>
-                                <Link to='/frontend/public'>
-                                    <Button type='button' variant='outline'>
-                                        Volver a Inicio
-                                    </Button>
-                                </Link>
+                            <div className='flex justify-end'>
                                 <Button type='submit'>Reservar</Button>
                             </div>
                         </form>

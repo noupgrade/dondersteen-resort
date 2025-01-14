@@ -56,26 +56,29 @@ export function PeluqueriaAvailabilityCalendar({
 
     return (
         <div className='space-y-4'>
-            <Calendar
-                mode='single'
-                selected={selectedDate}
-                onSelect={handleDateSelect}
-                className='rounded-md border'
-                locale={es}
-                fromDate={startOfDay(new Date())}
-                toDate={addDays(new Date(), 30)}
-                disabled={isDateUnavailable}
-                modifiers={{
-                    weekend: date => isWeekend(date),
-                    holiday: date => isHoliday(format(date, 'yyyy-MM-dd')),
-                    busy: date => peluqueriaAvailability[format(date, 'yyyy-MM-dd')] >= 3
-                }}
-                modifiersStyles={{
-                    weekend: { textDecoration: 'line-through', color: 'gray' },
-                    holiday: { backgroundColor: 'rgb(251 191 36)', color: 'white' },
-                    busy: { backgroundColor: 'rgb(239 68 68)', color: 'white' }
-                }}
-            />
+            <div className='flex justify-center'>
+                <Calendar
+                    mode='single'
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    className='rounded-md border w-full max-w-[350px] mx-auto'
+                    locale={es}
+                    fromDate={startOfDay(new Date())}
+                    toDate={addDays(new Date(), 30)}
+                    disabled={isDateUnavailable}
+                    modifiers={{
+                        weekend: date => isWeekend(date),
+                        holiday: date => isHoliday(format(date, 'yyyy-MM-dd')),
+                        busy: date => peluqueriaAvailability[format(date, 'yyyy-MM-dd')] >= 3
+                    }}
+                    modifiersStyles={{
+                        weekend: { textDecoration: 'line-through', color: 'gray' },
+                        holiday: { backgroundColor: 'rgb(251 191 36)', color: 'white' },
+                        busy: { backgroundColor: 'rgb(239 68 68)', color: 'white' }
+                    }}
+                    showOutsideDays={false}
+                />
+            </div>
             {selectedDate && (
                 <div className='space-y-2'>
                     <FormLabel>Hora del servicio</FormLabel>

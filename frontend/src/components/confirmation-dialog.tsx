@@ -1,12 +1,18 @@
-import { Link } from 'react-router-dom'
-
 import { format } from 'date-fns'
 import { CheckCircle } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
 import { BookingSummary } from '@/components/booking-summary'
 import { Button } from '@/shared/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/shared/ui/dialog'
+import { isHairdressingService, type AdditionalService } from '@/shared/types/additional-services'
 
 type ConfirmationDialogProps = {
     open: boolean
@@ -18,9 +24,7 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
     const { reservations } = useReservation()
     const reservation = reservations.find(r => r.id === reservationId)
 
-    if (!reservation) {
-        return null
-    }
+    if (!reservation) return null
 
     const renderContent = () => {
         if (reservation.type === 'hotel') {
@@ -28,17 +32,34 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                 <div className='py-4'>
                     <BookingSummary
                         dates={{
-                            from: new Date(reservation.checkInDate),
-                            to: new Date(reservation.checkOutDate),
+                            startDate: new Date(reservation.checkInDate),
+                            endDate: new Date(reservation.checkOutDate),
                         }}
                         pets={reservation.pets}
-                        services={reservation.additionalServices.reduce((acc, service) => ({ ...acc, [service]: true }), {})}
+                        services={reservation.additionalServices.reduce<Record<string, boolean>>((acc, service) => ({ ...acc, [service.type]: true }), {})}
                         totalPrice={reservation.totalPrice}
                         pickupTime={reservation.checkInTime}
                     />
                 </div>
             )
         } else {
+            // Encontrar el servicio de peluquería
+            const hairdressingService = reservation.additionalServices.find(isHairdressingService)
+            const services = hairdressingService?.services || []
+
+            // Mapear los servicios a sus nombres en español
+            const serviceLabels = {
+                bath_and_brush: 'Baño y cepillado',
+                bath_and_trim: 'Baño y arreglo (corte)',
+                stripping: 'Stripping',
+                deshedding: 'Deslanado',
+                brushing: 'Cepillado',
+                spa: 'Spa',
+                spa_ozone: 'Spa con ozono',
+                knots: 'Nudos',
+                extremely_dirty: 'Extremadamente sucio'
+            } as const
+
             return (
                 <div className='py-4 space-y-4'>
                     <div className='grid grid-cols-2 gap-4'>
@@ -56,13 +77,9 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                         <p className='font-medium'>{reservation.pet.name} ({reservation.pet.breed})</p>
                     </div>
                     <div>
-                        <p className='text-sm text-muted-foreground'>Servicio</p>
+                        <p className='text-sm text-muted-foreground'>Servicios</p>
                         <p className='font-medium'>
-                            {reservation.additionalServices.map(service =>
-                                service === 'corte' ? 'Corte' :
-                                    service === 'bano_especial' ? 'Baño especial' :
-                                        'Deslanado'
-                            ).join(', ')}
+                            {services.map(service => serviceLabels[service as keyof typeof serviceLabels]).join(', ')}
                         </p>
                     </div>
                     {reservation.totalPrice > 0 && (
@@ -97,12 +114,9 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                     </DialogDescription>
                 </DialogHeader>
                 {renderContent()}
-                <DialogFooter className='sm:justify-between'>
+                <DialogFooter>
                     <Button variant='outline' onClick={() => onOpenChange(false)}>
                         Cerrar
-                    </Button>
-                    <Button asChild>
-                        <Link to='/'>Volver al Inicio</Link>
                     </Button>
                 </DialogFooter>
             </DialogContent>
