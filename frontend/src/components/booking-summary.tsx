@@ -57,7 +57,9 @@ export function BookingSummary({
                             </div>
                             <div className="flex items-center gap-2">
                                 <Bed className="h-4 w-4" />
-                                <p className="text-sm">{nights} noches</p>
+                                <p className="text-sm">
+                                    {nights === 0 ? 'Guardería' : `${nights} noches`}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -70,7 +72,7 @@ export function BookingSummary({
                         <div className="flex items-center justify-between">
                             <ServiceItem service={driverService} />
                             <span className="text-sm text-muted-foreground">
-                                {formatCurrency(driverService.outOfHours ? 70 : 20)}
+                                {formatCurrency(driverService.isOutOfHours ? 70 : 20)}
                             </span>
                         </div>
                     </div>
@@ -86,7 +88,9 @@ export function BookingSummary({
                             <div className="flex items-center justify-between text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
                                     <Bed className="h-4 w-4" />
-                                    <span>Estancia ({pet.size})</span>
+                                    <span>
+                                        {nights === 0 ? 'Guardería' : `Estancia (${pet.size})`}
+                                    </span>
                                 </div>
                                 <span>{formatCurrency(breakdown.basePrice)}</span>
                             </div>
