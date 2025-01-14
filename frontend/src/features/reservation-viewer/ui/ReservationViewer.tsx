@@ -265,7 +265,7 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[9999] bg-white/80">
             <div className="fixed inset-0 bg-white">
                 <div className="h-full overflow-auto">
                     <div className="container mx-auto p-4 space-y-6">

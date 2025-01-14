@@ -4,7 +4,6 @@ import { ReservationProvider } from '@/components/ReservationContext'
 import { HotelAvailabilityProvider } from '@/components/HotelAvailabilityContext'
 
 import { LoginPage } from '@/pages/login/LoginPage'
-import EditReservationPage from '@/pages/panel-interno/EditReservationPage.tsx'
 import PanelInternoLayout from '@/pages/panel-interno/layout'
 import PanelInterno from '@/pages/panel-interno/page'
 import PlanningPage from '@/pages/panel-interno/PlanningPage.tsx'
@@ -69,7 +68,6 @@ export const RoutingComponent = () => (
                             <Route path='clientes' element={<ClientesPage />} />
                             <Route path='clientes/:id' element={<ClientDetailsPage />} />
                             <Route path='reservas/:id' element={<ReservationDetailsPage />} />
-                            <Route path='reservas/:id/edit' element={<EditReservationPage />} />
                             <Route path='setup' element={<SetupPage />} />
                         </Routes>
                     </PanelInternoLayout>
