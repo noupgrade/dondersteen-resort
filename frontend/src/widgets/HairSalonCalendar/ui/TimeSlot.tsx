@@ -10,6 +10,7 @@ import { useToast } from '@/shared/ui/use-toast'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
 import { HairSalonReservation, type Client } from '@/components/ReservationContext'
 import { HairdressingServiceType } from '@/shared/types/additional-services'
+import { ClientSearchModal } from './ClientSearchModal'
 
 interface TimeSlotProps {
     time: string
@@ -21,6 +22,7 @@ interface TimeSlotProps {
 export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSlotProps) {
     const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isClientSearchModalOpen, setIsClientSearchModalOpen] = useState(false)
     const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
     const { toast } = useToast()
 
@@ -64,6 +66,12 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
         setIsModalOpen(true)
     }
 
+    const handleEmptySlotClick = () => {
+        if (isAvailable && !reservation) {
+            setIsClientSearchModalOpen(true)
+        }
+    }
+
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
         try {
             await updateReservation(updatedReservation)
@@ -86,6 +94,7 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
         <>
             <div
                 ref={drop}
+                onClick={handleEmptySlotClick}
                 className={cn(
                     'relative border-b border-r transition-colors',
                     isAvailable ? 'bg-white hover:bg-gray-50' : 'bg-gray-100',
@@ -130,6 +139,13 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
                     onSave={handleSaveReservation}
                 />
             )}
+
+            <ClientSearchModal
+                isOpen={isClientSearchModalOpen}
+                onClose={() => setIsClientSearchModalOpen(false)}
+                selectedDate={date}
+                selectedTime={time}
+            />
         </>
     )
 } 
