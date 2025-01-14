@@ -3,6 +3,7 @@ export type ServiceType = 'driver' | 'special_food' | 'medication' | 'special_ca
 export interface BaseService {
     type: ServiceType
     petIndex: number
+    price?: number
 }
 
 export interface DriverService extends BaseService {
