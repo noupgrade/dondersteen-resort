@@ -9,6 +9,9 @@ export interface BaseService {
 export interface DriverService extends BaseService {
     type: 'driver'
     serviceType: 'pickup' | 'dropoff' | 'both'
+    pickupTime?: string
+    dropoffTime?: string
+    isOutOfHours?: boolean
 }
 
 export interface SpecialFoodService extends BaseService {

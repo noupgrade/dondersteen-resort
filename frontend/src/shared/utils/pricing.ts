@@ -62,6 +62,9 @@ export const calculateNights = (dates: { from: Date; to: Date } | null): number 
 }
 
 export const calculateBasePrice = (size: PetSize, nights: number): number => {
+    if (nights === 0) {
+        return 20
+    }
     return BASE_PRICES[size] * nights
 }
 
