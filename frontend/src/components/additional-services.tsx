@@ -255,15 +255,42 @@ export function AdditionalServices({
                                 </Label>
                             </div>
                             {getMedicationService(index) && (
-                                <div className='ml-6'>
-                                    <Label htmlFor={`medication_comment_${index}`}>Comentarios sobre la medicación</Label>
-                                    <Textarea
-                                        id={`medication_comment_${index}`}
-                                        value={getMedicationService(index)?.comment || ''}
-                                        onChange={e => addOrUpdateMedicationService(index, e.target.value)}
-                                        placeholder='Detalles sobre la medicación...'
-                                        className='mt-2'
-                                    />
+                                <div className='ml-6 space-y-4'>
+                                    <div className='space-y-2'>
+                                        <Label>Frecuencia</Label>
+                                        <Select
+                                            value={getMedicationService(index)?.frequency || 'single'}
+                                            onValueChange={value => {
+                                                addOrUpdateMedicationService(
+                                                    index,
+                                                    getMedicationService(index)?.comment,
+                                                    value as 'single' | 'multiple'
+                                                )
+                                            }}
+                                        >
+                                            <SelectTrigger className='w-[180px]'>
+                                                <SelectValue placeholder='Selecciona la frecuencia' />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value='single'>1 vez al día</SelectItem>
+                                                <SelectItem value='multiple'>Varias veces al día</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div>
+                                        <Label htmlFor={`medication_comment_${index}`}>Comentarios sobre la medicación</Label>
+                                        <Textarea
+                                            id={`medication_comment_${index}`}
+                                            value={getMedicationService(index)?.comment || ''}
+                                            onChange={e => addOrUpdateMedicationService(
+                                                index,
+                                                e.target.value,
+                                                getMedicationService(index)?.frequency || 'single'
+                                            )}
+                                            placeholder='Detalles sobre la medicación...'
+                                            className='mt-2'
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>

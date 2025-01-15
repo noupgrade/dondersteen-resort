@@ -16,14 +16,12 @@ interface BookingSummaryProps {
     } | null
     pets: PetFormData[]
     services: AdditionalService[]
-    totalPrice: number
 }
 
 export function BookingSummary({
     dates,
     pets,
     services,
-    totalPrice,
 }: BookingSummaryProps) {
     const nights = calculateNights(dates)
     const priceBreakdown = calculateTotalPrice(dates, pets, services)

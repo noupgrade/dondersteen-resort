@@ -42,7 +42,7 @@ export function useBookingCalculations() {
         let additionalCosts = 0
         services.forEach(service => {
             if (service.type === 'medication') {
-                additionalCosts += 3.5 * nights
+                additionalCosts += service.frequency === 'multiple' ? 3.5 * nights : 2.5 * nights
             }
             if (service.type === 'special_care') {
                 additionalCosts += 3 * nights

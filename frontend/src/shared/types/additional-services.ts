@@ -22,6 +22,7 @@ export interface SpecialFoodService extends BaseService {
 export interface MedicationService extends BaseService {
     type: 'medication'
     comment?: string
+    frequency: 'single' | 'multiple'
 }
 
 export interface SpecialCareService extends BaseService {

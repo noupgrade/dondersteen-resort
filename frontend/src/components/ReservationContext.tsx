@@ -143,13 +143,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const reservations = useMemo(() => {
         const allReservations = [...dbReservations]
 
-        // Add example reservations and update them if they exist in local storage
-        const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const parsedExampleReservations = storedExampleReservations
-            ? JSON.parse(storedExampleReservations) as ReservationDocument[]
-            : EXAMPLE_RESERVATIONS as ReservationDocument[]
-
-        parsedExampleReservations.forEach(example => {
+            EXAMPLE_RESERVATIONS.forEach(example => {
             if (!allReservations.some(r => r.id === example.id)) {
                 allReservations.push(example)
             }

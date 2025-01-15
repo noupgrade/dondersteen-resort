@@ -209,7 +209,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                             return {
                                 type: 'medication' as const,
                                 petIndex: service.petIndex,
-                                comment: service.comment
+                                comment: service.comment,
+                                frequency: service.frequency
                             }
                         case 'special_care':
                             return {

@@ -188,7 +188,6 @@ export default function BookingPage() {
                         pets={watchedPets}
                         dates={state.selectedDates}
                         services={watchedServices}
-                        totalPrice={state.totalPrice}
                     />
                 </div>
             </div>

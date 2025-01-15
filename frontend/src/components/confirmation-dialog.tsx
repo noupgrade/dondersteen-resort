@@ -49,7 +49,7 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                         }}
                         pets={petsFormData}
                         services={reservation.additionalServices}
-                        totalPrice={reservation.totalPrice}
+                    />
                     />
                 </div>
             )
