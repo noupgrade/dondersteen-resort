@@ -2,6 +2,7 @@ import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Truck, Pill, Heart, Scissors, UtensilsCrossed } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -30,12 +31,14 @@ export function AdditionalServices({
     petCount,
     groomingUnavailable,
     hideDriverService,
+    petNames = [],
 }: {
     onServiceChange: (services: AdditionalService[]) => void
     initialServices?: AdditionalService[]
     petCount: number
     groomingUnavailable?: boolean
     hideDriverService?: boolean
+    petNames?: string[]
 }) {
     const {
         services,
@@ -69,12 +72,13 @@ export function AdditionalServices({
 
     return (
         <div className='space-y-8'>
-            <div className='space-y-4 rounded-lg border p-4'>
-                <h3 className='font-semibold'>Servicios Adicionales</h3>
-
-                {/* Driver Service */}
-                {!hideDriverService && (
-                    <div className='space-y-4'>
+            {/* General Services Card */}
+            {!hideDriverService && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Servicios generales</CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-4'>
                         <div className='flex items-center space-x-2'>
                             <Checkbox
                                 id='transport'
@@ -185,16 +189,17 @@ export function AdditionalServices({
                                 )}
                             </div>
                         )}
-                    </div>
-                )}
+                    </CardContent>
+                </Card>
+            )}
 
-                {/* Per Pet Services */}
-                {Array.from({ length: petCount }).map((_, index) => (
-                    <div key={index} className='space-y-4'>
-                        {petCount > 1 && (
-                            <h4 className='font-medium'>Servicios para mascota {index + 1}</h4>
-                        )}
-
+            {/* Per Pet Services Cards */}
+            {Array.from({ length: petCount }).map((_, index) => (
+                <Card key={index}>
+                    <CardHeader>
+                        <CardTitle className="text-base">Servicios para {petNames[index] || `mascota ${index + 1}`}</CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-6'>
                         {/* Special Food */}
                         <div className='space-y-4'>
                             <div className='flex items-center space-x-2'>
@@ -376,9 +381,9 @@ export function AdditionalServices({
                                 )}
                             </div>
                         )}
-                    </div>
-                ))}
-            </div>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
     )
 }

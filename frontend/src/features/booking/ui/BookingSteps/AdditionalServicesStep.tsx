@@ -18,6 +18,9 @@ export function AdditionalServicesStep({
     onServiceChange,
     groomingUnavailable,
 }: AdditionalServicesStepProps) {
+    const pets = form.getValues('pets')
+    const petNames = pets.map(pet => pet.name)
+
     return (
         <Card>
             <CardHeader>
@@ -38,9 +41,10 @@ export function AdditionalServicesStep({
                 )}
                 <AdditionalServices
                     onServiceChange={onServiceChange}
-                    petCount={form.getValues('pets').length}
+                    petCount={pets.length}
                     groomingUnavailable={groomingUnavailable}
                     initialServices={form.getValues('services')}
+                    petNames={petNames}
                 />
             </CardContent>
         </Card>
