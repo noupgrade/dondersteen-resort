@@ -19,7 +19,8 @@ export function SalesHistory() {
         const query = searchQuery.toLowerCase()
         return sales.filter(sale => 
             sale.productName.toLowerCase().includes(query) ||
-            sale.clientName.toLowerCase().includes(query)
+            sale.clientName.toLowerCase().includes(query) ||
+            sale.userName?.toLowerCase().includes(query)
         )
     }, [sales, searchQuery])
 
@@ -39,7 +40,7 @@ export function SalesHistory() {
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            placeholder="Buscar por producto o cliente..."
+                            placeholder="Buscar por producto, cliente o usuario..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9"
@@ -96,13 +97,14 @@ export function SalesHistory() {
                                 <TableHead>Fecha</TableHead>
                                 <TableHead>Producto</TableHead>
                                 <TableHead>Cliente</TableHead>
+                                <TableHead>Usuario</TableHead>
                                 <TableHead className="text-right">Importe</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredSales.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
                                         No se encontraron ventas
                                     </TableCell>
                                 </TableRow>
@@ -114,6 +116,7 @@ export function SalesHistory() {
                                         </TableCell>
                                         <TableCell>{sale.productName}</TableCell>
                                         <TableCell>{sale.clientName}</TableCell>
+                                        <TableCell>{sale.userName || 'Usuario desconocido'}</TableCell>
                                         <TableCell className="text-right font-medium">
                                             {sale.price.toFixed(2)} €
                                         </TableCell>

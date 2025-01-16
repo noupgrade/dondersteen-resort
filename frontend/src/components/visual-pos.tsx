@@ -6,6 +6,7 @@ import { useProductContext } from '@/components/ProductContext'
 import { useReservation } from '@/components/ReservationContext'
 import { GenericProductModal } from '@/components/generic-product-modal'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/shared/auth'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -99,6 +100,7 @@ type CartItem = {
 export function VisualPOS() {
     const { products, categories, addSale } = useProductContext()
     const { reservations, updateReservation } = useReservation()
+    const { user } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const [selectedReservation, setSelectedReservation] = useState<any | null>(null)
     const [cart, setCart] = useState<CartItem[]>([])
@@ -210,6 +212,8 @@ export function VisualPOS() {
                 price: item.product.price * item.quantity,
                 clientName: selectedReservation.client.name,
                 reservationId: selectedReservation.id,
+                userId: user?.uid || '',
+                userName: user?.displayName || 'Usuario desconocido'
             }))
 
             newSales.forEach(sale => {

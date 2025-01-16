@@ -239,14 +239,13 @@ export function HotelReservationsCalendarWidget() {
                                 cardStyle
                             )}
                         >
-                            <div className="font-medium mb-2">{client.name}</div>
                             <div className="space-y-1">
                                 {reservations.map((reservation) => {
                                     const timeDisplay = getTimeDisplay(reservation, date)
                                     return (
                                         <div 
                                             key={reservation.id} 
-                                            className="rounded border border-current/20 p-1.5 relative bg-white/50"
+                                            className="rounded border border-current/20 p-1.5 relative bg-white/50 mt-2"
                                         >
                                             <div className="absolute -top-2 right-0 flex items-center gap-1">
                                                 {timeDisplay && (
@@ -261,8 +260,19 @@ export function HotelReservationsCalendarWidget() {
                                                 )}
                                             </div>
                                             {reservation.pets.map((pet) => (
-                                                <div key={pet.name} className="text-sm">
-                                                    {pet.name} ({reservation.roomNumber})
+                                                <div key={pet.name} className="text-sm flex flex-col mb-1 last:mb-0">
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <span className="font-bold">{pet.name}</span>
+                                                        <span className="text-muted-foreground italic">
+                                                            ({pet.breed})
+                                                        </span>
+                                                        <Badge 
+                                                            variant="secondary" 
+                                                            className="h-5 text-xs px-1"
+                                                        >
+                                                            {reservation.roomNumber}
+                                                        </Badge>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -278,7 +288,21 @@ export function HotelReservationsCalendarWidget() {
 
     const getTotalPetsForDate = (date: string) => {
         const reservations = getReservationsForDate(date)
-        return reservations.reduce((total, reservation) => total + reservation.pets.length, 0)
+        const sizes = {
+            grande: 0,
+            mediano: 0,
+            pequeño: 0
+        }
+        
+        const total = reservations.reduce((total, reservation) => {
+            reservation.pets.forEach(pet => {
+                sizes[pet.size]++
+            })
+            return total + reservation.pets.length
+        }, 0)
+
+        const breakdown = `(${sizes.grande}G,${sizes.mediano}M,${sizes.pequeño}P)`
+        return { total, breakdown }
     }
 
     return (
@@ -377,8 +401,9 @@ export function HotelReservationsCalendarWidget() {
                                 })}`}
                         </span>
                         {view === 'day' && (
-                            <Badge variant="secondary" className="ml-2">
-                                {getTotalPetsForDate(format(selectedDate, 'yyyy-MM-dd'))} mascotas
+                            <Badge variant="secondary" className="ml-2 flex flex-col items-center">
+                                <span>{getTotalPetsForDate(format(selectedDate, 'yyyy-MM-dd')).total} mascotas</span>
+                                <span className="text-xs">{getTotalPetsForDate(format(selectedDate, 'yyyy-MM-dd')).breakdown}</span>
                             </Badge>
                         )}
                     </CardTitle>
@@ -410,8 +435,9 @@ export function HotelReservationsCalendarWidget() {
                                             </div>
                                         </div>
                                         <div className="mt-1 flex justify-center">
-                                            <Badge variant="secondary" className="text-xs py-0 px-2">
-                                                {getTotalPetsForDate(day.date)} mascotas
+                                            <Badge variant="secondary" className="text-xs py-0 px-2 flex flex-col items-center">
+                                                <span>{getTotalPetsForDate(day.date).total} mascotas</span>
+                                                <span className="text-xs">{getTotalPetsForDate(day.date).breakdown}</span>
                                             </Badge>
                                         </div>
                                     </div>

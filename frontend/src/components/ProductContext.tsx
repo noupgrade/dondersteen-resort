@@ -26,6 +26,8 @@ type Sale = {
     reservationId: string
     createdAt: Timestamp
     updatedAt: Timestamp
+    userId: string
+    userName: string
 }
 
 type StoreConfigDocument = {
