@@ -5,6 +5,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertCircle, Bed, ChevronDown, ChevronLeft, Euro, PawPrint, Phone, Plus, Scissors as ScissorsIcon, Truck, X } from 'lucide-react'
 
+const SpainFlag = () => (
+    <svg viewBox="0 0 640 480" className="h-6 w-8">
+        <path fill="#c60b1e" d="M0 0h640v480H0z"/>
+        <path fill="#ffc400" d="M0 120h640v240H0z"/>
+    </svg>
+)
+
+const UKFlag = () => (
+    <svg viewBox="0 0 640 480" className="h-6 w-8">
+        <path fill="#012169" d="M0 0h640v480H0z"/>
+        <path fill="#FFF" d="m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0h75z"/>
+        <path fill="#C8102E" d="m424 281 216 159v40L369 281h55zm-184 20 6 35L54 480H0l240-179zM640 0v3L391 191l2-44L590 0h50zM0 0l239 176h-60L0 42V0z"/>
+        <path fill="#FFF" d="M241 0v480h160V0H241zM0 160v160h640V160H0z"/>
+        <path fill="#C8102E" d="M0 193v96h640v-96H0zM273 0v480h96V0h-96z"/>
+    </svg>
+)
+
 import { PetCard } from '@/components/pet-card.tsx'
 import { type HairSalonReservation, type HotelReservation, type Client, type Pet } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge.ts'
@@ -817,10 +834,20 @@ export default function ClientProfile() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="font-semibold bg-accent hover:bg-accent/80 min-w-[48px]"
+                                className="font-semibold bg-accent hover:bg-accent/80 min-w-[52px] h-[34px] p-1 flex items-center justify-center"
                                 onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
                             >
-                                {language === 'es' ? 'EN' : 'ES'}
+                                {language === 'es' ? (
+                                    <>
+                                        <UKFlag />
+                                        <span className="sr-only">Switch to English</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <SpainFlag />
+                                        <span className="sr-only">Cambiar a Español</span>
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </div>
