@@ -16,21 +16,21 @@ interface TimeSlotProps {
     time: string
     date: string
     isAvailable?: boolean
-    hairdresser?: 'hairdresser1' | 'hairdresser2'
+    isWeekView?: boolean
 }
 
-export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSlotProps) {
+export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }: TimeSlotProps) {
     const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isClientSearchModalOpen, setIsClientSearchModalOpen] = useState(false)
     const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
     const { toast } = useToast()
 
-    const reservation = scheduledReservations.find(r => 
+    // Find both possible reservations for this slot
+    const reservations = scheduledReservations.filter(r => 
         r.date === date && 
-        r.time === time && 
-        (!hairdresser || r.hairdresser === hairdresser)
-    )
+        r.time === time
+    ).slice(0, 2) // Limit to 2 reservations per slot
 
     const [{ isOver, canDrop }, drop] = useDrop<
         { reservation: HairSalonReservation },
@@ -38,12 +38,11 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
         { isOver: boolean; canDrop: boolean }
     >({
         accept: 'reservation',
-        canDrop: () => isAvailable && !reservation,
+        canDrop: () => isAvailable && reservations.length < 2,
         drop: async (item) => {
             if (draggedReservation) {
                 const updatedReservation = {
                     ...draggedReservation.reservation,
-                    hairdresser: hairdresser || draggedReservation.reservation.hairdresser
                 }
                 if (draggedReservation.sourceTime) {
                     // Mover una cita existente
@@ -67,7 +66,7 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
     }
 
     const handleEmptySlotClick = () => {
-        if (isAvailable && !reservation) {
+        if (isAvailable && reservations.length < 2) {
             setIsClientSearchModalOpen(true)
         }
     }
@@ -90,44 +89,63 @@ export function TimeSlot({ time, date, isAvailable = true, hairdresser }: TimeSl
         }
     }
 
+    // Calculate individual heights for each reservation
+    const getReservationStyle = (reservation: HairSalonReservation) => {
+        const duration = reservation.duration || 60
+        return {
+            height: `${Math.ceil(duration / 30) * 2}rem`,
+            position: 'relative' as const,
+            zIndex: duration > 60 ? 10 : 'auto'
+        }
+    }
+
     return (
         <>
             <div
                 ref={drop}
-                onClick={handleEmptySlotClick}
                 className={cn(
-                    'relative border-b border-r transition-colors',
+                    'relative border-b border-r transition-colors min-h-[4rem]',
                     isAvailable ? 'bg-white hover:bg-gray-50' : 'bg-gray-100',
                     isOver && canDrop && 'bg-blue-50',
                     !isAvailable && 'cursor-not-allowed',
-                    !reservation && isAvailable && 'cursor-pointer'
+                    !reservations.length && isAvailable && 'cursor-pointer'
                 )}
-                style={
-                    reservation 
-                        ? { 
-                            height: `${Math.ceil((reservation.duration || 60) / 30) * 2}rem`,
-                            position: 'relative',
-                            zIndex: reservation.duration && reservation.duration > 60 ? 10 : 'auto'
-                        } 
-                        : { height: '4rem' }
-                }
             >
-                <div className="flex h-full flex-col">
-                    <span className="text-xs text-gray-500 px-2 py-1">{time}</span>
-                    {reservation && (
-                        <div 
-                            onClick={() => handleReservationClick(reservation)} 
-                            className="absolute inset-0"
-                        >
-                            <DraggableReservation
-                                reservation={reservation}
-                                date={date}
-                                time={time}
-                                className="h-full"
-                                showPrice={true}
-                            />
-                        </div>
-                    )}
+                <span className="absolute text-xs text-gray-500 px-2 py-1 pointer-events-none">{time}</span>
+                <div className="absolute inset-0" onClick={handleEmptySlotClick}>
+                    {reservations.map((reservation, index) => {
+                        const duration = reservation.duration || 60
+                        const height = `${Math.ceil(duration / 30) * 2}rem`
+                        
+                        return (
+                            <div 
+                                key={reservation.id}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleReservationClick(reservation)
+                                }} 
+                                className={cn(
+                                    "absolute",
+                                    index === 0 ? "left-0 right-1/2" : "left-1/2 right-0",
+                                    !isWeekView && index === 0 && "border-r border-gray-100"
+                                )}
+                                style={{
+                                    height,
+                                    top: 0,
+                                    zIndex: duration > 60 ? 10 : 'auto'
+                                }}
+                            >
+                                <DraggableReservation
+                                    reservation={reservation}
+                                    date={date}
+                                    time={time}
+                                    className="h-full"
+                                    showPrice={!isWeekView}
+                                    isWeekView={isWeekView}
+                                />
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
 

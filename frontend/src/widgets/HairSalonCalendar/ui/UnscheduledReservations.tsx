@@ -8,105 +8,94 @@ import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
+import { cn } from '@/lib/utils'
 
 interface UnscheduledReservationsProps {
     className?: string
 }
 
 export function UnscheduledReservations({ className }: UnscheduledReservationsProps) {
-    const { unscheduledReservations, view, selectedDate, draggedReservation, setDraggedReservation, moveReservation, updateReservation } = useCalendarStore()
+    const { unscheduledReservations, updateReservation, draggedReservation, setDraggedReservation, moveReservation } = useCalendarStore()
     const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const [{ isOver }, drop] = useDrop({
+    const [{ canDrop, isOver }, drop] = useDrop<
+        { reservation: HairSalonReservation },
+        void,
+        { canDrop: boolean; isOver: boolean }
+    >({
         accept: 'reservation',
-        drop: async (item: { reservation: HairSalonReservation }) => {
+        canDrop: () => true,
+        drop: (item) => {
             if (draggedReservation && draggedReservation.sourceTime) {
                 // Solo permitimos mover citas que ya tienen hora asignada
-                const updatedReservation = {
-                    ...draggedReservation.reservation,
-                    time: '', // Eliminar la hora asignada
-                }
-                await moveReservation(updatedReservation, draggedReservation.reservation.date, '')
-                setDraggedReservation(null)
+                void moveReservation(draggedReservation.reservation, draggedReservation.reservation.date, '').then(() => {
+                    setDraggedReservation(null)
+                })
             }
         },
-        collect: (monitor: DropTargetMonitor) => ({
+        collect: (monitor) => ({
+            canDrop: monitor.canDrop(),
             isOver: monitor.isOver(),
         }),
     })
 
-    // Filtrar las citas según la vista actual
-    const filteredReservations = unscheduledReservations.filter(reservation => {
-        // Solo mostrar citas confirmadas que tienen fecha pero no hora
-        if (reservation.status !== 'confirmed' || !reservation.date || reservation.time) {
-            return false
-        }
-
-        if (view === 'day') {
-            // Para vista diaria, mostrar solo las citas del día seleccionado
-            return reservation.date === format(selectedDate, 'yyyy-MM-dd')
-        } else {
-            // Para vista semanal, mostrar las citas de la semana seleccionada
-            const weekStart = startOfWeek(selectedDate, { locale: es })
-            const weekDates = Array.from({ length: 7 }, (_, i) => 
-                format(addDays(weekStart, i), 'yyyy-MM-dd')
-            )
-            return weekDates.includes(reservation.date)
-        }
-    })
-
     const handleReservationClick = (reservation: HairSalonReservation) => {
         setSelectedReservation(reservation)
+        setIsModalOpen(true)
     }
 
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
-        await updateReservation(updatedReservation)
-        setSelectedReservation(null)
+        try {
+            await updateReservation(updatedReservation)
+            setIsModalOpen(false)
+        } catch (error) {
+            console.error('Error al guardar la configuración:', error)
+        }
     }
 
     const handleDeleteReservation = async (reservation: HairSalonReservation) => {
-        // Aquí implementarías la lógica para eliminar la reserva
-        // Por ahora solo cerramos el modal
-        setSelectedReservation(null)
-    }
-
-    if (filteredReservations.length === 0) {
-        return null
+        // Aquí iría la lógica para eliminar la reserva
+        console.log('Eliminar reserva:', reservation)
     }
 
     return (
         <>
-            <Card 
-                ref={drop} 
-                className={className}
-                style={{ 
-                    backgroundColor: isOver ? 'rgba(59, 130, 246, 0.1)' : undefined,
-                    transition: 'background-color 0.2s ease'
-                }}
-            >
-                <CardHeader className="py-4">
-                    <CardTitle className="text-lg">
-                        Citas confirmadas sin hora asignada {view === 'day' ? 'para hoy' : 'esta semana'}
-                    </CardTitle>
+            <Card className={className}>
+                <CardHeader>
+                    <CardTitle>Citas confirmadas sin hora asignada esta semana</CardTitle>
                 </CardHeader>
                 <CardContent className="py-2">
-                    <div className="overflow-x-auto">
-                        <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
-                            {filteredReservations.map((reservation) => (
-                                <div 
-                                    key={reservation.id}
-                                    onClick={() => handleReservationClick(reservation)}
-                                    className="cursor-pointer w-[300px] flex-shrink-0"
-                                >
-                                    <DraggableReservation
-                                        reservation={reservation}
-                                        date={reservation.date}
-                                        time=""
-                                        className="hover:opacity-90"
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                    <div 
+                        ref={drop}
+                        className={cn(
+                            "overflow-x-auto min-h-[100px]",
+                            isOver && canDrop && "bg-blue-50/50"
+                        )}
+                    >
+                        {unscheduledReservations.length > 0 ? (
+                            <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                                {unscheduledReservations.map((reservation) => (
+                                    <div 
+                                        key={reservation.id}
+                                        onClick={() => handleReservationClick(reservation)}
+                                        className="cursor-pointer w-[300px] flex-shrink-0"
+                                    >
+                                        <DraggableReservation
+                                            reservation={reservation}
+                                            date={reservation.date}
+                                            time=""
+                                            className="hover:opacity-90"
+                                            showPrice={true}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-sm text-gray-500">
+                                Arrastra aquí las citas para quitarles la hora asignada
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>
@@ -114,8 +103,8 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
             {selectedReservation && (
                 <HairSalonReservationModal
                     reservation={selectedReservation}
-                    isOpen={!!selectedReservation}
-                    onClose={() => setSelectedReservation(null)}
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
                     onSave={handleSaveReservation}
                     onDelete={handleDeleteReservation}
                 />

@@ -1,14 +1,14 @@
 import { addDays, format } from 'date-fns'
 import { create } from 'zustand'
 
-import type { ExtendedReservation } from '@/types/reservation'
+import type { HairSalonReservation } from '@/components/ReservationContext'
 import type { CalendarActions, CalendarState, CalendarView, DraggedReservation } from './types'
 
 interface CalendarStore extends CalendarState, CalendarActions { }
 
 // Mock data for testing
 const today = new Date()
-const mockReservations: ExtendedReservation[] = [
+const mockReservations: HairSalonReservation[] = [
     {
         id: '1',
         type: 'peluqueria',
@@ -85,7 +85,7 @@ const mockReservations: ExtendedReservation[] = [
 ]
 
 // Mock de citas aceptadas pero pendientes de asignar hora
-const mockUnscheduledReservations: ExtendedReservation[] = [
+const mockUnscheduledReservations: HairSalonReservation[] = [
     {
         id: '4',
         type: 'peluqueria',
@@ -267,26 +267,26 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     setSelectedDate: (date: Date) => set({ selectedDate: date }),
     setDraggedReservation: (reservation: DraggedReservation | null) => set({ draggedReservation: reservation }),
 
-    moveReservation: async (reservation: ExtendedReservation, newDate: string, newTime: string) => {
+    moveReservation: async (reservation: HairSalonReservation, newDate: string, newTime: string) => {
         // Simulate API call
-        set((state: any) => {
+        set((state) => {
             // Si no hay newTime, mover a unscheduledReservations
             if (!newTime) {
                 return {
-                    scheduledReservations: state.scheduledReservations.filter((r: ExtendedReservation) => r.id !== reservation.id),
+                    scheduledReservations: state.scheduledReservations.filter((r) => r.id !== reservation.id),
                     unscheduledReservations: [...state.unscheduledReservations, { ...reservation, date: newDate, time: newTime }]
                 }
             }
             // Si hay newTime, actualizar en scheduledReservations
             return {
-                scheduledReservations: state.scheduledReservations.map((r: ExtendedReservation) =>
+                scheduledReservations: state.scheduledReservations.map((r) =>
                     r.id === reservation.id ? { ...r, date: newDate, time: newTime } : r
                 )
             }
         })
     },
 
-    createReservation: async (reservation: Omit<ExtendedReservation, 'id'>) => {
+    createReservation: async (reservation: Omit<HairSalonReservation, 'id'>) => {
         // Simulate API call
         const newReservation = {
             ...reservation,
@@ -295,7 +295,7 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
         }
 
         // Si la reserva no tiene hora asignada, va a unscheduledReservations
-        set((state: any) => {
+        set((state) => {
             if (!newReservation.time) {
                 return {
                     unscheduledReservations: [...state.unscheduledReservations, newReservation]
@@ -307,20 +307,30 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
         })
     },
 
-    scheduleUnscheduledReservation: async (reservation: ExtendedReservation, date: string, time: string) => {
+    scheduleUnscheduledReservation: async (reservation: HairSalonReservation, date: string, time: string) => {
         // Simulate API call
-        set((state: any) => ({
-            unscheduledReservations: state.unscheduledReservations.filter((r: ExtendedReservation) => r.id !== reservation.id),
+        set((state) => ({
+            unscheduledReservations: state.unscheduledReservations.filter((r) => r.id !== reservation.id),
             scheduledReservations: [...state.scheduledReservations, { ...reservation, date, time }]
         }))
     },
 
-    updateReservation: async (updatedReservation: ExtendedReservation) => {
+    updateReservation: async (updatedReservation: HairSalonReservation) => {
         // Simulate API call
-        set((state: any) => ({
-            scheduledReservations: state.scheduledReservations.map((r: ExtendedReservation) =>
-                r.id === updatedReservation.id ? updatedReservation : r
-            )
-        }))
+        set((state) => {
+            // Si la reserva no tiene hora asignada, moverla a unscheduledReservations
+            if (!updatedReservation.time) {
+                return {
+                    scheduledReservations: state.scheduledReservations.filter((r) => r.id !== updatedReservation.id),
+                    unscheduledReservations: [...state.unscheduledReservations, updatedReservation]
+                }
+            }
+            // Si tiene hora asignada, actualizar en scheduledReservations
+            return {
+                scheduledReservations: state.scheduledReservations.map((r) =>
+                    r.id === updatedReservation.id ? updatedReservation : r
+                )
+            }
+        })
     }
 })) 

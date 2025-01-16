@@ -40,7 +40,6 @@ function isTouchDevice() {
 export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [view, setView] = useState<'day' | 'week'>('day')
-    const [selectedHairdresser, setSelectedHairdresser] = useState<'hairdresser1' | 'hairdresser2'>('hairdresser1')
     const [searchParams, setSearchParams] = useSearchParams()
     const { toast } = useToast()
     const { reservations } = useReservation()
@@ -61,8 +60,8 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
         }
     }
 
-    const weekDays = Array.from({ length: 7 }, (_, i) => {
-        const date = addDays(startOfWeek(selectedDate, { locale: es }), i)
+    const weekDays = Array.from({ length: 6 }, (_, i) => {
+        const date = addDays(startOfWeek(selectedDate, { locale: es, weekStartsOn: 1 }), i)
         return {
             date: format(date, 'yyyy-MM-dd'),
             dayName: format(date, 'EEEE', { locale: es }),
@@ -174,20 +173,6 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
 
                 <UnscheduledReservations className="mb-4" />
 
-                {view === 'week' && (
-                    <Tabs
-                        defaultValue="hairdresser1"
-                        value={selectedHairdresser}
-                        onValueChange={(value) => setSelectedHairdresser(value as 'hairdresser1' | 'hairdresser2')}
-                        className="mb-4"
-                    >
-                        <TabsList className="grid w-[400px] grid-cols-2">
-                            <TabsTrigger value="hairdresser1">Peluquera 1</TabsTrigger>
-                            <TabsTrigger value="hairdresser2">Peluquera 2</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                )}
-
                 <Card>
                     <CardHeader>
                         <CardTitle>
@@ -195,7 +180,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                                 ? format(selectedDate, "EEEE d 'de' MMMM", { locale: es })
                                 : `Semana del ${format(new Date(weekDays[0].date), "d 'de' MMMM", {
                                     locale: es,
-                                })} - ${selectedHairdresser === 'hairdresser1' ? 'Peluquera 1' : 'Peluquera 2'}`}
+                                })}`}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -204,42 +189,20 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                             managingReservation && "pb-32" // Add padding when banner is shown
                         )}>
                             {view === 'day' ? (
-                                <div className="grid grid-cols-2 divide-x">
-                                    {/* Columna Peluquera 1 */}
-                                    <div>
-                                        <div className="text-center p-2 font-medium border-b">
-                                            Peluquera 1
-                                        </div>
-                                        <div className="relative grid auto-rows-[4rem]">
-                                            {timeSlots.map((time) => (
-                                                <TimeSlot
-                                                    key={time}
-                                                    time={time}
-                                                    date={format(selectedDate, 'yyyy-MM-dd')}
-                                                    hairdresser="hairdresser1"
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {/* Columna Peluquera 2 */}
-                                    <div>
-                                        <div className="text-center p-2 font-medium border-b">
-                                            Peluquera 2
-                                        </div>
-                                        <div className="relative grid auto-rows-[4rem]">
-                                            {timeSlots.map((time) => (
-                                                <TimeSlot
-                                                    key={time}
-                                                    time={time}
-                                                    date={format(selectedDate, 'yyyy-MM-dd')}
-                                                    hairdresser="hairdresser2"
-                                                />
-                                            ))}
-                                        </div>
+                                <div>
+                                    <div className="relative grid auto-rows-[4rem]">
+                                        {timeSlots.map((time) => (
+                                            <TimeSlot
+                                                key={time}
+                                                time={time}
+                                                date={format(selectedDate, 'yyyy-MM-dd')}
+                                                isWeekView={false}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-7">
+                                <div className="grid grid-cols-6">
                                     {/* Header de días */}
                                     {weekDays.map((day) => (
                                         <div
@@ -255,7 +218,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                                         </div>
                                     ))}
                                     {/* Grid de slots */}
-                                    <div className="col-span-7 grid grid-cols-7">
+                                    <div className="col-span-6 grid grid-cols-6">
                                         {weekDays.map((day) => (
                                             <div key={day.date} className="relative grid auto-rows-[4rem]">
                                                 {timeSlots.map((time) => (
@@ -263,7 +226,7 @@ export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCale
                                                         key={`${day.date}-${time}`}
                                                         time={time}
                                                         date={day.date}
-                                                        hairdresser={selectedHairdresser}
+                                                        isWeekView={true}
                                                     />
                                                 ))}
                                             </div>
