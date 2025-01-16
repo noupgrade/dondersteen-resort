@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
 
@@ -20,17 +20,116 @@ interface TimeSlotProps {
 }
 
 export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }: TimeSlotProps) {
-    const { draggedReservation, setDraggedReservation, moveReservation, scheduleUnscheduledReservation, scheduledReservations, updateReservation } = useCalendarStore()
+    const { 
+        draggedReservation, 
+        setDraggedReservation, 
+        moveReservation, 
+        scheduleUnscheduledReservation, 
+        scheduledReservations, 
+        updateReservation,
+        selectedReservation,
+        setSelectedReservation
+    } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isClientSearchModalOpen, setIsClientSearchModalOpen] = useState(false)
-    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
+    const [selectedModalReservation, setSelectedModalReservation] = useState<HairSalonReservation | null>(null)
     const { toast } = useToast()
+    const [isTouchDevice, setIsTouchDevice] = useState(false)
+    const [lastTap, setLastTap] = useState(0)
+    const [touchCount, setTouchCount] = useState(0)
+
+    // Detect touch device on mount
+    useEffect(() => {
+        setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+    }, [])
 
     // Find both possible reservations for this slot
     const reservations = scheduledReservations.filter(r => 
         r.date === date && 
         r.time === time
     ).slice(0, 2) // Limit to 2 reservations per slot
+
+    const handleSlotClick = async (e: React.MouseEvent) => {
+        e.stopPropagation()
+        
+        if (!isAvailable || reservations.length >= 2) return
+
+        if (selectedReservation) {
+            // Si hay una reserva seleccionada, intentamos moverla a este slot
+            try {
+                if (selectedReservation.time) {
+                    await moveReservation(selectedReservation, date, time)
+                } else {
+                    await scheduleUnscheduledReservation(selectedReservation, date, time)
+                }
+                setSelectedReservation(null)
+                toast({
+                    title: "Cita movida",
+                    description: "La cita se ha movido correctamente."
+                })
+            } catch (error) {
+                console.error('Error al mover la cita:', error)
+                toast({
+                    title: "Error",
+                    description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
+                    variant: "destructive"
+                })
+            }
+        } else {
+            // Si no hay reserva seleccionada, abrimos el modal de nueva cita
+            setIsClientSearchModalOpen(true)
+        }
+    }
+
+    const handleReservationClick = (res: HairSalonReservation, e: React.MouseEvent) => {
+        // Si es parte de un doble clic, no hacemos nada
+        if (e.detail === 2) return
+
+        if (selectedReservation?.id === res.id) {
+            setSelectedReservation(null)
+        } else {
+            setSelectedReservation(res)
+            toast({
+                title: "Cita seleccionada",
+                description: "Selecciona el hueco donde quieres mover la cita."
+            })
+        }
+    }
+
+    const handleReservationDoubleClick = (res: HairSalonReservation, e: React.MouseEvent) => {
+        e.preventDefault() // Prevenir el doble clic del sistema
+        e.stopPropagation()
+        setSelectedModalReservation(res)
+        setIsModalOpen(true)
+    }
+
+    const handleTouchStart = (res: HairSalonReservation) => {
+        const now = Date.now()
+        const DOUBLE_TAP_DELAY = 300 // milisegundos
+
+        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+            // Doble tap detectado
+            setSelectedModalReservation(res)
+            setIsModalOpen(true)
+            setTouchCount(0)
+            setLastTap(0)
+        } else {
+            setLastTap(now)
+            setTouchCount(prev => prev + 1)
+            // Si es un tap simple, manejamos la selección
+            if (touchCount === 0) {
+                if (selectedReservation?.id === res.id) {
+                    setSelectedReservation(null)
+                } else {
+                    setSelectedReservation(res)
+                    toast({
+                        title: "Cita seleccionada",
+                        description: "Selecciona el hueco donde quieres mover la cita."
+                    })
+                }
+            }
+        }
+    }
 
     const [{ isOver, canDrop }, drop] = useDrop<
         { reservation: HairSalonReservation },
@@ -41,17 +140,25 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         canDrop: () => isAvailable && reservations.length < 2,
         drop: async (item) => {
             if (draggedReservation) {
-                const updatedReservation = {
-                    ...draggedReservation.reservation,
+                try {
+                    if (draggedReservation.sourceTime) {
+                        await moveReservation(draggedReservation.reservation, date, time)
+                    } else {
+                        await scheduleUnscheduledReservation(draggedReservation.reservation, date, time)
+                    }
+                    setDraggedReservation(null)
+                    toast({
+                        title: "Cita movida",
+                        description: "La cita se ha movido correctamente."
+                    })
+                } catch (error) {
+                    console.error('Error al mover la cita:', error)
+                    toast({
+                        title: "Error",
+                        description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
+                        variant: "destructive"
+                    })
                 }
-                if (draggedReservation.sourceTime) {
-                    // Mover una cita existente
-                    await moveReservation(updatedReservation, date, time)
-                } else {
-                    // Asignar hora a una cita sin hora
-                    await scheduleUnscheduledReservation(updatedReservation, date, time)
-                }
-                setDraggedReservation(null)
             }
         },
         collect: (monitor) => ({
@@ -59,17 +166,6 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
             canDrop: monitor.canDrop(),
         }),
     })
-
-    const handleReservationClick = (res: HairSalonReservation) => {
-        setSelectedReservation(res)
-        setIsModalOpen(true)
-    }
-
-    const handleEmptySlotClick = () => {
-        if (isAvailable && reservations.length < 2) {
-            setIsClientSearchModalOpen(true)
-        }
-    }
 
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
         try {
@@ -108,11 +204,12 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     isAvailable ? 'bg-white hover:bg-gray-50' : 'bg-gray-100',
                     isOver && canDrop && 'bg-blue-50',
                     !isAvailable && 'cursor-not-allowed',
-                    !reservations.length && isAvailable && 'cursor-pointer'
+                    !reservations.length && isAvailable && 'cursor-pointer',
+                    selectedReservation && isAvailable && reservations.length < 2 && 'bg-blue-50/50'
                 )}
             >
                 <span className="absolute text-xs text-gray-500 px-2 py-1 pointer-events-none">{time}</span>
-                <div className="absolute inset-0" onClick={handleEmptySlotClick}>
+                <div className="absolute inset-0" onClick={handleSlotClick}>
                     {reservations.map((reservation, index) => {
                         const duration = reservation.duration || 60
                         const height = `${Math.ceil(duration / 30) * 2}rem`
@@ -122,12 +219,15 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                                 key={reservation.id}
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    handleReservationClick(reservation)
-                                }} 
+                                    handleReservationClick(reservation, e)
+                                }}
+                                onDoubleClick={(e) => handleReservationDoubleClick(reservation, e)}
+                                onTouchStart={() => handleTouchStart(reservation)}
                                 className={cn(
                                     "absolute",
                                     index === 0 ? "left-0 right-1/2" : "left-1/2 right-0",
-                                    !isWeekView && index === 0 && "border-r border-gray-100"
+                                    !isWeekView && index === 0 && "border-r border-gray-100",
+                                    selectedReservation?.id === reservation.id && "ring-2 ring-blue-500"
                                 )}
                                 style={{
                                     height,
@@ -149,11 +249,14 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                 </div>
             </div>
 
-            {selectedReservation && (
+            {selectedModalReservation && (
                 <HairSalonReservationModal
-                    reservation={selectedReservation}
+                    reservation={selectedModalReservation}
                     isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        setIsModalOpen(false)
+                        setSelectedModalReservation(null)
+                    }}
                     onSave={handleSaveReservation}
                 />
             )}

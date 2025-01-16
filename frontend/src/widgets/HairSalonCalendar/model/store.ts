@@ -4,7 +4,19 @@ import { create } from 'zustand'
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import type { CalendarActions, CalendarState, CalendarView, DraggedReservation } from './types'
 
-interface CalendarStore extends CalendarState, CalendarActions { }
+interface CalendarStore {
+    scheduledReservations: HairSalonReservation[]
+    unscheduledReservations: HairSalonReservation[]
+    draggedReservation: DraggedReservation | null
+    selectedReservation: HairSalonReservation | null
+    isTouchMode: boolean
+    setDraggedReservation: (reservation: DraggedReservation | null) => void
+    setSelectedReservation: (reservation: HairSalonReservation | null) => void
+    setIsTouchMode: (isTouchMode: boolean) => void
+    moveReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
+    scheduleUnscheduledReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
+    updateReservation: (reservation: HairSalonReservation) => Promise<void>
+}
 
 // Mock data for testing
 const today = new Date()
@@ -17,12 +29,15 @@ const mockReservations: HairSalonReservation[] = [
         time: '10:00',
         client: {
             name: 'Juan Pérez',
-            phone: '666555444'
+            phone: '666555444',
+            email: 'juan@example.com'
         },
         pet: {
             id: 'pet1',
             name: 'Luna',
-            breed: 'Golden Retriever'
+            breed: 'Golden Retriever',
+            size: 'grande',
+            weight: 25
         },
         additionalServices: [{
             type: 'hairdressing',
@@ -32,7 +47,8 @@ const mockReservations: HairSalonReservation[] = [
         status: 'confirmed',
         observations: 'El pelo está muy enredado',
         totalPrice: 45,
-        paymentStatus: 'pending'
+        paymentStatus: 'pending',
+        hasDriverService: true
     },
     {
         id: '2',
@@ -42,12 +58,15 @@ const mockReservations: HairSalonReservation[] = [
         time: '11:30',
         client: {
             name: 'María García',
-            phone: '677888999'
+            phone: '677888999',
+            email: 'maria@example.com'
         },
         pet: {
             id: 'pet2',
             name: 'Rocky',
-            breed: 'Yorkshire Terrier'
+            breed: 'Yorkshire Terrier',
+            size: 'pequeño',
+            weight: 4
         },
         additionalServices: [{
             type: 'hairdressing',
@@ -56,22 +75,30 @@ const mockReservations: HairSalonReservation[] = [
         }],
         status: 'confirmed',
         totalPrice: 35,
-        paymentStatus: 'pending'
-    },
+        paymentStatus: 'pending',
+        hasDriverService: false
+    }
+]
+
+// Mock de citas aceptadas pero pendientes de asignar hora
+const mockUnscheduledReservations: HairSalonReservation[] = [
     {
         id: '3',
         type: 'peluqueria',
         source: 'hotel',
-        date: format(addDays(today, 1), 'yyyy-MM-dd'),
-        time: '09:00',
+        date: format(today, 'yyyy-MM-dd'),
+        time: '',
         client: {
-            name: 'Carlos Ruiz',
-            phone: '644333222'
+            name: 'Pedro Gómez',
+            phone: '611222333',
+            email: 'pedro@example.com'
         },
         pet: {
             id: 'pet3',
-            name: 'Max',
-            breed: 'Schnauzer'
+            name: 'Nala',
+            breed: 'Pastor Alemán',
+            size: 'grande',
+            weight: 30
         },
         additionalServices: [{
             type: 'hairdressing',
@@ -79,27 +106,28 @@ const mockReservations: HairSalonReservation[] = [
             services: ['deshedding']
         }],
         status: 'confirmed',
-        totalPrice: 40,
-        paymentStatus: 'pending'
-    }
-]
-
-// Mock de citas aceptadas pero pendientes de asignar hora
-const mockUnscheduledReservations: HairSalonReservation[] = [
+        observations: 'Cliente habitual',
+        totalPrice: 50,
+        paymentStatus: 'pending',
+        hasDriverService: true
+    },
     {
         id: '4',
         type: 'peluqueria',
-        source: 'hotel',
+        source: 'external',
         date: format(today, 'yyyy-MM-dd'),
         time: '',
         client: {
-            name: 'Ana Martínez',
-            phone: '655444333'
+            name: 'Carmen Rodríguez',
+            phone: '644555666',
+            email: 'carmen@example.com'
         },
         pet: {
             id: 'pet4',
-            name: 'Bella',
-            breed: 'Caniche'
+            name: 'Coco',
+            breed: 'Bulldog Francés',
+            size: 'mediano',
+            weight: 12
         },
         additionalServices: [{
             type: 'hairdressing',
@@ -107,100 +135,9 @@ const mockUnscheduledReservations: HairSalonReservation[] = [
             services: ['bath_and_trim']
         }],
         status: 'confirmed',
-        observations: 'Aceptada - Pendiente asignar hora',
-        hotelCheckIn: format(today, 'yyyy-MM-dd'),
-        hotelCheckOut: format(addDays(today, 3), 'yyyy-MM-dd'),
-        hotelCheckOutTime: '12:00',
-        hasDriverService: true,
-        totalPrice: 45,
-        paymentStatus: 'pending'
-    },
-    {
-        id: '5',
-        type: 'peluqueria',
-        source: 'external',
-        date: format(addDays(today, 2), 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Laura Sánchez',
-            phone: '688777666'
-        },
-        pet: {
-            id: 'pet5',
-            name: 'Toby',
-            breed: 'Shih Tzu'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['spa']
-            }
-        ],
-        status: 'confirmed',
-        observations: 'Aceptada - Preferencia horario de mañana',
-        requestedTime: '10:00',
-        totalPrice: 35,
-        paymentStatus: 'pending'
-    },
-    {
-        id: '8',
-        type: 'peluqueria',
-        source: 'hotel',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Roberto Díaz',
-            phone: '677888999'
-        },
-        pet: {
-            id: 'pet8',
-            name: 'Thor',
-            breed: 'Husky Siberiano'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['deshedding']
-            }
-        ],
-        status: 'confirmed',
-        observations: 'Cliente habitual - Necesita deslanado completo',
-        hotelCheckIn: format(today, 'yyyy-MM-dd'),
-        hotelCheckOut: format(addDays(today, 5), 'yyyy-MM-dd'),
-        hotelCheckOutTime: '14:00',
-        hasDriverService: false,
-        totalPrice: 55,
-        paymentStatus: 'pending'
-    },
-    {
-        id: '9',
-        type: 'peluqueria',
-        source: 'external',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Isabel Torres',
-            phone: '644555777'
-        },
-        pet: {
-            id: 'pet9',
-            name: 'Luna',
-            breed: 'Pomerania'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_trim']
-            }
-        ],
-        status: 'confirmed',
-        observations: 'Primera visita',
-        requestedTime: '16:30',
         totalPrice: 40,
-        paymentStatus: 'pending'
+        paymentStatus: 'pending',
+        hasDriverService: false
     }
 ]
 
@@ -257,15 +194,14 @@ const pendingReservations = [
 ]
 
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
-    view: 'week',
-    selectedDate: new Date(),
-    draggedReservation: null,
-    unscheduledReservations: mockUnscheduledReservations,
     scheduledReservations: mockReservations,
-
-    setView: (view: CalendarView) => set({ view }),
-    setSelectedDate: (date: Date) => set({ selectedDate: date }),
-    setDraggedReservation: (reservation: DraggedReservation | null) => set({ draggedReservation: reservation }),
+    unscheduledReservations: mockUnscheduledReservations,
+    draggedReservation: null,
+    selectedReservation: null,
+    isTouchMode: false,
+    setDraggedReservation: (reservation) => set({ draggedReservation: reservation }),
+    setSelectedReservation: (reservation) => set({ selectedReservation: reservation }),
+    setIsTouchMode: (isTouchMode) => set({ isTouchMode }),
 
     moveReservation: async (reservation: HairSalonReservation, newDate: string, newTime: string) => {
         // Simulate API call

@@ -8,16 +8,28 @@ import { useDrop } from 'react-dnd'
 import type { DropTargetMonitor } from 'react-dnd'
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib/styles/class-merge'
+import { useToast } from '@/shared/ui/use-toast'
+import { Button } from '@/shared/ui/button'
+import { CalendarX } from 'lucide-react'
 
 interface UnscheduledReservationsProps {
     className?: string
 }
 
 export function UnscheduledReservations({ className }: UnscheduledReservationsProps) {
-    const { unscheduledReservations, updateReservation, draggedReservation, setDraggedReservation, moveReservation } = useCalendarStore()
-    const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
+    const { 
+        unscheduledReservations, 
+        updateReservation, 
+        draggedReservation, 
+        setDraggedReservation, 
+        moveReservation,
+        selectedReservation,
+        setSelectedReservation 
+    } = useCalendarStore()
+    const [selectedModalReservation, setSelectedModalReservation] = useState<HairSalonReservation | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const { toast } = useToast()
 
     const [{ canDrop, isOver }, drop] = useDrop<
         { reservation: HairSalonReservation },
@@ -27,11 +39,31 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         accept: 'reservation',
         canDrop: () => true,
         drop: (item) => {
-            if (draggedReservation && draggedReservation.sourceTime) {
-                // Solo permitimos mover citas que ya tienen hora asignada
-                void moveReservation(draggedReservation.reservation, draggedReservation.reservation.date, '').then(() => {
-                    setDraggedReservation(null)
-                })
+            if (draggedReservation) {
+                try {
+                    // Permitimos mover cualquier cita a la sección sin hora
+                    void moveReservation(draggedReservation.reservation, draggedReservation.reservation.date, '').then(() => {
+                        setDraggedReservation(null)
+                        toast({
+                            title: "Cita movida",
+                            description: "La cita se ha movido a la sección sin hora asignada."
+                        })
+                    }).catch((error) => {
+                        console.error('Error al mover la cita:', error)
+                        toast({
+                            title: "Error",
+                            description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
+                            variant: "destructive"
+                        })
+                    })
+                } catch (error) {
+                    console.error('Error al mover la cita:', error)
+                    toast({
+                        title: "Error",
+                        description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
+                        variant: "destructive"
+                    })
+                }
             }
         },
         collect: (monitor) => ({
@@ -40,8 +72,56 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         }),
     })
 
-    const handleReservationClick = (reservation: HairSalonReservation) => {
-        setSelectedReservation(reservation)
+    const [lastTap, setLastTap] = useState(0)
+    const [touchCount, setTouchCount] = useState(0)
+
+    const handleTouchStart = (res: HairSalonReservation) => {
+        const now = Date.now()
+        const DOUBLE_TAP_DELAY = 300 // milisegundos
+
+        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+            // Doble tap detectado
+            setSelectedModalReservation(res)
+            setIsModalOpen(true)
+            setTouchCount(0)
+            setLastTap(0)
+        } else {
+            setLastTap(now)
+            setTouchCount(prev => prev + 1)
+            // Si es un tap simple, manejamos la selección
+            if (touchCount === 0) {
+                if (selectedReservation?.id === res.id) {
+                    setSelectedReservation(null)
+                } else {
+                    setSelectedReservation(res)
+                    toast({
+                        title: "Cita seleccionada",
+                        description: "Selecciona el hueco donde quieres mover la cita."
+                    })
+                }
+            }
+        }
+    }
+
+    const handleReservationClick = (reservation: HairSalonReservation, e: React.MouseEvent) => {
+        // Si es parte de un doble clic, no hacemos nada
+        if (e.detail === 2) return
+
+        if (selectedReservation?.id === reservation.id) {
+            setSelectedReservation(null)
+        } else {
+            setSelectedReservation(reservation)
+            toast({
+                title: "Cita seleccionada",
+                description: "Selecciona el hueco donde quieres mover la cita."
+            })
+        }
+    }
+
+    const handleReservationDoubleClick = (reservation: HairSalonReservation, e: React.MouseEvent) => {
+        e.preventDefault() // Prevenir el doble clic del sistema
+        e.stopPropagation()
+        setSelectedModalReservation(reservation)
         setIsModalOpen(true)
     }
 
@@ -59,18 +139,49 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         console.log('Eliminar reserva:', reservation)
     }
 
+    const handleMoveToUnscheduled = async () => {
+        if (selectedReservation?.time) {
+            try {
+                await moveReservation(selectedReservation, selectedReservation.date, '')
+                setSelectedReservation(null)
+                toast({
+                    title: "Cita movida",
+                    description: "La cita se ha movido a la sección sin hora asignada."
+                })
+            } catch (error) {
+                console.error('Error al mover la cita:', error)
+                toast({
+                    title: "Error",
+                    description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
+                    variant: "destructive"
+                })
+            }
+        }
+    }
+
     return (
         <>
             <Card className={className}>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle>Citas confirmadas sin hora asignada esta semana</CardTitle>
+                    {selectedReservation?.time && (
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleMoveToUnscheduled}
+                            className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100"
+                        >
+                            <CalendarX className="h-4 w-4" />
+                            <span>Mover aquí</span>
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent className="py-2">
                     <div 
                         ref={drop}
                         className={cn(
-                            "overflow-x-auto min-h-[100px]",
-                            isOver && canDrop && "bg-blue-50/50"
+                            "overflow-x-auto min-h-[100px] p-2",
+                            isOver && canDrop && "bg-blue-50/50 ring-2 ring-blue-500"
                         )}
                     >
                         {unscheduledReservations.length > 0 ? (
@@ -78,8 +189,19 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                                 {unscheduledReservations.map((reservation) => (
                                     <div 
                                         key={reservation.id}
-                                        onClick={() => handleReservationClick(reservation)}
-                                        className="cursor-pointer w-[300px] flex-shrink-0"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleReservationClick(reservation, e)
+                                        }}
+                                        onDoubleClick={(e) => {
+                                            e.stopPropagation()
+                                            handleReservationDoubleClick(reservation, e)
+                                        }}
+                                        onTouchStart={() => handleTouchStart(reservation)}
+                                        className={cn(
+                                            "cursor-pointer w-[300px] flex-shrink-0",
+                                            selectedReservation?.id === reservation.id && "ring-2 ring-blue-500"
+                                        )}
                                     >
                                         <DraggableReservation
                                             reservation={reservation}
@@ -93,18 +215,25 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full text-sm text-gray-500">
-                                Arrastra aquí las citas para quitarles la hora asignada
+                                {selectedReservation?.time ? (
+                                    "Pulsa el botón 'Mover aquí' para quitar la hora a la cita seleccionada"
+                                ) : (
+                                    "Arrastra aquí las citas para quitarles la hora asignada"
+                                )}
                             </div>
                         )}
                     </div>
                 </CardContent>
             </Card>
 
-            {selectedReservation && (
+            {selectedModalReservation && (
                 <HairSalonReservationModal
-                    reservation={selectedReservation}
+                    reservation={selectedModalReservation}
                     isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
+                    onClose={() => {
+                        setIsModalOpen(false)
+                        setSelectedModalReservation(null)
+                    }}
                     onSave={handleSaveReservation}
                     onDelete={handleDeleteReservation}
                 />
