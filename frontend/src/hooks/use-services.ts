@@ -62,7 +62,7 @@ export const useServices = (initialServices: AdditionalService[] = []) => {
         }))
     }, [])
 
-    const addOrUpdateMedicationService = useCallback((petIndex: number, comment?: string, frequency: 'single' | 'multiple' = 'single') => {
+    const addOrUpdateMedicationService = useCallback((petIndex: number, comment: string = '', frequency: 'single' | 'multiple' = 'single') => {
         setState(current => {
             const services = current.services.filter(
                 s => !(s.type === 'medication' && s.petIndex === petIndex)

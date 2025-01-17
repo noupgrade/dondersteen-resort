@@ -147,7 +147,7 @@ export default function BookingPage() {
             <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
                 <div className='lg:col-span-2'>
                     <Form {...form}>
-                        <form onSubmit={handleSubmit} className='space-y-8'>
+                        <div className='space-y-8'>
                             {state.currentStep === 1 && (
                                 <PetInformationStep
                                     form={form}
@@ -202,10 +202,10 @@ export default function BookingPage() {
                                         Siguiente
                                     </Button>
                                 ) : (
-                                    <Button type='submit'>Confirmar reserva</Button>
+                                    <Button type='button' onClick={handleSubmit}>Confirmar reserva</Button>
                                 )}
                             </div>
-                        </form>
+                        </div>
                     </Form>
                 </div>
                 <div className='lg:col-span-1'>

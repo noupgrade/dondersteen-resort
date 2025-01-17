@@ -176,6 +176,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     }, [form, state.selectedDates])
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
+        console.log('handleSubmit', state.currentStep)
         e.preventDefault()
 
         const isValid = await form.trigger()
@@ -277,7 +278,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         let isValid = false
 
         setState(prev => ({ ...prev, formError: '' })) // Clear the form error when attempting to move to next step
-
+        console.log('state.currentStep', state.currentStep)
         switch (state.currentStep) {
             case 1:
                 isValid = await form.trigger('pets', { shouldFocus: true })

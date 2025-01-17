@@ -75,7 +75,7 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                     <div className='grid grid-cols-2 gap-4'>
                         <div>
                             <p className='text-sm text-muted-foreground'>Fecha</p>
-                            <p className='font-medium'>{format(new Date(reservation.date), 'dd/MM/yyyy')}</p>
+                            <p className='font-medium'>{reservation.date}</p>
                         </div>
                         <div>
                             <p className='text-sm text-muted-foreground'>Hora</p>
