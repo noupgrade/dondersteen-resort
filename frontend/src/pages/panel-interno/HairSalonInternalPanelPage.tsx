@@ -6,7 +6,7 @@ import {
     Users
 } from 'lucide-react'
 
-import { HairSalonReservation, useHairSalonReservations } from '@/components/ReservationContext.tsx'
+import { HairSalonReservation, useHairSalonReservations, useReservation } from '@/components/ReservationContext.tsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { useToast } from '@/shared/ui/use-toast.ts'
@@ -15,6 +15,7 @@ import { ReservationCard } from '@/widgets/HairSalonCalendar/ui/ReservationCard'
 import { HairSalonReservationModal } from '@/widgets/HairSalonCalendar/ui/HairSalonReservationModal'
 import { ManageReservationBanner } from '@/widgets/HairSalonCalendar/ui/ManageReservationBanner'
 import { CheckoutChangesNotificationBanner, type CheckoutChange } from '@/widgets/HairSalonCalendar/ui/CheckoutChangesNotificationBanner'
+import { useCalendarStore } from '@/widgets/HairSalonCalendar/model/store'
 
 // Mock de cambios de checkout - Esto vendría de tu backend
 const mockCheckoutChanges: CheckoutChange[] = [
@@ -49,6 +50,8 @@ const mockCheckoutChanges: CheckoutChange[] = [
 export default function HairSalonInternalPanelPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const { reservations } = useHairSalonReservations()
+    const { updateReservation } = useReservation()
+    const { updateReservation: updateCalendarReservation } = useCalendarStore()
     const pendingReservations = reservations.filter(res => res.status === 'pending')
     const [selectedReservation, setSelectedReservation] = useState<HairSalonReservation | null>(null)
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false)
@@ -113,19 +116,12 @@ export default function HairSalonInternalPanelPage() {
     const handleViewChange = (change: CheckoutChange) => {
         setSelectedChange(change)
         
-        console.log('Change seleccionado:', change)
-        console.log('Todas las reservas:', reservations)
-        
         // Buscar la reserva correspondiente
-        const reservation = reservations.find(r => {
-            console.log('Comparando ID de reserva:', r.id, 'con ID buscado:', change.reservationId)
-            return r.id === change.reservationId
-        })
-
-        console.log('Reserva encontrada:', reservation)
+        const reservation = reservations.find(r => r.id === change.reservationId)
 
         if (reservation) {
-            // En lugar de setSelectedReservation, actualizamos los parámetros de URL
+            setSelectedReservation(reservation)
+            // Actualizar los parámetros de URL
             setSearchParams(prev => {
                 const newParams = new URLSearchParams(prev)
                 newParams.set('view', 'calendar')
@@ -141,33 +137,91 @@ export default function HairSalonInternalPanelPage() {
         }
     }
 
-    const handleAcceptChange = () => {
-        if (!selectedChange) return
+    const handleAcceptChange = async () => {
+        if (!selectedChange || !selectedReservation) return
 
-        // Aquí actualizarías la reserva con los nuevos datos
-        toast({
-            title: "Cambios aceptados",
-            description: "Los cambios han sido aplicados exitosamente."
-        })
+        try {
+            // Actualizar el estado de la reserva
+            const updatedReservation: HairSalonReservation = {
+                ...selectedReservation,
+                status: 'pending',
+                date: selectedChange.newDate,
+                time: '', // Quitar la hora para que vaya a sin hora asignada
+                requestedTime: selectedChange.newTime,
+                checkoutChangeAccepted: true
+            }
 
-        // Eliminar el cambio de la lista
-        setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
-        setSelectedChange(null)
-        setSelectedReservation(null)
+            // Actualizar en el contexto de reservas
+            await updateReservation(selectedReservation.id, updatedReservation)
+            
+            // Actualizar en el store del calendario
+            await updateCalendarReservation(updatedReservation)
+
+            toast({
+                title: "Cambios aceptados",
+                description: "Los cambios han sido aceptados. La cita se ha movido a citas sin hora asignada."
+            })
+
+            // Eliminar el cambio de la lista
+            setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
+            setSelectedChange(null)
+            setSelectedReservation(null)
+            
+            // Volver a la vista de pendientes
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev)
+                newParams.set('view', 'pending')
+                newParams.delete('reservationId')
+                return newParams
+            })
+        } catch (error) {
+            console.error('Error al actualizar la reserva:', error)
+            toast({
+                title: "Error",
+                description: "No se pudieron aplicar los cambios. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
 
-    const handleRejectChange = () => {
-        if (!selectedChange) return
+    const handleRejectChange = async () => {
+        if (!selectedChange || !selectedReservation) return
 
-        toast({
-            title: "Cambios rechazados",
-            description: "Los cambios han sido rechazados."
-        })
+        try {
+            // Actualizar el estado de la reserva
+            const updatedReservation: HairSalonReservation = {
+                ...selectedReservation,
+                checkoutChangeRejected: true
+            }
 
-        // Eliminar el cambio de la lista
-        setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
-        setSelectedChange(null)
-        setSelectedReservation(null)
+            // Actualizar en el contexto de reservas
+            await updateReservation(selectedReservation.id, updatedReservation)
+
+            toast({
+                title: "Cambios rechazados",
+                description: "Los cambios han sido rechazados. La cita mantiene su horario original."
+            })
+
+            // Eliminar el cambio de la lista
+            setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
+            setSelectedChange(null)
+            setSelectedReservation(null)
+            
+            // Volver a la vista de pendientes
+            setSearchParams(prev => {
+                const newParams = new URLSearchParams(prev)
+                newParams.set('view', 'pending')
+                newParams.delete('reservationId')
+                return newParams
+            })
+        } catch (error) {
+            console.error('Error al rechazar los cambios:', error)
+            toast({
+                title: "Error",
+                description: "No se pudieron rechazar los cambios. Por favor, inténtalo de nuevo.",
+                variant: "destructive"
+            })
+        }
     }
 
     // Filter reservations by source
@@ -184,6 +238,8 @@ export default function HairSalonInternalPanelPage() {
             <CheckoutChangesNotificationBanner
                 changes={checkoutChanges}
                 onViewChange={handleViewChange}
+                onAcceptChange={handleAcceptChange}
+                onRejectChange={handleRejectChange}
             />
 
             <div className="mt-6">
@@ -282,7 +338,7 @@ export default function HairSalonInternalPanelPage() {
             </div>
 
             {/* Modal de detalles de reserva */}
-            {selectedReservation && (
+            {selectedReservation && !selectedChange && (
                 <HairSalonReservationModal
                     reservation={selectedReservation}
                     isOpen={!!selectedReservation}
@@ -296,15 +352,22 @@ export default function HairSalonInternalPanelPage() {
             )}
 
             {/* Banner de gestión de cambios */}
-            {selectedChange && selectedReservation && (
+            {selectedChange && selectedReservation && activeTab === 'calendar' && (
                 <ManageReservationBanner
                     reservation={selectedReservation}
                     onClose={() => {
                         setSelectedChange(null)
                         setSelectedReservation(null)
+                        // Volver a la vista de pendientes
+                        setSearchParams(prev => {
+                            const newParams = new URLSearchParams(prev)
+                            newParams.set('view', 'pending')
+                            newParams.delete('reservationId')
+                            return newParams
+                        })
                     }}
-                    onAccept={handleAcceptChange}
-                    onReject={handleRejectChange}
+                    onAccept={() => handleAcceptChange()}
+                    onReject={() => handleRejectChange()}
                 />
             )}
         </div>
