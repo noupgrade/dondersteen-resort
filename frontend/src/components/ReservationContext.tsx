@@ -85,6 +85,13 @@ export type HairSalonReservation = {
     duration?: number
     // Campo para hora solicitada en reservas externas
     requestedTime?: string
+    // Campo para hora asignada
+    assignedTime?: string
+    // Campo para foto del resultado
+    resultImage?: string
+    // Campos para cambios de checkout
+    checkoutChangeAccepted?: boolean
+    checkoutChangeRejected?: boolean
 }
 
 export type Reservation = HotelReservation | HairSalonReservation

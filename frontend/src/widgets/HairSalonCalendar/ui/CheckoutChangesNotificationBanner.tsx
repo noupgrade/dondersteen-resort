@@ -25,6 +25,8 @@ export interface CheckoutChange {
 interface CheckoutChangesNotificationBannerProps {
     changes: CheckoutChange[]
     onViewChange: (change: CheckoutChange) => void
+    onAcceptChange?: (change: CheckoutChange) => void
+    onRejectChange?: (change: CheckoutChange) => void
 }
 
 const serviceTypeLabels: Record<HairdressingServiceType, string> = {
@@ -34,7 +36,9 @@ const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     deshedding: 'Deslanado',
     brushing: 'Cepillado',
     spa: 'Spa',
-    spa_ozone: 'Spa con ozono'
+    spa_ozone: 'Spa con ozono',
+    knots: 'Nudos',
+    extremely_dirty: 'Extremadamente sucio'
 }
 
 const serviceTypeColors: Record<HairdressingServiceType, string> = {
@@ -44,11 +48,14 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
     deshedding: 'bg-orange-50 text-orange-700 border-orange-200',
     brushing: 'bg-pink-50 text-pink-700 border-pink-200',
     spa: 'bg-teal-50 text-teal-700 border-teal-200',
-    spa_ozone: 'bg-indigo-50 text-indigo-700 border-indigo-200'
+    spa_ozone: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    knots: 'bg-red-50 text-red-700 border-red-200',
+    extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200'
 }
 
-export function CheckoutChangesNotificationBanner({ changes, onViewChange }: CheckoutChangesNotificationBannerProps) {
+export function CheckoutChangesNotificationBanner({ changes, onViewChange, onAcceptChange, onRejectChange }: CheckoutChangesNotificationBannerProps) {
     const [isExpanded, setIsExpanded] = useState(false)
+    const [selectedChange, setSelectedChange] = useState<CheckoutChange | null>(null)
 
     if (changes.length === 0) return null
 
