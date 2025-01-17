@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Settings } from 'lucide-react'
+import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Settings, Euro } from 'lucide-react'
 
 const Sidebar = () => {
     const location = useLocation()
@@ -76,6 +76,16 @@ const Sidebar = () => {
                         >
                             <ShoppingCart className='h-5 w-5' />
                             {isOpen && <span className='ml-3'>Tienda</span>}
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            to='/panel-interno/facturacion'
+                            className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/facturacion')}`}
+                            title='Facturación'
+                        >
+                            <Euro className='h-5 w-5' />
+                            {isOpen && <span className='ml-3'>Facturación</span>}
                         </Link>
                     </li>
                 </ul>

@@ -11,6 +11,7 @@ import PlanningPage from '@/pages/panel-interno/PlanningPage.tsx'
 import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage.tsx'
 import SetupPage from '@/pages/panel-interno/setup/page'
 import TiendaPage from '@/pages/panel-interno/tienda/page'
+import BillingPage from '@/pages/panel-interno/facturacion/page'
 import BookingPage from '../../pages/BookingPage.tsx'
 import ClientDetailsPage from '../../pages/ClientPage.tsx'
 import ClientesPage from '../../pages/ClientsPage.tsx'
@@ -75,6 +76,7 @@ export const RoutingComponent = () => {
                                         <Route path='clientes/:id' element={<ClientDetailsPage />} />
                                         <Route path='reservas/:id' element={<ReservationDetailsPage />} />
                                         <Route path='setup' element={<SetupPage />} />
+                                        <Route path='facturacion' element={<BillingPage />} />
                                     </Routes>
                                 </PanelInternoLayout>
                             )}
