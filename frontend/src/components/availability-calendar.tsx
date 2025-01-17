@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { format } from 'date-fns'
+import { format, isSaturday } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 import { Calendar } from '@/shared/ui/calendar'
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/shared/lib/styles/class-merge'
 import { useReservation } from './ReservationContext'
 import { useHotelAvailability } from './HotelAvailabilityContext'
-import { Badge } from '@/shared/ui/badge'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { DateRange } from 'react-day-picker'
 
 interface AvailabilityCalendarProps {
@@ -29,11 +29,11 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
     const pickupHour = parseInt(pickupTime.split(':')[0], 10)
 
     const handleSelect = (range: DateRange | undefined) => {
-        // Prevent selection of weekends for check-in/check-out
-        if (range?.from && isWeekend(format(range.from, 'yyyy-MM-dd'))) {
+        // Only prevent selection of Sundays for check-in/check-out
+        if (range?.from && isWeekend(format(range.from, 'yyyy-MM-dd')) && !isSaturday(range.from)) {
             return
         }
-        if (range?.to && isWeekend(format(range.to, 'yyyy-MM-dd'))) {
+        if (range?.to && isWeekend(format(range.to, 'yyyy-MM-dd')) && !isSaturday(range.to)) {
             return
         }
 
@@ -61,6 +61,9 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
         }
     }
 
+    const isSaturdayCheckIn = selectedDates?.from && isSaturday(selectedDates.from)
+    const isSaturdayCheckOut = selectedDates?.to && isSaturday(selectedDates.to)
+
     return (
         <div className='space-y-4'>
             <Calendar
@@ -80,8 +83,9 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                     },
                     weekend: date => {
                         const dateString = format(date, 'yyyy-MM-dd')
-                        return isWeekend(dateString)
+                        return isWeekend(dateString) && !isSaturday(date)
                     },
+                    saturday: date => isSaturday(date),
                     start: date => Boolean(selectedDates?.from && format(date, 'yyyy-MM-dd') === format(selectedDates.from, 'yyyy-MM-dd')),
                     end: date => Boolean(selectedDates?.to && format(date, 'yyyy-MM-dd') === format(selectedDates.to, 'yyyy-MM-dd')),
                     range: date =>
@@ -96,6 +100,7 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                     available: { backgroundColor: '#2d6a4f', color: 'white' },
                     highSeason: { backgroundColor: '#22c55e', color: 'white' },
                     weekend: { backgroundColor: '#f59e0b', color: 'white', cursor: 'not-allowed' },
+                    saturday: { backgroundColor: '#fbbf24', color: 'white' },
                     start: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
                     end: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
                     range: {
@@ -105,7 +110,7 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                 disabled={date => {
                     const dateString = format(date, 'yyyy-MM-dd')
                     const currentOccupancy = hotelAvailability[dateString] || 0
-                    return currentOccupancy >= capacity || isWeekend(dateString) || isDateBlocked(dateString)
+                    return currentOccupancy >= capacity || (isWeekend(dateString) && !isSaturday(date)) || isDateBlocked(dateString)
                 }}
                 fromDate={new Date()}
                 locale={es}
@@ -124,6 +129,10 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                     <span>Domingos sin entradas ni salidas</span>
                 </div>
                 <div className='flex items-center'>
+                    <div className='mr-2 h-4 w-4 rounded bg-[#fbbf24]'></div>
+                    <span>Sábados: horario especial</span>
+                </div>
+                <div className='flex items-center'>
                     <div className='mr-2 h-4 w-4 rounded bg-gray-200'></div>
                     <span>No disponible</span>
                 </div>
@@ -135,17 +144,34 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                         <SelectValue placeholder='Selecciona la hora' />
                     </SelectTrigger>
                     <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => i).map(hour => (
+                        {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
                             <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
                                 {`${hour.toString().padStart(2, '0')}:00`}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
+
+                {isSaturdayCheckIn && (
+                    <Alert variant='destructive'>
+                        <AlertDescription>
+                            Los sábados la entrega del perro debe ser antes de las 14:00h.
+                        </AlertDescription>
+                    </Alert>
+                )}
+                {isSaturdayCheckOut && (
+                    <Alert variant='destructive'>
+                        <AlertDescription>
+                            Los sábados la recogida debe ser antes de las 14:00h.
+                        </AlertDescription>
+                    </Alert>
+                )}
                 {isOutOfHours(pickupHour) && (
-                    <p className='mt-2 text-sm text-yellow-600'>
-                        Horario del hotel: 8:00 a 18:00. Recogida fuera de horario: 70€ adicionales.
-                    </p>
+                    <Alert variant='destructive'>
+                        <AlertDescription>
+                            Horario del hotel: 8:00 a 18:00. Recogida fuera de horario: 70€ adicionales.
+                        </AlertDescription>
+                    </Alert>
                 )}
             </div>
         </div>
