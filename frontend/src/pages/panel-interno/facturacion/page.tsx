@@ -16,6 +16,7 @@ import {
     eachWeekOfInterval,
     eachMonthOfInterval,
     format,
+    parseISO,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
@@ -74,6 +75,12 @@ export default function BillingPage() {
 
     const handlePeriodChange = (period: string) => {
         setSelectedPeriod(period)
+    }
+
+    const handleDateChange = (date: Date | undefined) => {
+        if (date) {
+            setSelectedDate(date)
+        }
     }
 
     const getPeriodLabel = () => {
@@ -169,11 +176,8 @@ export default function BillingPage() {
                         </div>
                         <div className='flex items-center gap-4'>
                             <DatePicker
-                                locale={es}
-                                selected={selectedDate}
-                                onChange={(date) => date && setSelectedDate(date)}
-                                dateFormat='dd/MM/yyyy'
-                                placeholderText='Seleccionar fecha'
+                                date={selectedDate}
+                                onSelect={handleDateChange}
                             />
                             <Tabs value={selectedPeriod} onValueChange={handlePeriodChange}>
                                 <TabsList>
