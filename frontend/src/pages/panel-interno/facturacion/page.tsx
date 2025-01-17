@@ -5,29 +5,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { DatePicker } from '@/shared/ui/date-picker'
 import {
+    startOfDay,
     startOfWeek,
-    endOfWeek,
     startOfMonth,
-    endOfMonth,
     startOfYear,
-    endOfYear,
+    addDays,
+    addWeeks,
+    addMonths,
     eachDayOfInterval,
     eachWeekOfInterval,
     eachMonthOfInterval,
     format,
-    subDays,
-    addDays,
-    subWeeks,
-    addWeeks,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 // Mock data generator functions
 const generateDailyData = (selectedDate: Date) => {
-    // Get 6 days before and 5 days after the selected date (12 days total)
-    const start = subDays(selectedDate, 6)
-    const end = addDays(selectedDate, 5)
+    // Get the selected day and the next 11 days
+    const start = startOfDay(selectedDate)
+    const end = addDays(start, 11)
 
     return eachDayOfInterval({ start, end }).map(date => ({
         name: format(date, 'dd MMM', { locale: es }),
@@ -39,15 +36,15 @@ const generateDailyData = (selectedDate: Date) => {
 }
 
 const generateWeeklyData = (selectedDate: Date) => {
-    // Get 6 weeks before and 5 weeks after the selected date (12 weeks total)
-    const start = subWeeks(selectedDate, 6)
-    const end = addWeeks(selectedDate, 5)
+    // Get the week of the selected date and the next 11 weeks
+    const start = startOfWeek(selectedDate, { locale: es })
+    const end = addWeeks(start, 11)
 
     return eachWeekOfInterval(
         { start, end },
         { locale: es }
     ).map(weekStart => ({
-        name: `${format(weekStart, 'dd MMM', { locale: es })}`,
+        name: `${format(weekStart, 'dd MMM', { locale: es })} - ${format(addDays(weekStart, 6), 'dd MMM', { locale: es })}`,
         fullDate: weekStart,
         hotel: Math.floor(Math.random() * 20000),
         peluqueria: Math.floor(Math.random() * 15000),
@@ -56,14 +53,14 @@ const generateWeeklyData = (selectedDate: Date) => {
 }
 
 const generateMonthlyData = (selectedDate: Date) => {
-    // Get all months of the year containing the selected date
-    const start = startOfYear(selectedDate)
-    const end = endOfYear(selectedDate)
+    // Get the month of the selected date and the next 11 months
+    const start = startOfMonth(selectedDate)
+    const end = addMonths(start, 11)
 
     return eachMonthOfInterval(
         { start, end }
     ).map(monthStart => ({
-        name: format(monthStart, 'MMM', { locale: es }),
+        name: format(monthStart, 'MMM yyyy', { locale: es }),
         fullDate: monthStart,
         hotel: Math.floor(Math.random() * 80000),
         peluqueria: Math.floor(Math.random() * 60000),
@@ -80,13 +77,16 @@ export default function BillingPage() {
     }
 
     const getPeriodLabel = () => {
+        const start = selectedDate
         switch (selectedPeriod) {
             case 'daily':
-                return `Del ${format(subDays(selectedDate, 6), 'dd MMM', { locale: es })} al ${format(addDays(selectedDate, 5), 'dd MMM', { locale: es })}`
+                return `Del ${format(start, 'dd MMM', { locale: es })} al ${format(addDays(start, 11), 'dd MMM', { locale: es })}`
             case 'weekly':
-                return `Del ${format(subWeeks(selectedDate, 6), 'dd MMM', { locale: es })} al ${format(addWeeks(selectedDate, 5), 'dd MMM', { locale: es })}`
+                const weekStart = startOfWeek(start, { locale: es })
+                return `Del ${format(weekStart, 'dd MMM', { locale: es })} al ${format(addWeeks(weekStart, 11), 'dd MMM', { locale: es })}`
             case 'monthly':
-                return `Año ${format(selectedDate, 'yyyy')}`
+                const monthStart = startOfMonth(start)
+                return `De ${format(monthStart, 'MMMM yyyy', { locale: es })} a ${format(addMonths(monthStart, 11), 'MMMM yyyy', { locale: es })}`
             default:
                 return ''
         }
@@ -188,20 +188,34 @@ export default function BillingPage() {
                 <CardContent>
                     <div className='h-[400px]'>
                         <ResponsiveContainer width='100%' height='100%'>
-                            <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 25 }}>
+                            <BarChart
+                                data={data}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 70 }}
+                            >
                                 <CartesianGrid strokeDasharray='3 3' />
                                 <XAxis
                                     dataKey='name'
                                     angle={-45}
                                     textAnchor="end"
-                                    height={60}
+                                    height={70}
                                     interval={0}
+                                    tick={{ fontSize: 12 }}
                                 />
-                                <YAxis />
+                                <YAxis
+                                    tick={{ fontSize: 12 }}
+                                    tickFormatter={(value) => `${value.toLocaleString('es-ES')}€`}
+                                />
                                 <Tooltip
                                     formatter={(value: number) => `${value.toLocaleString('es-ES')}€`}
                                 />
-                                <Legend />
+                                <Legend
+                                    layout="horizontal"
+                                    verticalAlign="top"
+                                    align="center"
+                                    wrapperStyle={{
+                                        paddingBottom: "20px",
+                                    }}
+                                />
                                 <Bar dataKey='hotel' name='Hotel' fill='#4B6BFB' />
                                 <Bar dataKey='peluqueria' name='Peluquería' fill='#10B981' />
                                 <Bar dataKey='tienda' name='Tienda' fill='#F59E0B' />
