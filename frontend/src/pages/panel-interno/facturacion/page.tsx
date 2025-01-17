@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { DatePicker } from '@/shared/ui/date-picker'
+import { Input } from '@/shared/ui/input'
+import { Button } from '@/shared/ui/button'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
 import {
     startOfDay,
     startOfWeek,
@@ -72,6 +75,51 @@ const generateMonthlyData = (selectedDate: Date) => {
 export default function BillingPage() {
     const [selectedPeriod, setSelectedPeriod] = useState('daily')
     const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+
+    const handlePasswordSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (password === '1234') {
+            setIsAuthenticated(true)
+            setError('')
+        } else {
+            setError('Contraseña incorrecta')
+        }
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <div className='container mx-auto p-6 flex items-center justify-center min-h-[calc(100vh-200px)]'>
+                <Card className='w-full max-w-md'>
+                    <CardHeader>
+                        <CardTitle>Acceso a Facturación</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handlePasswordSubmit} className='space-y-4'>
+                            <div className='space-y-2'>
+                                <Input
+                                    type='password'
+                                    placeholder='Introduce la contraseña'
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            {error && (
+                                <Alert variant='destructive'>
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                            <Button type='submit' className='w-full'>
+                                Acceder
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     const handlePeriodChange = (period: string) => {
         setSelectedPeriod(period)
