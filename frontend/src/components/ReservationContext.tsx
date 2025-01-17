@@ -52,6 +52,10 @@ export type HotelReservation = {
     updatedAt?: string
 }
 
+export type HotelBudget = Omit<HotelReservation, 'type'> & {
+    type: 'hotel-budget'
+}
+
 export type HairSalonReservation = {
     id: string
     type: 'peluqueria'
@@ -94,7 +98,7 @@ export type HairSalonReservation = {
     checkoutChangeRejected?: boolean
 }
 
-export type Reservation = HotelReservation | HairSalonReservation
+export type Reservation = HotelReservation | HairSalonReservation | HotelBudget
 
 type CalendarAvailability = {
     [date: string]: number
@@ -104,8 +108,8 @@ type ReservationDocument = Reservation & FSDocument
 
 type ReservationContextType = {
     reservations: ReservationDocument[]
-    addReservation: (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => Promise<ReservationDocument>
-    updateReservation: (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => Promise<void>
+    addReservation: (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'> | Omit<HotelBudget, 'id'>) => Promise<ReservationDocument>
+    updateReservation: (id: string, updatedData: Partial<Reservation>) => Promise<void>
     deleteReservation: (id: string) => Promise<void>
     getReservationsByClientId: (clientId: string) => ReservationDocument[]
     getReservationsByDate: (date: string) => ReservationDocument[]
@@ -150,7 +154,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const reservations = useMemo(() => {
         const allReservations = [...dbReservations]
 
-            EXAMPLE_RESERVATIONS.forEach(example => {
+        EXAMPLE_RESERVATIONS.forEach(example => {
             if (!allReservations.some(r => r.id === example.id)) {
                 allReservations.push(example)
             }

@@ -208,9 +208,6 @@ export default function PanelInterno() {
                 </TabsList>
                 <TabsContent value='pending'>
                     <Card>
-                        <CardHeader>
-                            <CardTitle>Solicitudes Pendientes</CardTitle>
-                        </CardHeader>
                         <CardContent>
                             <PendingRequests />
                         </CardContent>

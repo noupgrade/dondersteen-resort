@@ -1,9 +1,9 @@
 import { addDays, format, subDays } from 'date-fns'
-import { HotelReservation, HairSalonReservation } from '@/components/ReservationContext'
+import { Reservation } from '@/components/ReservationContext'
 import { AdditionalService, HairdressingService, DriverService } from '@/shared/types/additional-services'
 
 // Example reservations that will be managed in the context
-export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] = [
+export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
     {
         id: 'EXAMPLE_HAIRSALON_1',
         type: 'peluqueria',
@@ -829,6 +829,156 @@ export const EXAMPLE_RESERVATIONS: (HotelReservation | HairSalonReservation)[] =
         roomNumber: 'HAB.6',
         status: 'pending',
         totalPrice: 320,
+        paymentStatus: 'Pendiente'
+    },
+    // Presupuestos de hotel
+    {
+        id: 'EXAMPLE_BUDGET_1',
+        type: 'hotel-budget',
+        checkInDate: format(addDays(new Date(), 10), 'yyyy-MM-dd'),
+        checkInTime: '14:00',
+        checkOutDate: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_BUDGET_1',
+            name: 'Laura Presupuesto',
+            phone: '666777999',
+            email: 'laura.p@example.com'
+        },
+        pets: [
+            {
+                name: 'Coco',
+                breed: 'Labrador',
+                weight: 30,
+                size: 'grande',
+                sex: 'M',
+                isNeutered: true
+            },
+            {
+                name: 'Luna',
+                breed: 'Labrador',
+                weight: 28,
+                size: 'grande',
+                sex: 'F',
+                isNeutered: true
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush', 'deshedding']
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 1,
+                services: ['bath_and_brush', 'deshedding']
+            },
+            {
+                type: 'driver',
+                petIndex: 0,
+                serviceType: 'both'
+            }
+        ],
+        status: 'pending',
+        totalPrice: 750,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_BUDGET_2',
+        type: 'hotel-budget',
+        checkInDate: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
+        checkInTime: '12:00',
+        checkOutDate: format(addDays(new Date(), 20), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_BUDGET_2',
+            name: 'Carlos Presupuesto',
+            phone: '666888000',
+            email: 'carlos.p@example.com'
+        },
+        pets: [
+            {
+                name: 'Rocky',
+                breed: 'German Shepherd',
+                weight: 35,
+                size: 'grande',
+                sex: 'M',
+                isNeutered: false
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'special_food',
+                petIndex: 0,
+                foodType: 'refrigerated'
+            },
+            {
+                type: 'medication',
+                petIndex: 0,
+                comment: 'Medicación diaria para las articulaciones',
+                frequency: 'daily'
+            }
+        ],
+        status: 'pending',
+        totalPrice: 500,
+        paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_BUDGET_3',
+        type: 'hotel-budget',
+        checkInDate: format(addDays(new Date(), 20), 'yyyy-MM-dd'),
+        checkInTime: '15:00',
+        checkOutDate: format(addDays(new Date(), 23), 'yyyy-MM-dd'),
+        client: {
+            id: 'EXAMPLE_CLIENT_BUDGET_3',
+            name: 'Ana Presupuesto',
+            phone: '666999111',
+            email: 'ana.p@example.com'
+        },
+        pets: [
+            {
+                name: 'Bella',
+                breed: 'Yorkshire',
+                weight: 3,
+                size: 'pequeño',
+                sex: 'F',
+                isNeutered: true
+            },
+            {
+                name: 'Max',
+                breed: 'Yorkshire',
+                weight: 3.5,
+                size: 'pequeño',
+                sex: 'M',
+                isNeutered: true
+            },
+            {
+                name: 'Nina',
+                breed: 'Yorkshire',
+                weight: 2.8,
+                size: 'pequeño',
+                sex: 'F',
+                isNeutered: true
+            }
+        ],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim', 'spa']
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 1,
+                services: ['bath_and_trim', 'spa']
+            },
+            {
+                type: 'hairdressing',
+                petIndex: 2,
+                services: ['bath_and_trim', 'spa']
+            }
+        ],
+        status: 'pending',
+        totalPrice: 450,
         paymentStatus: 'Pendiente'
     }
 ] 
