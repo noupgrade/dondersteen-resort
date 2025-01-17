@@ -85,6 +85,7 @@ export function HairSalonReservationModal({
     const [resultImage, setResultImage] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(reservation.resultImage || null)
     const [selectedDate, setSelectedDate] = useState<Date>(new Date(reservation.date))
+    const [selectedTime, setSelectedTime] = useState(reservation.time || reservation.horaDefinitiva || '')
 
     // Find the hairdressing service and get its services array
     const hairdressingService = reservation.additionalServices.find(isHairdressingService)
@@ -102,16 +103,16 @@ export function HairSalonReservationModal({
 
     const handleSave = () => {
         // Validate required fields
-        if (!duration || !price) {
-            alert('Por favor, completa todos los campos requeridos')
+        if (!duration) {
+            alert('Por favor, completa la duración')
             return
         }
 
         // Validate numeric values
         const durationNum = parseInt(duration)
-        const priceNum = parseFloat(price)
+        const priceNum = price ? parseFloat(price) : undefined
 
-        if (isNaN(durationNum) || isNaN(priceNum)) {
+        if (isNaN(durationNum)) {
             alert('Por favor, introduce valores numéricos válidos')
             return
         }
@@ -119,9 +120,11 @@ export function HairSalonReservationModal({
         const updatedReservation: HairSalonReservation = {
             ...reservation,
             date: format(selectedDate, 'yyyy-MM-dd'),
+            time: selectedTime,
             duration: durationNum,
             precioEstimado: priceNum,
-            resultImage: previewUrl
+            resultImage: previewUrl ? previewUrl : undefined,
+            horaDefinitiva: selectedTime // Update hora definitiva with the new time
         }
 
         try {
@@ -151,6 +154,7 @@ export function HairSalonReservationModal({
         setResultImage(null)
         setPreviewUrl(reservation.resultImage || null)
         setSelectedDate(new Date(reservation.date))
+        setSelectedTime(reservation.time || '')
     }
 
     // Reset form when modal opens with new reservation
@@ -159,6 +163,12 @@ export function HairSalonReservationModal({
             resetForm()
         }
     }, [isOpen, reservation])
+
+    const handleDateSelect = (date: Date | undefined) => {
+        if (date) {
+            setSelectedDate(date)
+        }
+    }
 
     return (
         <Dialog 
@@ -223,40 +233,54 @@ export function HairSalonReservationModal({
                         {/* Fechas y Horarios */}
                         <div className="space-y-4">
                             <h4 className="font-medium">Fechas y Horarios</h4>
-                            {reservation.source === 'hotel' ? (
+                            <div className="space-y-4">
+                                {/* Fecha y hora de la cita */}
                                 <div className="space-y-2">
-                                    {reservation.hotelCheckIn && (
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Calendar className="h-4 w-4 text-gray-500" />
-                                            <span>Check-in: {format(new Date(reservation.hotelCheckIn), "d 'de' MMMM", { locale: es })}</span>
-                                        </div>
-                                    )}
-                                    {reservation.hotelCheckOut && (
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Calendar className="h-4 w-4 text-gray-500" />
-                                            <span>
-                                                Check-out: {format(new Date(reservation.hotelCheckOut), "d 'de' MMMM", { locale: es })}
-                                                {reservation.hotelCheckOutTime && ` - ${reservation.hotelCheckOutTime}`}
-                                            </span>
-                                        </div>
-                                    )}
+                                    <Label>Fecha de la cita</Label>
+                                    <DatePicker
+                                        date={selectedDate}
+                                        onSelect={handleDateSelect}
+                                    />
                                 </div>
-                            ) : (
                                 <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Calendar className="h-4 w-4 text-gray-500" />
-                                        <span>
-                                            {format(new Date(reservation.date), "EEEE d 'de' MMMM", { locale: es })}
-                                        </span>
+                                    <Label>Hora de la cita</Label>
+                                    <Input
+                                        type="time"
+                                        value={selectedTime}
+                                        onChange={(e) => setSelectedTime(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Fechas de hotel si es una reserva de hotel */}
+                                {reservation.source === 'hotel' && (
+                                    <div className="space-y-2 mt-4 pt-4 border-t">
+                                        <h5 className="font-medium text-sm text-muted-foreground">Información del Hotel</h5>
+                                        {reservation.hotelCheckIn && (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Calendar className="h-4 w-4 text-gray-500" />
+                                                <span>Check-in: {format(new Date(reservation.hotelCheckIn), "d 'de' MMMM", { locale: es })}</span>
+                                            </div>
+                                        )}
+                                        {reservation.hotelCheckOut && (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Calendar className="h-4 w-4 text-gray-500" />
+                                                <span>
+                                                    Check-out: {format(new Date(reservation.hotelCheckOut), "d 'de' MMMM", { locale: es })}
+                                                    {reservation.hotelCheckOutTime && ` - ${reservation.hotelCheckOutTime}`}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
-                                    {reservation.requestedTime && (
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Clock className="h-4 w-4 text-gray-500" />
-                                            <span>Hora solicitada: {reservation.requestedTime}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                )}
+
+                                {/* Hora solicitada para reservas externas */}
+                                {reservation.source === 'external' && reservation.requestedTime && (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <Clock className="h-4 w-4" />
+                                        <span>Hora solicitada: {reservation.requestedTime}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <Separator />
@@ -312,7 +336,11 @@ export function HairSalonReservationModal({
                                     type="number"
                                     value={price}
                                     onChange={(e) => setPrice(e.target.value)}
+                                    className={!price ? "border-red-500" : ""}
                                 />
+                                {!price && (
+                                    <p className="text-sm text-red-500">El precio es requerido</p>
+                                )}
                             </div>
                         </div>
 
@@ -402,7 +430,7 @@ export function HairSalonReservationModal({
                                 <Button 
                                     onClick={handleSave} 
                                     className="flex items-center gap-2"
-                                    disabled={!duration || !price}
+                                    disabled={!duration}
                                 >
                                     <Save className="h-4 w-4" />
                                     Guardar Cambios

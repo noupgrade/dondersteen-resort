@@ -43,24 +43,61 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
     }, [])
 
+    // Normalize time format to HH:mm
+    const normalizeTime = (timeStr: string) => {
+        // If time is in HH:mm format, return as is
+        if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr
+        
+        // If time is in H:mm format, pad with leading zero
+        if (/^\d{1}:\d{2}$/.test(timeStr)) return `0${timeStr}`
+        
+        // If time is in military format (e.g. "900" for 9:00), convert to HH:mm
+        if (/^\d{3,4}$/.test(timeStr)) {
+            const hours = timeStr.length === 3 ? timeStr[0] : timeStr.slice(0, 2)
+            const minutes = timeStr.length === 3 ? timeStr.slice(1) : timeStr.slice(2)
+            return `${hours.padStart(2, '0')}:${minutes}`
+        }
+        
+        return timeStr
+    }
+
     // Find both possible reservations for this slot
-    const reservations = scheduledReservations.filter(r => 
-        r.date === date && 
-        r.time === time
-    ).slice(0, 2) // Limit to 2 reservations per slot
+    const reservations = scheduledReservations.filter(r => {
+        if (r.date !== date) return false
+        
+        // Get hour from both times
+        const [slotHour] = normalizeTime(time).split(':').map(Number)
+        const [reservationHour] = normalizeTime(r.time).split(':').map(Number)
+        
+        // Match if the hour is the same
+        return slotHour === reservationHour
+    })
+    .sort((a, b) => {
+        // Sort by minutes to ensure consistent ordering
+        const [, aMinutes] = normalizeTime(a.time).split(':').map(Number)
+        const [, bMinutes] = normalizeTime(b.time).split(':').map(Number)
+        return aMinutes - bMinutes
+    })
+    .slice(0, 2) // Limit to 2 reservations per slot
 
     const handleSlotClick = async (e: React.MouseEvent) => {
         e.stopPropagation()
         
         if (!isAvailable || reservations.length >= 2) return
 
+        // Show time picker dialog
+        const selectedMinute = await showTimePickerDialog(time)
+        if (!selectedMinute) return
+
+        const newTime = `${time.split(':')[0]}:${selectedMinute}`
+
         if (selectedReservation) {
             // Si hay una reserva seleccionada, intentamos moverla a este slot
             try {
                 if (selectedReservation.time) {
-                    await moveReservation(selectedReservation, date, time)
+                    await moveReservation(selectedReservation, date, newTime)
                 } else {
-                    await scheduleUnscheduledReservation(selectedReservation, date, time)
+                    await scheduleUnscheduledReservation(selectedReservation, date, newTime)
                 }
                 setSelectedReservation(null)
                 toast({
@@ -79,6 +116,48 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
             // Si no hay reserva seleccionada, abrimos el modal de nueva cita
             setIsClientSearchModalOpen(true)
         }
+    }
+
+    // Function to show time picker dialog
+    const showTimePickerDialog = (hour: string): Promise<string | null> => {
+        return new Promise((resolve) => {
+            const dialog = document.createElement('dialog')
+            dialog.innerHTML = `
+                <div class="p-4">
+                    <h3 class="mb-4">Seleccionar minuto</h3>
+                    <div class="grid grid-cols-4 gap-2">
+                        ${['00', '15', '30', '45'].map(minute => `
+                            <button class="p-2 border rounded hover:bg-gray-100" data-minute="${minute}">
+                                ${minute}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `
+            
+            // Style the dialog
+            dialog.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg'
+            
+            // Add click handlers
+            dialog.querySelectorAll('button').forEach(button => {
+                button.onclick = () => {
+                    const minute = button.getAttribute('data-minute')
+                    dialog.remove()
+                    resolve(minute)
+                }
+            })
+            
+            // Add click outside to cancel
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    dialog.remove()
+                    resolve(null)
+                }
+            })
+            
+            document.body.appendChild(dialog)
+            dialog.showModal()
+        })
     }
 
     const handleReservationClick = (res: HairSalonReservation, e: React.MouseEvent) => {
@@ -188,10 +267,14 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
     // Calculate individual heights for each reservation
     const getReservationStyle = (reservation: HairSalonReservation) => {
         const duration = reservation.duration || 60
+        const minutes = parseInt(normalizeTime(reservation.time).split(':')[1]) || 0
+        const offsetPercentage = (minutes / 60) * 100
+
         return {
             height: `${Math.ceil(duration / 30) * 2}rem`,
             position: 'relative' as const,
-            zIndex: duration > 60 ? 10 : 'auto'
+            zIndex: duration > 60 ? 10 : 'auto',
+            top: `${offsetPercentage}%`
         }
     }
 
@@ -207,11 +290,14 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     !reservations.length && isAvailable && 'cursor-pointer',
                     selectedReservation && isAvailable && reservations.length < 2 && 'bg-blue-50/50'
                 )}
+                style={{ overflow: 'visible' }}
             >
                 <span className="absolute text-xs text-gray-500 px-2 py-1 pointer-events-none">{time}</span>
-                <div className="absolute inset-0" onClick={handleSlotClick}>
+                <div className="absolute inset-0" onClick={handleSlotClick} style={{ overflow: 'visible' }}>
                     {reservations.map((reservation, index) => {
                         const duration = reservation.duration || 60
+                        const minutes = parseInt(normalizeTime(reservation.time).split(':')[1]) || 0
+                        const offsetPercentage = (minutes / 60) * 100
                         const height = `${Math.ceil(duration / 30) * 2}rem`
                         
                         return (
@@ -231,8 +317,8 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                                 )}
                                 style={{
                                     height,
-                                    top: 0,
-                                    zIndex: duration > 60 ? 10 : 'auto'
+                                    top: `${offsetPercentage}%`,
+                                    zIndex: minutes > 0 ? 20 : (duration > 60 ? 10 : 'auto')
                                 }}
                             >
                                 <DraggableReservation
