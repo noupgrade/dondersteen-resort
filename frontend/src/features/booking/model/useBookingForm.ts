@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format, isValid } from 'date-fns'
+import { useSearchParams } from 'react-router-dom'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AdditionalService } from '@/shared/types/additional-services'
@@ -19,6 +20,8 @@ interface UseBookingFormProps {
 }
 
 export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
+    const [searchParams] = useSearchParams()
+    const type = searchParams.get('type')
     const [state, setState] = useState<BookingState>({
         currentStep: 1,
         selectedDates: null,
@@ -230,7 +233,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 })
 
             const newReservation = {
-                type: 'hotel' as const,
+                type: type === 'budget' ? 'hotel-budget' as const : 'hotel' as const,
                 checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
                 checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
                 checkInTime: state.pickupTime,
@@ -248,6 +251,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             }
 
             try {
+                console.log('newReservation', newReservation)
                 const savedReservation = await addReservation(newReservation)
                 setState(prev => ({
                     ...prev,

@@ -129,11 +129,18 @@ export default function PanelInterno() {
         <div className='container mx-auto space-y-6 p-6'>
             <div className='flex items-center justify-between'>
                 <h1 className='text-4xl font-bold text-[#101828]'>Hotel</h1>
-                <Button asChild className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'>
-                    <Link to='/booking'>
-                        <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
-                    </Link>
-                </Button>
+                <div className="flex gap-2">
+                    <Button asChild className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'>
+                        <Link to='/booking?type=budget'>
+                            <PlusCircle className='mr-2 h-4 w-4' /> Nuevo Presupuesto
+                        </Link>
+                    </Button>
+                    <Button asChild className='bg-[#34D399] text-white hover:bg-[#34D399]/90'>
+                        <Link to='/booking'>
+                            <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <HotelNotificationBanner

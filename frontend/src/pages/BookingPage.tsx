@@ -24,6 +24,7 @@ import { Form } from '@/shared/ui/form'
 export default function BookingPage() {
     const [searchParams] = useSearchParams()
     const userId = searchParams.get('userId')
+    const type = searchParams.get('type')
     const { data: clientProfile } = useClientProfile(userId || '')
 
     const {
@@ -110,6 +111,30 @@ export default function BookingPage() {
 
     return (
         <div className='container mx-auto max-w-4xl py-8'>
+            {type === 'budget' && (
+                <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
+                    <div className="flex items-center justify-between w-full">
+                        <div>
+                            <AlertTitle>Creando Presupuesto</AlertTitle>
+                            <AlertDescription>
+                                Estás en el proceso de crear un presupuesto. Si deseas realizar una reserva, haz clic aquí.
+                            </AlertDescription>
+                        </div>
+                        <Button
+                            variant="outline"
+                            className="bg-white hover:bg-white/90"
+                            onClick={() => {
+                                const newParams = new URLSearchParams(searchParams)
+                                newParams.delete('type')
+                                window.location.search = newParams.toString()
+                            }}
+                        >
+                            Crear Reserva
+                        </Button>
+                    </div>
+                </Alert>
+            )}
             <div className='fixed left-5 top-5'>
                 <Button
                     variant='outline'
