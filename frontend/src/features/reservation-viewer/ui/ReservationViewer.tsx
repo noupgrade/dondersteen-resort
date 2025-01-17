@@ -11,11 +11,12 @@ import {
     Save,
     Scissors as ScissorsIcon,
     ShoppingBag,
-    X
+    X,
+    FileText
 } from 'lucide-react'
 import { useState } from 'react'
 
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { type AdditionalService } from '@/shared/types/additional-services'
 import { Badge } from '@/shared/ui/badge'
@@ -31,14 +32,14 @@ import { DatesCard } from './DatesCard'
 import { PriceBreakdownCard } from './PriceBreakdownCard'
 
 interface ReservationViewerProps {
-    reservation: HairSalonReservation | HotelReservation
+    reservation: HairSalonReservation | HotelReservation | HotelBudget
     isOpen: boolean
     onClose: () => void
 }
 
 export function ReservationViewer({ reservation, onClose }: ReservationViewerProps) {
     console.log({ reservation })
-    const [editedReservation, setEditedReservation] = useState<HotelReservation | HairSalonReservation>(reservation)
+    const [editedReservation, setEditedReservation] = useState<HairSalonReservation | HotelReservation | HotelBudget>(reservation)
     const [isEditMode, setIsEditMode] = useState(false)
     const [stayPrice, setStayPrice] = useState(50) // precio por día predeterminado
     const [serviceBasePrice, setServiceBasePrice] = useState(30) // precio base por servicio
@@ -279,6 +280,11 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
                                     <>
                                         <Bed className="h-5 w-5 text-blue-600" />
                                         <span className="text-blue-600">Reserva Hotel</span>
+                                    </>
+                                ) : editedReservation.type === 'hotel-budget' ? (
+                                    <>
+                                        <FileText className="h-5 w-5 text-blue-600" />
+                                        <span className="text-blue-600">Presupuesto Hotel</span>
                                     </>
                                 ) : (
                                     <>

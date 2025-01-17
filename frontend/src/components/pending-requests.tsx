@@ -3,17 +3,19 @@
 import { format } from 'date-fns'
 import { Clock, PawPrint, Truck, UtensilsCrossed, Pill, Heart, Scissors, CalendarRange } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { HotelReservation, HotelBudget, useReservation } from '@/components/ReservationContext'
 import { ServiceType } from '@/shared/types/additional-services'
 import { Badge } from '@/shared/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Button } from '@/shared/ui/button'
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 
 export function PendingRequests() {
     const { reservations } = useReservation()
     const [searchParams, setSearchParams] = useSearchParams()
+    const [selectedReservation, setSelectedReservation] = useState<HotelReservation | HotelBudget | null>(null)
 
     // Filter pending hotel requests and budgets
     const pendingRequests = useMemo(() =>
@@ -79,10 +81,15 @@ export function PendingRequests() {
         }
     }
 
+    const handleCardClick = (reservation: HotelReservation | HotelBudget) => {
+        setSelectedReservation(reservation)
+    }
+
     const renderReservationCard = (reservation: HotelReservation | HotelBudget) => (
         <Card
             key={reservation.id}
-            className={`overflow-hidden ${reservation.type === 'hotel-budget' ? 'bg-[#F0F7FF]' : ''}`}
+            className={`overflow-hidden ${reservation.type === 'hotel-budget' ? 'bg-[#F0F7FF]' : ''} cursor-pointer hover:shadow-md transition-shadow`}
+            onClick={() => handleCardClick(reservation)}
         >
             <div className="flex">
                 <div className={`w-64 shrink-0 p-6 flex flex-col justify-between space-y-6 ${reservation.type === 'hotel-budget' ? 'bg-[#E1EFFE]' : 'bg-[#4B6BFB]/5'
@@ -220,6 +227,15 @@ export function PendingRequests() {
                     </CardHeader>
                     {budgets.map(renderReservationCard)}
                 </div>
+            )}
+
+            {/* Reservation Viewer */}
+            {selectedReservation && (
+                <ReservationViewer
+                    reservation={selectedReservation}
+                    isOpen={true}
+                    onClose={() => setSelectedReservation(null)}
+                />
             )}
         </div>
     )

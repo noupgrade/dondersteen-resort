@@ -838,6 +838,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInDate: format(addDays(new Date(), 10), 'yyyy-MM-dd'),
         checkInTime: '14:00',
         checkOutDate: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
+        checkOutTime: '12:00',
         client: {
             id: 'EXAMPLE_CLIENT_BUDGET_1',
             name: 'Laura Presupuesto',
@@ -889,6 +890,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInDate: format(addDays(new Date(), 15), 'yyyy-MM-dd'),
         checkInTime: '12:00',
         checkOutDate: format(addDays(new Date(), 20), 'yyyy-MM-dd'),
+        checkOutTime: '12:00',
         client: {
             id: 'EXAMPLE_CLIENT_BUDGET_2',
             name: 'Carlos Presupuesto',
@@ -915,7 +917,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 type: 'medication',
                 petIndex: 0,
                 comment: 'Medicación diaria para las articulaciones',
-                frequency: 'daily'
+                frequency: 'multiple'
             }
         ],
         status: 'pending',
@@ -928,6 +930,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInDate: format(addDays(new Date(), 20), 'yyyy-MM-dd'),
         checkInTime: '15:00',
         checkOutDate: format(addDays(new Date(), 23), 'yyyy-MM-dd'),
+        checkOutTime: '11:00',
         client: {
             id: 'EXAMPLE_CLIENT_BUDGET_3',
             name: 'Ana Presupuesto',

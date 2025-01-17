@@ -1,5 +1,5 @@
 import { PawPrint, Plus, Truck } from 'lucide-react'
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
@@ -9,7 +9,7 @@ import { type AdditionalService, type HairdressingServiceType } from '@/shared/t
 import { getServicesByPet, getTransportService } from '../model/services'
 
 interface PetsAndServicesCardProps {
-    reservation: HairSalonReservation | HotelReservation
+    reservation: HairSalonReservation | HotelReservation | HotelBudget
     isEditMode: boolean
     serviceBasePrice?: number
     onServiceAdd?: (petIndex: number) => void
@@ -39,7 +39,7 @@ export function PetsAndServicesCard({
     const servicesByPet = getServicesByPet(reservation.additionalServices)
 
     const renderPets = () => {
-        if (reservation.type === 'hotel') {
+        if (reservation.type === 'hotel' || reservation.type === 'hotel-budget') {
             return reservation.pets.map((pet, index) => (
                 <div key={index} className="flex gap-8 p-4 bg-gray-50 rounded-lg">
                     <div className="flex-1">
@@ -162,9 +162,9 @@ export function PetsAndServicesCard({
 
                 {/* Servicios por mascota */}
                 {Object.entries(servicesByPet).map(([petIndex, services]) => {
-                    const pet = reservation.type === 'hotel'
-                        ? reservation.pets[Number(petIndex)]
-                        : reservation.pet
+                    const pet = reservation.type === 'peluqueria'
+                        ? reservation.pet
+                        : reservation.pets[Number(petIndex)]
 
                     return (
                         <div key={petIndex} className="space-y-2">
@@ -288,46 +288,17 @@ export function PetsAndServicesCard({
     }
 
     return (
-        <Card className="md:col-span-2">
+        <Card>
             <CardHeader>
-                <CardTitle className="text-base font-medium">Mascotas y Servicios</CardTitle>
+                <CardTitle className="text-base font-medium flex items-center gap-2">
+                    <PawPrint className="h-4 w-4" />
+                    Mascotas y Servicios
+                </CardTitle>
             </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    {/* Transporte si existe */}
-                    {transportService && (
-                        <>
-                            <div className="space-y-2">
-                                <h4 className="font-medium">Transporte</h4>
-                                {transportService && (
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Truck className="h-4 w-4 text-gray-500" />
-                                        <span>{transportService.text}</span>
-                                    </div>
-                                )}
-                            </div>
-                            <Separator />
-                        </>
-                    )}
-
-                    {/* Mascotas */}
-                    <div className="space-y-2">
-                        <h4 className="font-medium">Mascotas</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                            {renderPets()}
-                        </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Servicios adicionales */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h4 className="font-medium">Servicios adicionales</h4>
-                        </div>
-                        {renderServices()}
-                    </div>
-                </div>
+            <CardContent className="space-y-6">
+                {renderPets()}
+                <Separator />
+                {renderServices()}
             </CardContent>
         </Card>
     )

@@ -1,15 +1,15 @@
 import { format } from 'date-fns'
 import { Calendar, Clock } from 'lucide-react'
 
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DatePicker } from '@/shared/ui/date-picker'
 import { Input } from '@/shared/ui/input'
 
 interface DatesCardProps {
-    reservation: HairSalonReservation | HotelReservation
+    reservation: HairSalonReservation | HotelReservation | HotelBudget
     isEditMode: boolean
-    onUpdate: (updatedReservation: HairSalonReservation | HotelReservation) => void
+    onUpdate: (updatedReservation: HairSalonReservation | HotelReservation | HotelBudget) => void
 }
 
 export function DatesCard({ reservation, isEditMode, onUpdate }: DatesCardProps) {
@@ -24,7 +24,7 @@ export function DatesCard({ reservation, isEditMode, onUpdate }: DatesCardProps)
                 <CardTitle className="text-base font-medium">Fechas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-                {reservation.type === 'hotel' ? (
+                {(reservation.type === 'hotel' || reservation.type === 'hotel-budget') ? (
                     <>
                         <div className="flex items-center gap-4">
                             <div className="w-4">
