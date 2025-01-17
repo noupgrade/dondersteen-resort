@@ -5,8 +5,8 @@ import { isLocalEnvironment, isTestEnvironment } from '@/shared/lib/environment'
 import { TrackingService } from './types'
 
 const projectToken = isTestEnvironment
-    ? '352d226ab918fde801ce6c5cb3b0e333' // Testing
-    : 'bbb91f1604af9c3f3bf8a96c9663c472' // Production
+    ? '' // Testing
+    : '' // Production
 
 export const MixpanelService = {
     init: () => {
