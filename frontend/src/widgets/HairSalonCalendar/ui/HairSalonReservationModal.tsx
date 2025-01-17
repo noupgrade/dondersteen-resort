@@ -13,7 +13,9 @@ import {
     Trash2,
     Phone,
     Car,
-    Building2
+    Building2,
+    Plus,
+    Copy
 } from 'lucide-react'
 
 import { Button } from '@/shared/ui/button'
@@ -73,6 +75,47 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
 
 const durationOptions = [15, 30, 45, 60, 75, 90, 105, 120]
 
+interface SubAppointmentDialogProps {
+    isOpen: boolean
+    onClose: () => void
+    services: HairdressingServiceType[]
+    onServiceSelect: (service: HairdressingServiceType | 'duplicate') => void
+}
+
+function SubAppointmentDialog({ isOpen, onClose, services, onServiceSelect }: SubAppointmentDialogProps) {
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                    <DialogTitle>Seleccionar Servicio para Subcita</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    {services.map((service) => (
+                        <Button
+                            key={service}
+                            variant="outline"
+                            className="w-full justify-start gap-2"
+                            onClick={() => onServiceSelect(service)}
+                        >
+                            <Calendar className="h-4 w-4" />
+                            {serviceTypeLabels[service]}
+                        </Button>
+                    ))}
+                    <Separator />
+                    <Button
+                        variant="outline"
+                        className="w-full justify-start gap-2"
+                        onClick={() => onServiceSelect('duplicate')}
+                    >
+                        <Copy className="h-4 w-4" />
+                        Duplicar todos los servicios
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 export function HairSalonReservationModal({ 
     reservation,
     isOpen,
@@ -86,6 +129,7 @@ export function HairSalonReservationModal({
     const [previewUrl, setPreviewUrl] = useState<string | null>(reservation.resultImage || null)
     const [selectedDate, setSelectedDate] = useState<Date>(new Date(reservation.date))
     const [selectedTime, setSelectedTime] = useState(reservation.time || reservation.horaDefinitiva || '')
+    const [isSubAppointmentDialogOpen, setIsSubAppointmentDialogOpen] = useState(false)
 
     // Find the hairdressing service and get its services array
     const hairdressingService = reservation.additionalServices.find(isHairdressingService)
@@ -168,6 +212,12 @@ export function HairSalonReservationModal({
         if (date) {
             setSelectedDate(date)
         }
+    }
+
+    const handleSubAppointmentServiceSelect = (service: HairdressingServiceType | 'duplicate') => {
+        setIsSubAppointmentDialogOpen(false)
+        // TODO: Open weekly view for selecting the slot
+        console.log('Selected service:', service)
     }
 
     return (
@@ -287,7 +337,18 @@ export function HairSalonReservationModal({
 
                         {/* Services */}
                         <div className="space-y-4">
-                            <h4 className="font-medium">Servicios</h4>
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-medium">Servicios</h4>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2"
+                                    onClick={() => setIsSubAppointmentDialogOpen(true)}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Añadir Subcita
+                                </Button>
+                            </div>
                             <div className="flex flex-wrap gap-2">
                                 {services.map((service, index) => (
                                     <Badge
@@ -308,6 +369,13 @@ export function HairSalonReservationModal({
                                     <span>Servicio de recogida incluido</span>
                                 </div>
                             )}
+
+                            <SubAppointmentDialog
+                                isOpen={isSubAppointmentDialogOpen}
+                                onClose={() => setIsSubAppointmentDialogOpen(false)}
+                                services={services}
+                                onServiceSelect={handleSubAppointmentServiceSelect}
+                            />
                         </div>
 
                         <Separator />
