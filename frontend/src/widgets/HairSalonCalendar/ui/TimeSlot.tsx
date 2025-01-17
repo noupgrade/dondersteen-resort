@@ -61,35 +61,59 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         return timeStr
     }
 
-    // Find both possible reservations for this slot
+    // Find reservations for this slot
     const reservations = scheduledReservations.filter(r => {
         if (r.date !== date) return false
         
-        // Get hour from both times
+        // Get hour and minutes from both times
         const [slotHour] = normalizeTime(time).split(':').map(Number)
-        const [reservationHour] = normalizeTime(r.time).split(':').map(Number)
+        const [reservationHour, reservationMinutes] = normalizeTime(r.time).split(':').map(Number)
         
         // Match if the hour is the same
         return slotHour === reservationHour
     })
-    .sort((a, b) => {
-        // Sort by minutes to ensure consistent ordering
-        const [, aMinutes] = normalizeTime(a.time).split(':').map(Number)
-        const [, bMinutes] = normalizeTime(b.time).split(':').map(Number)
-        return aMinutes - bMinutes
-    })
-    .slice(0, 2) // Limit to 2 reservations per slot
+    .reduce((groups, reservation) => {
+        // Group by exact minutes
+        const [, minutes] = normalizeTime(reservation.time).split(':').map(Number)
+        if (!groups[minutes]) {
+            groups[minutes] = []
+        }
+        if (groups[minutes].length < 2) { // Limit to 2 reservations per exact time
+            groups[minutes].push(reservation)
+        }
+        return groups
+    }, {} as Record<number, HairSalonReservation[]>)
+
+    // Flatten and sort the groups
+    const flatReservations = Object.values(reservations)
+        .flat()
+        .sort((a, b) => {
+            const [, aMinutes] = normalizeTime(a.time).split(':').map(Number)
+            const [, bMinutes] = normalizeTime(b.time).split(':').map(Number)
+            return aMinutes - bMinutes
+        })
 
     const handleSlotClick = async (e: React.MouseEvent) => {
         e.stopPropagation()
         
-        if (!isAvailable || reservations.length >= 2) return
+        if (!isAvailable) return
 
         // Show time picker dialog
         const selectedMinute = await showTimePickerDialog(time)
         if (!selectedMinute) return
 
         const newTime = `${time.split(':')[0]}:${selectedMinute}`
+        const minutes = parseInt(selectedMinute)
+
+        // Check if we can add another reservation at these minutes
+        if (reservations[minutes]?.length >= 2) {
+            toast({
+                title: "Error",
+                description: "Ya hay dos citas programadas para este horario exacto.",
+                variant: "destructive"
+            })
+            return
+        }
 
         if (selectedReservation) {
             // Si hay una reserva seleccionada, intentamos moverla a este slot
@@ -216,7 +240,18 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         { isOver: boolean; canDrop: boolean }
     >({
         accept: 'reservation',
-        canDrop: () => isAvailable && reservations.length < 2,
+        canDrop: () => {
+            if (!isAvailable) return false
+            if (!draggedReservation) return false
+
+            // Get the target minutes from the dragged reservation
+            const [, targetMinutes] = normalizeTime(time).split(':').map(Number)
+            
+            // Check how many reservations exist at the target minutes
+            const existingAtTime = reservations[targetMinutes]?.length || 0
+            
+            return existingAtTime < 2
+        },
         drop: async (item) => {
             if (draggedReservation) {
                 try {
@@ -287,18 +322,22 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     isAvailable ? 'bg-white hover:bg-gray-50' : 'bg-gray-100',
                     isOver && canDrop && 'bg-blue-50',
                     !isAvailable && 'cursor-not-allowed',
-                    !reservations.length && isAvailable && 'cursor-pointer',
-                    selectedReservation && isAvailable && reservations.length < 2 && 'bg-blue-50/50'
+                    !Object.values(reservations).flat().length && isAvailable && 'cursor-pointer',
+                    selectedReservation && isAvailable && 'bg-blue-50/50'
                 )}
                 style={{ overflow: 'visible' }}
             >
                 <span className="absolute text-xs text-gray-500 px-2 py-1 pointer-events-none">{time}</span>
                 <div className="absolute inset-0" onClick={handleSlotClick} style={{ overflow: 'visible' }}>
-                    {reservations.map((reservation, index) => {
+                    {flatReservations.map((reservation) => {
                         const duration = reservation.duration || 60
                         const minutes = parseInt(normalizeTime(reservation.time).split(':')[1]) || 0
                         const offsetPercentage = (minutes / 60) * 100
                         const height = `${Math.ceil(duration / 30) * 2}rem`
+                        
+                        // Find position index within the same minute group
+                        const sameMinuteReservations = reservations[minutes] || []
+                        const positionIndex = sameMinuteReservations.findIndex(r => r.id === reservation.id)
                         
                         return (
                             <div 
@@ -311,8 +350,8 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                                 onTouchStart={() => handleTouchStart(reservation)}
                                 className={cn(
                                     "absolute",
-                                    index === 0 ? "left-0 right-1/2" : "left-1/2 right-0",
-                                    !isWeekView && index === 0 && "border-r border-gray-100",
+                                    positionIndex === 0 ? "left-0 right-1/2" : "left-1/2 right-0",
+                                    !isWeekView && positionIndex === 0 && "border-r border-gray-100",
                                     selectedReservation?.id === reservation.id && "ring-2 ring-blue-500"
                                 )}
                                 style={{
