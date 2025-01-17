@@ -15,6 +15,7 @@ type Product = {
 type Category = {
     id: string
     name: string
+    vat: number
 }
 
 type Sale = {

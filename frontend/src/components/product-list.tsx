@@ -31,11 +31,15 @@ const categoryColors: { [key: string]: string } = {
 }
 
 export function ProductList() {
-    const { products, categories, deleteProduct, addCategory, deleteCategory } = useProductContext()
+    const { products, categories, deleteProduct, addCategory, deleteCategory, updateCategory } = useProductContext()
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [editingProduct, setEditingProduct] = useState<string>('')
     const [newCategoryName, setNewCategoryName] = useState('')
+    const [newCategoryVat, setNewCategoryVat] = useState('')
+    const [editingCategoryId, setEditingCategoryId] = useState<string>('')
+    const [editingCategoryName, setEditingCategoryName] = useState('')
+    const [editingCategoryVat, setEditingCategoryVat] = useState('')
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const { toast } = useToast()
 
@@ -46,9 +50,26 @@ export function ProductList() {
     )
 
     const handleAddCategory = () => {
-        if (newCategoryName.trim()) {
-            addCategory({ name: newCategoryName.trim() })
+        if (newCategoryName.trim() && newCategoryVat.trim()) {
+            const vat = parseInt(newCategoryVat)
+            if (isNaN(vat) || vat < 0 || vat > 100) {
+                toast({
+                    title: 'Error',
+                    description: 'El IVA debe ser un número entre 0 y 100',
+                    variant: 'destructive',
+                    duration: 3000
+                })
+                return
+            }
+            addCategory({ name: newCategoryName.trim(), vat })
             setNewCategoryName('')
+            setNewCategoryVat('')
+            toast({
+                title: 'Categoría añadida',
+                description: 'La nueva categoría ha sido creada correctamente',
+                variant: 'success',
+                duration: 3000
+            })
         }
     }
 
@@ -62,8 +83,58 @@ export function ProductList() {
         })
     }
 
-    const getColorByCategory = (category: string): string => {
+    const getColorByCategory = (category?: string): string => {
+        if (!category) return categoryColors.default
         return categoryColors[category] || categoryColors.default
+    }
+
+    const handleEditCategory = (category: { id: string; name: string; vat: number }) => {
+        setEditingCategoryId(category.id)
+        setEditingCategoryName(category.name)
+        setEditingCategoryVat(category.vat.toString())
+    }
+
+    const handleSaveCategory = () => {
+        const vat = parseInt(editingCategoryVat)
+        if (isNaN(vat) || vat < 0 || vat > 100) {
+            toast({
+                title: 'Error',
+                description: 'El IVA debe ser un número entre 0 y 100',
+                variant: 'destructive',
+                duration: 3000
+            })
+            return
+        }
+
+        if (!editingCategoryName.trim()) {
+            toast({
+                title: 'Error',
+                description: 'El nombre de la categoría no puede estar vacío',
+                variant: 'destructive',
+                duration: 3000
+            })
+            return
+        }
+
+        updateCategory(editingCategoryId, {
+            name: editingCategoryName.trim(),
+            vat
+        })
+        setEditingCategoryId('')
+        setEditingCategoryName('')
+        setEditingCategoryVat('')
+        toast({
+            title: 'Categoría actualizada',
+            description: 'La categoría ha sido actualizada correctamente',
+            variant: 'success',
+            duration: 3000
+        })
+    }
+
+    const handleCancelEdit = () => {
+        setEditingCategoryId('')
+        setEditingCategoryName('')
+        setEditingCategoryVat('')
     }
 
     return (
@@ -109,18 +180,30 @@ export function ProductList() {
                         <DialogTrigger asChild>
                             <Button variant='outline'>Gestionar Categorías</Button>
                         </DialogTrigger>
-                        <DialogContent className='sm:max-w-[425px]'>
+                        <DialogContent className='sm:max-w-[625px]'>
                             <DialogHeader>
                                 <DialogTitle>Gestionar Categorías</DialogTitle>
                             </DialogHeader>
                             <div className='grid gap-4 py-4'>
-                                <div className='flex items-center gap-2'>
-                                    <Input
-                                        placeholder='Nueva categoría'
-                                        value={newCategoryName}
-                                        onChange={e => setNewCategoryName(e.target.value)}
-                                    />
-                                    <Button onClick={handleAddCategory}>Añadir</Button>
+                                <div className='space-y-2'>
+                                    <div className='flex items-center gap-2'>
+                                        <Input
+                                            placeholder='Nueva categoría'
+                                            value={newCategoryName}
+                                            onChange={e => setNewCategoryName(e.target.value)}
+                                        />
+                                        <Input
+                                            type='number'
+                                            placeholder='% IVA'
+                                            min='0'
+                                            max='100'
+                                            step='1'
+                                            className='w-36'
+                                            value={newCategoryVat}
+                                            onChange={e => setNewCategoryVat(e.target.value)}
+                                        />
+                                        <Button onClick={handleAddCategory}>Añadir</Button>
+                                    </div>
                                 </div>
                                 <div className='space-y-2'>
                                     {categories.map(category => (
@@ -128,14 +211,66 @@ export function ProductList() {
                                             key={category.id}
                                             className='flex items-center justify-between rounded-lg bg-gray-50 p-2'
                                         >
-                                            <span>{category.name}</span>
-                                            <Button
-                                                variant='ghost'
-                                                size='sm'
-                                                onClick={() => deleteCategory(category.id)}
-                                            >
-                                                <Trash2 className='h-4 w-4' />
-                                            </Button>
+                                            {editingCategoryId === category.id ? (
+                                                <div className='flex flex-1 items-center gap-2'>
+                                                    <Input
+                                                        value={editingCategoryName}
+                                                        onChange={e => setEditingCategoryName(e.target.value)}
+                                                        placeholder='Nombre de la categoría'
+                                                    />
+                                                    <Input
+                                                        type='number'
+                                                        value={editingCategoryVat}
+                                                        onChange={e => setEditingCategoryVat(e.target.value)}
+                                                        placeholder='% IVA'
+                                                        min='0'
+                                                        max='100'
+                                                        step='1'
+                                                        className='w-36'
+                                                    />
+                                                    <div className='flex gap-1'>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='sm'
+                                                            onClick={handleSaveCategory}
+                                                        >
+                                                            Guardar
+                                                        </Button>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='sm'
+                                                            onClick={handleCancelEdit}
+                                                        >
+                                                            Cancelar
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className='flex items-center gap-2'>
+                                                        <span>{category.name}</span>
+                                                        <span className='text-sm text-muted-foreground'>
+                                                            ({category.vat}% IVA)
+                                                        </span>
+                                                    </div>
+                                                    <div className='flex gap-1'>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='sm'
+                                                            onClick={() => handleEditCategory(category)}
+                                                        >
+                                                            <Pencil className='h-4 w-4' />
+                                                        </Button>
+                                                        <Button
+                                                            variant='ghost'
+                                                            size='sm'
+                                                            onClick={() => deleteCategory(category.id)}
+                                                        >
+                                                            <Trash2 className='h-4 w-4' />
+                                                        </Button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
