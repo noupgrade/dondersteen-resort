@@ -16,6 +16,7 @@ import { Input } from '@/shared/ui/input.tsx'
 import { ServiceType } from '@/shared/types/additional-services'
 import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
+import { HotelNotificationBanner, useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
 
 export default function PanelInterno() {
     const { reservations } = useReservation()
@@ -29,6 +30,7 @@ export default function PanelInterno() {
     const [checkOuts, setCheckOuts] = useState<HotelReservation[]>([])
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
     const [isViewerOpen, setIsViewerOpen] = useState(false)
+    const { notifications, dismissNotification } = useHotelNotificationStore()
 
     useEffect(() => {
         const today = format(new Date(), 'yyyy-MM-dd')
@@ -133,6 +135,11 @@ export default function PanelInterno() {
                     </Link>
                 </Button>
             </div>
+
+            <HotelNotificationBanner
+                notifications={notifications}
+                onDismiss={dismissNotification}
+            />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
                 <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>

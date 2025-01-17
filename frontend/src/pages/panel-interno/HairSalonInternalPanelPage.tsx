@@ -16,6 +16,7 @@ import { HairSalonReservationModal } from '@/widgets/HairSalonCalendar/ui/HairSa
 import { ManageReservationBanner } from '@/widgets/HairSalonCalendar/ui/ManageReservationBanner'
 import { CheckoutChangesNotificationBanner, type CheckoutChange } from '@/widgets/HairSalonCalendar/ui/CheckoutChangesNotificationBanner'
 import { useCalendarStore } from '@/widgets/HairSalonCalendar/model/store'
+import { useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
 
 // Mock de cambios de checkout - Esto vendría de tu backend
 const mockCheckoutChanges: CheckoutChange[] = [
@@ -58,6 +59,7 @@ export default function HairSalonInternalPanelPage() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
     const [reservationToReject, setReservationToReject] = useState<HairSalonReservation | null>(null)
     const { toast } = useToast()
+    const { addNotification } = useHotelNotificationStore()
 
     // Estado para los cambios de checkout
     const [checkoutChanges, setCheckoutChanges] = useState<CheckoutChange[]>(mockCheckoutChanges)
@@ -196,6 +198,19 @@ export default function HairSalonInternalPanelPage() {
 
             // Actualizar en el contexto de reservas
             await updateReservation(selectedReservation.id, updatedReservation)
+
+            // Añadir notificación para hotel
+            addNotification({
+                type: 'rejected_checkout_change',
+                message: 'La peluquería ha rechazado un cambio de horario solicitado por checkout.',
+                metadata: {
+                    clientName: selectedChange.clientName,
+                    petName: selectedChange.petName,
+                    roomNumber: selectedChange.roomNumber,
+                    currentDate: selectedChange.currentDate,
+                    currentTime: selectedChange.currentTime
+                }
+            })
 
             toast({
                 title: "Cambios rechazados",
