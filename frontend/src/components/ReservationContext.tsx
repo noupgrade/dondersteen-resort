@@ -106,9 +106,11 @@ type CalendarAvailability = {
 
 type ReservationDocument = Reservation & FSDocument
 
+export type { ReservationDocument }
+
 type ReservationContextType = {
     reservations: ReservationDocument[]
-    addReservation: (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'> | Omit<HotelBudget, 'id'>) => Promise<ReservationDocument>
+    addReservation: (reservation: Omit<Reservation, 'id'>) => Promise<ReservationDocument>
     updateReservation: (id: string, updatedData: Partial<Reservation>) => Promise<void>
     deleteReservation: (id: string) => Promise<void>
     getReservationsByClientId: (clientId: string) => ReservationDocument[]
@@ -163,15 +165,15 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return allReservations
     }, [dbReservations])
 
-    const addReservation = useCallback(async (reservation: Omit<HotelReservation, 'id'> | Omit<HairSalonReservation, 'id'>) => {
+    const addReservation = useCallback(async (reservation: Omit<Reservation, 'id'>) => {
         // If it's an example reservation
         if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-            const newReservation: ReservationDocument = {
+            const newReservation = {
                 ...reservation,
                 id: `EXAMPLE_${Date.now()}`,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
-            }
+            } as ReservationDocument
 
             const storedExampleReservations = localStorage.getItem('exampleReservations')
             const parsedExampleReservations = storedExampleReservations
@@ -185,7 +187,7 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         return await addDocument(reservation)
     }, [addDocument])
 
-    const updateReservation = useCallback(async (id: string, updatedData: Partial<HotelReservation | HairSalonReservation>) => {
+    const updateReservation = useCallback(async (id: string, updatedData: Partial<Reservation>) => {
         // If it's an example reservation, update it in local storage
         if (id.startsWith('EXAMPLE_')) {
             const storedExampleReservations = localStorage.getItem('exampleReservations')
