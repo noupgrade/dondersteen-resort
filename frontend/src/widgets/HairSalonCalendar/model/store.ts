@@ -74,6 +74,19 @@ const mockReservations: HairSalonReservation[] = [
             services: ['bath_and_trim']
         }],
         status: 'confirmed',
+        tasks: [
+            {
+                id: 'task1',
+                reservationId: '2',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_trim']
+                },
+                date: format(today, 'yyyy-MM-dd'),
+                time: '11:30'
+            }
+        ],
         totalPrice: 35,
         paymentStatus: 'pending',
         hasDriverService: false

@@ -168,7 +168,31 @@ const mockHairSalonReservation1: HairSalonReservation = {
     status: 'confirmed',
     totalPrice: 75,
     paymentStatus: 'Pagado',
-    source: 'hotel'
+    source: 'hotel',
+    tasks: [
+        {
+            id: 'task1',
+            reservationId: 'res5',
+            service: {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            date: '2023-12-05',
+            time: '10:00'
+        },
+        {
+            id: 'task2',
+            reservationId: 'res5',
+            service: {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['deshedding']
+            },
+            date: '2023-12-05',
+            time: '10:30'
+        }
+    ]
 }
 
 const mockHairSalonReservation2: HairSalonReservation = {
@@ -199,7 +223,20 @@ const mockHairSalonReservation2: HairSalonReservation = {
     status: 'confirmed',
     totalPrice: 35,
     paymentStatus: 'Pagado',
-    source: 'external'
+    source: 'external',
+    tasks: [
+        {
+            id: 'task3',
+            reservationId: 'res6',
+            service: {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_brush']
+            },
+            date: '2023-11-20',
+            time: '16:00'
+        }
+    ]
 }
 
 const MOCK_CLIENTS: Record<string, MockClient> = {

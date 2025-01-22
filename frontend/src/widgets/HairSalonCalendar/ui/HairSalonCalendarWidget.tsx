@@ -1,27 +1,23 @@
-import { useState, useEffect } from 'react'
+import { addDays, addWeeks, format, startOfWeek, subWeeks } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { CalendarDays, Calendar as CalendarIcon, CalendarRange, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { TouchBackend } from 'react-dnd-touch-backend'
-import { addDays, format, startOfWeek, addWeeks, subWeeks } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarDays, CalendarRange } from 'lucide-react'
 
+import { HairSalonReservation, useReservation } from '@/components/ReservationContext'
+import { cn } from '@/shared/lib/styles/class-merge'
 import { Button } from '@/shared/ui/button'
+import { Calendar } from '@/shared/ui/calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
+import { useToast } from '@/shared/ui/use-toast'
+import { useSearchParams } from 'react-router-dom'
+import { BUSINESS_HOURS } from '../model/types'
+import { ManageReservationBanner } from './ManageReservationBanner'
 import { TimeSlot } from './TimeSlot'
 import { UnscheduledReservations } from './UnscheduledReservations'
-import { ManageReservationBanner } from './ManageReservationBanner'
-import { useCalendarStore } from '../model/store'
-import { BUSINESS_HOURS } from '../model/types'
-import { cn } from '@/shared/lib/styles/class-merge'
-import { useSearchParams } from 'react-router-dom'
-import { useToast } from '@/shared/ui/use-toast'
-import { useReservation } from '@/components/ReservationContext'
-import { HairSalonReservation } from '@/components/ReservationContext'
-import { DatePicker } from '@/shared/ui/date-picker'
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
-import { Calendar } from '@/shared/ui/calendar'
 
 const timeSlots = Array.from({ length: BUSINESS_HOURS.end - BUSINESS_HOURS.start }, (_, i) => {
     const hour = BUSINESS_HOURS.start + i
@@ -40,10 +36,10 @@ function isTouchDevice() {
 export function HairSalonCalendarWidget({ managingReservationId }: HairSalonCalendarWidgetProps) {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [view, setView] = useState<'day' | 'week'>('day')
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [, setSearchParams] = useSearchParams()
     const { toast } = useToast()
     const { reservations } = useReservation()
-    const [backend, setBackend] = useState(() => 
+    const [backend,] = useState(() => 
         isTouchDevice() ? TouchBackend : HTML5Backend
     )
 

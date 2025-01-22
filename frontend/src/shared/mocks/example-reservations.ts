@@ -42,7 +42,31 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         hotelCheckIn: format(new Date(), 'yyyy-MM-dd'),
         hotelCheckOut: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
         hotelCheckOutTime: '12:00',
-        hasDriverService: true
+        hasDriverService: true,
+        tasks: [
+            {
+                id: 'task1',
+                reservationId: 'EXAMPLE_HAIRSALON_1',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_brush']
+                },
+                date: format(new Date(), 'yyyy-MM-dd'),
+                time: '10:00'
+            },
+            {
+                id: 'task2',
+                reservationId: 'EXAMPLE_HAIRSALON_1',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['deshedding']
+                },
+                date: format(new Date(), 'yyyy-MM-dd'),
+                time: '10:30'
+            }
+        ]
     },
     {
         id: 'EXAMPLE_HAIRSALON_2',
@@ -76,7 +100,31 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         observations: 'Cliente del hotel - Habitación HAB.2',
         hotelCheckIn: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
         hotelCheckOut: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
-        hotelCheckOutTime: '14:00'
+        hotelCheckOutTime: '14:00',
+        tasks: [
+            {
+                id: 'task3',
+                reservationId: 'EXAMPLE_HAIRSALON_2',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_trim']
+                },
+                date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+                time: '11:00'
+            },
+            {
+                id: 'task4',
+                reservationId: 'EXAMPLE_HAIRSALON_2',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['spa']
+                },
+                date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+                time: '11:30'
+            }
+        ]
     },
     {
         id: 'EXAMPLE_HAIRSALON_3',
@@ -107,7 +155,42 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         status: 'pending',
         totalPrice: 90,
         paymentStatus: 'Pendiente',
-        observations: 'Cliente del hotel - Habitación HAB.3'
+        observations: 'Cliente del hotel - Habitación HAB.3',
+        tasks: [
+            {
+                id: 'task5',
+                reservationId: 'EXAMPLE_HAIRSALON_3',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_brush']
+                },
+                date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+                time: '11:30'
+            },
+            {
+                id: 'task6',
+                reservationId: 'EXAMPLE_HAIRSALON_3',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['deshedding']
+                },
+                date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+                time: '12:00'
+            },
+            {
+                id: 'task7',
+                reservationId: 'EXAMPLE_HAIRSALON_3',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['spa_ozone']
+                },
+                date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+                time: '12:30'
+            }
+        ]
     },
     // Check-in today - 3 pets
     {
@@ -452,7 +535,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         totalPrice: 45,
         paymentStatus: 'Pendiente',
         observations: 'Primera visita',
-        requestedTime: '10:00'
+        requestedTime: '10:00',
+        tasks: [
+            {
+                id: 'task8',
+                reservationId: 'EXAMPLE_EXTERNAL_1',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_trim']
+                },
+                date: format(new Date(), 'yyyy-MM-dd'),
+                time: '10:00'
+            }
+        ]
     },
     {
         id: 'EXAMPLE_EXTERNAL_2',
@@ -484,7 +580,31 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         totalPrice: 60,
         paymentStatus: 'Pendiente',
         observations: 'Cliente habitual',
-        requestedTime: '16:30'
+        requestedTime: '16:30',
+        tasks: [
+            {
+                id: 'task9',
+                reservationId: 'EXAMPLE_EXTERNAL_2',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['bath_and_brush']
+                },
+                date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+                time: '16:30'
+            },
+            {
+                id: 'task10',
+                reservationId: 'EXAMPLE_EXTERNAL_2',
+                service: {
+                    type: 'hairdressing',
+                    petIndex: 0,
+                    services: ['spa']
+                },
+                date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
+                time: '17:00'
+            }
+        ]
     },
     // Active reservations with different transport services
     {
