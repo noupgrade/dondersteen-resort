@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import type { DropTargetMonitor } from 'react-dnd'
 
-import type { ExtendedReservation, ReservationStatus } from '@/types/reservation'
-import { useCalendarStore } from '../model/store'
+import { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
-import { DraggableReservation } from './DraggableReservation'
 import { useToast } from '@/shared/ui/use-toast'
-import { HairSalonReservationModal } from './HairSalonReservationModal'
-import { HairSalonReservation, type Client } from '@/components/ReservationContext'
-import { HairdressingServiceType } from '@/shared/types/additional-services'
+import { useCalendarStore } from '../model/store'
 import { ClientSearchModal } from './ClientSearchModal'
+import { DraggableReservation } from './DraggableReservation'
+import { HairSalonReservationModal } from './HairSalonReservationModal'
 
 interface TimeSlotProps {
     time: string
@@ -20,12 +17,12 @@ interface TimeSlotProps {
 }
 
 export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }: TimeSlotProps) {
-    const { 
-        draggedReservation, 
-        setDraggedReservation, 
-        moveReservation, 
-        scheduleUnscheduledReservation, 
-        scheduledReservations, 
+    const {
+        draggedReservation,
+        setDraggedReservation,
+        moveReservation,
+        scheduleUnscheduledReservation,
+        scheduledReservations,
         updateReservation,
         selectedReservation,
         setSelectedReservation
@@ -47,42 +44,42 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
     const normalizeTime = (timeStr: string) => {
         // If time is in HH:mm format, return as is
         if (/^\d{2}:\d{2}$/.test(timeStr)) return timeStr
-        
+
         // If time is in H:mm format, pad with leading zero
         if (/^\d{1}:\d{2}$/.test(timeStr)) return `0${timeStr}`
-        
+
         // If time is in military format (e.g. "900" for 9:00), convert to HH:mm
         if (/^\d{3,4}$/.test(timeStr)) {
             const hours = timeStr.length === 3 ? timeStr[0] : timeStr.slice(0, 2)
             const minutes = timeStr.length === 3 ? timeStr.slice(1) : timeStr.slice(2)
             return `${hours.padStart(2, '0')}:${minutes}`
         }
-        
+
         return timeStr
     }
 
     // Find reservations for this slot
     const reservations = scheduledReservations.filter(r => {
         if (r.date !== date) return false
-        
+
         // Get hour and minutes from both times
         const [slotHour] = normalizeTime(time).split(':').map(Number)
         const [reservationHour, reservationMinutes] = normalizeTime(r.time).split(':').map(Number)
-        
+
         // Match if the hour is the same
         return slotHour === reservationHour
     })
-    .reduce((groups, reservation) => {
-        // Group by exact minutes
-        const [, minutes] = normalizeTime(reservation.time).split(':').map(Number)
-        if (!groups[minutes]) {
-            groups[minutes] = []
-        }
-        if (groups[minutes].length < 2) { // Limit to 2 reservations per exact time
-            groups[minutes].push(reservation)
-        }
-        return groups
-    }, {} as Record<number, HairSalonReservation[]>)
+        .reduce((groups, reservation) => {
+            // Group by exact minutes
+            const [, minutes] = normalizeTime(reservation.time).split(':').map(Number)
+            if (!groups[minutes]) {
+                groups[minutes] = []
+            }
+            if (groups[minutes].length < 2) { // Limit to 2 reservations per exact time
+                groups[minutes].push(reservation)
+            }
+            return groups
+        }, {} as Record<number, HairSalonReservation[]>)
 
     // Flatten and sort the groups
     const flatReservations = Object.values(reservations)
@@ -95,7 +92,7 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
 
     const handleSlotClick = async (e: React.MouseEvent) => {
         e.stopPropagation()
-        
+
         if (!isAvailable) return
 
         // Show time picker dialog
@@ -158,10 +155,10 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     </div>
                 </div>
             `
-            
+
             // Style the dialog
             dialog.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg'
-            
+
             // Add click handlers
             dialog.querySelectorAll('button').forEach(button => {
                 button.onclick = () => {
@@ -170,7 +167,7 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     resolve(minute)
                 }
             })
-            
+
             // Add click outside to cancel
             dialog.addEventListener('click', (e) => {
                 if (e.target === dialog) {
@@ -178,7 +175,7 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     resolve(null)
                 }
             })
-            
+
             document.body.appendChild(dialog)
             dialog.showModal()
         })
@@ -246,10 +243,10 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
 
             // Get the target minutes from the dragged reservation
             const [, targetMinutes] = normalizeTime(time).split(':').map(Number)
-            
+
             // Check how many reservations exist at the target minutes
             const existingAtTime = reservations[targetMinutes]?.length || 0
-            
+
             return existingAtTime < 2
         },
         drop: async (item) => {
@@ -334,13 +331,13 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                         const minutes = parseInt(normalizeTime(reservation.time).split(':')[1]) || 0
                         const offsetPercentage = (minutes / 60) * 100
                         const height = `${Math.ceil(duration / 30) * 2}rem`
-                        
+
                         // Find position index within the same minute group
                         const sameMinuteReservations = reservations[minutes] || []
                         const positionIndex = sameMinuteReservations.findIndex(r => r.id === reservation.id)
-                        
+
                         return (
-                            <div 
+                            <div
                                 key={reservation.id}
                                 onClick={(e) => {
                                     e.stopPropagation()
