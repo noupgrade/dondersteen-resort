@@ -17,6 +17,8 @@ import { ServiceType } from '@/shared/types/additional-services'
 import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { HotelNotificationBanner, useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
+import { ClientSearchModal } from '@/shared/ui/client-search-modal'
+import { useClientSearch } from '@/shared/hooks/use-client-search'
 
 export default function PanelInterno() {
     const { reservations } = useReservation()
@@ -31,6 +33,19 @@ export default function PanelInterno() {
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
     const [isViewerOpen, setIsViewerOpen] = useState(false)
     const { notifications, dismissNotification } = useHotelNotificationStore()
+    const [bookingType, setBookingType] = useState<'hotel' | 'budget' | null>(null)
+
+    const { isOpen, handleOpen, handleClose, handleClientSelect, redirectPath, requirePetSelection } = useClientSearch({
+        onClientSelect: (clientId) => {
+            if (bookingType === 'hotel') {
+                window.location.href = `/booking?userId=${clientId}`
+            } else if (bookingType === 'budget') {
+                window.location.href = `/booking?userId=${clientId}&type=budget`
+            }
+        },
+        redirectPath: bookingType === 'budget' ? '/booking?type=budget' : '/booking',
+        requirePetSelection: false
+    })
 
     useEffect(() => {
         const today = format(new Date(), 'yyyy-MM-dd')
@@ -43,10 +58,12 @@ export default function PanelInterno() {
                     new Date(r.checkInDate) <= new Date() &&
                     new Date(r.checkOutDate) > new Date()
             )
-            .sort((a: HotelReservation | HairSalonReservation, b: HotelReservation | HairSalonReservation) =>
-                new Date(a.type === 'hotel' ? a.checkOutDate : '').getTime() -
-                new Date(b.type === 'hotel' ? b.checkOutDate : '').getTime()
-            ) as HotelReservation[]
+            .sort((a, b) => {
+                if (a.type === 'hotel' && b.type === 'hotel') {
+                    return new Date(a.checkOutDate).getTime() - new Date(b.checkOutDate).getTime()
+                }
+                return 0
+            }) as HotelReservation[]
         setActiveReservations(active)
         setFilteredReservations(active)
         setCheckIns(
@@ -130,18 +147,35 @@ export default function PanelInterno() {
             <div className='flex items-center justify-between'>
                 <h1 className='text-4xl font-bold text-[#101828]'>Hotel</h1>
                 <div className="flex gap-2">
-                    <Button asChild className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'>
-                        <Link to='/booking?type=budget'>
-                            <PlusCircle className='mr-2 h-4 w-4' /> Nuevo Presupuesto
-                        </Link>
+                    <Button
+                        className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'
+                        onClick={() => {
+                            setBookingType('budget')
+                            handleOpen()
+                        }}
+                    >
+                        <PlusCircle className='mr-2 h-4 w-4' /> Nuevo Presupuesto
                     </Button>
-                    <Button asChild className='bg-[#34D399] text-white hover:bg-[#34D399]/90'>
-                        <Link to='/booking'>
-                            <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
-                        </Link>
+                    <Button
+                        className='bg-[#34D399] text-white hover:bg-[#34D399]/90'
+                        onClick={() => {
+                            setBookingType('hotel')
+                            handleOpen()
+                        }}
+                    >
+                        <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
                     </Button>
                 </div>
             </div>
+
+            <ClientSearchModal
+                isOpen={isOpen}
+                onClose={handleClose}
+                onClientSelect={handleClientSelect}
+                redirectPath={redirectPath}
+                requirePetSelection={requirePetSelection}
+                title={bookingType === 'budget' ? 'Buscar Cliente para Presupuesto' : 'Buscar Cliente para Reserva'}
+            />
 
             <HotelNotificationBanner
                 notifications={notifications}

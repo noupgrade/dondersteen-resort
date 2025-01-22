@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Button } from '@/shared/ui/button'
+import { PlusCircle } from 'lucide-react'
 
 import {
     Hotel,
@@ -17,6 +19,8 @@ import { ManageReservationBanner } from '@/widgets/HairSalonCalendar/ui/ManageRe
 import { CheckoutChangesNotificationBanner, type CheckoutChange } from '@/widgets/HairSalonCalendar/ui/CheckoutChangesNotificationBanner'
 import { useCalendarStore } from '@/widgets/HairSalonCalendar/model/store'
 import { useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
+import { ClientSearchModal } from '@/shared/ui/client-search-modal'
+import { useClientSearch } from '@/shared/hooks/use-client-search'
 
 // Mock de cambios de checkout - Esto vendría de tu backend
 const mockCheckoutChanges: CheckoutChange[] = [
@@ -117,7 +121,7 @@ export default function HairSalonInternalPanelPage() {
 
     const handleViewChange = (change: CheckoutChange) => {
         setSelectedChange(change)
-        
+
         // Buscar la reserva correspondiente
         const reservation = reservations.find(r => r.id === change.reservationId)
 
@@ -155,7 +159,7 @@ export default function HairSalonInternalPanelPage() {
 
             // Actualizar en el contexto de reservas
             await updateReservation(selectedReservation.id, updatedReservation)
-            
+
             // Actualizar en el store del calendario
             await updateCalendarReservation(updatedReservation)
 
@@ -168,7 +172,7 @@ export default function HairSalonInternalPanelPage() {
             setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
             setSelectedChange(null)
             setSelectedReservation(null)
-            
+
             // Volver a la vista de pendientes
             setSearchParams(prev => {
                 const newParams = new URLSearchParams(prev)
@@ -221,7 +225,7 @@ export default function HairSalonInternalPanelPage() {
             setCheckoutChanges(prev => prev.filter(c => c.id !== selectedChange.id))
             setSelectedChange(null)
             setSelectedReservation(null)
-            
+
             // Volver a la vista de pendientes
             setSearchParams(prev => {
                 const newParams = new URLSearchParams(prev)
@@ -243,11 +247,41 @@ export default function HairSalonInternalPanelPage() {
     const hotelReservations = pendingReservations.filter(r => r.source === 'hotel')
     const externalReservations = pendingReservations.filter(r => r.source === 'external')
 
+    const [isNewBookingModalOpen, setIsNewBookingModalOpen] = useState(false)
+
+    const { isOpen, handleOpen, handleClose, handleClientSelect, redirectPath, requirePetSelection } = useClientSearch({
+        onClientSelect: (clientId, petId) => {
+            const params = new URLSearchParams()
+            params.set('userId', clientId)
+            if (petId) {
+                params.set('petId', petId)
+            }
+            window.location.href = `/peluqueria-booking?${params.toString()}`
+        },
+        redirectPath: '/peluqueria-booking',
+        requirePetSelection: true
+    })
+
     return (
         <div className='container mx-auto p-4 md:p-6'>
             <div className='flex items-center justify-between mb-4'>
                 <h1 className='text-3xl font-bold'>Peluquería</h1>
+                <Button
+                    className='bg-[#34D399] text-white hover:bg-[#34D399]/90'
+                    onClick={handleOpen}
+                >
+                    <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
+                </Button>
             </div>
+
+            <ClientSearchModal
+                isOpen={isOpen}
+                onClose={handleClose}
+                onClientSelect={handleClientSelect}
+                redirectPath={redirectPath}
+                requirePetSelection={requirePetSelection}
+                title="Buscar Cliente para Peluquería"
+            />
 
             {/* Banner de notificaciones de cambios de checkout */}
             <CheckoutChangesNotificationBanner

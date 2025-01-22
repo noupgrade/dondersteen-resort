@@ -3,7 +3,7 @@
 import { useClientProfile } from '@/hooks/use-client-profile'
 import { AlertCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useWatch } from 'react-hook-form'
 
 import { BookingSummary } from '@/components/booking-summary'
@@ -23,9 +23,16 @@ import { Form } from '@/shared/ui/form'
 
 export default function BookingPage() {
     const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
     const userId = searchParams.get('userId')
     const type = searchParams.get('type')
     const { data: clientProfile } = useClientProfile(userId || '')
+
+    useEffect(() => {
+        if (!userId) {
+            navigate('/panel-interno')
+        }
+    }, [userId, navigate])
 
     const {
         form,
@@ -110,122 +117,124 @@ export default function BookingPage() {
     })
 
     return (
-        <div className='container mx-auto max-w-4xl py-8'>
-            {type === 'budget' && (
-                <Alert variant="destructive" className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <div className="flex items-center justify-between w-full">
-                        <div>
-                            <AlertTitle>Creando Presupuesto</AlertTitle>
-                            <AlertDescription>
-                                Estás en el proceso de crear un presupuesto. Si deseas realizar una reserva, haz clic aquí.
-                            </AlertDescription>
-                        </div>
-                        <Button
-                            variant="outline"
-                            className="bg-white hover:bg-white/90"
-                            onClick={() => {
-                                const newParams = new URLSearchParams(searchParams)
-                                newParams.delete('type')
-                                window.location.search = newParams.toString()
-                            }}
-                        >
-                            Crear Reserva
-                        </Button>
-                    </div>
-                </Alert>
-            )}
-            <div className='fixed left-5 top-5'>
-                <Button
-                    variant='outline'
-                    onClick={clearForm}
-                >
-                    Limpiar reserva
-                </Button>
-            </div>
-            <h1 className='mb-8 text-center text-3xl font-bold'>Reserva tu estancia en Dondersteen</h1>
-            <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
-                <div className='lg:col-span-2'>
-                    <Form {...form}>
-                        <div className='space-y-8'>
-                            {state.currentStep === 1 && (
-                                <PetInformationStep
-                                    form={form}
-                                    onAddPet={addPet}
-                                    onRemovePet={removePet}
-                                />
-                            )}
-
-                            {state.currentStep === 2 && (
-                                <DateSelectionStep
-                                    form={form}
-                                    onDateSelect={(range) => {
-                                        if (range) {
-                                            setState(prev => ({ ...prev, selectedDates: range }))
-                                        } else {
-                                            setState(prev => ({ ...prev, selectedDates: null }))
-                                        }
-                                    }}
-                                    dateError={state.dateError}
-                                    capacity={calculateCapacity(form.getValues('pets'))}
-                                />
-                            )}
-
-                            {state.currentStep === 3 && (
-                                <AdditionalServicesStep
-                                    form={form}
-                                    onServiceChange={handleServiceChange}
-                                    groomingUnavailable={state.groomingUnavailable}
-                                />
-                            )}
-
-                            {state.currentStep === 4 && (
-                                <ConfirmationStep form={form} />
-                            )}
-
-                            {state.formError && (
-                                <Alert variant='destructive'>
-                                    <AlertCircle className='h-4 w-4' />
-                                    <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>{state.formError}</AlertDescription>
-                                </Alert>
-                            )}
-
-                            <div className='flex justify-between space-x-4'>
-                                {state.currentStep > 1 && (
-                                    <Button type='button' variant='outline' onClick={prevStep}>
-                                        Anterior
-                                    </Button>
-                                )}
-                                {state.currentStep < 4 ? (
-                                    <Button type='button' onClick={nextStep}>
-                                        Siguiente
-                                    </Button>
-                                ) : (
-                                    <Button type='button' onClick={handleSubmit}>Confirmar reserva</Button>
-                                )}
+        <>
+            <div className='container mx-auto max-w-4xl py-8'>
+                {type === 'budget' && (
+                    <Alert variant="destructive" className="mb-6">
+                        <AlertCircle className="h-4 w-4" />
+                        <div className="flex items-center justify-between w-full">
+                            <div>
+                                <AlertTitle>Creando Presupuesto</AlertTitle>
+                                <AlertDescription>
+                                    Estás en el proceso de crear un presupuesto. Si deseas realizar una reserva, haz clic aquí.
+                                </AlertDescription>
                             </div>
+                            <Button
+                                variant="outline"
+                                className="bg-white hover:bg-white/90"
+                                onClick={() => {
+                                    const newParams = new URLSearchParams(searchParams)
+                                    newParams.delete('type')
+                                    window.location.search = newParams.toString()
+                                }}
+                            >
+                                Crear Reserva
+                            </Button>
                         </div>
-                    </Form>
+                    </Alert>
+                )}
+                <div className='fixed left-5 top-5'>
+                    <Button
+                        variant='outline'
+                        onClick={clearForm}
+                    >
+                        Limpiar reserva
+                    </Button>
                 </div>
-                <div className='lg:col-span-1'>
-                    <BookingSummary
-                        pets={watchedPets}
-                        dates={state.selectedDates}
-                        services={watchedServices}
-                    />
-                </div>
-            </div>
+                <h1 className='mb-8 text-center text-3xl font-bold'>Reserva tu estancia en Dondersteen</h1>
+                <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
+                    <div className='lg:col-span-2'>
+                        <Form {...form}>
+                            <div className='space-y-8'>
+                                {state.currentStep === 1 && (
+                                    <PetInformationStep
+                                        form={form}
+                                        onAddPet={addPet}
+                                        onRemovePet={removePet}
+                                    />
+                                )}
 
-            <ConfirmationDialog
-                open={state.confirmedReservationId !== ''}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setState(prev => ({ ...prev, confirmedReservationId: '' }))
-                    }
-                }}
-                reservationId={state.confirmedReservationId}
-            />
-        </div>
+                                {state.currentStep === 2 && (
+                                    <DateSelectionStep
+                                        form={form}
+                                        onDateSelect={(range) => {
+                                            if (range) {
+                                                setState(prev => ({ ...prev, selectedDates: range }))
+                                            } else {
+                                                setState(prev => ({ ...prev, selectedDates: null }))
+                                            }
+                                        }}
+                                        dateError={state.dateError}
+                                        capacity={calculateCapacity(form.getValues('pets'))}
+                                    />
+                                )}
+
+                                {state.currentStep === 3 && (
+                                    <AdditionalServicesStep
+                                        form={form}
+                                        onServiceChange={handleServiceChange}
+                                        groomingUnavailable={state.groomingUnavailable}
+                                    />
+                                )}
+
+                                {state.currentStep === 4 && (
+                                    <ConfirmationStep form={form} />
+                                )}
+
+                                {state.formError && (
+                                    <Alert variant='destructive'>
+                                        <AlertCircle className='h-4 w-4' />
+                                        <AlertTitle>Error</AlertTitle>
+                                        <AlertDescription>{state.formError}</AlertDescription>
+                                    </Alert>
+                                )}
+
+                                <div className='flex justify-between space-x-4'>
+                                    {state.currentStep > 1 && (
+                                        <Button type='button' variant='outline' onClick={prevStep}>
+                                            Anterior
+                                        </Button>
+                                    )}
+                                    {state.currentStep < 4 ? (
+                                        <Button type='button' onClick={nextStep}>
+                                            Siguiente
+                                        </Button>
+                                    ) : (
+                                        <Button type='button' onClick={handleSubmit}>Confirmar reserva</Button>
+                                    )}
+                                </div>
+                            </div>
+                        </Form>
+                    </div>
+                    <div className='lg:col-span-1'>
+                        <BookingSummary
+                            pets={watchedPets}
+                            dates={state.selectedDates}
+                            services={watchedServices}
+                        />
+                    </div>
+                </div>
+
+                <ConfirmationDialog
+                    open={state.confirmedReservationId !== ''}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setState(prev => ({ ...prev, confirmedReservationId: '' }))
+                        }
+                    }}
+                    reservationId={state.confirmedReservationId}
+                />
+            </div>
+        </>
     )
 }
