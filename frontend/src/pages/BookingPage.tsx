@@ -28,12 +28,6 @@ export default function BookingPage() {
     const type = searchParams.get('type')
     const { data: clientProfile } = useClientProfile(userId || '')
 
-    useEffect(() => {
-        if (!userId) {
-            navigate('/panel-interno')
-        }
-    }, [userId, navigate])
-
     const {
         form,
         state,

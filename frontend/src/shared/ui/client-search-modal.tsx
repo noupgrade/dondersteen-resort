@@ -75,7 +75,7 @@ export function ClientSearchModal({
     }
 
     const handleNewClient = () => {
-        navigate(redirectPath)
+        window.location.href = window.location.origin + redirectPath
         onClose()
     }
 
