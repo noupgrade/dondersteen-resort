@@ -56,6 +56,14 @@ export type HotelBudget = Omit<HotelReservation, 'type'> & {
     type: 'hotel-budget'
 }
 
+export type HairSalonTask = {
+    id: string
+    reservationId: string
+    service: AdditionalService
+    date: string
+    time: string
+}
+
 export type HairSalonReservation = {
     id: string
     type: 'peluqueria'
@@ -70,11 +78,7 @@ export type HairSalonReservation = {
     totalPrice: number
     paymentStatus: string
     observations?: string
-    subcitas?: {
-        fecha: string
-        hora: string
-        descripcion: string
-    }[]
+    tasks?: HairSalonTask[]
     precioEstimado?: number
     horaDefinitiva?: string
     finalPrice?: number
