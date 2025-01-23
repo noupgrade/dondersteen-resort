@@ -48,14 +48,15 @@ export default function SetupPage() {
 
     // Estados para servicios de peluquería
     const [groomingServices, setGroomingServices] = useState({
-        bathAndBrush: { name: 'Baño y cepillado', price: 30 },
-        bathAndCut: { name: 'Baño y corte', price: 40 },
-        stripping: { name: 'Stripping', price: 45 },
-        knots: { name: 'Nudos', price: 15 },
-        shedding: { name: 'Deslanado (Extracción muda)', price: 25 },
-        brushing: { name: 'Cepillado', price: 20 },
-        spa: { name: 'Spa', price: 35 },
-        spaOzone: { name: 'Spa + Ozono', price: 45 },
+        bathAndBrush: { name: 'Baño y cepillado', minPrice: 25, maxPrice: 30 },
+        bathAndCut: { name: 'Baño y corte', minPrice: 35, maxPrice: 40 },
+        stripping: { name: 'Stripping', minPrice: 40, maxPrice: 45 },
+        knots: { name: 'Nudos', minPrice: 12, maxPrice: 15 },
+        shedding: { name: 'Deslanado (Extracción muda)', minPrice: 20, maxPrice: 25 },
+        brushing: { name: 'Cepillado', minPrice: 15, maxPrice: 20 },
+        spa: { name: 'Spa', minPrice: 30, maxPrice: 35 },
+        spaOzone: { name: 'Spa + Ozono', minPrice: 40, maxPrice: 45 },
+        extremelyDirty: { name: 'Extremadamente sucio', minPrice: 35, maxPrice: 45 }
     })
 
     // Estados para plantillas de correo
@@ -554,143 +555,42 @@ export default function SetupPage() {
                                 <CardTitle>Servicios de Peluquería</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <form className='space-y-4'>
-                                    <div className='space-y-2'>
-                                        <Label>Baño y cepillado</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.bathAndBrush.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    bathAndBrush: {
-                                                        ...groomingServices.bathAndBrush,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
+                                <form className='grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4'>
+                                    {Object.entries(groomingServices).map(([key, service]) => (
+                                        <div key={key} className='space-y-2 p-4 rounded-lg border bg-card'>
+                                            <Label>{service.name}</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <div className='flex-1 flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={service.minPrice}
+                                                        onChange={(e) => setGroomingServices({
+                                                            ...groomingServices,
+                                                            [key]: {
+                                                                ...service,
+                                                                minPrice: Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€ -</span>
+                                                    <Input
+                                                        type='number'
+                                                        value={service.maxPrice}
+                                                        onChange={(e) => setGroomingServices({
+                                                            ...groomingServices,
+                                                            [key]: {
+                                                                ...service,
+                                                                maxPrice: Number(e.target.value)
+                                                            }
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Baño y corte</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.bathAndCut.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    bathAndCut: {
-                                                        ...groomingServices.bathAndCut,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Stripping</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.stripping.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    stripping: {
-                                                        ...groomingServices.stripping,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Nudos</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.knots.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    knots: {
-                                                        ...groomingServices.knots,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Deslanado</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.shedding.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    shedding: {
-                                                        ...groomingServices.shedding,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Cepillado</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.brushing.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    brushing: {
-                                                        ...groomingServices.brushing,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Spa</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.spa.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    spa: {
-                                                        ...groomingServices.spa,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Spa + Ozono</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={groomingServices.spaOzone.price}
-                                                onChange={(e) => setGroomingServices({
-                                                    ...groomingServices,
-                                                    spaOzone: {
-                                                        ...groomingServices.spaOzone,
-                                                        price: Number(e.target.value)
-                                                    }
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
+                                    ))}
                                 </form>
                             </CardContent>
                         </Card>

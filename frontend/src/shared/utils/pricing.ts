@@ -11,48 +11,60 @@ const BASE_PRICES: Record<PetSize, number> = {
     'extra-grande': 45
 }
 
-const GROOMING_PRICES: Record<string, Record<PetSize, number>> = {
+const GROOMING_PRICES: Record<string, Record<PetSize, { min: number, max: number }>> = {
     bath_and_brush: {
-        pequeño: 25,
-        mediano: 30,
-        grande: 35,
-        'extra-grande': 40
+        pequeño: { min: 25, max: 30 },
+        mediano: { min: 30, max: 35 },
+        grande: { min: 35, max: 40 },
+        'extra-grande': { min: 40, max: 45 }
     },
     bath_and_trim: {
-        pequeño: 35,
-        mediano: 40,
-        grande: 45,
-        'extra-grande': 50
+        pequeño: { min: 35, max: 40 },
+        mediano: { min: 40, max: 45 },
+        grande: { min: 45, max: 50 },
+        'extra-grande': { min: 50, max: 55 }
     },
     stripping: {
-        pequeño: 45,
-        mediano: 50,
-        grande: 55,
-        'extra-grande': 60
+        pequeño: { min: 45, max: 50 },
+        mediano: { min: 50, max: 55 },
+        grande: { min: 55, max: 60 },
+        'extra-grande': { min: 60, max: 65 }
     },
     deshedding: {
-        pequeño: 45,
-        mediano: 50,
-        grande: 55,
-        'extra-grande': 60
+        pequeño: { min: 45, max: 50 },
+        mediano: { min: 50, max: 55 },
+        grande: { min: 55, max: 60 },
+        'extra-grande': { min: 60, max: 65 }
     },
     brushing: {
-        pequeño: 15,
-        mediano: 20,
-        grande: 25,
-        'extra-grande': 30
+        pequeño: { min: 15, max: 20 },
+        mediano: { min: 20, max: 25 },
+        grande: { min: 25, max: 30 },
+        'extra-grande': { min: 30, max: 35 }
     },
     spa: {
-        pequeño: 30,
-        mediano: 35,
-        grande: 40,
-        'extra-grande': 45
+        pequeño: { min: 30, max: 35 },
+        mediano: { min: 35, max: 40 },
+        grande: { min: 40, max: 45 },
+        'extra-grande': { min: 45, max: 50 }
     },
     spa_ozone: {
-        pequeño: 40,
-        mediano: 45,
-        grande: 50,
-        'extra-grande': 55
+        pequeño: { min: 40, max: 45 },
+        mediano: { min: 45, max: 50 },
+        grande: { min: 50, max: 55 },
+        'extra-grande': { min: 55, max: 60 }
+    },
+    knots: {
+        pequeño: { min: 12, max: 15 },
+        mediano: { min: 15, max: 18 },
+        grande: { min: 18, max: 21 },
+        'extra-grande': { min: 21, max: 24 }
+    },
+    extremely_dirty: {
+        pequeño: { min: 35, max: 40 },
+        mediano: { min: 40, max: 45 },
+        grande: { min: 45, max: 50 },
+        'extra-grande': { min: 50, max: 55 }
     }
 }
 
@@ -88,7 +100,7 @@ export const calculateServicePrice = (
             return 0 // Driver service price will be determined later
         case 'hairdressing':
             return service.services.reduce((total, s) => {
-                return total + (GROOMING_PRICES[s]?.[petSize] ?? 0)
+                return total + (GROOMING_PRICES[s]?.[petSize]?.max ?? 0)
             }, 0)
         default:
             return 0
