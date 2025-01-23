@@ -178,6 +178,13 @@ export default function BookingPage() {
                                                 }))
                                             }
                                         }}
+                                        onServiceChange={services => {
+                                            // Keep all services except driver service
+                                            const nonDriverServices = form.getValues('services').filter(s => s.type !== 'driver')
+                                            // Add new driver service if present
+                                            const driverService = services.find(s => s.type === 'driver')
+                                            form.setValue('services', driverService ? [...nonDriverServices, driverService] : nonDriverServices)
+                                        }}
                                         dateError={state.dateError}
                                         capacity={calculateCapacity(form.getValues('pets'))}
                                     />

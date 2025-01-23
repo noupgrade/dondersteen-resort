@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format, isSaturday } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { Truck } from 'lucide-react'
 
 import { Calendar } from '@/shared/ui/calendar'
 import { Label } from '@/shared/ui/label'
@@ -10,17 +11,25 @@ import { useReservation } from './ReservationContext'
 import { useHotelAvailability } from './HotelAvailabilityContext'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { DateRange } from 'react-day-picker'
+import { Checkbox } from '@/shared/ui/checkbox'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { AdditionalService, DriverService } from '@/shared/types/additional-services'
 
 interface AvailabilityCalendarProps {
     className?: string
     onSelect: (dates: { from: Date; to: Date }, checkInTime: string, checkOutTime: string) => void
+    onServiceChange: (services: AdditionalService[]) => void
     capacity: number
+    initialServices?: AdditionalService[]
 }
 
-export function AvailabilityCalendar({ className, onSelect, capacity }: AvailabilityCalendarProps) {
+export function AvailabilityCalendar({ className, onSelect, onServiceChange, capacity, initialServices = [] }: AvailabilityCalendarProps) {
     const [selectedDates, setSelectedDates] = useState<DateRange | undefined>()
     const [checkInTime, setCheckInTime] = useState<string>('14:00')
     const [checkOutTime, setCheckOutTime] = useState<string>('12:00')
+    const [driverService, setDriverService] = useState<DriverService | undefined>(
+        initialServices.find(s => s.type === 'driver') as DriverService | undefined
+    )
 
     const { getCalendarAvailability } = useReservation()
     const { isWeekend, isHighSeason, isDateBlocked } = useHotelAvailability()
@@ -65,6 +74,34 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
         setCheckOutTime(time)
         if (selectedDates?.from && selectedDates?.to) {
             onSelect({ from: selectedDates.from, to: selectedDates.to }, checkInTime, time)
+        }
+    }
+
+    const handleDriverServiceChange = (checked: boolean) => {
+        if (checked) {
+            const newService: DriverService = {
+                type: 'driver',
+                serviceType: 'both',
+                petIndex: 0,
+                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)
+            }
+            setDriverService(newService)
+            onServiceChange([...initialServices.filter(s => s.type !== 'driver'), newService])
+        } else {
+            setDriverService(undefined)
+            onServiceChange(initialServices.filter(s => s.type !== 'driver'))
+        }
+    }
+
+    const handleDriverServiceTypeChange = (value: 'pickup' | 'dropoff' | 'both') => {
+        if (driverService) {
+            const newService: DriverService = {
+                ...driverService,
+                serviceType: value,
+                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)
+            }
+            setDriverService(newService)
+            onServiceChange([...initialServices.filter(s => s.type !== 'driver'), newService])
         }
     }
 
@@ -145,37 +182,78 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                 </div>
             </div>
             <div className='mt-4 space-y-4'>
-                <div className='space-y-2'>
-                    <Label htmlFor='checkInTime'>Hora de entrada:</Label>
-                    <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
-                        <SelectTrigger className='w-[180px]'>
-                            <SelectValue placeholder='Selecciona la hora' />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {Array.from({ length: isSaturdayCheckIn ? 14 : 24 }, (_, i) => i).map(hour => (
-                                <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                    {`${hour.toString().padStart(2, '0')}:00`}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                <div className='flex gap-4'>
+                    <div className='space-y-2'>
+                        <Label htmlFor='checkInTime'>Hora de entrada:</Label>
+                        <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
+                            <SelectTrigger className='w-[180px]'>
+                                <SelectValue placeholder='Selecciona la hora' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: isSaturdayCheckIn ? 14 : 24 }, (_, i) => i).map(hour => (
+                                    <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                        {`${hour.toString().padStart(2, '0')}:00`}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className='space-y-2'>
+                        <Label htmlFor='checkOutTime'>Hora de salida:</Label>
+                        <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
+                            <SelectTrigger className='w-[180px]'>
+                                <SelectValue placeholder='Selecciona la hora' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
+                                    <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                        {`${hour.toString().padStart(2, '0')}:00`}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
 
-                <div className='space-y-2'>
-                    <Label htmlFor='checkOutTime'>Hora de salida:</Label>
-                    <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
-                        <SelectTrigger className='w-[180px]'>
-                            <SelectValue placeholder='Selecciona la hora' />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
-                                <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                    {`${hour.toString().padStart(2, '0')}:00`}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Servicios generales</CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-4'>
+                        <div className='flex items-center space-x-2'>
+                            <Checkbox
+                                id='transport'
+                                checked={!!driverService}
+                                onCheckedChange={handleDriverServiceChange}
+                            />
+                            <Label htmlFor='transport' className='flex items-center'>
+                                <Truck className='mr-2 h-4 w-4' />
+                                Chofer
+                            </Label>
+                        </div>
+                        {driverService && (
+                            <div className='ml-6 space-y-4'>
+                                <div className='space-y-2'>
+                                    <Label>Tipo de servicio</Label>
+                                    <Select
+                                        value={driverService.serviceType}
+                                        onValueChange={value => handleDriverServiceTypeChange(value as 'pickup' | 'dropoff' | 'both')}
+                                    >
+                                        <SelectTrigger className='w-[180px]'>
+                                            <SelectValue placeholder='Selecciona el tipo' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value='pickup'>Solo recogida</SelectItem>
+                                            <SelectItem value='dropoff'>Solo entrega</SelectItem>
+                                            <SelectItem value='both'>Recogida y entrega</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 {isSaturdayCheckIn && (
                     <Alert variant='destructive'>

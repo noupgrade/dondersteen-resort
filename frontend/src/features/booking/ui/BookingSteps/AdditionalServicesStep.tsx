@@ -45,6 +45,7 @@ export function AdditionalServicesStep({
                     groomingUnavailable={groomingUnavailable}
                     initialServices={form.getValues('services')}
                     petNames={petNames}
+                    hideDriverService
                 />
             </CardContent>
         </Card>
