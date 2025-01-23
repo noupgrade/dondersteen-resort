@@ -12,6 +12,7 @@ import { useAvailabilityOperations } from './disponibilidad/hooks/use-availabili
 import { ManageDatesDialog } from './disponibilidad/components/dialogs/manage-dates-dialog'
 import { HolidayDialog } from './disponibilidad/components/dialogs/holiday-dialog'
 import { DateRange } from './disponibilidad/types'
+import { EmployeesManagement } from '../configuracion/components/employees-management'
 
 export default function SetupPage() {
     // Estados para la configuración general
@@ -201,7 +202,7 @@ export default function SetupPage() {
             <h1 className='text-3xl font-bold mb-6'>Configuración</h1>
 
             <Tabs defaultValue='general' className='space-y-6'>
-                <TabsList className='grid w-full grid-cols-2 gap-4 bg-transparent p-0'>
+                <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
                     <TabsTrigger
                         value='general'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
@@ -213,6 +214,12 @@ export default function SetupPage() {
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Calendario
+                    </TabsTrigger>
+                    <TabsTrigger
+                        value='employees'
+                        className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
+                    >
+                        Empleados
                     </TabsTrigger>
                 </TabsList>
 
@@ -659,6 +666,9 @@ export default function SetupPage() {
                             </div>
                         </CardContent>
                     </Card>
+                </TabsContent>
+                <TabsContent value='employees'>
+                    <EmployeesManagement />
                 </TabsContent>
             </Tabs>
 
