@@ -107,6 +107,9 @@ export function VisualPOS() {
     const [searchQuery, setSearchQuery] = useState('')
     const { toast } = useToast()
 
+    // Obtener el empleado seleccionado del sessionStorage
+    const selectedEmployee = JSON.parse(sessionStorage.getItem('selectedEmployee') || '{}')
+
     const filteredProducts = selectedCategory
         ? products.filter(product => product.category === selectedCategory)
         : products
@@ -114,7 +117,7 @@ export function VisualPOS() {
     // Obtener productos previamente agregados a la reserva
     const existingProducts = useMemo(() => {
         if (!selectedReservation) return []
-        
+
         // Asegurarnos de que products existe y es un array
         const products = selectedReservation.products || []
         console.log('Reserva seleccionada:', {
@@ -122,14 +125,14 @@ export function VisualPOS() {
             client: selectedReservation.client.name,
             products: products
         })
-        
+
         return products
     }, [selectedReservation])
 
     // Combinar productos existentes con el carrito actual para el conteo
     const productCount = useMemo(() => {
         const counts: { [key: string]: number } = {}
-        
+
         // Contar productos existentes
         existingProducts.forEach((product: any) => {
             console.log('Procesando producto existente:', product)
@@ -139,14 +142,14 @@ export function VisualPOS() {
                 console.log(`Contador actualizado para ${productId}:`, counts[productId])
             }
         })
-        
+
         // Añadir productos del carrito actual
         cart.forEach(item => {
             if (!item.isGeneric && item.product.id) {
                 counts[item.product.id] = (counts[item.product.id] || 0) + item.quantity
             }
         })
-        
+
         console.log('Conteo final de productos:', counts)
         return counts
     }, [existingProducts, cart])
@@ -213,7 +216,9 @@ export function VisualPOS() {
                 clientName: selectedReservation.client.name,
                 reservationId: selectedReservation.id,
                 userId: user?.uid || '',
-                userName: user?.displayName || 'Usuario desconocido'
+                userName: user?.displayName || 'Usuario desconocido',
+                employeeId: selectedEmployee.id || '',
+                employeeName: selectedEmployee.name || 'Empleado desconocido'
             }))
 
             newSales.forEach(sale => {
@@ -283,9 +288,8 @@ export function VisualPOS() {
                                 {filteredReservations.map(reservation => (
                                     <div
                                         key={reservation.id}
-                                        className={`cursor-pointer rounded-md p-2 transition-colors hover:bg-gray-50 ${
-                                            selectedReservation?.id === reservation.id ? 'bg-blue-50' : ''
-                                        }`}
+                                        className={`cursor-pointer rounded-md p-2 transition-colors hover:bg-gray-50 ${selectedReservation?.id === reservation.id ? 'bg-blue-50' : ''
+                                            }`}
                                         onClick={() => {
                                             setSelectedReservation(reservation)
                                             setSearchQuery('')
@@ -356,7 +360,7 @@ export function VisualPOS() {
                                             <h3 className='text-center font-bold'>{product.name}</h3>
                                             <p className='mt-2 text-lg font-semibold'>{product.price.toFixed(2)} €</p>
                                             {count > 0 && (
-                                                <Badge 
+                                                <Badge
                                                     variant="secondary"
                                                     className="absolute top-2 right-2 bg-blue-100 text-blue-700 font-bold"
                                                 >

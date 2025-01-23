@@ -7,18 +7,20 @@ import { LoginPage } from '@/pages/login/LoginPage'
 import PanelInternoLayout from '@/pages/panel-interno/layout'
 import PanelInterno from '@/pages/panel-interno/page'
 import MobilePanelInterno from '@/pages/panel-interno/mobile/page'
-import PlanningPage from '@/pages/panel-interno/PlanningPage.tsx'
-import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage.tsx'
+import PlanningPage from '@/pages/panel-interno/PlanningPage'
+import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage'
 import SetupPage from '@/pages/panel-interno/setup/page'
 import TiendaPage from '@/pages/panel-interno/tienda/page'
+import StorePage from '@/pages/panel-interno/tienda/store'
+import EmployeeSelection from '@/pages/panel-interno/tienda/employee-selection'
 import BillingPage from '@/pages/panel-interno/facturacion/page'
-import BookingPage from '../../pages/BookingPage.tsx'
-import ClientDetailsPage from '../../pages/ClientPage.tsx'
-import ClientesPage from '../../pages/ClientsPage.tsx'
-import Home from '../../pages/HomePage.tsx'
-import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage.tsx'
-import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking.tsx'
-import PerfilClientesPage from '../../pages/PerfilClientesPage.tsx'
+import BookingPage from '../../pages/BookingPage'
+import ClientDetailsPage from '../../pages/ClientPage'
+import ClientesPage from '../../pages/ClientsPage'
+import Home from '../../pages/HomePage'
+import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage'
+import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking'
+import PerfilClientesPage from '../../pages/PerfilClientesPage'
 import { WithAnonymousUser } from './WithAnonymousUser'
 
 export const RoutingComponent = () => {
@@ -70,7 +72,8 @@ export const RoutingComponent = () => {
                                     <Routes>
                                         <Route index element={<PanelInterno />} />
                                         <Route path='peluqueria' element={<PeluqueriaPage />} />
-                                        <Route path='tienda' element={<TiendaPage />} />
+                                        <Route path='tienda' element={<EmployeeSelection />} />
+                                        <Route path='tienda/store' element={<StorePage />} />
                                         <Route path='planning' element={<PlanningPage />} />
                                         <Route path='clientes' element={<ClientesPage />} />
                                         <Route path='clientes/:id' element={<ClientDetailsPage />} />

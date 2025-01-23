@@ -17,10 +17,11 @@ export function SalesHistory() {
     // Filtrar ventas basado en la búsqueda unificada
     const filteredSales = useMemo(() => {
         const query = searchQuery.toLowerCase()
-        return sales.filter(sale => 
+        return sales.filter(sale =>
             sale.productName.toLowerCase().includes(query) ||
             sale.clientName.toLowerCase().includes(query) ||
-            sale.userName?.toLowerCase().includes(query)
+            sale.userName?.toLowerCase().includes(query) ||
+            sale.employeeName?.toLowerCase().includes(query)
         )
     }, [sales, searchQuery])
 
@@ -40,7 +41,7 @@ export function SalesHistory() {
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            placeholder="Buscar por producto, cliente o usuario..."
+                            placeholder="Buscar por producto, cliente, usuario o empleado..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9"
@@ -60,7 +61,7 @@ export function SalesHistory() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totals.totalQuantity}</div>
                         <p className="text-xs text-muted-foreground">
-                            {searchQuery 
+                            {searchQuery
                                 ? `Productos encontrados para "${searchQuery}"`
                                 : "Total de productos vendidos"}
                         </p>
@@ -77,7 +78,7 @@ export function SalesHistory() {
                             {totals.totalAmount.toFixed(2)} €
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            {searchQuery 
+                            {searchQuery
                                 ? `Importe total para "${searchQuery}"`
                                 : "Importe total de ventas"}
                         </p>
@@ -97,6 +98,7 @@ export function SalesHistory() {
                                 <TableHead>Fecha</TableHead>
                                 <TableHead>Producto</TableHead>
                                 <TableHead>Cliente</TableHead>
+                                <TableHead>Empleado</TableHead>
                                 <TableHead>Usuario</TableHead>
                                 <TableHead className="text-right">Importe</TableHead>
                             </TableRow>
@@ -104,7 +106,7 @@ export function SalesHistory() {
                         <TableBody>
                             {filteredSales.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                                         No se encontraron ventas
                                     </TableCell>
                                 </TableRow>
@@ -116,6 +118,7 @@ export function SalesHistory() {
                                         </TableCell>
                                         <TableCell>{sale.productName}</TableCell>
                                         <TableCell>{sale.clientName}</TableCell>
+                                        <TableCell>{sale.employeeName || 'Empleado desconocido'}</TableCell>
                                         <TableCell>{sale.userName || 'Usuario desconocido'}</TableCell>
                                         <TableCell className="text-right font-medium">
                                             {sale.price.toFixed(2)} €
