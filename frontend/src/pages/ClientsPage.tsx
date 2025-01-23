@@ -16,7 +16,7 @@ type Client = {
     pets: string[]
     activeReservations: number
     lastReservationDate: string
-    classification: 'Rango 1' | 'Rango 2' | 'Rango 3' | 'NEW'
+    classification: 'Rango 1' | 'Rango 2' | 'VIP' | 'NEW'
     totalSpent: number
 }
 
@@ -36,7 +36,7 @@ export default function ClientesPage() {
                 pets: ['Rocky', 'Nacho'],
                 activeReservations: 2,
                 lastReservationDate: '2023-12-15',
-                classification: 'Rango 2',
+                classification: 'VIP',
                 totalSpent: 1500,
             },
             {
@@ -104,7 +104,7 @@ export default function ClientesPage() {
                             <SelectItem value='NEW'>NEW</SelectItem>
                             <SelectItem value='Rango 1'>Rango 1</SelectItem>
                             <SelectItem value='Rango 2'>Rango 2</SelectItem>
-                            <SelectItem value='Rango 3'>Rango 3</SelectItem>
+                            <SelectItem value='VIP'>VIP</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

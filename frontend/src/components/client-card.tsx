@@ -11,7 +11,7 @@ type Client = {
     pets: string[]
     activeReservations: number
     lastReservationDate: string
-    classification: 'NEW' | 'Rango 1' | 'Rango 2' | 'Rango 3'
+    classification: 'NEW' | 'Rango 1' | 'Rango 2' | 'VIP'
     totalSpent: number
 }
 
@@ -25,7 +25,7 @@ export function ClientCard({ client }: ClientCardProps) {
         NEW: 'bg-gray-200 text-gray-800',
         'Rango 1': 'bg-green-200 text-green-800',
         'Rango 2': 'bg-blue-200 text-blue-800',
-        'Rango 3': 'bg-purple-200 text-purple-800',
+        'VIP': 'bg-purple-200 text-purple-800',
     }[client.classification]
 
     return (

@@ -21,7 +21,7 @@ type MockClient = {
     email: string
     address: string
     accumulatedSpending: number
-    classification: 'Rango 1' | 'Rango 2' | 'Rango 3'
+    classification: 'Rango 1' | 'Rango 2' | 'VIP'
     internalNotes: string
     pets: {
         id: string
@@ -247,7 +247,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
         email: 'maria@example.com',
         address: 'Calle Principal 123, 28001 Madrid',
         accumulatedSpending: 1500,
-        classification: 'Rango 2',
+        classification: 'VIP',
         internalNotes: 'Cliente frecuente, prefiere habitaciones tranquilas.',
         pets: [
             {
@@ -349,7 +349,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
         email: 'ana@example.com',
         address: 'Plaza Mayor 8, 28003 Madrid',
         accumulatedSpending: 2500,
-        classification: 'Rango 3',
+        classification: 'VIP',
         internalNotes: 'Cliente VIP, muy exigente con la limpieza.',
         pets: [
             {
@@ -459,7 +459,7 @@ export default function ClientDetailsPage() {
         }
     }
 
-    const handlePetChange = (petId: string, field: keyof MockClient['pets'][0], value: string | number) => {
+    const handlePetChange = (petId: string, field: keyof MockClient['pets'][0], value: string | number | boolean) => {
         if (!client) return
 
         const updatedPets = client.pets.map(pet =>
@@ -477,7 +477,23 @@ export default function ClientDetailsPage() {
                         <ChevronLeft className='h-4 w-4' />
                     </Button>
                     <h1 className='text-3xl font-bold'>{client.name}</h1>
-                    <Badge>{client.classification}</Badge>
+                    {isEditing ? (
+                        <Select
+                            value={client.classification}
+                            onValueChange={(value: 'Rango 1' | 'Rango 2' | 'VIP') => setClient({ ...client, classification: value })}
+                        >
+                            <SelectTrigger className="w-[120px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Rango 1">Rango 1</SelectItem>
+                                <SelectItem value="Rango 2">Rango 2</SelectItem>
+                                <SelectItem value="VIP">VIP</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    ) : (
+                        <Badge>{client.classification}</Badge>
+                    )}
                 </div>
             </div>
 

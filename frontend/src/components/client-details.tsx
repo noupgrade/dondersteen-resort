@@ -13,7 +13,7 @@ type Client = {
     email: string
     activeReservations: number
     totalSpent: number
-    classification: 'NEW' | 'Rango 1' | 'Rango 2' | 'Rango 3'
+    classification: 'NEW' | 'Rango 1' | 'Rango 2' | 'VIP'
     status: 'Activo' | 'Sin Reservas'
 }
 
