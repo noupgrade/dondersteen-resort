@@ -67,11 +67,16 @@ export function BookingSummary({
                 {driverService && (
                     <div>
                         <h3 className="font-medium mb-2">Servicio de transporte</h3>
-                        <div className="flex items-center justify-between">
-                            <ServiceItem service={driverService} />
-                            <span className="text-sm text-yellow-600">
-                                Desde 40€
-                            </span>
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between">
+                                <ServiceItem service={driverService} />
+                                <span className="text-sm text-yellow-600">
+                                    Desde 40€
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground italic">
+                                El precio final dependerá de la ubicación y se acordará directamente con el chofer
+                            </p>
                         </div>
                     </div>
                 )}
