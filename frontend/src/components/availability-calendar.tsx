@@ -13,23 +13,24 @@ import { DateRange } from 'react-day-picker'
 
 interface AvailabilityCalendarProps {
     className?: string
-    onSelect: (dates: { from: Date; to: Date }, pickupTime: string) => void
+    onSelect: (dates: { from: Date; to: Date }, checkInTime: string, checkOutTime: string) => void
     capacity: number
 }
 
 export function AvailabilityCalendar({ className, onSelect, capacity }: AvailabilityCalendarProps) {
     const [selectedDates, setSelectedDates] = useState<DateRange | undefined>()
+    const [checkInTime, setCheckInTime] = useState<string>('14:00')
+    const [checkOutTime, setCheckOutTime] = useState<string>('12:00')
 
-    const [pickupTime, setPickupTime] = useState<string>('09:00')
     const { getCalendarAvailability } = useReservation()
     const { isWeekend, isHighSeason, isDateBlocked } = useHotelAvailability()
     const hotelAvailability = getCalendarAvailability('hotel')
 
     const isOutOfHours = (hour: number) => hour < 8 || hour >= 19
-    const pickupHour = parseInt(pickupTime.split(':')[0], 10)
+    const checkInHour = parseInt(checkInTime.split(':')[0], 10)
+    const checkOutHour = parseInt(checkOutTime.split(':')[0], 10)
 
     const handleSelect = (range: DateRange | undefined) => {
-        // Only prevent selection of Sundays for check-in/check-out
         if (range?.from && isWeekend(format(range.from, 'yyyy-MM-dd')) && !isSaturday(range.from)) {
             return
         }
@@ -37,27 +38,33 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
             return
         }
 
-        // Check if there are any blocked dates in the range
         if (range?.from && range?.to) {
             const start = new Date(range.from)
             const end = new Date(range.to)
             for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
                 if (isDateBlocked(format(date, 'yyyy-MM-dd'))) {
-                    return // Don't allow selection if there are blocked dates in between
+                    return
                 }
             }
         }
 
         setSelectedDates(range)
         if (range?.from && range?.to) {
-            onSelect({ from: range.from, to: range.to }, pickupTime)
+            onSelect({ from: range.from, to: range.to }, checkInTime, checkOutTime)
         }
     }
 
-    const handlePickupTimeChange = (time: string) => {
-        setPickupTime(time)
+    const handleCheckInTimeChange = (time: string) => {
+        setCheckInTime(time)
         if (selectedDates?.from && selectedDates?.to) {
-            onSelect({ from: selectedDates.from, to: selectedDates.to }, time)
+            onSelect({ from: selectedDates.from, to: selectedDates.to }, time, checkOutTime)
+        }
+    }
+
+    const handleCheckOutTimeChange = (time: string) => {
+        setCheckOutTime(time)
+        if (selectedDates?.from && selectedDates?.to) {
+            onSelect({ from: selectedDates.from, to: selectedDates.to }, checkInTime, time)
         }
     }
 
@@ -137,20 +144,38 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                     <span>No disponible</span>
                 </div>
             </div>
-            <div className='mt-4 space-y-2'>
-                <Label htmlFor='pickupTime'>Hora de recogida:</Label>
-                <Select onValueChange={handlePickupTimeChange} defaultValue={pickupTime}>
-                    <SelectTrigger className='w-[180px]'>
-                        <SelectValue placeholder='Selecciona la hora' />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
-                            <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                {`${hour.toString().padStart(2, '0')}:00`}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+            <div className='mt-4 space-y-4'>
+                <div className='space-y-2'>
+                    <Label htmlFor='checkInTime'>Hora de entrada:</Label>
+                    <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
+                        <SelectTrigger className='w-[180px]'>
+                            <SelectValue placeholder='Selecciona la hora' />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Array.from({ length: isSaturdayCheckIn ? 14 : 24 }, (_, i) => i).map(hour => (
+                                <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                    {`${hour.toString().padStart(2, '0')}:00`}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className='space-y-2'>
+                    <Label htmlFor='checkOutTime'>Hora de salida:</Label>
+                    <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
+                        <SelectTrigger className='w-[180px]'>
+                            <SelectValue placeholder='Selecciona la hora' />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
+                                <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                    {`${hour.toString().padStart(2, '0')}:00`}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
 
                 {isSaturdayCheckIn && (
                     <Alert variant='destructive'>
@@ -166,10 +191,10 @@ export function AvailabilityCalendar({ className, onSelect, capacity }: Availabi
                         </AlertDescription>
                     </Alert>
                 )}
-                {isOutOfHours(pickupHour) && (
+                {(isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)) && (
                     <Alert variant='destructive'>
                         <AlertDescription>
-                            Horario del hotel: 8:00 a 18:00. Recogida fuera de horario: 70€ adicionales.
+                            Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales.
                         </AlertDescription>
                     </Alert>
                 )}

@@ -9,7 +9,7 @@ import { BookingFormData, DateRange } from '../../types/booking.types'
 
 interface DateSelectionStepProps {
     form: UseFormReturn<BookingFormData>
-    onDateSelect: (range: DateRange | undefined) => void
+    onDateSelect: (range: DateRange | undefined, checkInTime: string, checkOutTime: string) => void
     dateError: string
     capacity: number
 }

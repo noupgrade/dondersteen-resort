@@ -29,7 +29,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         dateError: '',
         formError: '',
         groomingUnavailable: false,
-        pickupTime: '09:00',
+        checkInTime: '14:00',
+        checkOutTime: '12:00',
         confirmedReservationId: '',
     })
 
@@ -89,8 +90,11 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 if (parsedData.currentStep) {
                     setState(prev => ({ ...prev, currentStep: parsedData.currentStep }))
                 }
-                if (parsedData.pickupTime) {
-                    setState(prev => ({ ...prev, pickupTime: parsedData.pickupTime }))
+                if (parsedData.checkInTime) {
+                    setState(prev => ({ ...prev, checkInTime: parsedData.checkInTime }))
+                }
+                if (parsedData.checkOutTime) {
+                    setState(prev => ({ ...prev, checkOutTime: parsedData.checkOutTime }))
                 }
             } catch (error) {
                 console.error('Error restoring form data:', error)
@@ -106,13 +110,14 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 ...formData,
                 dates: state.selectedDates,
                 currentStep: state.currentStep,
-                pickupTime: state.pickupTime,
+                checkInTime: state.checkInTime,
+                checkOutTime: state.checkOutTime,
             }
             localStorage.setItem('bookingFormData', JSON.stringify(dataToSave))
         })
 
         return () => subscription.unsubscribe()
-    }, [form, state.selectedDates, state.currentStep, state.pickupTime])
+    }, [form, state.selectedDates, state.currentStep, state.checkInTime, state.checkOutTime])
 
     // Clear localStorage when reservation is confirmed
     useEffect(() => {
@@ -237,7 +242,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 type: type === 'budget' ? 'hotel-budget' as const : 'hotel' as const,
                 checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
                 checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
-                checkInTime: state.pickupTime,
+                checkInTime: state.checkInTime,
+                checkOutTime: state.checkOutTime,
                 client: {
                     name: `${values.clientName} ${values.clientLastName}`,
                     phone: values.clientPhone,
@@ -272,7 +278,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 formError: 'Por favor, revisa todos los campos. Hay información incompleta o inválida.'
             }))
         }
-    }, [form, state.selectedDates, state.pickupTime, state.totalPrice, addReservation])
+    }, [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation])
 
     const nextStep = useCallback(async () => {
         let isValid = false
@@ -345,7 +351,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             dateError: '',
             formError: '',
             groomingUnavailable: false,
-            pickupTime: '09:00',
+            checkInTime: '14:00',
+            checkOutTime: '12:00',
             confirmedReservationId: '',
         })
     }, [form])

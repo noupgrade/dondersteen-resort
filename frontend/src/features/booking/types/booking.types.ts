@@ -56,7 +56,8 @@ export interface BookingState {
     dateError: string
     formError: string
     groomingUnavailable: boolean
-    pickupTime: string
+    checkInTime: string
+    checkOutTime: string
     confirmedReservationId: string
 }
 

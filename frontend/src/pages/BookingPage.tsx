@@ -161,11 +161,21 @@ export default function BookingPage() {
                                 {state.currentStep === 2 && (
                                     <DateSelectionStep
                                         form={form}
-                                        onDateSelect={(range) => {
+                                        onDateSelect={(range, checkInTime, checkOutTime) => {
                                             if (range) {
-                                                setState(prev => ({ ...prev, selectedDates: range }))
+                                                setState(prev => ({
+                                                    ...prev,
+                                                    selectedDates: range,
+                                                    checkInTime,
+                                                    checkOutTime
+                                                }))
                                             } else {
-                                                setState(prev => ({ ...prev, selectedDates: null }))
+                                                setState(prev => ({
+                                                    ...prev,
+                                                    selectedDates: null,
+                                                    checkInTime: '14:00',
+                                                    checkOutTime: '12:00'
+                                                }))
                                             }
                                         }}
                                         dateError={state.dateError}
