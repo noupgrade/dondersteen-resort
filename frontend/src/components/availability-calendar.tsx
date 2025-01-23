@@ -15,6 +15,11 @@ import { Checkbox } from '@/shared/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { AdditionalService, DriverService } from '@/shared/types/additional-services'
 
+const AVAILABLE_HOURS = [
+    '11:00', '12:00', '13:00', '14:00',
+    '16:00', '17:00', '18:00'
+]
+
 interface AvailabilityCalendarProps {
     className?: string
     onSelect: (dates: { from: Date; to: Date }, checkInTime: string, checkOutTime: string) => void
@@ -108,6 +113,15 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
     const isSaturdayCheckIn = selectedDates?.from && isSaturday(selectedDates.from)
     const isSaturdayCheckOut = selectedDates?.to && isSaturday(selectedDates.to)
 
+    // Filter available hours based on Saturday restrictions
+    const availableCheckInHours = isSaturdayCheckIn
+        ? AVAILABLE_HOURS.filter(hour => parseInt(hour) < 14)
+        : AVAILABLE_HOURS
+
+    const availableCheckOutHours = isSaturdayCheckOut
+        ? AVAILABLE_HOURS.filter(hour => parseInt(hour) < 14)
+        : AVAILABLE_HOURS
+
     return (
         <div className='space-y-4'>
             <Calendar
@@ -190,9 +204,9 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                                 <SelectValue placeholder='Selecciona la hora' />
                             </SelectTrigger>
                             <SelectContent>
-                                {Array.from({ length: isSaturdayCheckIn ? 14 : 24 }, (_, i) => i).map(hour => (
-                                    <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                        {`${hour.toString().padStart(2, '0')}:00`}
+                                {availableCheckInHours.map(hour => (
+                                    <SelectItem key={hour} value={hour}>
+                                        {hour}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -206,9 +220,9 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                                 <SelectValue placeholder='Selecciona la hora' />
                             </SelectTrigger>
                             <SelectContent>
-                                {Array.from({ length: isSaturdayCheckOut ? 14 : 24 }, (_, i) => i).map(hour => (
-                                    <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                        {`${hour.toString().padStart(2, '0')}:00`}
+                                {availableCheckOutHours.map(hour => (
+                                    <SelectItem key={hour} value={hour}>
+                                        {hour}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
