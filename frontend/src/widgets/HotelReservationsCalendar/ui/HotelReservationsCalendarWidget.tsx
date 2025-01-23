@@ -2,7 +2,7 @@ import { addDays, format, startOfWeek, addWeeks, subWeeks, isSameDay, parse } fr
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarDays, CalendarRange, Truck } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -17,12 +17,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/shared/ui/popover'
+import { PetsPopup } from '@/shared/ui/pets-popup'
 
 export function HotelReservationsCalendarWidget() {
     const { view, selectedDate, setView, setSelectedDate } = useCalendarStore()
     const { reservations, updateReservation } = useReservation()
     const [searchParams, setSearchParams] = useSearchParams()
-    
+    const [selectedDatePets, setSelectedDatePets] = useState<{ date: string, pets: HotelReservation['pets'][] } | null>(null)
+
     const pendingReservationId = searchParams.get('pendingReservationId')
     const dateParam = searchParams.get('date')
 
@@ -33,8 +35,8 @@ export function HotelReservationsCalendarWidget() {
             setSelectedDate(date)
         }
     }, [dateParam, setSelectedDate])
-    
-    const pendingReservation = pendingReservationId 
+
+    const pendingReservation = pendingReservationId
         ? reservations.find((r): r is HotelReservation => r.id === pendingReservationId && r.type === 'hotel')
         : null
 
@@ -59,11 +61,11 @@ export function HotelReservationsCalendarWidget() {
                 type: 'hotel',
                 updatedAt: new Date().toISOString()
             }
-            
+
             // Actualizar en la base de datos
             await updateReservation(reservation.id, updatedReservation)
             console.log('Reservation accepted successfully')
-            
+
             // Limpiar los parámetros de la URL
             const newParams = new URLSearchParams(searchParams)
             newParams.delete('pendingReservationId')
@@ -84,11 +86,11 @@ export function HotelReservationsCalendarWidget() {
                 type: 'hotel',
                 updatedAt: new Date().toISOString()
             }
-            
+
             // Actualizar en la base de datos
             await updateReservation(reservation.id, updatedReservation)
             console.log('Reservation rejected successfully')
-            
+
             // Limpiar los parámetros de la URL
             const newParams = new URLSearchParams(searchParams)
             newParams.delete('pendingReservationId')
@@ -158,30 +160,30 @@ export function HotelReservationsCalendarWidget() {
         const isCheckIn = isSameDay(new Date(reservation.checkInDate), new Date(date))
 
         return (transportService.serviceType === 'pickup' && isCheckIn) ||
-               (transportService.serviceType === 'dropoff' && isCheckOut) ||
-               (transportService.serviceType === 'both' && (isCheckIn || isCheckOut))
+            (transportService.serviceType === 'dropoff' && isCheckOut) ||
+            (transportService.serviceType === 'both' && (isCheckIn || isCheckOut))
     }
 
     const getTimeDisplay = (reservation: HotelReservation, date: string) => {
         const currentDate = new Date(date)
         const checkInDate = new Date(reservation.checkInDate)
         const checkOutDate = new Date(reservation.checkOutDate)
-        
+
         const isCheckIn = isSameDay(checkInDate, currentDate)
         const isCheckOut = isSameDay(checkOutDate, currentDate)
-        
+
         if (isCheckIn && reservation.checkInTime) {
             return reservation.checkInTime
         }
-        
+
         if (isCheckOut && reservation.checkOutTime) {
             return reservation.checkOutTime
         }
-        
+
         // Si no hay hora específica, usar valores por defecto
         if (isCheckIn) return '14:00'
         if (isCheckOut) return '12:00'
-        
+
         return null
     }
 
@@ -210,11 +212,11 @@ export function HotelReservationsCalendarWidget() {
                 new Date(reservation.checkOutDate).getTime()
             )
             return groups
-        }, {} as Record<string, { 
-            client: { name: string, id: string }, 
-            reservations: HotelReservation[], 
+        }, {} as Record<string, {
+            client: { name: string, id: string },
+            reservations: HotelReservation[],
             priority: number,
-            earliestCheckOut: number 
+            earliestCheckOut: number
         }>)
 
         // Convertir a array y ordenar por prioridad y fecha de check-out
@@ -232,8 +234,8 @@ export function HotelReservationsCalendarWidget() {
                 {sortedGroups.map(({ client, reservations }) => {
                     const cardStyle = getReservationStyle(reservations[0], date)
                     return (
-                        <div 
-                            key={client.id} 
+                        <div
+                            key={client.id}
                             className={cn(
                                 "rounded-lg border p-2",
                                 cardStyle
@@ -243,8 +245,8 @@ export function HotelReservationsCalendarWidget() {
                                 {reservations.map((reservation) => {
                                     const timeDisplay = getTimeDisplay(reservation, date)
                                     return (
-                                        <div 
-                                            key={reservation.id} 
+                                        <div
+                                            key={reservation.id}
                                             className="rounded border border-current/20 p-1.5 relative bg-white/50 mt-2"
                                         >
                                             <div className="absolute -top-2 right-0 flex items-center gap-1">
@@ -266,8 +268,8 @@ export function HotelReservationsCalendarWidget() {
                                                         <span className="text-muted-foreground italic">
                                                             ({pet.breed})
                                                         </span>
-                                                        <Badge 
-                                                            variant="secondary" 
+                                                        <Badge
+                                                            variant="secondary"
                                                             className="h-5 text-xs px-1"
                                                         >
                                                             {reservation.roomNumber}
@@ -293,7 +295,7 @@ export function HotelReservationsCalendarWidget() {
             mediano: 0,
             pequeño: 0
         }
-        
+
         const total = reservations.reduce((total, reservation) => {
             reservation.pets.forEach(pet => {
                 sizes[pet.size]++
@@ -305,8 +307,25 @@ export function HotelReservationsCalendarWidget() {
         return { total, breakdown }
     }
 
+    const getPetsForDate = (date: string) => {
+        const reservations = getReservationsForDate(date)
+        return reservations.map(reservation => reservation.pets)
+    }
+
+    const handlePetsBadgeClick = (date: string) => {
+        const pets = getPetsForDate(date)
+        setSelectedDatePets({ date, pets })
+    }
+
     return (
         <div className="space-y-4">
+            {selectedDatePets && (
+                <PetsPopup
+                    isOpen={true}
+                    onClose={() => setSelectedDatePets(null)}
+                    pets={selectedDatePets.pets.flat()}
+                />
+            )}
             {pendingReservation && (
                 <PendingReservationBanner
                     reservation={pendingReservation}
@@ -401,7 +420,11 @@ export function HotelReservationsCalendarWidget() {
                                 })}`}
                         </span>
                         {view === 'day' && (
-                            <Badge variant="secondary" className="ml-2 flex flex-col items-center">
+                            <Badge
+                                variant="secondary"
+                                className="ml-2 flex flex-col items-center cursor-pointer hover:bg-accent"
+                                onClick={() => handlePetsBadgeClick(format(selectedDate, 'yyyy-MM-dd'))}
+                            >
                                 <span>{getTotalPetsForDate(format(selectedDate, 'yyyy-MM-dd')).total} mascotas</span>
                                 <span className="text-xs">{getTotalPetsForDate(format(selectedDate, 'yyyy-MM-dd')).breakdown}</span>
                             </Badge>
@@ -435,7 +458,11 @@ export function HotelReservationsCalendarWidget() {
                                             </div>
                                         </div>
                                         <div className="mt-1 flex justify-center">
-                                            <Badge variant="secondary" className="text-xs py-0 px-2 flex flex-col items-center">
+                                            <Badge
+                                                variant="secondary"
+                                                className="text-xs py-0 px-2 flex flex-col items-center cursor-pointer hover:bg-accent"
+                                                onClick={() => handlePetsBadgeClick(day.date)}
+                                            >
                                                 <span>{getTotalPetsForDate(day.date).total} mascotas</span>
                                                 <span className="text-xs">{getTotalPetsForDate(day.date).breakdown}</span>
                                             </Badge>
