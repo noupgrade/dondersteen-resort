@@ -85,7 +85,7 @@ export const calculateServicePrice = (
         case 'special_food':
             return 2 * nights
         case 'driver':
-            return service.isOutOfHours ? 70 : 20
+            return 0 // Driver service price will be determined later
         case 'hairdressing':
             return service.services.reduce((total, s) => {
                 return total + (GROOMING_PRICES[s]?.[petSize] ?? 0)

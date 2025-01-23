@@ -21,7 +21,7 @@ const getServiceIcon = (serviceType: ServiceType) => {
 const translateService = (service: AdditionalService) => {
     switch (service.type) {
         case 'driver':
-            return `Chofer (${service.serviceType === 'pickup' ? 'Recogida' : service.serviceType === 'dropoff' ? 'Entrega' : 'Recogida y entrega'})`
+            return 'Chofer'
         case 'special_food':
             return `Comida especial (${service.foodType === 'refrigerated' ? 'Refrigerada' : 'Congelada'})`
         case 'medication':

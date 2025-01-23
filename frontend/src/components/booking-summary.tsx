@@ -69,8 +69,8 @@ export function BookingSummary({
                         <h3 className="font-medium mb-2">Servicio de transporte</h3>
                         <div className="flex items-center justify-between">
                             <ServiceItem service={driverService} />
-                            <span className="text-sm text-muted-foreground">
-                                {formatCurrency(driverService.isOutOfHours ? 70 : 20)}
+                            <span className="text-sm text-yellow-600">
+                                Desde 40€
                             </span>
                         </div>
                     </div>
@@ -116,9 +116,14 @@ export function BookingSummary({
                             <span>-10%</span>
                         </div>
                     )}
-                    <div className="flex justify-between">
-                        <span className="font-medium">Total</span>
-                        <span className="font-semibold">{formatCurrency(priceBreakdown.total)}</span>
+                    <div className="flex flex-col gap-1">
+                        <div className="flex justify-between">
+                            <span className="font-medium">Total</span>
+                            <span className="font-semibold">{formatCurrency(priceBreakdown.total)}</span>
+                        </div>
+                        {driverService && (
+                            <span className="text-sm text-yellow-600 text-right">+ servicio de chofer</span>
+                        )}
                     </div>
                 </div>
             </CardContent>
