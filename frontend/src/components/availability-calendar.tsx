@@ -196,40 +196,6 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                 </div>
             </div>
             <div className='mt-4 space-y-4'>
-                <div className='flex gap-4'>
-                    <div className='space-y-2'>
-                        <Label htmlFor='checkInTime'>Hora de entrada:</Label>
-                        <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
-                            <SelectTrigger className='w-[180px]'>
-                                <SelectValue placeholder='Selecciona la hora' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableCheckInHours.map(hour => (
-                                    <SelectItem key={hour} value={hour}>
-                                        {hour}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className='space-y-2'>
-                        <Label htmlFor='checkOutTime'>Hora de salida:</Label>
-                        <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
-                            <SelectTrigger className='w-[180px]'>
-                                <SelectValue placeholder='Selecciona la hora' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableCheckOutHours.map(hour => (
-                                    <SelectItem key={hour} value={hour}>
-                                        {hour}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-base">Servicios generales</CardTitle>
@@ -269,27 +235,78 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                     </CardContent>
                 </Card>
 
-                {isSaturdayCheckIn && (
+                <div className='flex gap-4'>
+                    <div className='space-y-2'>
+                        <Label htmlFor='checkInTime'>Hora de entrada:</Label>
+                        <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
+                            <SelectTrigger className='w-[180px]'>
+                                <SelectValue placeholder='Selecciona la hora' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(driverService?.serviceType === 'pickup' || driverService?.serviceType === 'both') ? (
+                                    Array.from({ length: 24 }, (_, i) => i).map(hour => (
+                                        <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                            {`${hour.toString().padStart(2, '0')}:00`}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    availableCheckInHours.map(hour => (
+                                        <SelectItem key={hour} value={hour}>
+                                            {hour}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className='space-y-2'>
+                        <Label htmlFor='checkOutTime'>Hora de salida:</Label>
+                        <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
+                            <SelectTrigger className='w-[180px]'>
+                                <SelectValue placeholder='Selecciona la hora' />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(driverService?.serviceType === 'dropoff' || driverService?.serviceType === 'both') ? (
+                                    Array.from({ length: 24 }, (_, i) => i).map(hour => (
+                                        <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
+                                            {`${hour.toString().padStart(2, '0')}:00`}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    availableCheckOutHours.map(hour => (
+                                        <SelectItem key={hour} value={hour}>
+                                            {hour}
+                                        </SelectItem>
+                                    ))
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                {isSaturdayCheckIn && (!driverService || (driverService.serviceType !== 'pickup' && driverService.serviceType !== 'both')) && (
                     <Alert variant='destructive'>
                         <AlertDescription>
                             Los sábados la entrega del perro debe ser antes de las 14:00h.
                         </AlertDescription>
                     </Alert>
                 )}
-                {isSaturdayCheckOut && (
+                {isSaturdayCheckOut && (!driverService || (driverService.serviceType !== 'dropoff' && driverService.serviceType !== 'both')) && (
                     <Alert variant='destructive'>
                         <AlertDescription>
                             Los sábados la recogida debe ser antes de las 14:00h.
                         </AlertDescription>
                     </Alert>
                 )}
-                {(isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)) && (
-                    <Alert variant='destructive'>
-                        <AlertDescription>
-                            Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales.
-                        </AlertDescription>
-                    </Alert>
-                )}
+                {((isOutOfHours(checkInHour) && (!driverService || (driverService.serviceType !== 'pickup' && driverService.serviceType !== 'both'))) ||
+                    (isOutOfHours(checkOutHour) && (!driverService || (driverService.serviceType !== 'dropoff' && driverService.serviceType !== 'both')))) && (
+                        <Alert variant='destructive'>
+                            <AlertDescription>
+                                Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales.
+                            </AlertDescription>
+                        </Alert>
+                    )}
             </div>
         </div>
     )
