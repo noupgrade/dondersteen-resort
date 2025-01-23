@@ -20,9 +20,9 @@ interface InvoiceModalProps {
     onPaid: () => void
 }
 
-export function InvoiceModal({ 
-    reservation, 
-    isOpen, 
+export function InvoiceModal({
+    reservation,
+    isOpen,
     onClose,
     onPrintAndPay,
     onPrint,
@@ -51,8 +51,10 @@ export function InvoiceModal({
     }
 
     const subtotal = calculateStayPrice() + calculateServicesTotal()
-    const iva = subtotal * 0.21 // 21% IVA
-    const total = subtotal + iva
+    const vipDiscount = subtotal * 0.10 // 10% VIP discount
+    const subtotalAfterDiscount = subtotal - vipDiscount
+    const iva = subtotalAfterDiscount * 0.21 // 21% IVA
+    const total = subtotalAfterDiscount + iva
 
     // Generate a unique invoice number
     const invoiceNumber = `A${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
@@ -84,8 +86,8 @@ export function InvoiceModal({
                             width: 80mm;
                             padding: 8mm 4mm;
                             font-family: 'RobotoMono', monospace;
-                            font-size: 12px;
-                            line-height: 1.2;
+                            font-size: 14px;
+                            line-height: 1.4;
                             background: white;
                         }
                         .no-print {
@@ -95,12 +97,12 @@ export function InvoiceModal({
                     #print-content {
                         font-family: 'RobotoMono', monospace;
                         white-space: pre-wrap;
-                        line-height: 1.2;
+                        line-height: 1.4;
                     }
                 `}
             </style>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-[500px] p-0">
+                <DialogContent className="max-w-[600px] p-0">
                     <div className="p-4 border-b no-print">
                         <DialogTitle>Factura Simplificada</DialogTitle>
                         <DialogDescription>
@@ -110,7 +112,7 @@ export function InvoiceModal({
 
                     <div className="flex justify-center p-4 bg-gray-50">
                         {/* Ticket Content */}
-                        <div id="print-content" className="w-[350px] bg-white p-8 text-[12px] leading-[1.2] shadow-sm">
+                        <div id="print-content" className="w-[450px] bg-white p-8 text-[14px] leading-[1.4] shadow-sm">
                             {/* Header */}
                             <div className="text-center">
                                 <div>* * *</div>
@@ -156,10 +158,10 @@ export function InvoiceModal({
                                         <div>1</div>
                                         <div className="pl-4">
                                             {service.type === 'hairdressing' ? 'BAÑO' :
-                                             service.type === 'special_care' ? 'CUIDADOS ESP.' :
-                                             service.type === 'special_food' ? 'COMIDA ESP.' :
-                                             service.type === 'medication' ? 'MEDICACIÓN' :
-                                             service.type === 'driver' ? 'TRANSPORTE' : service.type.toUpperCase()}
+                                                service.type === 'special_care' ? 'CUIDADOS ESP.' :
+                                                    service.type === 'special_food' ? 'COMIDA ESP.' :
+                                                        service.type === 'medication' ? 'MEDICACIÓN' :
+                                                            service.type === 'driver' ? 'TRANSPORTE' : service.type.toUpperCase()}
                                         </div>
                                         <div style={{ minWidth: '80px' }} className="text-right">{service.price ? `${service.price.toFixed(2)}€` : '€'}</div>
                                     </div>
@@ -168,14 +170,20 @@ export function InvoiceModal({
 
                             {/* Totals */}
                             <div className="mb-4">
-                                <div className="grid grid-cols-[1fr_auto_auto] gap-x-4">
-                                    <div>IVA 21.0%(A)</div>
+                                <div className="grid grid-cols-[auto_1fr_auto]">
+                                    <div>Subtotal</div>
                                     <div style={{ minWidth: '80px' }} className="text-right">{subtotal.toFixed(2)}€</div>
-                                    <div style={{ minWidth: '80px' }} className="text-right">{iva.toFixed(2)}€</div>
                                 </div>
-                                <div className="grid grid-cols-[1fr_auto_auto] gap-x-4">
-                                    <div>Total sin IVA</div>
-                                    <div style={{ minWidth: '80px' }} className="text-right">{subtotal.toFixed(2)}€</div>
+                                <div className="grid grid-cols-[auto_1fr_auto]">
+                                    <div>Descuento Cliente VIP (10%)</div>
+                                    <div style={{ minWidth: '80px' }} className="text-right">-{vipDiscount.toFixed(2)}€</div>
+                                </div>
+                                <div className="grid grid-cols-[auto_1fr_auto]">
+                                    <div>Base Imponible</div>
+                                    <div style={{ minWidth: '80px' }} className="text-right">{subtotalAfterDiscount.toFixed(2)}€</div>
+                                </div>
+                                <div className="grid grid-cols-[auto_1fr_auto]">
+                                    <div>IVA 21.0%(A)</div>
                                     <div style={{ minWidth: '80px' }} className="text-right">{iva.toFixed(2)}€</div>
                                 </div>
                             </div>
