@@ -29,6 +29,11 @@ export default function SetupPage() {
         daycarePrice: 20,
         highSeasonIncrease: 10,
         iva: 21,
+        // Descuentos hotel
+        vipDogDiscount: 5,
+        employeeDogDiscount: 10,
+        twoPetsDiscount: 8,
+        threePetsDiscount: 12,
     })
 
     // Estados para servicios adicionales de hotel
@@ -284,89 +289,163 @@ export default function SetupPage() {
                                 <CardTitle>Precios Base Hotel</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <form className='space-y-4'>
-                                    <div className='space-y-2'>
-                                        <Label>Perro Pequeño (por día)</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.smallDogPrice}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    smallDogPrice: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>€</span>
+                                <form className='grid grid-cols-2 gap-x-8'>
+                                    <div className='space-y-4'>
+                                        <div className='space-y-2'>
+                                            <Label>Perro Pequeño (por día)</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.smallDogPrice}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        smallDogPrice: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>€</span>
+                                            </div>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label>Perro Mediano (por día)</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.mediumDogPrice}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        mediumDogPrice: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>€</span>
+                                            </div>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label>Perro Grande (por día)</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.largeDogPrice}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        largeDogPrice: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>€</span>
+                                            </div>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label>Precio Guardería (por día)</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.daycarePrice}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        daycarePrice: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>€</span>
+                                            </div>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label>Incremento Temporada Alta</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.highSeasonIncrease}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        highSeasonIncrease: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label>IVA</Label>
+                                            <div className='flex items-center gap-2'>
+                                                <Input
+                                                    type='number'
+                                                    value={generalConfig.iva}
+                                                    onChange={(e) => setGeneralConfig({
+                                                        ...generalConfig,
+                                                        iva: Number(e.target.value)
+                                                    })}
+                                                    className='w-24'
+                                                />
+                                                <span>%</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className='space-y-2'>
-                                        <Label>Perro Mediano (por día)</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.mediumDogPrice}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    mediumDogPrice: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Perro Grande (por día)</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.largeDogPrice}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    largeDogPrice: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Precio Guardería (por día)</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.daycarePrice}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    daycarePrice: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>Incremento Temporada Alta </Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.highSeasonIncrease}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    highSeasonIncrease: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>€</span>
-                                        </div>
-                                    </div>
-                                    <div className='space-y-2'>
-                                        <Label>IVA (%)</Label>
-                                        <div className='flex items-center gap-2'>
-                                            <Input
-                                                type='number'
-                                                value={generalConfig.iva}
-                                                onChange={(e) => setGeneralConfig({
-                                                    ...generalConfig,
-                                                    iva: Number(e.target.value)
-                                                })}
-                                            />
-                                            <span>%</span>
+
+                                    <div className='space-y-4'>
+                                        <h3 className='font-semibold mb-4'>Descuentos</h3>
+                                        <div className='space-y-4'>
+                                            <div className='space-y-2'>
+                                                <Label>Perros VIP</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={generalConfig.vipDogDiscount}
+                                                        onChange={(e) => setGeneralConfig({
+                                                            ...generalConfig,
+                                                            vipDogDiscount: Number(e.target.value)
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€</span>
+                                                </div>
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label>Perro de Trabajador</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={generalConfig.employeeDogDiscount}
+                                                        onChange={(e) => setGeneralConfig({
+                                                            ...generalConfig,
+                                                            employeeDogDiscount: Number(e.target.value)
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€</span>
+                                                </div>
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label>2 Perros Pequeños</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={generalConfig.twoPetsDiscount}
+                                                        onChange={(e) => setGeneralConfig({
+                                                            ...generalConfig,
+                                                            twoPetsDiscount: Number(e.target.value)
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€</span>
+                                                </div>
+                                            </div>
+                                            <div className='space-y-2'>
+                                                <Label>3 Perros Pequeños</Label>
+                                                <div className='flex items-center gap-2'>
+                                                    <Input
+                                                        type='number'
+                                                        value={generalConfig.threePetsDiscount}
+                                                        onChange={(e) => setGeneralConfig({
+                                                            ...generalConfig,
+                                                            threePetsDiscount: Number(e.target.value)
+                                                        })}
+                                                        className='w-24'
+                                                    />
+                                                    <span>€</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </form>
