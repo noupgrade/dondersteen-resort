@@ -59,6 +59,7 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         id: 'hotel-availability',
         defaultValue: defaultData,
     })
+    console.log(data)
 
     const addBlockedDate = (startDate: string, endDate: string) => {
         setData({

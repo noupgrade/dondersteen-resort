@@ -37,18 +37,22 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
     )
 
     const { getCalendarAvailability } = useReservation()
-    const { isWeekend, isHighSeason, isDateBlocked } = useHotelAvailability()
+    const { isWeekend, isHighSeason, isDateBlocked, isHoliday } = useHotelAvailability()
     const hotelAvailability = getCalendarAvailability('hotel')
 
     const isOutOfHours = (hour: number) => hour < 8 || hour >= 19
     const checkInHour = parseInt(checkInTime.split(':')[0], 10)
     const checkOutHour = parseInt(checkOutTime.split(':')[0], 10)
 
+    const isRestrictedDay = (dateStr: string) => {
+        return (isWeekend(dateStr) && !isSaturday(new Date(dateStr))) || isHoliday(dateStr)
+    }
+
     const handleSelect = (range: DateRange | undefined) => {
-        if (range?.from && isWeekend(format(range.from, 'yyyy-MM-dd')) && !isSaturday(range.from)) {
+        if (range?.from && isRestrictedDay(format(range.from, 'yyyy-MM-dd'))) {
             return
         }
-        if (range?.to && isWeekend(format(range.to, 'yyyy-MM-dd')) && !isSaturday(range.to)) {
+        if (range?.to && isRestrictedDay(format(range.to, 'yyyy-MM-dd'))) {
             return
         }
 
@@ -141,7 +145,7 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                     },
                     weekend: date => {
                         const dateString = format(date, 'yyyy-MM-dd')
-                        return isWeekend(dateString) && !isSaturday(date)
+                        return isRestrictedDay(dateString)
                     },
                     saturday: date => isSaturday(date),
                     start: date => Boolean(selectedDates?.from && format(date, 'yyyy-MM-dd') === format(selectedDates.from, 'yyyy-MM-dd')),
@@ -168,7 +172,7 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                 disabled={date => {
                     const dateString = format(date, 'yyyy-MM-dd')
                     const currentOccupancy = hotelAvailability[dateString] || 0
-                    return currentOccupancy >= capacity || (isWeekend(dateString) && !isSaturday(date)) || isDateBlocked(dateString)
+                    return currentOccupancy >= capacity || isRestrictedDay(dateString) || isDateBlocked(dateString)
                 }}
                 fromDate={new Date()}
                 locale={es}
@@ -184,7 +188,7 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                 </div>
                 <div className='flex items-center'>
                     <div className='mr-2 h-4 w-4 rounded bg-[#f59e0b]'></div>
-                    <span>Domingos sin entradas ni salidas</span>
+                    <span>Festivos (sin entradas ni salidas)</span>
                 </div>
                 <div className='flex items-center'>
                     <div className='mr-2 h-4 w-4 rounded bg-[#fbbf24]'></div>
