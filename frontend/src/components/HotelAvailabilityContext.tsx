@@ -1,9 +1,9 @@
 'use client'
 
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode, useEffect } from 'react'
 import { useDocument } from '@/shared/firebase/hooks/useDocument'
 import { FSDocument } from '@/shared/firebase/types'
-import { getDay } from 'date-fns'
+import { getDay, format, addYears } from 'date-fns'
 
 interface BlockedDate {
     startDate: string
@@ -25,6 +25,7 @@ interface HotelAvailabilityData extends FSDocument {
     blockedDates: BlockedDate[]
     holidays: Holiday[]
     highSeasonPeriods: HighSeasonPeriod[]
+    holidaysYearsAdded: number[] // Años para los que ya se han añadido los festivos
 }
 
 interface HotelAvailabilityContextType {
@@ -51,7 +52,23 @@ const defaultData: HotelAvailabilityData = {
     blockedDates: [],
     holidays: [],
     highSeasonPeriods: [],
+    holidaysYearsAdded: []
 }
+
+const DEFAULT_HOLIDAYS = [
+    { day: 1, month: 1, name: 'Año Nuevo (Cap d\'Any)' },
+    { day: 6, month: 1, name: 'Reyes (Epifanía del Señor)' },
+    { day: 1, month: 5, name: 'Fiesta del Trabajo (Festa del Treball)' },
+    { day: 15, month: 8, name: 'Asunción de la Virgen (L\'Assumpció)' },
+    { day: 11, month: 9, name: 'Diada Nacional de Cataluña (Diada Nacional de Catalunya)' },
+    { day: 24, month: 9, name: 'Mare de Déu de la Mercè' },
+    { day: 12, month: 10, name: 'Fiesta Nacional de España (Fiesta Nacional d\'Espanya)' },
+    { day: 1, month: 11, name: 'Todos los Santos (Tots Sants)' },
+    { day: 6, month: 12, name: 'Día de la Constitución Española (Dia de la Constitució)' },
+    { day: 8, month: 12, name: 'Inmaculada Concepción (La Immaculada Concepció)' },
+    { day: 25, month: 12, name: 'Navidad (Nadal)' },
+    { day: 26, month: 12, name: 'San Esteban (Sant Esteve)' }
+]
 
 export function HotelAvailabilityProvider({ children }: { children: ReactNode }) {
     const { document: data, setDocument: setData, isLoading } = useDocument({
@@ -60,6 +77,59 @@ export function HotelAvailabilityProvider({ children }: { children: ReactNode })
         defaultValue: defaultData,
     })
     console.log(data)
+
+    const ensureDefaultHolidays = () => {
+        if (!data) return
+
+        const currentYear = new Date().getFullYear()
+        const nextYear = currentYear + 1
+
+        // Verificar qué años necesitan festivos
+        const needsCurrentYear = !data.holidaysYearsAdded?.includes(currentYear)
+        const needsNextYear = !data.holidaysYearsAdded?.includes(nextYear)
+
+        if (!needsCurrentYear && !needsNextYear) return
+
+        let newHolidays = [...(data.holidays || [])]
+        let yearsToAdd = []
+
+        // Añadir festivos para el año actual si no existen
+        if (needsCurrentYear) {
+            const currentYearHolidays = DEFAULT_HOLIDAYS.map(holiday => ({
+                startDate: format(new Date(currentYear, holiday.month - 1, holiday.day), 'yyyy-MM-dd'),
+                endDate: format(new Date(currentYear, holiday.month - 1, holiday.day), 'yyyy-MM-dd'),
+                name: holiday.name
+            }))
+            newHolidays = [...newHolidays, ...currentYearHolidays]
+            yearsToAdd.push(currentYear)
+        }
+
+        // Añadir festivos para el año siguiente si no existen
+        if (needsNextYear) {
+            const nextYearHolidays = DEFAULT_HOLIDAYS.map(holiday => ({
+                startDate: format(new Date(nextYear, holiday.month - 1, holiday.day), 'yyyy-MM-dd'),
+                endDate: format(new Date(nextYear, holiday.month - 1, holiday.day), 'yyyy-MM-dd'),
+                name: holiday.name
+            }))
+            newHolidays = [...newHolidays, ...nextYearHolidays]
+            yearsToAdd.push(nextYear)
+        }
+
+        // Actualizar la base de datos con los nuevos festivos y años
+        if (yearsToAdd.length > 0) {
+            setData({
+                ...data,
+                holidays: newHolidays,
+                holidaysYearsAdded: [...(data.holidaysYearsAdded || []), ...yearsToAdd]
+            })
+        }
+    }
+
+    useEffect(() => {
+        if (!isLoading) {
+            ensureDefaultHolidays()
+        }
+    }, [isLoading])
 
     const addBlockedDate = (startDate: string, endDate: string) => {
         setData({
