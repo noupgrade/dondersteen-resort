@@ -34,18 +34,6 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
     extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200'
 }
 
-const statusColors: Record<HairSalonTask['status'], string> = {
-    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    in_progress: 'bg-blue-50 text-blue-700 border-blue-200',
-    completed: 'bg-green-50 text-green-700 border-green-200'
-}
-
-const statusLabels: Record<HairSalonTask['status'], string> = {
-    pending: 'Pendiente',
-    in_progress: 'En progreso',
-    completed: 'Completada'
-}
-
 interface TaskCardProps {
     task: HairSalonTask
     date: string
@@ -112,15 +100,6 @@ export function TaskCard({
                         )}
                     >
                         {serviceLabel}
-                    </Badge>
-                    <Badge
-                        variant="outline"
-                        className={cn(
-                            "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
-                            statusColors[task.status]
-                        )}
-                    >
-                        {statusLabels[task.status]}
                     </Badge>
                     <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
                         <Clock className="h-3 w-3 flex-shrink-0" />
@@ -209,35 +188,21 @@ export function TaskCard({
                     </div>
                 </div>
             ) : (
-                // Regular layout for normal tasks
-                <div className="grid grid-cols-3 h-full gap-2">
-                    {/* Left - Pet info and time */}
-                    <div className="flex flex-col">
-                        <div className="font-bold text-sm truncate">
-                            {reservation.pet.name}
+                // Full layout for longer tasks
+                <div className="flex flex-col h-full gap-1">
+                    {/* Top - Client and service info */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-1 text-sm">
+                                <span className="font-bold truncate">
+                                    {reservation.pet.name}
+                                </span>
+                                <span className="text-gray-600 text-[10px] truncate">
+                                    ({reservation.pet.breed})
+                                </span>
+                            </div>
                         </div>
-                        <div className="text-[10px] text-gray-600 truncate">
-                            {reservation.pet.breed}
-                        </div>
-                        <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
-                            <Clock className="h-3 w-3 flex-shrink-0" />
-                            <span>{time} ({task.duration} min)</span>
-                        </div>
-                    </div>
-
-                    {/* Center - Client info */}
-                    <div className="flex flex-col items-center justify-center text-[11px] text-gray-600">
-                        <div className="truncate text-center">
-                            {reservation.client.name}
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            {reservation.client.phone}
-                        </div>
-                    </div>
-
-                    {/* Right - Service and status */}
-                    <div className="flex flex-col items-end gap-1">
+                        {/* Right - Service */}
                         <Badge
                             variant="outline"
                             className={cn(
@@ -247,16 +212,28 @@ export function TaskCard({
                         >
                             {serviceLabel}
                         </Badge>
-                        <Badge
-                            variant="outline"
-                            className={cn(
-                                "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
-                                statusColors[task.status]
-                            )}
-                        >
-                            {statusLabels[task.status]}
-                        </Badge>
                     </div>
+                    {showDetails && (
+                        <>
+                            {/* Middle - Contact info */}
+                            <div className="flex items-center gap-1 text-[11px] text-gray-600">
+                                <Phone className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{reservation.client.phone}</span>
+                            </div>
+                            {/* Bottom - Time and duration */}
+                            <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
+                                <Clock className="h-3 w-3 flex-shrink-0" />
+                                <span>{time} ({task.duration} min)</span>
+                            </div>
+                            {/* Show car icon if client has driver service */}
+                            {reservation.hasDriverService && (
+                                <div className="flex items-center gap-1 text-[11px] text-gray-600">
+                                    <Car className="h-3 w-3 flex-shrink-0" />
+                                    <span>Servicio de transporte</span>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             )}
         </div>

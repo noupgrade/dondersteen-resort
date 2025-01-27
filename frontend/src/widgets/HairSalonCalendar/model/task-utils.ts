@@ -50,8 +50,7 @@ export function createTasksFromReservation(
                     },
                     date: initialDate,
                     time: currentTime,
-                    duration: DEFAULT_DURATIONS[serviceType],
-                    status: 'pending'
+                    duration: DEFAULT_DURATIONS[serviceType]
                 })
 
                 // Calculate next task start time

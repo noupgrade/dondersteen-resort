@@ -63,7 +63,6 @@ export type HairSalonTask = {
     date: string
     time: string
     duration: number
-    status: 'pending' | 'in_progress' | 'completed'
 }
 
 export type HairSalonReservation = {

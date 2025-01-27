@@ -170,7 +170,7 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
             <div
                 ref={drop}
                 className={cn(
-                    'relative border-b border-r p-2 transition-colors min-h-[4rem]',
+                    'relative border-b border-r pl-12 transition-colors min-h-[4rem]',
                     isOver && canDrop && 'bg-blue-50',
                     !isAvailable && 'bg-gray-50'
                 )}
@@ -179,7 +179,7 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     {time}
                 </div>
 
-                <div className="relative mt-4">
+                <div className="relative">
                     {flatTasks.map((task) => {
                         const minutes = parseInt(normalizeTime(task.time).split(':')[1]) || 0
                         const offsetPercentage = (minutes / 60) * 100

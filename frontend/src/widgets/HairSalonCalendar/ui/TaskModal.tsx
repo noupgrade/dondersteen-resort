@@ -31,13 +31,11 @@ const durationOptions = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180]
 
 export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
     const [duration, setDuration] = useState(task.duration?.toString() || '60')
-    const [status, setStatus] = useState(task.status || 'pending')
 
     const handleSave = () => {
         onSave({
             ...task,
-            duration: parseInt(duration),
-            status
+            duration: parseInt(duration)
         })
     }
 
@@ -74,21 +72,6 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
                                         {mins} minutos
                                     </SelectItem>
                                 ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Status */}
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Estado</Label>
-                        <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecciona el estado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pending">Pendiente</SelectItem>
-                                <SelectItem value="in_progress">En progreso</SelectItem>
-                                <SelectItem value="completed">Completada</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
