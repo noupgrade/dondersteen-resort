@@ -215,23 +215,22 @@ export function TaskCard({
                     </div>
                     {showDetails && (
                         <>
-                            {/* Middle - Contact info */}
-                            <div className="flex items-center gap-1 text-[11px] text-gray-600">
-                                <Phone className="h-3 w-3 flex-shrink-0" />
-                                <span className="truncate">{reservation.client.phone}</span>
-                            </div>
-                            {/* Bottom - Time and duration */}
-                            <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
-                                <Clock className="h-3 w-3 flex-shrink-0" />
-                                <span>{time} ({task.duration} min)</span>
-                            </div>
-                            {/* Show car icon if client has driver service */}
-                            {reservation.hasDriverService && (
-                                <div className="flex items-center gap-1 text-[11px] text-gray-600">
-                                    <Car className="h-3 w-3 flex-shrink-0" />
-                                    <span>Servicio de transporte</span>
+                            <div className="flex items-center gap-2 text-[11px] text-gray-600">
+                                <div className="flex items-center gap-1">
+                                    <Phone className="h-3 w-3 flex-shrink-0" />
+                                    <span className="truncate">{reservation.client.phone}</span>
                                 </div>
-                            )}
+                                <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3 flex-shrink-0" />
+                                    <span>{time} ({task.duration} min)</span>
+                                </div>
+                                {reservation.hasDriverService && (
+                                    <div className="flex items-center gap-1">
+                                        <Car className="h-3 w-3 flex-shrink-0" />
+                                        <span>Servicio de transporte</span>
+                                    </div>
+                                )}
+                            </div>
                         </>
                     )}
                 </div>
