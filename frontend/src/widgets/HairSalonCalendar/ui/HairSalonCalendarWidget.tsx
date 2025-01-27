@@ -15,7 +15,8 @@ export function HairSalonCalendarWidget() {
         <CalendarSyncProvider>
             <DndProvider backend={isTouchMode ? TouchBackend : HTML5Backend} options={{ enableMouseEvents: true }}>
                 <div className="flex flex-col h-full">
-                    <UnscheduledReservations className="mb-4" />
+                    <h1 className="text-2xl font-semibold p-4">Calendario de peluquería</h1>
+                    <UnscheduledReservations className="mx-4 mb-4" />
                     <CalendarHeader />
                     <CalendarGrid />
                 </div>

@@ -1,38 +1,14 @@
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
-import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
-import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useToast } from '@/shared/ui/use-toast'
-import { Car } from 'lucide-react'
+import { CalendarX } from 'lucide-react'
 import { useState } from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { useDrag } from 'react-dnd'
 import { useCalendarStore } from '../model/store'
+import { DraggableReservation } from './DraggableReservation'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
-
-const serviceTypeLabels: Record<HairdressingServiceType, string> = {
-    bath_and_brush: 'Baño y cepillado',
-    bath_and_trim: 'Baño y corte',
-    stripping: 'Stripping',
-    deshedding: 'Deslanado',
-    brushing: 'Cepillado',
-    spa: 'Spa',
-    spa_ozone: 'Spa con ozono',
-    knots: 'Nudos',
-    extremely_dirty: 'Extremadamente sucio'
-}
-
-const serviceTypeColors: Record<HairdressingServiceType, string> = {
-    bath_and_brush: 'bg-blue-50 text-blue-700 border-blue-200',
-    bath_and_trim: 'bg-green-50 text-green-700 border-green-200',
-    stripping: 'bg-purple-50 text-purple-700 border-purple-200',
-    deshedding: 'bg-orange-50 text-orange-700 border-orange-200',
-    brushing: 'bg-pink-50 text-pink-700 border-pink-200',
-    spa: 'bg-teal-50 text-teal-700 border-teal-200',
-    spa_ozone: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    knots: 'bg-red-50 text-red-700 border-red-200',
-    extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200'
-}
 
 interface UnscheduledReservationsProps {
     className?: string
@@ -41,10 +17,6 @@ interface UnscheduledReservationsProps {
 export function UnscheduledReservations({ className }: UnscheduledReservationsProps) {
     const {
         unscheduledReservations,
-        updateReservation,
-        draggedReservation,
-        setDraggedReservation,
-        moveReservation,
         selectedReservation,
         setSelectedReservation,
         setDraggedItem
@@ -52,47 +24,6 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
     const [selectedModalReservation, setSelectedModalReservation] = useState<HairSalonReservation | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { toast } = useToast()
-
-    const [{ canDrop, isOver }, drop] = useDrop<
-        { reservation: HairSalonReservation },
-        void,
-        { canDrop: boolean; isOver: boolean }
-    >({
-        accept: 'reservation',
-        canDrop: () => true,
-        drop: (item) => {
-            if (draggedReservation) {
-                try {
-                    // Permitimos mover cualquier cita a la sección sin hora
-                    void moveReservation(draggedReservation.reservation, draggedReservation.reservation.date, '').then(() => {
-                        setDraggedReservation(null)
-                        toast({
-                            title: "Cita movida",
-                            description: "La cita se ha movido a la sección sin hora asignada."
-                        })
-                    }).catch((error) => {
-                        console.error('Error al mover la cita:', error)
-                        toast({
-                            title: "Error",
-                            description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
-                            variant: "destructive"
-                        })
-                    })
-                } catch (error) {
-                    console.error('Error al mover la cita:', error)
-                    toast({
-                        title: "Error",
-                        description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
-                        variant: "destructive"
-                    })
-                }
-            }
-        },
-        collect: (monitor) => ({
-            canDrop: monitor.canDrop(),
-            isOver: monitor.isOver(),
-        }),
-    })
 
     const [lastTap, setLastTap] = useState(0)
     const [touchCount, setTouchCount] = useState(0)
@@ -118,7 +49,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                     setSelectedReservation(res)
                     toast({
                         title: "Cita seleccionada",
-                        description: "Selecciona el hueco donde quieres mover la cita."
+                        description: "Selecciona el hueco donde quieres crear las tareas."
                     })
                 }
             }
@@ -135,7 +66,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
             setSelectedReservation(reservation)
             toast({
                 title: "Cita seleccionada",
-                description: "Selecciona el hueco donde quieres mover la cita."
+                description: "Selecciona el hueco donde quieres crear las tareas."
             })
         }
     }
@@ -148,12 +79,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
     }
 
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
-        try {
-            await updateReservation(updatedReservation)
-            setIsModalOpen(false)
-        } catch (error) {
-            console.error('Error al guardar la configuración:', error)
-        }
+        setIsModalOpen(false)
     }
 
     const handleDeleteReservation = async (reservation: HairSalonReservation) => {
@@ -161,100 +87,60 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         console.log('Eliminar reserva:', reservation)
     }
 
-    const handleMoveToUnscheduled = async () => {
-        if (selectedReservation?.time) {
-            try {
-                await moveReservation(selectedReservation, selectedReservation.date, '')
-                setSelectedReservation(null)
-                toast({
-                    title: "Cita movida",
-                    description: "La cita se ha movido a la sección sin hora asignada."
-                })
-            } catch (error) {
-                console.error('Error al mover la cita:', error)
-                toast({
-                    title: "Error",
-                    description: "No se pudo mover la cita. Por favor, inténtalo de nuevo.",
-                    variant: "destructive"
-                })
-            }
-        }
-    }
-
     return (
         <>
-            <Card className={cn("", className)}>
-                <CardHeader>
-                    <CardTitle>Citas sin asignar</CardTitle>
+            <Card className={className}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle>Citas confirmadas sin hora asignada esta semana</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {unscheduledReservations.map((reservation) => {
-                            const [{ isDragging }, drag] = useDrag({
-                                type: 'reservation',
-                                item: { type: 'reservation', item: reservation },
-                                collect: (monitor) => ({
-                                    isDragging: monitor.isDragging(),
-                                }),
-                            })
+                <CardContent className="py-2">
+                    <div className="overflow-x-auto min-h-[100px] p-2">
+                        {unscheduledReservations.length > 0 ? (
+                            <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
+                                {unscheduledReservations.map((reservation) => {
+                                    const [{ isDragging }, drag] = useDrag({
+                                        type: 'reservation',
+                                        item: { type: 'reservation', item: reservation },
+                                        collect: (monitor) => ({
+                                            isDragging: monitor.isDragging(),
+                                        }),
+                                        end: () => {
+                                            setDraggedItem(null)
+                                        }
+                                    })
 
-                            return (
-                                <div
-                                    key={reservation.id}
-                                    ref={drag}
-                                    className={cn(
-                                        'p-4 rounded-lg border bg-card transition-opacity h-full',
-                                        isDragging && 'opacity-50'
-                                    )}
-                                >
-                                    <div className="space-y-4">
-                                        {/* Client and Pet Info */}
-                                        <div className="space-y-2">
-                                            <div>
-                                                <h3 className="font-medium">{reservation.pet.name}</h3>
-                                                <p className="text-sm text-muted-foreground">{reservation.pet.breed}</p>
-                                            </div>
-                                            <div className="text-sm text-muted-foreground">
-                                                {reservation.client.name}
-                                            </div>
+                                    return (
+                                        <div
+                                            key={reservation.id}
+                                            ref={drag}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleReservationClick(reservation, e)
+                                            }}
+                                            onDoubleClick={(e) => {
+                                                e.stopPropagation()
+                                                handleReservationDoubleClick(reservation, e)
+                                            }}
+                                            onTouchStart={() => handleTouchStart(reservation)}
+                                            className={cn(
+                                                "cursor-pointer w-[300px] flex-shrink-0",
+                                                selectedReservation?.id === reservation.id && "ring-2 ring-blue-500",
+                                                isDragging && "opacity-50"
+                                            )}
+                                        >
+                                            <DraggableReservation
+                                                reservation={reservation}
+                                                date={reservation.date}
+                                                time=""
+                                                className="hover:opacity-90"
+                                                showPrice={true}
+                                            />
                                         </div>
-
-                                        {/* Services */}
-                                        <div className="space-y-2">
-                                            {reservation.additionalServices
-                                                .filter(isHairdressingService)
-                                                .map((service, index) => (
-                                                    <div key={index} className="space-y-1">
-                                                        {service.services.map(serviceType => (
-                                                            <Badge
-                                                                key={serviceType}
-                                                                variant="outline"
-                                                                className={cn(
-                                                                    'text-xs font-normal',
-                                                                    serviceTypeColors[serviceType]
-                                                                )}
-                                                            >
-                                                                {serviceTypeLabels[serviceType]}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                ))}
-                                        </div>
-
-                                        {/* Driver Service */}
-                                        {reservation.hasDriverService && (
-                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                <Car className="h-4 w-4" />
-                                                <span>Servicio de recogida incluido</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )
-                        })}
-
-                        {unscheduledReservations.length === 0 && (
-                            <div className="text-center text-sm text-muted-foreground">
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-sm text-gray-500">
                                 No hay citas sin asignar
                             </div>
                         )}
