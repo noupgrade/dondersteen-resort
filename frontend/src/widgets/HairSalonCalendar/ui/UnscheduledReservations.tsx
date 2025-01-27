@@ -1,19 +1,14 @@
-import { useState } from 'react'
-import { DraggableReservation } from './DraggableReservation'
-import { useCalendarStore } from '../model/store'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { addDays, format, startOfWeek } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { useDrop, useDrag } from 'react-dnd'
-import type { DropTargetMonitor } from 'react-dnd'
 import type { HairSalonReservation } from '@/components/ReservationContext'
-import { HairSalonReservationModal } from './HairSalonReservationModal'
 import { cn } from '@/shared/lib/styles/class-merge'
-import { useToast } from '@/shared/ui/use-toast'
-import { Button } from '@/shared/ui/button'
-import { CalendarX, Car } from 'lucide-react'
-import { Badge } from '@/shared/ui/badge'
 import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
+import { Badge } from '@/shared/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { useToast } from '@/shared/ui/use-toast'
+import { Car } from 'lucide-react'
+import { useState } from 'react'
+import { useDrag, useDrop } from 'react-dnd'
+import { useCalendarStore } from '../model/store'
+import { HairSalonReservationModal } from './HairSalonReservationModal'
 
 const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     bath_and_brush: 'Baño y cepillado',
@@ -188,12 +183,12 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
 
     return (
         <>
-            <Card className={cn("w-[300px] shrink-0", className)}>
+            <Card className={cn("", className)}>
                 <CardHeader>
                     <CardTitle>Citas sin asignar</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {unscheduledReservations.map((reservation) => {
                             const [{ isDragging }, drag] = useDrag({
                                 type: 'reservation',
@@ -208,7 +203,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                                     key={reservation.id}
                                     ref={drag}
                                     className={cn(
-                                        'p-4 rounded-lg border bg-card transition-opacity',
+                                        'p-4 rounded-lg border bg-card transition-opacity h-full',
                                         isDragging && 'opacity-50'
                                     )}
                                 >
