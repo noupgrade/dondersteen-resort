@@ -183,8 +183,11 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
     const handleTimeSelection = async (minutes: number, service: HairdressingServiceType, duration: number) => {
         if (!selectedReservation) return
 
-        const selectedTime = `${normalizeTime(time).split(':')[0]}:${minutes.toString().padStart(2, '0')}`
-        console.log('selectedReservation', selectedReservation.id)
+        console.log(minutes, service, duration)
+
+        const hour = parseInt(normalizeTime(time).split(':')[0])
+        const selectedTime = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+
         try {
             const task: HairSalonTask = {
                 id: generateId(),
@@ -198,6 +201,8 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                 time: selectedTime,
                 duration
             }
+
+            console.log(task)
 
             // Check for conflicts
             const conflicts = calculateTaskConflicts(scheduledTasks, task)
@@ -243,7 +248,8 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                 <div className="relative">
                     {flatTasks.map((task) => {
                         const minutes = parseInt(normalizeTime(task.time).split(':')[1]) || 0
-                        const offsetPercentage = (minutes / 60) * 100
+                        const offsetPercentage = (minutes / 60)
+                        console.log(offsetPercentage)
 
                         // Find position index within the same minute group
                         const sameMinuteTasks = tasks[minutes] || []
@@ -269,14 +275,12 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                                 )}
                                 style={{
                                     height: `${Math.ceil(task.duration / 30) * 2}rem`,
-                                    top: `${offsetPercentage}%`,
+                                    top: `${offsetPercentage * 4}rem`,
                                     zIndex: minutes > 0 ? 20 : (task.duration > 60 ? 10 : 'auto')
                                 }}
                             >
                                 <TaskCard
                                     task={task}
-                                    date={date}
-                                    time={time}
                                     className="h-full"
                                     showDetails={!isWeekView}
                                     isWeekView={isWeekView}

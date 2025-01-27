@@ -36,8 +36,6 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
 
 interface TaskCardProps {
     task: HairSalonTask
-    date: string
-    time: string
     className?: string
     showDetails?: boolean
     isWeekView?: boolean
@@ -45,8 +43,6 @@ interface TaskCardProps {
 
 export function TaskCard({
     task,
-    date,
-    time,
     className,
     showDetails = true,
     isWeekView = false
@@ -103,7 +99,7 @@ export function TaskCard({
                     </Badge>
                     <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
                         <Clock className="h-3 w-3 flex-shrink-0" />
-                        <span>{time} ({task.duration} min)</span>
+                        <span>{task.time} ({task.duration} min)</span>
                     </div>
                 </div>
             </div>
@@ -222,7 +218,7 @@ export function TaskCard({
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <Clock className="h-3 w-3 flex-shrink-0" />
-                                    <span>{time} ({task.duration} min)</span>
+                                    <span>{task.time} ({task.duration} min)</span>
                                 </div>
                                 {reservation.hasDriverService && (
                                     <div className="flex items-center gap-1">
