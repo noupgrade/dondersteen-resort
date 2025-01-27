@@ -44,10 +44,10 @@ interface DraggableReservationProps {
     isWeekView?: boolean
 }
 
-export function DraggableReservation({ 
-    reservation, 
-    date, 
-    time, 
+export function DraggableReservation({
+    reservation,
+    date,
+    time,
     className,
     showPrice = false,
     isWeekView = false

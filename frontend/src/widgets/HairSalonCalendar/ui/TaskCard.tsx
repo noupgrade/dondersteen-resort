@@ -1,20 +1,14 @@
-import { useMemo } from 'react'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { Clock, Phone, Car } from 'lucide-react'
 import { useDrag } from 'react-dnd'
+
 import { HairSalonTask } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { Badge } from '@/shared/ui/badge'
+import { useCalendarStore } from '../model/store'
+import { useReservation } from '@/components/ReservationContext'
 import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
-import { getTaskEndTime, isTaskInProgress } from '../model/task-utils'
-import { Clock } from 'lucide-react'
-
-interface TaskCardProps {
-    task: HairSalonTask
-    date: string
-    time: string
-    className?: string
-    showDetails?: boolean
-    isWeekView?: boolean
-}
 
 const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     bath_and_brush: 'Baño y cepillado',
@@ -40,75 +34,230 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
     extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200'
 }
 
-const statusColors = {
-    pending: 'bg-gray-50 text-gray-700 border-gray-200',
-    in_progress: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+const statusColors: Record<HairSalonTask['status'], string> = {
+    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    in_progress: 'bg-blue-50 text-blue-700 border-blue-200',
     completed: 'bg-green-50 text-green-700 border-green-200'
 }
 
-const statusLabels = {
+const statusLabels: Record<HairSalonTask['status'], string> = {
     pending: 'Pendiente',
     in_progress: 'En progreso',
     completed: 'Completada'
 }
 
-export function TaskCard({ task, date, time, className, showDetails = true, isWeekView = false }: TaskCardProps) {
+interface TaskCardProps {
+    task: HairSalonTask
+    date: string
+    time: string
+    className?: string
+    showDetails?: boolean
+    isWeekView?: boolean
+}
+
+export function TaskCard({
+    task,
+    date,
+    time,
+    className,
+    showDetails = true,
+    isWeekView = false
+}: TaskCardProps) {
+    const { setDraggedItem } = useCalendarStore()
+    const { reservations } = useReservation()
+
+    // Get the associated reservation
+    const reservation = reservations.find(r => r.id === task.reservationId)
+
     const [{ isDragging }, drag] = useDrag({
         type: 'task',
-        item: { type: 'task', item: task, sourceDate: date, sourceTime: time },
+        item: { type: 'task', item: task },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),
+        end: () => {
+            setDraggedItem(null)
+        },
     })
 
-    const endTime = useMemo(() => getTaskEndTime(task), [task])
-    const inProgress = useMemo(() => isTaskInProgress(task), [task])
+    const handleDragStart = () => {
+        setDraggedItem({ type: 'task', item: task })
+    }
+
+    // Get service type and label safely
+    const hairdressingService = isHairdressingService(task.service) ? task.service : null
+    const serviceType = hairdressingService?.services[0] ?? 'bath_and_brush' as const
+    const serviceLabel = serviceTypeLabels[serviceType]
+    const serviceColor = serviceTypeColors[serviceType]
+
+    // If no reservation found, show minimal info
+    if (!reservation) {
+        return (
+            <div
+                ref={drag}
+                onDragStart={handleDragStart}
+                className={cn(
+                    'h-full p-2 rounded-sm border transition-colors',
+                    isDragging && 'opacity-50',
+                    'bg-gray-50 border-gray-200',
+                    className
+                )}
+            >
+                <div className="flex flex-col h-full gap-1">
+                    <Badge
+                        variant="outline"
+                        className={cn(
+                            "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
+                            serviceColor
+                        )}
+                    >
+                        {serviceLabel}
+                    </Badge>
+                    <Badge
+                        variant="outline"
+                        className={cn(
+                            "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
+                            statusColors[task.status]
+                        )}
+                    >
+                        {statusLabels[task.status]}
+                    </Badge>
+                    <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <span>{time} ({task.duration} min)</span>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // Weekly view card (compact)
+    if (isWeekView) {
+        return (
+            <div
+                ref={drag}
+                onDragStart={handleDragStart}
+                className={cn(
+                    'h-full p-1 rounded-sm border transition-colors',
+                    isDragging && 'opacity-50',
+                    reservation.source === 'hotel' ? 'bg-emerald-50 border-emerald-200' : 'bg-pink-50 border-pink-200',
+                    className
+                )}
+            >
+                <div className="flex flex-col h-full text-xs">
+                    <div className="flex items-center gap-1">
+                        <div className="font-bold truncate">
+                            {reservation.pet.name}
+                        </div>
+                    </div>
+                    <div className="text-[10px] text-gray-600 truncate">
+                        {reservation.pet.breed}
+                    </div>
+                    <Badge
+                        variant="outline"
+                        className={cn(
+                            "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap w-fit font-normal",
+                            serviceColor
+                        )}
+                    >
+                        {serviceLabel}
+                    </Badge>
+                </div>
+            </div>
+        )
+    }
+
+    // Daily view card (distributed layout)
+    const isCompactView = task.duration < 45
 
     return (
         <div
             ref={drag}
+            onDragStart={handleDragStart}
             className={cn(
-                'relative flex flex-col gap-1 p-2 rounded-md border shadow-sm transition-opacity',
+                'h-full p-2 rounded-sm border transition-colors',
                 isDragging && 'opacity-50',
+                reservation.source === 'hotel' ? 'bg-emerald-50 border-emerald-200' : 'bg-pink-50 border-pink-200',
                 className
             )}
         >
-            {/* Service Type */}
-            {isHairdressingService(task.service) && task.service.services.map(service => (
-                <Badge
-                    key={service}
-                    variant="outline"
-                    className={cn(
-                        'text-xs font-normal',
-                        serviceTypeColors[service]
-                    )}
-                >
-                    {serviceTypeLabels[service]}
-                </Badge>
-            ))}
-
-            {/* Status */}
-            <Badge
-                variant="outline"
-                className={cn(
-                    'text-xs font-normal',
-                    statusColors[task.status]
-                )}
-            >
-                {statusLabels[task.status]}
-            </Badge>
-
-            {/* Time */}
-            {showDetails && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span>{task.time} - {endTime}</span>
+            {isCompactView ? (
+                // Compact layout for short tasks
+                <div className="flex flex-col h-full gap-1">
+                    <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-1 text-sm">
+                                <span className="font-bold truncate">
+                                    {reservation.pet.name}
+                                </span>
+                                <span className="text-gray-600 text-[10px] truncate">
+                                    ({reservation.pet.breed})
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Badge
+                                variant="outline"
+                                className={cn(
+                                    "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
+                                    serviceColor
+                                )}
+                            >
+                                {serviceLabel}
+                            </Badge>
+                        </div>
+                    </div>
                 </div>
-            )}
+            ) : (
+                // Regular layout for normal tasks
+                <div className="grid grid-cols-3 h-full gap-2">
+                    {/* Left - Pet info and time */}
+                    <div className="flex flex-col">
+                        <div className="font-bold text-sm truncate">
+                            {reservation.pet.name}
+                        </div>
+                        <div className="text-[10px] text-gray-600 truncate">
+                            {reservation.pet.breed}
+                        </div>
+                        <div className="mt-auto flex items-center gap-1 text-[11px] text-gray-600">
+                            <Clock className="h-3 w-3 flex-shrink-0" />
+                            <span>{time} ({task.duration} min)</span>
+                        </div>
+                    </div>
 
-            {/* In Progress Indicator */}
-            {inProgress && (
-                <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-yellow-500 animate-pulse" />
+                    {/* Center - Client info */}
+                    <div className="flex flex-col items-center justify-center text-[11px] text-gray-600">
+                        <div className="truncate text-center">
+                            {reservation.client.name}
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {reservation.client.phone}
+                        </div>
+                    </div>
+
+                    {/* Right - Service and status */}
+                    <div className="flex flex-col items-end gap-1">
+                        <Badge
+                            variant="outline"
+                            className={cn(
+                                "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
+                                serviceColor
+                            )}
+                        >
+                            {serviceLabel}
+                        </Badge>
+                        <Badge
+                            variant="outline"
+                            className={cn(
+                                "text-[10px] px-1.5 py-0 border-[1.5px] whitespace-nowrap",
+                                statusColors[task.status]
+                            )}
+                        >
+                            {statusLabels[task.status]}
+                        </Badge>
+                    </div>
+                </div>
             )}
         </div>
     )
