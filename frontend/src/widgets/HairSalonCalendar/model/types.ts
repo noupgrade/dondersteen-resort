@@ -23,6 +23,7 @@ export interface CalendarState {
     unscheduledReservations: HairSalonReservation[]
     scheduledTasks: HairSalonTask[]
     selectedTask: HairSalonTask | null
+    selectedReservation: HairSalonReservation | null
     isTouchMode: boolean
 }
 
@@ -31,6 +32,7 @@ export interface CalendarActions {
     setSelectedDate: (date: Date) => void
     setDraggedItem: (item: DraggedItem | null) => void
     setSelectedTask: (task: HairSalonTask | null) => void
+    setSelectedReservation: (reservation: HairSalonReservation | null) => void
     setIsTouchMode: (isTouchMode: boolean) => void
     moveTask: (task: HairSalonTask, newDate: string, newTime: string) => Promise<void>
     createTasksFromReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>

@@ -8,6 +8,7 @@ import { calculateTaskConflicts, createTasksFromReservation } from './task-utils
 interface CalendarStore extends CalendarState {
     setDraggedItem: (item: DraggedItem | null) => void
     setSelectedTask: (task: HairSalonTask | null) => void
+    setSelectedReservation: (reservation: HairSalonReservation | null) => void
     setIsTouchMode: (isTouchMode: boolean) => void
     setView: (view: CalendarView) => void
     setSelectedDate: (date: Date) => void
@@ -86,12 +87,14 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     unscheduledReservations: mockUnscheduledReservations,
     draggedItem: null,
     selectedTask: null,
+    selectedReservation: null,
     isTouchMode: false,
     view: 'day',
     selectedDate: new Date(),
 
     setDraggedItem: (item) => set({ draggedItem: item }),
     setSelectedTask: (task) => set({ selectedTask: task }),
+    setSelectedReservation: (reservation) => set({ selectedReservation: reservation }),
     setIsTouchMode: (isTouchMode) => set({ isTouchMode }),
     setView: (view: CalendarView) => set({ view }),
     setSelectedDate: (date: Date) => set({ selectedDate: date }),
@@ -102,7 +105,8 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 
         set(state => ({
             scheduledTasks: [...state.scheduledTasks, ...tasks],
-            unscheduledReservations: state.unscheduledReservations.filter(r => r.id !== reservation.id)
+            unscheduledReservations: state.unscheduledReservations.filter(r => r.id !== reservation.id),
+            selectedReservation: null
         }))
 
         return Promise.resolve()

@@ -7,6 +7,7 @@ import { useToast } from '@/shared/ui/use-toast'
 import { useCalendarStore } from '../model/store'
 import { TaskCard } from './TaskCard'
 import { TaskModal } from './TaskModal'
+import { TimeSelectionModal } from './TimeSelectionModal'
 
 interface TimeSlotProps {
     time: string
@@ -24,9 +25,11 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         scheduledTasks,
         updateTask,
         selectedTask,
-        setSelectedTask
+        setSelectedTask,
+        selectedReservation
     } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isTimeSelectionModalOpen, setIsTimeSelectionModalOpen] = useState(false)
     const [selectedModalTask, setSelectedModalTask] = useState<HairSalonTask | null>(null)
     const { toast } = useToast()
     const [isTouchDevice, setIsTouchDevice] = useState(false)
@@ -165,14 +168,46 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         }
     }
 
+    const handleTimeSlotClick = async (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (selectedReservation && isAvailable) {
+            const [hour] = normalizeTime(time).split(':')
+            setIsTimeSelectionModalOpen(true)
+        }
+    }
+
+    const handleTimeSelection = async (minutes: number) => {
+        if (!selectedReservation) return
+
+        const selectedTime = `${normalizeTime(time).split(':')[0]}:${minutes.toString().padStart(2, '0')}`
+        try {
+            await createTasksFromReservation(selectedReservation, date, selectedTime)
+            toast({
+                title: "Tareas creadas",
+                description: "Las tareas se han creado correctamente."
+            })
+        } catch (error) {
+            console.error('Error al crear las tareas:', error)
+            toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : "No se pudieron crear las tareas.",
+                variant: "destructive"
+            })
+        } finally {
+            setIsTimeSelectionModalOpen(false)
+        }
+    }
+
     return (
         <>
             <div
                 ref={drop}
+                onClick={handleTimeSlotClick}
                 className={cn(
                     'relative border-b border-r pl-12 transition-colors min-h-[4rem]',
                     isOver && canDrop && 'bg-blue-50',
-                    !isAvailable && 'bg-gray-50'
+                    !isAvailable && 'bg-gray-50',
+                    selectedReservation && isAvailable && 'cursor-pointer hover:bg-blue-50'
                 )}
             >
                 <div className="absolute left-2 top-2 text-xs text-gray-400">
@@ -195,7 +230,10 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                                     e.stopPropagation()
                                     handleTaskClick(task)
                                 }}
-                                onDoubleClick={(e) => handleTaskDoubleClick(task)}
+                                onDoubleClick={(e) => {
+                                    e.stopPropagation()
+                                    handleTaskDoubleClick(task)
+                                }}
                                 onTouchStart={() => handleTouchStart(task)}
                                 className={cn(
                                     "absolute",
@@ -234,6 +272,13 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                     onSave={handleSaveTask}
                 />
             )}
+
+            <TimeSelectionModal
+                isOpen={isTimeSelectionModalOpen}
+                onClose={() => setIsTimeSelectionModalOpen(false)}
+                onSelectTime={handleTimeSelection}
+                hour={normalizeTime(time).split(':')[0]}
+            />
         </>
     )
 } 

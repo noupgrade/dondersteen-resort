@@ -1,14 +1,11 @@
 import type { HairSalonReservation } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
-import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useToast } from '@/shared/ui/use-toast'
-import { CalendarX } from 'lucide-react'
 import { useState } from 'react'
-import { useDrag } from 'react-dnd'
 import { useCalendarStore } from '../model/store'
-import { DraggableReservation } from './DraggableReservation'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
+import { UnscheduledReservation } from './UnscheduledReservation'
 
 interface UnscheduledReservationsProps {
     className?: string
@@ -19,7 +16,6 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         unscheduledReservations,
         selectedReservation,
         setSelectedReservation,
-        setDraggedItem
     } = useCalendarStore()
     const [selectedModalReservation, setSelectedModalReservation] = useState<HairSalonReservation | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -28,37 +24,11 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
     const [lastTap, setLastTap] = useState(0)
     const [touchCount, setTouchCount] = useState(0)
 
-    const handleTouchStart = (res: HairSalonReservation) => {
-        const now = Date.now()
-        const DOUBLE_TAP_DELAY = 300 // milisegundos
-
-        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
-            // Doble tap detectado
-            setSelectedModalReservation(res)
-            setIsModalOpen(true)
-            setTouchCount(0)
-            setLastTap(0)
-        } else {
-            setLastTap(now)
-            setTouchCount(prev => prev + 1)
-            // Si es un tap simple, manejamos la selección
-            if (touchCount === 0) {
-                if (selectedReservation?.id === res.id) {
-                    setSelectedReservation(null)
-                } else {
-                    setSelectedReservation(res)
-                    toast({
-                        title: "Cita seleccionada",
-                        description: "Selecciona el hueco donde quieres crear las tareas."
-                    })
-                }
-            }
-        }
-    }
-
     const handleReservationClick = (reservation: HairSalonReservation, e: React.MouseEvent) => {
         // Si es parte de un doble clic, no hacemos nada
-        if (e.detail === 2) return
+        if (e.detail === 2) {
+            return
+        }
 
         if (selectedReservation?.id === reservation.id) {
             setSelectedReservation(null)
@@ -71,6 +41,35 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         }
     }
 
+    const handleTouchStart = (res: HairSalonReservation) => {
+        const now = Date.now()
+        const DOUBLE_TAP_DELAY = 300 // milisegundos
+
+        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+            // Doble tap detectado
+            setSelectedModalReservation(res)
+            setIsModalOpen(true)
+            setTouchCount(0)
+            setLastTap(0)
+            return
+        }
+
+        setLastTap(now)
+        setTouchCount(prev => prev + 1)
+        // Si es un tap simple, manejamos la selección
+        if (touchCount === 0) {
+            if (selectedReservation?.id === res.id) {
+                setSelectedReservation(null)
+            } else {
+                setSelectedReservation(res)
+                toast({
+                    title: "Cita seleccionada",
+                    description: "Selecciona el hueco donde quieres crear las tareas."
+                })
+            }
+        }
+    }
+
     const handleReservationDoubleClick = (reservation: HairSalonReservation, e: React.MouseEvent) => {
         e.preventDefault() // Prevenir el doble clic del sistema
         e.stopPropagation()
@@ -80,11 +79,14 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
 
     const handleSaveReservation = async (updatedReservation: HairSalonReservation) => {
         setIsModalOpen(false)
+        setSelectedModalReservation(null)
     }
 
     const handleDeleteReservation = async (reservation: HairSalonReservation) => {
         // Aquí iría la lógica para eliminar la reserva
         console.log('Eliminar reserva:', reservation)
+        setIsModalOpen(false)
+        setSelectedModalReservation(null)
     }
 
     return (
@@ -97,47 +99,16 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                     <div className="overflow-x-auto min-h-[100px] p-2">
                         {unscheduledReservations.length > 0 ? (
                             <div className="flex gap-2 pb-2" style={{ minWidth: 'min-content' }}>
-                                {unscheduledReservations.map((reservation) => {
-                                    const [{ isDragging }, drag] = useDrag({
-                                        type: 'reservation',
-                                        item: { type: 'reservation', item: reservation },
-                                        collect: (monitor) => ({
-                                            isDragging: monitor.isDragging(),
-                                        }),
-                                        end: () => {
-                                            setDraggedItem(null)
-                                        }
-                                    })
-
-                                    return (
-                                        <div
-                                            key={reservation.id}
-                                            ref={drag}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleReservationClick(reservation, e)
-                                            }}
-                                            onDoubleClick={(e) => {
-                                                e.stopPropagation()
-                                                handleReservationDoubleClick(reservation, e)
-                                            }}
-                                            onTouchStart={() => handleTouchStart(reservation)}
-                                            className={cn(
-                                                "cursor-pointer w-[300px] flex-shrink-0",
-                                                selectedReservation?.id === reservation.id && "ring-2 ring-blue-500",
-                                                isDragging && "opacity-50"
-                                            )}
-                                        >
-                                            <DraggableReservation
-                                                reservation={reservation}
-                                                date={reservation.date}
-                                                time=""
-                                                className="hover:opacity-90"
-                                                showPrice={true}
-                                            />
-                                        </div>
-                                    )
-                                })}
+                                {unscheduledReservations.map((reservation) => (
+                                    <UnscheduledReservation
+                                        key={reservation.id}
+                                        reservation={reservation}
+                                        selectedReservation={selectedReservation}
+                                        onReservationClick={handleReservationClick}
+                                        onReservationDoubleClick={handleReservationDoubleClick}
+                                        onTouchStart={handleTouchStart}
+                                    />
+                                ))}
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full text-sm text-gray-500">
