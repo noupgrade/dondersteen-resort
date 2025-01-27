@@ -1,4 +1,4 @@
-import type { HairSalonReservation } from '@/components/ReservationContext'
+import type { HairSalonReservation, HairSalonTask } from '@/components/ReservationContext'
 
 export type CalendarView = 'day' | 'week'
 
@@ -6,31 +6,38 @@ export interface CalendarSlot {
     time: string
     date: string
     isAvailable: boolean
-    reservation?: HairSalonReservation
+    tasks?: HairSalonTask[]
 }
 
-export interface DraggedReservation {
-    reservation: HairSalonReservation
-    sourceDate: string
-    sourceTime: string
+export type DraggedItem = {
+    type: 'reservation' | 'task'
+    item: HairSalonReservation | HairSalonTask
+    sourceDate?: string
+    sourceTime?: string
 }
 
 export interface CalendarState {
     view: CalendarView
     selectedDate: Date
-    draggedReservation: DraggedReservation | null
+    draggedItem: DraggedItem | null
     unscheduledReservations: HairSalonReservation[]
-    scheduledReservations: HairSalonReservation[]
+    scheduledTasks: HairSalonTask[]
+    selectedTask: HairSalonTask | null
+    isTouchMode: boolean
 }
 
 export interface CalendarActions {
     setView: (view: CalendarView) => void
     setSelectedDate: (date: Date) => void
-    setDraggedReservation: (reservation: DraggedReservation | null) => void
-    moveReservation: (reservation: HairSalonReservation, newDate: string, newTime: string) => Promise<void>
-    createReservation: (reservation: Omit<HairSalonReservation, 'id'>) => Promise<void>
-    scheduleUnscheduledReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
-    updateReservation: (updatedReservation: HairSalonReservation) => Promise<void>
+    setDraggedItem: (item: DraggedItem | null) => void
+    setSelectedTask: (task: HairSalonTask | null) => void
+    setIsTouchMode: (isTouchMode: boolean) => void
+    moveTask: (task: HairSalonTask, newDate: string, newTime: string) => Promise<void>
+    createTasksFromReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
+    updateTask: (task: HairSalonTask) => Promise<void>
+    deleteTask: (taskId: string) => Promise<void>
+    getTasksByReservation: (reservationId: string) => HairSalonTask[]
+    getTasksForTimeSlot: (date: string, time: string) => HairSalonTask[]
 }
 
 export interface TimeSlot {

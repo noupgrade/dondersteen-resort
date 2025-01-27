@@ -1,97 +1,24 @@
 import { addDays, format } from 'date-fns'
 import { create } from 'zustand'
 
-import type { HairSalonReservation } from '@/components/ReservationContext'
-import type { CalendarActions, CalendarState, CalendarView, DraggedReservation } from './types'
+import type { HairSalonReservation, HairSalonTask } from '@/components/ReservationContext'
+import type { CalendarState, CalendarView, DraggedItem } from './types'
+import { calculateTaskConflicts, createTasksFromReservation } from './task-utils'
 
-interface CalendarStore {
-    scheduledReservations: HairSalonReservation[]
-    unscheduledReservations: HairSalonReservation[]
-    draggedReservation: DraggedReservation | null
-    selectedReservation: HairSalonReservation | null
-    isTouchMode: boolean
-    setDraggedReservation: (reservation: DraggedReservation | null) => void
-    setSelectedReservation: (reservation: HairSalonReservation | null) => void
+interface CalendarStore extends CalendarState {
+    setDraggedItem: (item: DraggedItem | null) => void
+    setSelectedTask: (task: HairSalonTask | null) => void
     setIsTouchMode: (isTouchMode: boolean) => void
-    moveReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
-    scheduleUnscheduledReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
-    updateReservation: (reservation: HairSalonReservation) => Promise<void>
+    setView: (view: CalendarView) => void
+    setSelectedDate: (date: Date) => void
+    setScheduledTasks: (tasks: HairSalonTask[]) => void
+    moveTask: (task: HairSalonTask, newDate: string, newTime: string) => Promise<void>
+    createTasksFromReservation: (reservation: HairSalonReservation, date: string, time: string) => Promise<void>
+    updateTask: (task: HairSalonTask) => Promise<void>
+    deleteTask: (taskId: string) => Promise<void>
+    getTasksByReservation: (reservationId: string) => HairSalonTask[]
+    getTasksForTimeSlot: (date: string, time: string) => HairSalonTask[]
 }
-
-// Mock data for testing
-const today = new Date()
-const mockReservations: HairSalonReservation[] = [
-    {
-        id: '1',
-        type: 'peluqueria',
-        source: 'hotel',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '10:00',
-        client: {
-            name: 'Juan Pérez',
-            phone: '666555444',
-            email: 'juan@example.com'
-        },
-        pet: {
-            id: 'pet1',
-            name: 'Luna',
-            breed: 'Golden Retriever',
-            size: 'grande',
-            weight: 25
-        },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['bath_and_trim']
-        }],
-        status: 'confirmed',
-        observations: 'El pelo está muy enredado',
-        totalPrice: 45,
-        paymentStatus: 'pending',
-        hasDriverService: true
-    },
-    {
-        id: '2',
-        type: 'peluqueria',
-        source: 'external',
-        date: format(today, 'yyyy-MM-dd'),
-        time: '11:30',
-        client: {
-            name: 'María García',
-            phone: '677888999',
-            email: 'maria@example.com'
-        },
-        pet: {
-            id: 'pet2',
-            name: 'Rocky',
-            breed: 'Yorkshire Terrier',
-            size: 'pequeño',
-            weight: 4
-        },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['bath_and_trim']
-        }],
-        status: 'confirmed',
-        tasks: [
-            {
-                id: 'task1',
-                reservationId: '2',
-                service: {
-                    type: 'hairdressing',
-                    petIndex: 0,
-                    services: ['bath_and_trim']
-                },
-                date: format(today, 'yyyy-MM-dd'),
-                time: '11:30'
-            }
-        ],
-        totalPrice: 35,
-        paymentStatus: 'pending',
-        hasDriverService: false
-    }
-]
 
 // Mock de citas aceptadas pero pendientes de asignar hora
 const mockUnscheduledReservations: HairSalonReservation[] = [
@@ -99,7 +26,7 @@ const mockUnscheduledReservations: HairSalonReservation[] = [
         id: '3',
         type: 'peluqueria',
         source: 'hotel',
-        date: format(today, 'yyyy-MM-dd'),
+        date: format(new Date(), 'yyyy-MM-dd'),
         time: '',
         client: {
             name: 'Pedro Gómez',
@@ -128,7 +55,7 @@ const mockUnscheduledReservations: HairSalonReservation[] = [
         id: '4',
         type: 'peluqueria',
         source: 'external',
-        date: format(today, 'yyyy-MM-dd'),
+        date: format(new Date(), 'yyyy-MM-dd'),
         time: '',
         client: {
             name: 'Carmen Rodríguez',
@@ -154,132 +81,74 @@ const mockUnscheduledReservations: HairSalonReservation[] = [
     }
 ]
 
-// Ejemplo de citas que NO deberían aparecer en el calendario todavía
-const pendingReservations = [
-    {
-        id: '6',
-        type: 'peluqueria',
-        source: 'hotel',
-        date: '',
-        time: '',
-        client: {
-            name: 'Pedro Gómez',
-            phone: '611222333'
-        },
-        pet: {
-            name: 'Nala',
-            breed: 'Pastor Alemán'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['deshedding']
-            }
-        ],
-        status: 'pending', // Pendiente de aceptar
-        observations: 'Pendiente de aceptar'
-    },
-    {
-        id: '7',
-        type: 'peluqueria',
-        source: 'external',
-        date: '',
-        time: '',
-        client: {
-            name: 'Carmen Rodríguez',
-            phone: '644555666'
-        },
-        pet: {
-            name: 'Coco',
-            breed: 'Bulldog Francés'
-        },
-        additionalServices: [
-            {
-                type: 'hairdressing',
-                petIndex: 0,
-                services: ['bath_and_trim']
-            }
-        ],
-        status: 'pending', // Pendiente de aceptar
-        observations: 'Pendiente de proponer fecha'
-    }
-]
-
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
-    scheduledReservations: mockReservations,
+    scheduledTasks: [],
     unscheduledReservations: mockUnscheduledReservations,
-    draggedReservation: null,
-    selectedReservation: null,
+    draggedItem: null,
+    selectedTask: null,
     isTouchMode: false,
-    setDraggedReservation: (reservation) => set({ draggedReservation: reservation }),
-    setSelectedReservation: (reservation) => set({ selectedReservation: reservation }),
-    setIsTouchMode: (isTouchMode) => set({ isTouchMode }),
+    view: 'day',
+    selectedDate: new Date(),
 
-    moveReservation: async (reservation: HairSalonReservation, newDate: string, newTime: string) => {
-        // Simulate API call
-        set((state) => {
-            // Si no hay newTime, mover a unscheduledReservations
-            if (!newTime) {
-                return {
-                    scheduledReservations: state.scheduledReservations.filter((r) => r.id !== reservation.id),
-                    unscheduledReservations: [...state.unscheduledReservations, { ...reservation, date: newDate, time: newTime }]
-                }
-            }
-            // Si hay newTime, actualizar en scheduledReservations
-            return {
-                scheduledReservations: state.scheduledReservations.map((r) =>
-                    r.id === reservation.id ? { ...r, date: newDate, time: newTime } : r
-                )
-            }
-        })
+    setDraggedItem: (item) => set({ draggedItem: item }),
+    setSelectedTask: (task) => set({ selectedTask: task }),
+    setIsTouchMode: (isTouchMode) => set({ isTouchMode }),
+    setView: (view: CalendarView) => set({ view }),
+    setSelectedDate: (date: Date) => set({ selectedDate: date }),
+    setScheduledTasks: (tasks) => set({ scheduledTasks: tasks }),
+
+    createTasksFromReservation: async (reservation, date, time) => {
+        const tasks = createTasksFromReservation(reservation, date, time)
+
+        set(state => ({
+            scheduledTasks: [...state.scheduledTasks, ...tasks],
+            unscheduledReservations: state.unscheduledReservations.filter(r => r.id !== reservation.id)
+        }))
+
+        return Promise.resolve()
     },
 
-    createReservation: async (reservation: Omit<HairSalonReservation, 'id'>) => {
-        // Simulate API call
-        const newReservation = {
-            ...reservation,
-            id: Math.random().toString(36).substr(2, 9),
-            status: 'confirmed'
+    moveTask: async (task, newDate, newTime) => {
+        // Validate if the move is allowed
+        const currentTasks = get().scheduledTasks
+        const conflicts = calculateTaskConflicts(currentTasks, { ...task, date: newDate, time: newTime })
+
+        if (conflicts.length > 0) {
+            throw new Error('Task conflicts with existing tasks')
         }
 
-        // Si la reserva no tiene hora asignada, va a unscheduledReservations
-        set((state) => {
-            if (!newReservation.time) {
-                return {
-                    unscheduledReservations: [...state.unscheduledReservations, newReservation]
-                }
-            }
-            return {
-                scheduledReservations: [...state.scheduledReservations, newReservation]
-            }
-        })
-    },
-
-    scheduleUnscheduledReservation: async (reservation: HairSalonReservation, date: string, time: string) => {
-        // Simulate API call
-        set((state) => ({
-            unscheduledReservations: state.unscheduledReservations.filter((r) => r.id !== reservation.id),
-            scheduledReservations: [...state.scheduledReservations, { ...reservation, date, time }]
+        set(state => ({
+            scheduledTasks: state.scheduledTasks.map(t =>
+                t.id === task.id ? { ...t, date: newDate, time: newTime } : t
+            )
         }))
+
+        return Promise.resolve()
     },
 
-    updateReservation: async (updatedReservation: HairSalonReservation) => {
-        // Simulate API call
-        set((state) => {
-            // Si la reserva no tiene hora asignada, moverla a unscheduledReservations
-            if (!updatedReservation.time) {
-                return {
-                    scheduledReservations: state.scheduledReservations.filter((r) => r.id !== updatedReservation.id),
-                    unscheduledReservations: [...state.unscheduledReservations, updatedReservation]
-                }
-            }
-            // Si tiene hora asignada, actualizar en scheduledReservations
-            return {
-                scheduledReservations: state.scheduledReservations.map((r) =>
-                    r.id === updatedReservation.id ? updatedReservation : r
-                )
-            }
-        })
+    updateTask: async (updatedTask) => {
+        set(state => ({
+            scheduledTasks: state.scheduledTasks.map(t =>
+                t.id === updatedTask.id ? updatedTask : t
+            )
+        }))
+
+        return Promise.resolve()
+    },
+
+    deleteTask: async (taskId) => {
+        set(state => ({
+            scheduledTasks: state.scheduledTasks.filter(t => t.id !== taskId)
+        }))
+
+        return Promise.resolve()
+    },
+
+    getTasksByReservation: (reservationId) => {
+        return get().scheduledTasks.filter(t => t.reservationId === reservationId)
+    },
+
+    getTasksForTimeSlot: (date, time) => {
+        return get().scheduledTasks.filter(t => t.date === date && t.time === time)
     }
 })) 

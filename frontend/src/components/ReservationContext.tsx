@@ -62,6 +62,8 @@ export type HairSalonTask = {
     service: AdditionalService
     date: string
     time: string
+    duration: number
+    status: 'pending' | 'in_progress' | 'completed'
 }
 
 export type HairSalonReservation = {
