@@ -12,13 +12,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         time: '',
         client: {
             id: 'EXAMPLE_CLIENT_1',
-            name: 'John Example',
+            name: 'John Smith',
             phone: '666555444',
             email: 'john@example.com'
         },
         pet: {
             id: 'PET_1',
-            name: 'Max',
+            name: 'Buddy',
             breed: 'Golden Retriever',
             size: 'grande',
             weight: 30
@@ -53,7 +53,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['bath_and_brush']
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
-                time: '10:00'
+                time: '10:00',
+                duration: 30,
+                status: 'pending'
             },
             {
                 id: 'task2',
@@ -64,7 +66,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['deshedding']
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
-                time: '10:30'
+                time: '10:30',
+                duration: 30,
+                status: 'pending'
             }
         ]
     },
@@ -76,13 +80,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         time: '',
         client: {
             id: 'EXAMPLE_CLIENT_2',
-            name: 'Alice Example',
+            name: 'Alice Johnson',
             phone: '666777888',
             email: 'alice@example.com'
         },
         pet: {
             id: 'PET_2',
-            name: 'Luna',
+            name: 'Daisy',
             breed: 'Poodle',
             size: 'pequeño',
             weight: 5
@@ -111,7 +115,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['bath_and_trim']
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-                time: '11:00'
+                time: '11:00',
+                duration: 30,
+                status: 'pending'
             },
             {
                 id: 'task4',
@@ -122,7 +128,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['spa']
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-                time: '11:30'
+                time: '11:30',
+                duration: 30,
+                status: 'pending'
             }
         ]
     },
@@ -134,13 +142,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         time: '11:30',
         client: {
             id: 'EXAMPLE_CLIENT_3',
-            name: 'Carlos Example',
+            name: 'Carlos Rodriguez',
             phone: '666999000',
             email: 'carlos@example.com'
         },
         pet: {
             id: 'PET_3',
-            name: 'Thor',
+            name: 'Shadow',
             breed: 'Husky',
             size: 'grande',
             weight: 28
@@ -166,7 +174,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['bath_and_brush']
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-                time: '11:30'
+                time: '11:30',
+                duration: 30,
+                status: 'pending'
             },
             {
                 id: 'task6',
@@ -177,7 +187,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['deshedding']
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-                time: '12:00'
+                time: '12:00',
+                duration: 30,
+                status: 'pending'
             },
             {
                 id: 'task7',
@@ -188,7 +200,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['spa_ozone']
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-                time: '12:30'
+                time: '12:30',
+                duration: 30,
+                status: 'pending'
             }
         ]
     },
@@ -200,28 +214,28 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '10:00',
         checkOutDate: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_1',
-            name: 'John Example',
+            id: 'EXAMPLE_CLIENT_4',
+            name: 'Emma Wilson',
             phone: '666555444',
-            email: 'john@example.com'
+            email: 'emma@example.com'
         },
         pets: [
             {
-                name: 'Max',
+                name: 'Cooper',
                 breed: 'Golden Retriever',
                 weight: 30,
                 size: 'grande',
                 sex: 'M'
             },
             {
-                name: 'Luna',
+                name: 'Bailey',
                 breed: 'Beagle',
                 weight: 12,
                 size: 'mediano',
                 sex: 'F'
             },
             {
-                name: 'Coco',
+                name: 'Oliver',
                 breed: 'Yorkshire',
                 weight: 3,
                 size: 'pequeño',
@@ -253,21 +267,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '12:00',
         checkOutDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_2',
-            name: 'Alice Example',
+            id: 'EXAMPLE_CLIENT_5',
+            name: 'David Brown',
             phone: '666777888',
-            email: 'alice@example.com'
+            email: 'david@example.com'
         },
         pets: [
             {
-                name: 'Nala',
+                name: 'Mia',
                 breed: 'Labrador',
                 weight: 25,
                 size: 'grande',
                 sex: 'F'
             },
             {
-                name: 'Rocky',
+                name: 'Leo',
                 breed: 'French Bulldog',
                 weight: 12,
                 size: 'mediano',
@@ -304,28 +318,28 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '14:00',
         checkOutDate: format(addDays(new Date(), 4), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_3',
-            name: 'Carlos Example',
+            id: 'EXAMPLE_CLIENT_6',
+            name: 'Sophie Martinez',
             phone: '666999000',
-            email: 'carlos@example.com'
+            email: 'sophie@example.com'
         },
         pets: [
             {
-                name: 'Thor',
+                name: 'Zeus',
                 breed: 'German Shepherd',
                 weight: 35,
                 size: 'grande',
                 sex: 'M'
             },
             {
-                name: 'Loki',
+                name: 'Atlas',
                 breed: 'Border Collie',
                 weight: 20,
                 size: 'mediano',
                 sex: 'M'
             },
             {
-                name: 'Freya',
+                name: 'Nova',
                 breed: 'Poodle',
                 weight: 5,
                 size: 'pequeño',
@@ -362,21 +376,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '14:00',
         checkOutDate: format(new Date(), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_4',
-            name: 'Maria Example',
+            id: 'EXAMPLE_CLIENT_7',
+            name: 'Isabella Taylor',
             phone: '666111222',
-            email: 'maria@example.com'
+            email: 'isabella@example.com'
         },
         pets: [
             {
-                name: 'Bella',
+                name: 'Willow',
                 breed: 'Poodle',
                 weight: 8,
                 size: 'pequeño',
                 sex: 'F'
             },
             {
-                name: 'Charlie',
+                name: 'Duke',
                 breed: 'Schnauzer',
                 weight: 15,
                 size: 'mediano',
@@ -413,28 +427,28 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '16:00',
         checkOutDate: format(new Date(), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_5',
-            name: 'Pedro Example',
+            id: 'EXAMPLE_CLIENT_8',
+            name: 'Lucas Anderson',
             phone: '666333444',
-            email: 'pedro@example.com'
+            email: 'lucas@example.com'
         },
         pets: [
             {
-                name: 'Simba',
+                name: 'Bear',
                 breed: 'Husky',
                 weight: 28,
                 size: 'grande',
                 sex: 'M'
             },
             {
-                name: 'Nina',
+                name: 'Lily',
                 breed: 'Cocker Spaniel',
                 weight: 13,
                 size: 'mediano',
                 sex: 'F'
             },
             {
-                name: 'Toby',
+                name: 'Ziggy',
                 breed: 'Jack Russell',
                 weight: 6,
                 size: 'pequeño',
@@ -466,21 +480,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '15:00',
         checkOutDate: format(new Date(), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_6',
-            name: 'Ana Example',
+            id: 'EXAMPLE_CLIENT_9',
+            name: 'Elena Garcia',
             phone: '666444555',
-            email: 'ana@example.com'
+            email: 'elena@example.com'
         },
         pets: [
             {
-                name: 'Milo',
+                name: 'Finn',
                 breed: 'Shih Tzu',
                 weight: 5,
                 size: 'pequeño',
                 sex: 'M'
             },
             {
-                name: 'Lola',
+                name: 'Chloe',
                 breed: 'Maltese',
                 weight: 4,
                 size: 'pequeño',
@@ -512,14 +526,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         date: format(new Date(), 'yyyy-MM-dd'),
         time: '',
         client: {
-            id: 'EXAMPLE_CLIENT_4',
-            name: 'María García',
+            id: 'EXAMPLE_CLIENT_10',
+            name: 'Victoria Ruiz',
             phone: '666111222',
-            email: 'maria@example.com'
+            email: 'victoria@example.com'
         },
         pet: {
             id: 'PET_4',
-            name: 'Bella',
+            name: 'Molly',
             breed: 'Yorkshire Terrier',
             size: 'pequeño',
             weight: 3
@@ -546,7 +560,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['bath_and_trim']
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
-                time: '10:00'
+                time: '10:00',
+                duration: 45,
+                status: 'pending'
             }
         ]
     },
@@ -557,14 +573,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
         time: '',
         client: {
-            id: 'EXAMPLE_CLIENT_5',
-            name: 'Pedro Sánchez',
+            id: 'EXAMPLE_CLIENT_11',
+            name: 'Marco Fernandez',
             phone: '666333444',
-            email: 'pedro@example.com'
+            email: 'marco@example.com'
         },
         pet: {
             id: 'PET_5',
-            name: 'Rocky',
+            name: 'Bruno',
             breed: 'Bulldog Francés',
             size: 'mediano',
             weight: 12
@@ -591,7 +607,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['bath_and_brush']
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-                time: '16:30'
+                time: '16:30',
+                duration: 30,
+                status: 'pending'
             },
             {
                 id: 'task10',
@@ -602,7 +620,9 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                     services: ['spa']
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-                time: '17:00'
+                time: '17:00',
+                duration: 30,
+                status: 'pending'
             }
         ]
     },
@@ -614,14 +634,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '14:00',
         checkOutDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_7',
-            name: 'Luis Transport',
+            id: 'EXAMPLE_CLIENT_12',
+            name: 'Gabriel Torres',
             phone: '666777888',
-            email: 'luis@example.com'
+            email: 'gabriel@example.com'
         },
         pets: [
             {
-                name: 'Zeus',
+                name: 'Storm',
                 breed: 'German Shepherd',
                 weight: 35,
                 size: 'grande',
@@ -647,14 +667,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '15:00',
         checkOutDate: format(addDays(new Date(), 3), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_8',
-            name: 'Carmen Transport',
+            id: 'EXAMPLE_CLIENT_13',
+            name: 'Lucia Morales',
             phone: '666999000',
-            email: 'carmen@example.com'
+            email: 'lucia@example.com'
         },
         pets: [
             {
-                name: 'Luna',
+                name: 'River',
                 breed: 'Husky',
                 weight: 28,
                 size: 'grande',
@@ -680,14 +700,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkInTime: '16:00',
         checkOutDate: format(addDays(new Date(), 4), 'yyyy-MM-dd'),
         client: {
-            id: 'EXAMPLE_CLIENT_9',
-            name: 'Sofia Transport',
+            id: 'EXAMPLE_CLIENT_14',
+            name: 'Adrian Navarro',
             phone: '666444333',
-            email: 'sofia@example.com'
+            email: 'adrian@example.com'
         },
         pets: [
             {
-                name: 'Rocky',
+                name: 'Phoenix',
                 breed: 'Golden Retriever',
                 weight: 32,
                 size: 'grande',
@@ -715,14 +735,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(new Date(), 'yyyy-MM-dd'),
         checkOutTime: '19:00',
         client: {
-            id: 'EXAMPLE_CLIENT_10',
-            name: 'Laura Daycare',
+            id: 'EXAMPLE_CLIENT_15',
+            name: 'Diana Jimenez',
             phone: '666123456',
-            email: 'laura@example.com'
+            email: 'diana@example.com'
         },
         pets: [
             {
-                name: 'Toby',
+                name: 'Echo',
                 breed: 'French Bulldog',
                 weight: 12,
                 size: 'mediano',
@@ -749,14 +769,14 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
         checkOutTime: '20:00',
         client: {
-            id: 'EXAMPLE_CLIENT_11',
-            name: 'Carlos Daycare',
+            id: 'EXAMPLE_CLIENT_16',
+            name: 'Roberto Herrera',
             phone: '666234567',
-            email: 'carlos.d@example.com'
+            email: 'roberto@example.com'
         },
         pets: [
             {
-                name: 'Luna',
+                name: 'Sage',
                 breed: 'Poodle',
                 weight: 5,
                 size: 'pequeño',
@@ -783,21 +803,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
         checkOutTime: '18:00',
         client: {
-            id: 'EXAMPLE_CLIENT_12',
-            name: 'Ana Daycare',
+            id: 'EXAMPLE_CLIENT_17',
+            name: 'Raquel Ortiz',
             phone: '666345678',
-            email: 'ana.d@example.com'
+            email: 'raquel@example.com'
         },
         pets: [
             {
-                name: 'Max',
+                name: 'Scout',
                 breed: 'Beagle',
                 weight: 15,
                 size: 'mediano',
                 sex: 'M'
             },
             {
-                name: 'Rocky',
+                name: 'Raven',
                 breed: 'Beagle',
                 weight: 14,
                 size: 'mediano',
@@ -830,20 +850,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(addDays(new Date(), 8), 'yyyy-MM-dd'),
         client: {
             id: 'EXAMPLE_CLIENT_PENDING_1',
-            name: 'María Ejemplo',
+            name: 'Marina Lopez',
             phone: '666111222',
-            email: 'maria@example.com'
+            email: 'marina@example.com'
         },
         pets: [
             {
-                name: 'Bella',
+                name: 'Winter',
                 breed: 'Cavalier King Charles',
                 weight: 8,
                 size: 'pequeño',
                 sex: 'F'
             },
             {
-                name: 'Charlie',
+                name: 'Jasper',
                 breed: 'Cavalier King Charles',
                 weight: 9,
                 size: 'pequeño',
@@ -871,27 +891,27 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(addDays(new Date(), 7), 'yyyy-MM-dd'),
         client: {
             id: 'EXAMPLE_CLIENT_PENDING_2',
-            name: 'Pedro Example',
+            name: 'Hugo Diaz',
             phone: '666333444',
-            email: 'pedro@example.com'
+            email: 'hugo@example.com'
         },
         pets: [
             {
-                name: 'Simba',
+                name: 'Onyx',
                 breed: 'Maine Coon',
                 weight: 7,
                 size: 'mediano',
                 sex: 'M'
             },
             {
-                name: 'Nina',
+                name: 'Pearl',
                 breed: 'Siamese',
                 weight: 4,
                 size: 'pequeño',
                 sex: 'F'
             },
             {
-                name: 'Toby',
+                name: 'Ash',
                 breed: 'Persian',
                 weight: 5,
                 size: 'pequeño',
@@ -919,7 +939,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         checkOutDate: format(addDays(new Date(), 5), 'yyyy-MM-dd'),
         client: {
             id: 'EXAMPLE_CLIENT_PENDING_3',
-            name: 'Ana Example',
+            name: 'Carla Vega',
             phone: '666555666',
             email: 'ana@example.com'
         },

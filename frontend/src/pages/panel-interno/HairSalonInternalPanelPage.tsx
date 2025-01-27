@@ -374,14 +374,7 @@ export default function HairSalonInternalPanelPage() {
                     </TabsContent>
 
                     <TabsContent value='calendar' className='mt-6'>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-2xl">Calendario de Peluquería</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <HairSalonCalendarWidget managingReservationId={managingReservationId} />
-                            </CardContent>
-                        </Card>
+                        <HairSalonCalendarWidget managingReservationId={managingReservationId} />
                     </TabsContent>
                 </Tabs>
             </div>
