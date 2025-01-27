@@ -4,6 +4,7 @@ This is a pnpm monorepo project, so use the correct commands to install dependen
 There is a frontend/ a backend/ and a scripts/ folder.
 Do not modify other features of the pages that are not related to the ones you are working on.
 When creating a data model, review the existing ones and try to reuse the same structure if possible.
+When you modify a type, check if you need to update the existing examples of objects of that type.
 
 In the frontend project you must take into account our code structure rules
 
