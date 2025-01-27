@@ -1,34 +1,25 @@
-import { format } from 'date-fns'
 import {
-    Bed,
-    Calendar,
     ChevronLeft,
-    Clock,
-    Mail,
     Pencil,
-    Phone,
     Plus,
     Save,
-    Scissors as ScissorsIcon,
     ShoppingBag,
-    X,
-    FileText
+    X
 } from 'lucide-react'
 import { useState } from 'react'
 
-import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { type AdditionalService } from '@/shared/types/additional-services'
+import { type Discount } from '@/shared/types/discounts'
+import { type HairSalonReservation, type HotelBudget, type HotelReservation } from '@/shared/types/reservations'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { DatePicker } from '@/shared/ui/date-picker'
 import { Input } from '@/shared/ui/input'
-import { Separator } from '@/shared/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
-import { PetsAndServicesCard } from './PetsAndServicesCard'
 import { ClientCard } from './ClientCard'
 import { DatesCard } from './DatesCard'
+import { PetsAndServicesCard } from './PetsAndServicesCard'
 import { PriceBreakdownCard } from './PriceBreakdownCard'
 
 interface ReservationViewerProps {
@@ -43,12 +34,6 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
     const [isEditMode, setIsEditMode] = useState(false)
     const [stayPrice, setStayPrice] = useState(50) // precio por día predeterminado
     const [serviceBasePrice, setServiceBasePrice] = useState(30) // precio base por servicio
-    const [totalDiscount, setTotalDiscount] = useState(0)
-
-    const formatDate = (date?: string) => {
-        if (!date) return ''
-        return format(new Date(date), 'dd MMM yyyy')
-    }
 
     const getStatusStyle = (status: string) => {
         switch (status) {
@@ -119,6 +104,15 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
         setEditedReservation({
             ...editedReservation,
             shopProducts: [...(editedReservation.shopProducts || []), newProduct]
+        })
+    }
+
+    const handleDiscountsChange = (discounts: Discount[]) => {
+        if (editedReservation.type !== 'hotel') return
+
+        setEditedReservation({
+            ...editedReservation,
+            discounts
         })
     }
 
@@ -266,130 +260,112 @@ export function ReservationViewer({ reservation, onClose }: ReservationViewerPro
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-white/80">
-            <div className="fixed inset-0 bg-white">
-                <div className="h-full overflow-auto">
-                    <div className="container mx-auto p-4 space-y-6">
-                        <div className="flex items-center justify-between">
-                            <Button variant="outline" onClick={onClose}>
-                                <ChevronLeft className="h-4 w-4 mr-2" />
-                                Volver
-                            </Button>
-                            <div className="flex items-center gap-4">
-                                {editedReservation.type === 'hotel' ? (
-                                    <>
-                                        <Bed className="h-5 w-5 text-blue-600" />
-                                        <span className="text-blue-600">Reserva Hotel</span>
-                                    </>
-                                ) : editedReservation.type === 'hotel-budget' ? (
-                                    <>
-                                        <FileText className="h-5 w-5 text-blue-600" />
-                                        <span className="text-blue-600">Presupuesto Hotel</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <ScissorsIcon className="h-5 w-5 text-red-600" />
-                                        <span className="text-red-600">Reserva Peluquería</span>
-                                    </>
-                                )}
-                                <Badge className={cn(
-                                    getStatusStyle(editedReservation.status),
-                                    "ml-2"
-                                )}>
-                                    {editedReservation.status === 'propuesta peluqueria' ? 'Propuesta' :
-                                        editedReservation.status === 'confirmed' ? 'Confirmada' :
-                                            editedReservation.status === 'cancelled' ? 'Cancelada' :
-                                                editedReservation.status === 'pending' ? 'Pendiente' :
-                                                    editedReservation.status}
-                                </Badge>
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+            <div className="fixed inset-y-0 right-0 flex w-full flex-col border-l bg-background md:w-[1200px]">
+                <div className="flex items-center justify-between border-b px-6 py-4">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <h2 className="text-lg font-semibold">
+                            {reservation.type === 'hotel'
+                                ? 'Reserva de Hotel'
+                                : reservation.type === 'hotel-budget'
+                                    ? 'Presupuesto de Hotel'
+                                    : 'Reserva de Peluquería'}
+                        </h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {isEditMode ? (
+                            <>
                                 <Button
-                                    variant={isEditMode ? "default" : "outline"}
+                                    variant="ghost"
                                     size="sm"
-                                    className={cn(
-                                        "border-2",
-                                        isEditMode ? "border-primary" : "hover:border-primary"
-                                    )}
                                     onClick={() => {
-                                        if (isEditMode) {
-                                            // Aquí iría la lógica para guardar los cambios
-                                            console.log('Guardando cambios:', editedReservation)
-                                        }
-                                        setIsEditMode(!isEditMode)
+                                        setIsEditMode(false)
+                                        setEditedReservation(reservation)
                                     }}
                                 >
-                                    {isEditMode ? (
-                                        <>
-                                            <Save className="h-4 w-4 mr-2" />
-                                            Guardar
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Pencil className="h-4 w-4 mr-2" />
-                                            Editar
-                                        </>
-                                    )}
+                                    <X className="h-4 w-4 mr-2" />
+                                    Cancelar
                                 </Button>
-                                {isEditMode && (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => {
-                                            setEditedReservation(reservation)
-                                            setIsEditMode(false)
-                                        }}
-                                    >
-                                        <X className="h-4 w-4 mr-2" />
-                                        Cancelar
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="grid gap-6 md:grid-cols-2">
-                            {/* Fechas */}
-                            <DatesCard
-                                reservation={editedReservation}
-                                isEditMode={isEditMode}
-                                onUpdate={setEditedReservation}
-                            />
-
-                            {/* Cliente */}
-                            <ClientCard reservation={editedReservation} />
-
-                            {/* Mascotas y Servicios */}
-                            <PetsAndServicesCard
-                                reservation={editedReservation}
-                                isEditMode={isEditMode}
-                                serviceBasePrice={serviceBasePrice}
-                                onServiceAdd={handleAddService}
-                                onServiceRemove={handleRemoveService}
-                                onServiceUpdate={handleUpdateService}
-                            />
-
-                            {/* Productos de Tienda */}
-                            {renderShopProducts()}
-
-                            {/* Precio */}
-                            <PriceBreakdownCard
-                                reservation={editedReservation}
-                                isEditMode={isEditMode}
-                                stayPrice={stayPrice}
-                                serviceBasePrice={serviceBasePrice}
-                                totalDiscount={totalDiscount}
-                                onStayPriceChange={setStayPrice}
-                                onTotalPriceChange={(newTotal) => {
-                                    setEditedReservation({
-                                        ...editedReservation,
-                                        totalPrice: newTotal
-                                    })
-                                }}
-                            />
-
-                            {/* Botones de acción */}
-                            <div className="md:col-span-2 flex justify-end gap-4">
-                            </div>
-                        </div>
+                                <Button
+                                    size="sm"
+                                    onClick={() => setIsEditMode(false)}
+                                >
+                                    <Save className="h-4 w-4 mr-2" />
+                                    Guardar
+                                </Button>
+                            </>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setIsEditMode(true)}
+                            >
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Editar
+                            </Button>
+                        )}
                     </div>
+                </div>
+
+                <div className="flex-1 space-y-8 overflow-y-auto p-6">
+                    <div className="flex items-center justify-between">
+                        <Badge
+                            variant="outline"
+                            className={cn(getStatusStyle(editedReservation.status))}
+                        >
+                            {editedReservation.status}
+                        </Badge>
+                        <Badge
+                            variant="outline"
+                            className={cn(getPaymentStatusStyle(editedReservation.paymentStatus))}
+                        >
+                            {editedReservation.paymentStatus}
+                        </Badge>
+                    </div>
+
+                    <ClientCard
+                        client={editedReservation.client}
+                        isEditMode={isEditMode}
+                        onClientChange={(client) => setEditedReservation({ ...editedReservation, client })}
+                    />
+
+                    {editedReservation.type === 'hotel' && (
+                        <DatesCard
+                            reservation={editedReservation}
+                            isEditMode={isEditMode}
+                            onDatesChange={(dates) => setEditedReservation({ ...editedReservation, ...dates })}
+                        />
+                    )}
+
+                    {editedReservation.type === 'hotel' && (
+                        <PetsAndServicesCard
+                            reservation={editedReservation}
+                            isEditMode={isEditMode}
+                            onPetsChange={(pets) => setEditedReservation({ ...editedReservation, pets })}
+                            onAddService={handleAddService}
+                            onRemoveService={handleRemoveService}
+                            onUpdateService={handleUpdateService}
+                        />
+                    )}
+
+                    {renderShopProducts()}
+
+                    <PriceBreakdownCard
+                        reservation={editedReservation}
+                        isEditMode={isEditMode}
+                        stayPrice={stayPrice}
+                        serviceBasePrice={serviceBasePrice}
+                        onStayPriceChange={setStayPrice}
+                        onTotalPriceChange={(totalPrice) => setEditedReservation({ ...editedReservation, totalPrice })}
+                        onDiscountsChange={handleDiscountsChange}
+                    />
                 </div>
             </div>
         </div>

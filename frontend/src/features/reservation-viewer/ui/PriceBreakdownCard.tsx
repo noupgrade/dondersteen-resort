@@ -1,16 +1,20 @@
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { type Discount } from '@/shared/types/discounts'
+import { Reservation } from '@/shared/types/reservations'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Separator } from '@/shared/ui/separator'
+import { Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
 interface PriceBreakdownCardProps {
-    reservation: HairSalonReservation | HotelReservation
+    reservation: Reservation
     isEditMode: boolean
     stayPrice: number
     serviceBasePrice: number
-    totalDiscount: number
     onStayPriceChange: (price: number) => void
     onTotalPriceChange: (price: number) => void
+    onDiscountsChange?: (discounts: Discount[]) => void
 }
 
 export function PriceBreakdownCard({
@@ -18,21 +22,29 @@ export function PriceBreakdownCard({
     isEditMode,
     stayPrice,
     serviceBasePrice,
-    totalDiscount,
     onStayPriceChange,
-    onTotalPriceChange
+    onTotalPriceChange,
+    onDiscountsChange
 }: PriceBreakdownCardProps) {
+    const [newDiscount, setNewDiscount] = useState<{ concept: string, amount: number }>({ concept: '', amount: 0 })
+
     const calculatePriceBreakdown = () => {
         const IVA = 0.21 // 21% IVA
         let calculatedStayPrice = 0
         let servicesPrice = 0
         let shopPrice = 0
+        let totalDiscounts = 0
 
         if (reservation.type === 'hotel') {
             const checkIn = new Date(reservation.checkInDate)
             const checkOut = new Date(reservation.checkOutDate)
             const days = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))
             calculatedStayPrice = days * stayPrice
+
+            // Calculate total discounts
+            if (reservation.discounts) {
+                totalDiscounts = reservation.discounts.reduce((total, discount) => total + discount.amount, 0)
+            }
         }
 
         // Calcular precio de servicios usando los precios individuales
@@ -45,7 +57,7 @@ export function PriceBreakdownCard({
             shopPrice = reservation.shopProducts.reduce((total, product) => total + product.totalPrice, 0)
         }
 
-        const subtotalSinIVA = calculatedStayPrice + servicesPrice + shopPrice
+        const subtotalSinIVA = calculatedStayPrice + servicesPrice + shopPrice - totalDiscounts
         const ivaAmount = subtotalSinIVA * IVA
         const total = subtotalSinIVA + ivaAmount
 
@@ -53,10 +65,38 @@ export function PriceBreakdownCard({
             stayPrice: calculatedStayPrice,
             servicesPrice,
             shopPrice,
+            totalDiscounts,
             subtotalSinIVA,
             ivaAmount,
             total
         }
+    }
+
+    const handleAddDiscount = () => {
+        console.log("Add discount")
+        if (reservation.type !== 'hotel' || !onDiscountsChange) return
+        console.log("Add discount 2")
+        if (!newDiscount.concept || newDiscount.amount <= 0) return
+
+        console.log("Add discoun3")
+        const newDiscounts = [
+            ...(reservation.discounts || []),
+            {
+                id: crypto.randomUUID(),
+                concept: newDiscount.concept,
+                amount: newDiscount.amount
+            }
+        ]
+
+        onDiscountsChange(newDiscounts)
+        setNewDiscount({ concept: '', amount: 0 })
+    }
+
+    const handleRemoveDiscount = (discountId: string) => {
+        if (reservation.type === 'hotel' || !onDiscountsChange || !reservation.discounts) return
+
+        const newDiscounts = reservation.discounts.filter(d => d.id !== discountId)
+        onDiscountsChange(newDiscounts)
     }
 
     const priceBreakdown = calculatePriceBreakdown()
@@ -103,6 +143,58 @@ export function PriceBreakdownCard({
                             </div>
                         </div>
                     )}
+
+                    {/* Discounts section */}
+                    {reservation.type === 'hotel' && reservation.discounts && reservation.discounts.length > 0 && (
+                        <>
+                            <Separator />
+                            <div className="space-y-2">
+                                <span className="text-sm font-medium">Descuentos:</span>
+                                {reservation.discounts.map((discount) => (
+                                    <div key={discount.id} className="flex items-center justify-between text-green-600">
+                                        <span>{discount.concept}:</span>
+                                        <div className="flex items-center gap-2">
+                                            <span>-€{discount.amount.toFixed(2)}</span>
+                                            {isEditMode && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleRemoveDiscount(discount.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {/* Add discount form */}
+                    {isEditMode && reservation.type === 'hotel' && (
+                        <div className="flex items-end gap-2 pt-2">
+                            <div className="flex-1">
+                                <Input
+                                    placeholder="Concepto"
+                                    value={newDiscount.concept}
+                                    onChange={(e) => setNewDiscount(prev => ({ ...prev, concept: e.target.value }))}
+                                />
+                            </div>
+                            <div className="w-24">
+                                <Input
+                                    type="number"
+                                    placeholder="€"
+                                    value={newDiscount.amount || ''}
+                                    onChange={(e) => setNewDiscount(prev => ({ ...prev, amount: Number(e.target.value) }))}
+                                />
+                            </div>
+                            <Button variant="outline" size="icon" onClick={handleAddDiscount}>
+                                <Plus className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+
                     <Separator />
                     <div className="flex items-center justify-between">
                         <span>Base Imponible:</span>
@@ -134,14 +226,6 @@ export function PriceBreakdownCard({
                             )}
                         </div>
                     </div>
-                    {totalDiscount > 0 && (
-                        <div className="flex items-center justify-between text-green-600">
-                            <span>Descuento aplicado:</span>
-                            <div className="flex items-center gap-2 justify-end">
-                                <span>-€{totalDiscount.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </CardContent>
         </Card>

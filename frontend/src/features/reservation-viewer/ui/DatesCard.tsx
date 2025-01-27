@@ -1,127 +1,85 @@
-import { format } from 'date-fns'
-import { Calendar, Clock } from 'lucide-react'
-
-import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
+import { type HotelReservation } from '@/shared/types/reservations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DatePicker } from '@/shared/ui/date-picker'
 import { Input } from '@/shared/ui/input'
+import { Calendar, Clock } from 'lucide-react'
 
 interface DatesCardProps {
-    reservation: HairSalonReservation | HotelReservation | HotelBudget
+    reservation: HotelReservation
     isEditMode: boolean
-    onUpdate: (updatedReservation: HairSalonReservation | HotelReservation | HotelBudget) => void
+    onDatesChange: (dates: {
+        checkInDate?: string
+        checkInTime?: string
+        checkOutDate?: string
+        checkOutTime?: string
+    }) => void
 }
 
-export function DatesCard({ reservation, isEditMode, onUpdate }: DatesCardProps) {
-    const formatDate = (date?: string) => {
-        if (!date) return ''
-        return format(new Date(date), 'dd MMM yyyy')
-    }
-
+export function DatesCard({ reservation, isEditMode, onDatesChange }: DatesCardProps) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="text-base font-medium">Fechas</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-                {(reservation.type === 'hotel' || reservation.type === 'hotel-budget') ? (
-                    <>
-                        <div className="flex items-center gap-4">
-                            <div className="w-4">
-                                <Calendar className="h-4 w-4 text-gray-500" />
-                            </div>
-                            <span className="w-16">Entrada:</span>
+            <CardContent>
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Check-in:
+                        </span>
+                        <div className="flex items-center gap-2 justify-end">
                             {isEditMode ? (
-                                <div className="flex items-center gap-4">
+                                <>
                                     <DatePicker
-                                        date={reservation.checkInDate ? new Date(reservation.checkInDate) : new Date()}
-                                        onSelect={(date) => date && onUpdate({
-                                            ...reservation,
-                                            checkInDate: date.toISOString().split('T')[0]
-                                        })}
+                                        date={new Date(reservation.checkInDate)}
+                                        onSelect={(date) => onDatesChange({ checkInDate: date.toISOString() })}
                                     />
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4 text-gray-500" />
-                                        <Input
-                                            value={reservation.checkInTime}
-                                            onChange={(e) => onUpdate({
-                                                ...reservation,
-                                                checkInTime: e.target.value
-                                            })}
-                                            className="h-8 w-24"
-                                        />
-                                    </div>
-                                </div>
+                                    <Input
+                                        type="time"
+                                        value={reservation.checkInTime}
+                                        onChange={(e) => onDatesChange({ checkInTime: e.target.value })}
+                                        className="w-24"
+                                    />
+                                </>
                             ) : (
-                                <div className="flex items-center gap-4">
-                                    <span>{formatDate(reservation.checkInDate)}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4 text-gray-500" />
-                                        <span>{reservation.checkInTime}</span>
-                                    </div>
+                                <div className="flex items-center gap-2">
+                                    <span>{new Date(reservation.checkInDate).toLocaleDateString()}</span>
+                                    <Clock className="h-4 w-4" />
+                                    <span>{reservation.checkInTime}</span>
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="w-4">
-                                <Calendar className="h-4 w-4 text-gray-500" />
-                            </div>
-                            <span className="w-16">Salida:</span>
-                            {isEditMode ? (
-                                <div className="flex items-center gap-4">
-                                    <DatePicker
-                                        date={reservation.checkOutDate ? new Date(reservation.checkOutDate) : new Date()}
-                                        onSelect={(date) => date && onUpdate({
-                                            ...reservation,
-                                            checkOutDate: date.toISOString().split('T')[0]
-                                        })}
-                                    />
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4 text-gray-500" />
-                                        <Input
-                                            value={reservation.checkOutTime || '12:00'}
-                                            onChange={(e) => onUpdate({
-                                                ...reservation,
-                                                checkOutTime: e.target.value
-                                            })}
-                                            className="h-8 w-24"
-                                        />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-4">
-                                    <span>{formatDate(reservation.checkOutDate)}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4 text-gray-500" />
-                                        <span>{reservation.checkOutTime || '12:00'}</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <DatePicker
-                            date={reservation.date ? new Date(reservation.date) : new Date()}
-                            onSelect={(date) => date && onUpdate({
-                                ...reservation,
-                                date: date.toISOString().split('T')[0]
-                            })}
-                            disabled={!isEditMode}
-                        />
-                        <Clock className="h-4 w-4 text-gray-500 ml-2" />
-                        <Input
-                            value={reservation.time}
-                            onChange={(e) => onUpdate({
-                                ...reservation,
-                                time: e.target.value
-                            })}
-                            className="h-8 w-24"
-                            disabled={!isEditMode}
-                        />
                     </div>
-                )}
+                    <div className="flex items-center justify-between">
+                        <span className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Check-out:
+                        </span>
+                        <div className="flex items-center gap-2 justify-end">
+                            {isEditMode ? (
+                                <>
+                                    <DatePicker
+                                        date={new Date(reservation.checkOutDate)}
+                                        onSelect={(date) => onDatesChange({ checkOutDate: date.toISOString() })}
+                                    />
+                                    <Input
+                                        type="time"
+                                        value={reservation.checkOutTime}
+                                        onChange={(e) => onDatesChange({ checkOutTime: e.target.value })}
+                                        className="w-24"
+                                    />
+                                </>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <span>{new Date(reservation.checkOutDate).toLocaleDateString()}</span>
+                                    <Clock className="h-4 w-4" />
+                                    <span>{reservation.checkOutTime}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </CardContent>
         </Card>
     )

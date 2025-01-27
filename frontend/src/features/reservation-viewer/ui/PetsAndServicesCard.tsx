@@ -1,4 +1,4 @@
-import { PawPrint, Plus, Truck } from 'lucide-react'
+import { PawPrint, Plus, Truck, Trash2 } from 'lucide-react'
 import { type HairSalonReservation, type HotelReservation, type HotelBudget } from '@/components/ReservationContext'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -7,14 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/shared/ui/separator'
 import { type AdditionalService, type HairdressingServiceType } from '@/shared/types/additional-services'
 import { getServicesByPet, getTransportService } from '../model/services'
+import { type Pet } from '@/shared/types/pets'
 
 interface PetsAndServicesCardProps {
-    reservation: HairSalonReservation | HotelReservation | HotelBudget
+    reservation: HotelReservation
     isEditMode: boolean
-    serviceBasePrice?: number
-    onServiceAdd?: (petIndex: number) => void
-    onServiceRemove?: (index: number) => void
-    onServiceUpdate?: (index: number, service: AdditionalService) => void
+    onPetsChange: (pets: Pet[]) => void
+    onAddService: (petIndex: number) => void
+    onRemoveService: (index: number) => void
+    onUpdateService: (index: number, updatedService: AdditionalService) => void
 }
 
 const serviceTypeLabels: Record<HairdressingServiceType, string> = {
@@ -30,120 +31,116 @@ const serviceTypeLabels: Record<HairdressingServiceType, string> = {
 export function PetsAndServicesCard({
     reservation,
     isEditMode,
-    serviceBasePrice = 30,
-    onServiceAdd,
-    onServiceRemove,
-    onServiceUpdate
+    onPetsChange,
+    onAddService,
+    onRemoveService,
+    onUpdateService
 }: PetsAndServicesCardProps) {
     const transportService = getTransportService(reservation.additionalServices)
     const servicesByPet = getServicesByPet(reservation.additionalServices)
 
     const renderPets = () => {
-        if (reservation.type === 'hotel' || reservation.type === 'hotel-budget') {
-            return reservation.pets.map((pet, index) => (
-                <div key={index} className="flex gap-8 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 font-medium mb-2">
-                            <PawPrint className="h-4 w-4 text-gray-500" />
-                            {pet.name} ({pet.breed})
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                            <div>
-                                <span className="font-medium">Tamaño:</span>
+        return (
+            <div className="space-y-4">
+                {reservation.pets.map((pet, petIndex) => (
+                    <div key={pet.id || petIndex} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span>Mascota {petIndex + 1}:</span>
+                            <div className="flex items-center gap-2 justify-end">
                                 {isEditMode ? (
-                                    <Input
-                                        value={pet.size}
-                                        onChange={(e) => {
-                                            // Handle size change
-                                        }}
-                                        className="h-8 w-32 mt-1"
-                                    />
-                                ) : (
-                                    <div className="mt-1">{pet.size}</div>
-                                )}
-                            </div>
-                            <div>
-                                <span className="font-medium">Peso:</span>
-                                {isEditMode ? (
-                                    <div className="flex items-center gap-2 mt-1">
+                                    <>
                                         <Input
-                                            type="number"
-                                            value={pet.weight}
+                                            value={pet.name}
                                             onChange={(e) => {
-                                                // Handle weight change
+                                                const newPets = [...reservation.pets]
+                                                newPets[petIndex] = { ...pet, name: e.target.value }
+                                                onPetsChange(newPets)
                                             }}
-                                            className="h-8 w-24"
+                                            className="w-48"
                                         />
-                                        <span>kg</span>
+                                        <Button
+                                            variant="destructive"
+                                            size="icon"
+                                            onClick={() => {
+                                                const newPets = reservation.pets.filter((_, i) => i !== petIndex)
+                                                onPetsChange(newPets)
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <span>{pet.name}</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="pl-4 space-y-2">
+                            {reservation.additionalServices
+                                .filter(service => service.petIndex === petIndex)
+                                .map((service, serviceIndex) => (
+                                    <div key={serviceIndex} className="flex items-center justify-between">
+                                        <span>Servicio:</span>
+                                        <div className="flex items-center gap-2 justify-end">
+                                            {isEditMode ? (
+                                                <>
+                                                    <Input
+                                                        value={service.services?.join(', ') || ''}
+                                                        onChange={(e) => {
+                                                            const updatedService = {
+                                                                ...service,
+                                                                services: e.target.value ? e.target.value.split(',').map(s => s.trim()) : []
+                                                            }
+                                                            onUpdateService(serviceIndex, updatedService)
+                                                        }}
+                                                        className="w-48"
+                                                    />
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        onClick={() => onRemoveService(serviceIndex)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span>{service.services?.join(', ') || '-'}</span>
+                                            )}
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className="mt-1">{pet.weight} kg</div>
-                                )}
-                            </div>
-                            <div>
-                                <span className="font-medium">Sexo:</span>
-                                {isEditMode ? (
-                                    <Input
-                                        value={pet.sex}
-                                        onChange={(e) => {
-                                            // Handle sex change
-                                        }}
-                                        className="h-8 w-24 mt-1"
-                                    />
-                                ) : (
-                                    <div className="mt-1">{pet.sex === 'M' ? 'Macho' : 'Hembra'}</div>
-                                )}
-                            </div>
-                            <div>
-                                <span className="font-medium">Estado:</span>
-                                {isEditMode ? (
-                                    <Select
-                                        value={pet.isNeutered ? 'yes' : 'no'}
-                                        onValueChange={(value: 'yes' | 'no') => {
-                                            // Handle neutered status change
-                                        }}
-                                    >
-                                        <SelectTrigger className="h-8 w-32 mt-1">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="yes">Castrado/a</SelectItem>
-                                            <SelectItem value="no">No castrado/a</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                ) : (
-                                    <div className="mt-1">{pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ))
-        } else {
-            const pet = reservation.pet
-            return (
-                <div className="flex gap-8 p-4 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 font-medium mb-2">
-                            <PawPrint className="h-4 w-4 text-gray-500" />
-                            {pet.name} ({pet.breed})
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                            <div>
-                                <span className="font-medium">Tamaño:</span>
-                                <div className="mt-1">{pet.size}</div>
-                            </div>
-                            {pet.weight && (
-                                <div>
-                                    <span className="font-medium">Peso:</span>
-                                    <div className="mt-1">{pet.weight} kg</div>
-                                </div>
+                                ))}
+                            {isEditMode && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => onAddService(petIndex)}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Añadir Servicio
+                                </Button>
                             )}
                         </div>
                     </div>
-                </div>
-            )
-        }
+                ))}
+                {isEditMode && (
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            const newPet: Pet = {
+                                name: '',
+                                breed: '',
+                                weight: 0,
+                                size: 'pequeño',
+                                sex: 'M'
+                            }
+                            onPetsChange([...reservation.pets, newPet])
+                        }}
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Añadir Mascota
+                    </Button>
+                )}
+            </div>
+        )
     }
 
     const renderServices = () => {
@@ -174,7 +171,7 @@ export function PetsAndServicesCard({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => onServiceAdd?.(Number(petIndex))}
+                                        onClick={() => onAddService(Number(petIndex))}
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Añadir Servicio
@@ -188,7 +185,7 @@ export function PetsAndServicesCard({
                                             {isEditMode ? (
                                                 <Select
                                                     value={service.type}
-                                                    onValueChange={(value) => onServiceUpdate?.(index, {
+                                                    onValueChange={(value) => onUpdateService(index, {
                                                         ...service,
                                                         type: value as typeof service.type
                                                     })}
@@ -216,7 +213,7 @@ export function PetsAndServicesCard({
                                                 isEditMode ? (
                                                     <Select
                                                         value={service.services?.[0] || 'bath_and_brush'}
-                                                        onValueChange={(value) => onServiceUpdate?.(index, {
+                                                        onValueChange={(value) => onUpdateService(index, {
                                                             ...service,
                                                             services: [value as HairdressingServiceType]
                                                         })}
@@ -241,7 +238,7 @@ export function PetsAndServicesCard({
                                                 isEditMode ? (
                                                     <Input
                                                         value={service.comment || ''}
-                                                        onChange={(e) => onServiceUpdate?.(index, {
+                                                        onChange={(e) => onUpdateService(index, {
                                                             ...service,
                                                             comment: e.target.value
                                                         })}
@@ -255,15 +252,15 @@ export function PetsAndServicesCard({
                                             {isEditMode ? (
                                                 <Input
                                                     type="number"
-                                                    value={service.price || serviceBasePrice}
-                                                    onChange={(e) => onServiceUpdate?.(index, {
+                                                    value={service.price || 30}
+                                                    onChange={(e) => onUpdateService(index, {
                                                         ...service,
                                                         price: Number(e.target.value)
                                                     })}
                                                     className="w-24 text-right"
                                                 />
                                             ) : (
-                                                <span>€{(service.price || serviceBasePrice).toFixed(2)}</span>
+                                                <span>€{(service.price || 30).toFixed(2)}</span>
                                             )}
                                         </div>
                                         {isEditMode && (
@@ -271,7 +268,7 @@ export function PetsAndServicesCard({
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"
-                                                    onClick={() => onServiceRemove?.(index)}
+                                                    onClick={() => onRemoveService(index)}
                                                 >
                                                     Eliminar
                                                 </Button>
