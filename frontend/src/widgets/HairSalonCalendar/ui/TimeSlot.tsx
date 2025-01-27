@@ -8,6 +8,8 @@ import { useCalendarStore } from '../model/store'
 import { TaskCard } from './TaskCard'
 import { TaskModal } from './TaskModal'
 import { TimeSelectionModal } from './TimeSelectionModal'
+import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
+import { generateId, calculateTaskConflicts } from '../model/task-utils'
 
 interface TimeSlotProps {
     time: string
@@ -26,7 +28,9 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         updateTask,
         selectedTask,
         setSelectedTask,
-        selectedReservation
+        selectedReservation,
+        setSelectedReservation,
+        setScheduledTasks
     } = useCalendarStore()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isTimeSelectionModalOpen, setIsTimeSelectionModalOpen] = useState(false)
@@ -176,21 +180,43 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
         }
     }
 
-    const handleTimeSelection = async (minutes: number) => {
+    const handleTimeSelection = async (minutes: number, service: HairdressingServiceType, duration: number) => {
         if (!selectedReservation) return
 
         const selectedTime = `${normalizeTime(time).split(':')[0]}:${minutes.toString().padStart(2, '0')}`
+        console.log('selectedReservation', selectedReservation.id)
         try {
-            await createTasksFromReservation(selectedReservation, date, selectedTime)
+            const task: HairSalonTask = {
+                id: generateId(),
+                reservationId: selectedReservation.id,
+                service: {
+                    type: 'hairdressing' as const,
+                    petIndex: selectedReservation.additionalServices.find(isHairdressingService)?.petIndex || 0,
+                    services: [service]
+                },
+                date,
+                time: selectedTime,
+                duration
+            }
+
+            // Check for conflicts
+            const conflicts = calculateTaskConflicts(scheduledTasks, task)
+            if (conflicts.length > 0) {
+                throw new Error('La tarea entra en conflicto con otras tareas existentes')
+            }
+
+            setScheduledTasks([...scheduledTasks, task])
+            setSelectedReservation(null)
+
             toast({
-                title: "Tareas creadas",
-                description: "Las tareas se han creado correctamente."
+                title: "Tarea creada",
+                description: "La tarea se ha creado correctamente."
             })
         } catch (error) {
-            console.error('Error al crear las tareas:', error)
+            console.error('Error al crear la tarea:', error)
             toast({
                 title: "Error",
-                description: error instanceof Error ? error.message : "No se pudieron crear las tareas.",
+                description: error instanceof Error ? error.message : "No se pudo crear la tarea.",
                 variant: "destructive"
             })
         } finally {
@@ -273,12 +299,15 @@ export function TimeSlot({ time, date, isAvailable = true, isWeekView = false }:
                 />
             )}
 
-            <TimeSelectionModal
-                isOpen={isTimeSelectionModalOpen}
-                onClose={() => setIsTimeSelectionModalOpen(false)}
-                onSelectTime={handleTimeSelection}
-                hour={normalizeTime(time).split(':')[0]}
-            />
+            {selectedReservation && (
+                <TimeSelectionModal
+                    isOpen={isTimeSelectionModalOpen}
+                    onClose={() => setIsTimeSelectionModalOpen(false)}
+                    onSelectTime={handleTimeSelection}
+                    hour={normalizeTime(time).split(':')[0]}
+                    reservation={selectedReservation}
+                />
+            )}
         </>
     )
 } 

@@ -101,11 +101,11 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     setScheduledTasks: (tasks) => set({ scheduledTasks: tasks }),
 
     createTasksFromReservation: async (reservation, date, time) => {
+        console.log('Create task')
         const tasks = createTasksFromReservation(reservation, date, time)
 
         set(state => ({
             scheduledTasks: [...state.scheduledTasks, ...tasks],
-            unscheduledReservations: state.unscheduledReservations.filter(r => r.id !== reservation.id),
             selectedReservation: null
         }))
 

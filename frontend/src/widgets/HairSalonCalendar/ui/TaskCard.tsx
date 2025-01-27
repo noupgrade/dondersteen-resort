@@ -54,6 +54,7 @@ export function TaskCard({
     const { setDraggedItem } = useCalendarStore()
     const { reservations } = useReservation()
 
+    console.log(reservations.map(r => r.id), task)
     // Get the associated reservation
     const reservation = reservations.find(r => r.id === task.reservationId)
 

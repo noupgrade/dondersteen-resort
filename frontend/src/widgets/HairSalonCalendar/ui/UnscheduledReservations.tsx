@@ -43,9 +43,9 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
 
     const handleTouchStart = (res: HairSalonReservation) => {
         const now = Date.now()
-        const DOUBLE_TAP_DELAY = 300 // milisegundos
+        const DOUBLE_TAP_DELAY = 1000 // milisegundos
 
-        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY) {
+        if (lastTap && (now - lastTap) < DOUBLE_TAP_DELAY && selectedReservation?.id === res.id) {
             // Doble tap detectado
             setSelectedModalReservation(res)
             setIsModalOpen(true)
@@ -55,10 +55,10 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
         }
 
         setLastTap(now)
-        setTouchCount(prev => prev + 1)
         // Si es un tap simple, manejamos la selección
         if (touchCount === 0) {
             if (selectedReservation?.id === res.id) {
+                console.log('slr')
                 setSelectedReservation(null)
             } else {
                 setSelectedReservation(res)
@@ -68,6 +68,7 @@ export function UnscheduledReservations({ className }: UnscheduledReservationsPr
                 })
             }
         }
+        setTouchCount(prev => prev + 1)
     }
 
     const handleReservationDoubleClick = (reservation: HairSalonReservation, e: React.MouseEvent) => {
