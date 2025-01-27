@@ -21,70 +21,9 @@ interface CalendarStore extends CalendarState {
     getTasksForTimeSlot: (date: string, time: string) => HairSalonTask[]
 }
 
-// Mock de citas aceptadas pero pendientes de asignar hora
-const mockUnscheduledReservations: HairSalonReservation[] = [
-    {
-        id: '3',
-        type: 'peluqueria',
-        source: 'hotel',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Pedro Gómez',
-            phone: '611222333',
-            email: 'pedro@example.com'
-        },
-        pet: {
-            id: 'pet3',
-            name: 'Nala',
-            breed: 'Pastor Alemán',
-            size: 'grande',
-            weight: 30
-        },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['deshedding']
-        }],
-        status: 'confirmed',
-        observations: 'Cliente habitual',
-        totalPrice: 50,
-        paymentStatus: 'pending',
-        hasDriverService: true
-    },
-    {
-        id: '4',
-        type: 'peluqueria',
-        source: 'external',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: '',
-        client: {
-            name: 'Carmen Rodríguez',
-            phone: '644555666',
-            email: 'carmen@example.com'
-        },
-        pet: {
-            id: 'pet4',
-            name: 'Coco',
-            breed: 'Bulldog Francés',
-            size: 'mediano',
-            weight: 12
-        },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['bath_and_trim']
-        }],
-        status: 'confirmed',
-        totalPrice: 40,
-        paymentStatus: 'pending',
-        hasDriverService: false
-    }
-]
-
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
     scheduledTasks: [],
-    unscheduledReservations: mockUnscheduledReservations,
+    unscheduledReservations: [],
     draggedItem: null,
     selectedTask: null,
     selectedReservation: null,

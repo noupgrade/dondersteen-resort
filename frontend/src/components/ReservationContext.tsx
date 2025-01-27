@@ -115,6 +115,7 @@ export type { ReservationDocument }
 
 type ReservationContextType = {
     reservations: ReservationDocument[]
+    unscheduledHairSalonReservations: HairSalonReservation[]
     addReservation: (reservation: Omit<Reservation, 'id'>) => Promise<ReservationDocument>
     updateReservation: (id: string, updatedData: Partial<Reservation>) => Promise<void>
     deleteReservation: (id: string) => Promise<void>
@@ -144,6 +145,11 @@ export const useHairSalonReservations = (): { reservations: HairSalonReservation
     return { reservations: reservations.filter(r => r.type === 'peluqueria') }
 }
 
+export const useUnscheduledHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
+    const { unscheduledHairSalonReservations } = useReservation()
+    return { reservations: unscheduledHairSalonReservations }
+}
+
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const {
         results: dbReservations,
@@ -169,6 +175,15 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
         return allReservations
     }, [dbReservations])
+
+    const unscheduledHairSalonReservations = useMemo(() => {
+        return reservations
+            .filter((r): r is HairSalonReservation =>
+                r.type === 'peluqueria' &&
+                r.status === 'confirmed' &&
+                (!r.tasks || r.tasks.length === 0)
+            )
+    }, [reservations])
 
     const addReservation = useCallback(async (reservation: Omit<Reservation, 'id'>) => {
         // If it's an example reservation
@@ -288,11 +303,12 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         <ReservationContext.Provider
             value={{
                 reservations,
+                unscheduledHairSalonReservations,
                 addReservation,
                 updateReservation,
                 deleteReservation,
-                getReservationsByDate,
                 getReservationsByClientId,
+                getReservationsByDate,
                 getCalendarAvailability,
                 isLoading,
             }}

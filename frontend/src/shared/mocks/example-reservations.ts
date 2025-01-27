@@ -54,8 +54,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:00',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             },
             {
                 id: 'task2',
@@ -67,8 +66,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:30',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             }
         ]
     },
@@ -116,8 +114,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '11:00',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             },
             {
                 id: 'task4',
@@ -129,8 +126,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '11:30',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             }
         ]
     },
@@ -175,8 +171,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '11:30',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             },
             {
                 id: 'task6',
@@ -188,8 +183,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '12:00',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             },
             {
                 id: 'task7',
@@ -201,8 +195,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '12:30',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             }
         ]
     },
@@ -561,8 +554,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:00',
-                duration: 45,
-                status: 'pending'
+                duration: 45
             }
         ]
     },
@@ -608,8 +600,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '16:30',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             },
             {
                 id: 'task10',
@@ -621,8 +612,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '17:00',
-                duration: 30,
-                status: 'pending'
+                duration: 30
             }
         ]
     },
@@ -1123,5 +1113,67 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         status: 'pending',
         totalPrice: 450,
         paymentStatus: 'Pendiente'
+    },
+    {
+        id: 'EXAMPLE_UNSCHEDULED_1',
+        type: 'peluqueria',
+        source: 'hotel',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            id: 'EXAMPLE_CLIENT_10',
+            name: 'Pedro Gómez',
+            phone: '611222333',
+            email: 'pedro@example.com'
+        },
+        pet: {
+            id: 'PET_10',
+            name: 'Nala',
+            breed: 'Pastor Alemán',
+            size: 'grande',
+            weight: 30
+        },
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['deshedding', 'bath_and_brush']
+        } satisfies HairdressingService],
+        status: 'confirmed',
+        observations: 'Cliente habitual',
+        totalPrice: 50,
+        paymentStatus: 'pending',
+        hasDriverService: true,
+        hotelCheckIn: format(new Date(), 'yyyy-MM-dd'),
+        hotelCheckOut: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
+        hotelCheckOutTime: '12:00'
+    },
+    {
+        id: 'EXAMPLE_UNSCHEDULED_2',
+        type: 'peluqueria',
+        source: 'external',
+        date: format(new Date(), 'yyyy-MM-dd'),
+        time: '',
+        client: {
+            id: 'EXAMPLE_CLIENT_11',
+            name: 'Carmen Rodríguez',
+            phone: '644555666',
+            email: 'carmen@example.com'
+        },
+        pet: {
+            id: 'PET_11',
+            name: 'Coco',
+            breed: 'Bulldog Francés',
+            size: 'mediano',
+            weight: 12
+        },
+        additionalServices: [{
+            type: 'hairdressing',
+            petIndex: 0,
+            services: ['bath_and_trim', 'spa']
+        } satisfies HairdressingService],
+        status: 'confirmed',
+        totalPrice: 40,
+        paymentStatus: 'pending',
+        requestedTime: '16:00'
     }
 ] 

@@ -1,4 +1,5 @@
 import type { HairSalonReservation } from '@/components/ReservationContext'
+import { useUnscheduledHairSalonReservations } from '@/components/ReservationContext'
 import { cn } from '@/shared/lib/styles/class-merge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { useToast } from '@/shared/ui/use-toast'
@@ -13,10 +14,10 @@ interface UnscheduledReservationsProps {
 
 export function UnscheduledReservations({ className }: UnscheduledReservationsProps) {
     const {
-        unscheduledReservations,
         selectedReservation,
         setSelectedReservation,
     } = useCalendarStore()
+    const { reservations: unscheduledReservations } = useUnscheduledHairSalonReservations()
     const [selectedModalReservation, setSelectedModalReservation] = useState<HairSalonReservation | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const { toast } = useToast()
