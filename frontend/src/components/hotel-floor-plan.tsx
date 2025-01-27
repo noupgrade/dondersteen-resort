@@ -189,33 +189,33 @@ const hotel1Layout: Room[] = [
     {
         id: '6',
         number: 'HAB.6',
-        style: { left: '2%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '2%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     // L shape - Horizontal part (left to right)
     {
         id: '5',
         number: 'HAB.5',
-        style: { left: '22%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '19%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     {
         id: '4',
         number: 'HAB.4',
-        style: { left: '42%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '36%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     {
         id: '3',
         number: 'HAB.3',
-        style: { left: '62%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '53%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     {
         id: '2',
         number: 'HAB.2',
-        style: { left: '82%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '70%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     {
         id: '1',
         number: 'HAB.1',
-        style: { left: '102%', top: '78%', width: '18%', height: '18%', position: 'absolute' },
+        style: { left: '87%', top: '78%', width: '15%', height: '18%', position: 'absolute' },
     },
     // Center area - Top row (left to right)
     {
@@ -296,38 +296,38 @@ const hotel2Layout: Room[] = [
     {
         id: '30',
         number: 'HAB.30',
-        style: { left: '2%', top: '2%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '2%', width: '32%', height: '32%', position: 'absolute' },
     },
     {
         id: '29',
         number: 'HAB.29',
-        style: { left: '2%', top: '20%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '36%', width: '32%', height: '16%', position: 'absolute' },
     },
     {
         id: '28',
         number: 'HAB.28',
-        style: { left: '2%', top: '38%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '54%', width: '32%', height: '16%', position: 'absolute' },
     },
     {
         id: '27',
         number: 'HAB.27',
-        style: { left: '2%', top: '56%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '72%', width: '32%', height: '16%', position: 'absolute' },
     },
     {
         id: '26',
         number: 'HAB.26',
-        style: { left: '2%', top: '74%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '90%', width: '32%', height: '16%', position: 'absolute' },
     },
     {
         id: '25',
         number: 'HAB.25',
-        style: { left: '2%', top: '92%', width: '32%', height: '16%', position: 'absolute' },
+        style: { left: '2%', top: '108%', width: '32%', height: '16%', position: 'absolute' },
     },
     // Center area
     {
         id: '31',
         number: 'HAB.31',
-        style: { left: '36%', top: '2%', width: '30%', height: '32%', position: 'absolute' },
+        style: { left: '36%', top: '2%', width: '30%', height: '16%', position: 'absolute' },
     },
     // Right column (top to bottom)
     {
