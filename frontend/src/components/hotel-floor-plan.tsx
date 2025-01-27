@@ -65,24 +65,22 @@ function RoomCard({ room, onClick, reservations }: RoomCardProps) {
     const pets = roomReservation?.pets || []
     const hasManyPets = pets.length > 2
 
-    console.log('Room:', room.number, 'Reservation:', roomReservation)
 
     // Collect all symbols from pets' properties
     const getSymbolsFromPet = (pet: any) => {
-        console.log('Pet data:', pet)
         const symbols = []
-        
+
         // Medicación
         if (pet.medication) symbols.push('O')
-        
+
         // Pienso propio
         if (pet.specialFood) symbols.push('*')
-        
+
         // Tamaño del perro
         if (pet.size?.toLowerCase() === 'pequeño') symbols.push('□')
         if (pet.size?.toLowerCase() === 'mediano') symbols.push('△')
         if (pet.size?.toLowerCase() === 'grande') symbols.push('■')
-        
+
         // Observaciones
         const obsLower = pet.observations?.toLowerCase() || ''
         if (obsLower.includes('escapista')) symbols.push('E')
@@ -96,7 +94,6 @@ function RoomCard({ room, onClick, reservations }: RoomCardProps) {
         if (obsLower.includes('cama')) symbols.push('🛏️')
         if (obsLower.includes('sin cama')) symbols.push('△')
 
-        console.log('Symbols generated:', symbols)
         return symbols
     }
 

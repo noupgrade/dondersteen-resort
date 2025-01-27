@@ -30,7 +30,8 @@ const mockClientProfile: ClientProfile = {
                 {
                     type: 'medication',
                     petIndex: 0,
-                    comment: 'Antiinflamatorio cada 12h'
+                    comment: 'Antiinflamatorio cada 12h',
+                    frequency: 'single'
                 },
                 {
                     type: 'special_care',
@@ -60,7 +61,8 @@ const mockClientProfile: ClientProfile = {
                 {
                     type: 'medication',
                     petIndex: 1,
-                    comment: 'Vitaminas por la mañana'
+                    comment: 'Vitaminas por la mañana',
+                    frequency: 'single'
                 },
                 {
                     type: 'special_care',
