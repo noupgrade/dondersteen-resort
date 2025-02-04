@@ -1,10 +1,10 @@
 'use client'
 
-import { useClientProfile } from '@/hooks/use-client-profile'
-import { AlertCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useWatch } from 'react-hook-form'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import { AlertCircle } from 'lucide-react'
 
 import { BookingSummary } from '@/components/booking-summary'
 import { ConfirmationDialog } from '@/components/confirmation-dialog'
@@ -16,6 +16,7 @@ import {
     DateSelectionStep,
     PetInformationStep,
 } from '@/features/booking/ui/BookingSteps'
+import { useClientProfile } from '@/hooks/use-client-profile'
 import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
@@ -28,17 +29,7 @@ export default function BookingPage() {
     const type = searchParams.get('type')
     const { data: clientProfile } = useClientProfile(userId || '')
 
-    const {
-        form,
-        state,
-        setState,
-        addPet,
-        removePet,
-        handleSubmit,
-        nextStep,
-        prevStep,
-        clearForm,
-    } = useBookingForm({
+    const { form, state, setState, addPet, removePet, handleSubmit, nextStep, prevStep, clearForm } = useBookingForm({
         defaultValues: {
             pets: clientProfile?.pets.map(pet => ({
                 name: pet.name,
@@ -48,26 +39,26 @@ export default function BookingPage() {
                 age: '0',
                 personality: '',
                 sex: pet.sex || 'M',
-                isNeutered: pet.isNeutered || false
-            })) || [{
-                name: '',
-                breed: '',
-                weight: '0',
-                size: 'pequeño' as const,
-                age: '0',
-                personality: '',
-                sex: 'M' as const,
-                isNeutered: false
-            }],
+                isNeutered: pet.isNeutered || false,
+            })) || [
+                {
+                    name: '',
+                    breed: '',
+                    weight: '0',
+                    size: 'pequeño' as const,
+                    age: '0',
+                    personality: '',
+                    sex: 'M' as const,
+                    isNeutered: false,
+                },
+            ],
             dates: null,
-            services: clientProfile?.pets
-                .map(pet => pet.additionalServices || [])
-                .flat() || [],
+            services: clientProfile?.pets.map(pet => pet.additionalServices || []).flat() || [],
             clientName: clientProfile?.client.name.split(' ')[0] || '',
             clientLastName: clientProfile?.client.name.split(' ').slice(1).join(' ') || '',
             clientEmail: clientProfile?.client.email || '',
-            clientPhone: clientProfile?.client.phone || ''
-        }
+            clientPhone: clientProfile?.client.phone || '',
+        },
     })
 
     // Update form values when clientProfile changes
@@ -77,20 +68,20 @@ export default function BookingPage() {
             form.setValue('clientLastName', clientProfile.client.name.split(' ').slice(1).join(' '))
             form.setValue('clientEmail', clientProfile.client.email)
             form.setValue('clientPhone', clientProfile.client.phone)
-            form.setValue('pets', clientProfile.pets.map(pet => ({
-                name: pet.name,
-                breed: pet.breed,
-                weight: String(pet.weight),
-                size: pet.size,
-                age: '0',
-                personality: '',
-                sex: pet.sex || 'M',
-                isNeutered: pet.isNeutered || false
-            })))
-            form.setValue('services', clientProfile.pets
-                .map(pet => pet.additionalServices || [])
-                .flat()
+            form.setValue(
+                'pets',
+                clientProfile.pets.map(pet => ({
+                    name: pet.name,
+                    breed: pet.breed,
+                    weight: String(pet.weight),
+                    size: pet.size,
+                    age: '0',
+                    personality: '',
+                    sex: pet.sex || 'M',
+                    isNeutered: pet.isNeutered || false,
+                })),
             )
+            form.setValue('services', clientProfile.pets.map(pet => pet.additionalServices || []).flat())
         }
     }, [clientProfile, form])
 
@@ -102,30 +93,31 @@ export default function BookingPage() {
 
     const watchedPets = useWatch({
         control: form.control,
-        name: 'pets'
+        name: 'pets',
     })
 
     const watchedServices = useWatch({
         control: form.control,
-        name: 'services'
+        name: 'services',
     })
 
     return (
         <>
             <div className='container mx-auto max-w-4xl py-8'>
                 {type === 'budget' && (
-                    <Alert variant="destructive" className="mb-6">
-                        <AlertCircle className="h-4 w-4" />
-                        <div className="flex items-center justify-between w-full">
+                    <Alert variant='destructive' className='mb-6'>
+                        <AlertCircle className='h-4 w-4' />
+                        <div className='flex w-full items-center justify-between'>
                             <div>
                                 <AlertTitle>Creando Presupuesto</AlertTitle>
                                 <AlertDescription>
-                                    Estás en el proceso de crear un presupuesto. Si deseas realizar una reserva, haz clic aquí.
+                                    Estás en el proceso de crear un presupuesto. Si deseas realizar una reserva, haz
+                                    clic aquí.
                                 </AlertDescription>
                             </div>
                             <Button
-                                variant="outline"
-                                className="bg-white hover:bg-white/90"
+                                variant='outline'
+                                className='bg-white hover:bg-white/90'
                                 onClick={() => {
                                     const newParams = new URLSearchParams(searchParams)
                                     newParams.delete('type')
@@ -137,25 +129,13 @@ export default function BookingPage() {
                         </div>
                     </Alert>
                 )}
-                <div className='fixed left-5 top-5'>
-                    <Button
-                        variant='outline'
-                        onClick={clearForm}
-                    >
-                        Limpiar reserva
-                    </Button>
-                </div>
-                <h1 className='mb-8 text-center text-3xl font-bold'>Reserva tu estancia en Dondersteen</h1>
+                <img src='/dondersteen-logo.png' alt='Dondersteen Logo' className='mx-auto mb-8 h-24' />
                 <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
                     <div className='lg:col-span-2'>
                         <Form {...form}>
                             <div className='space-y-8'>
                                 {state.currentStep === 1 && (
-                                    <PetInformationStep
-                                        form={form}
-                                        onAddPet={addPet}
-                                        onRemovePet={removePet}
-                                    />
+                                    <PetInformationStep form={form} onAddPet={addPet} onRemovePet={removePet} />
                                 )}
 
                                 {state.currentStep === 2 && (
@@ -167,23 +147,30 @@ export default function BookingPage() {
                                                     ...prev,
                                                     selectedDates: range,
                                                     checkInTime,
-                                                    checkOutTime
+                                                    checkOutTime,
                                                 }))
                                             } else {
                                                 setState(prev => ({
                                                     ...prev,
                                                     selectedDates: null,
                                                     checkInTime: '14:00',
-                                                    checkOutTime: '12:00'
+                                                    checkOutTime: '12:00',
                                                 }))
                                             }
                                         }}
                                         onServiceChange={services => {
                                             // Keep all services except driver service
-                                            const nonDriverServices = form.getValues('services').filter(s => s.type !== 'driver')
+                                            const nonDriverServices = form
+                                                .getValues('services')
+                                                .filter(s => s.type !== 'driver')
                                             // Add new driver service if present
                                             const driverService = services.find(s => s.type === 'driver')
-                                            form.setValue('services', driverService ? [...nonDriverServices, driverService] : nonDriverServices)
+                                            form.setValue(
+                                                'services',
+                                                driverService
+                                                    ? [...nonDriverServices, driverService]
+                                                    : nonDriverServices,
+                                            )
                                         }}
                                         dateError={state.dateError}
                                         capacity={calculateCapacity(form.getValues('pets'))}
@@ -198,9 +185,7 @@ export default function BookingPage() {
                                     />
                                 )}
 
-                                {state.currentStep === 4 && (
-                                    <ConfirmationStep form={form} />
-                                )}
+                                {state.currentStep === 4 && <ConfirmationStep form={form} />}
 
                                 {state.formError && (
                                     <Alert variant='destructive'>
@@ -221,24 +206,22 @@ export default function BookingPage() {
                                             Siguiente
                                         </Button>
                                     ) : (
-                                        <Button type='button' onClick={handleSubmit}>Confirmar reserva</Button>
+                                        <Button type='button' onClick={handleSubmit}>
+                                            Confirmar reserva
+                                        </Button>
                                     )}
                                 </div>
                             </div>
                         </Form>
                     </div>
                     <div className='lg:col-span-1'>
-                        <BookingSummary
-                            pets={watchedPets}
-                            dates={state.selectedDates}
-                            services={watchedServices}
-                        />
+                        <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
                     </div>
                 </div>
 
                 <ConfirmationDialog
                     open={state.confirmedReservationId !== ''}
-                    onOpenChange={(open) => {
+                    onOpenChange={open => {
                         if (!open) {
                             setState(prev => ({ ...prev, confirmedReservationId: '' }))
                         }
