@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "designate-as-staff": "node index.js designate-as-staff",
+        "write-version": "node index.js write-version",
         "list-staff-users": "node index.js list-staff-users",
         "migrate": "node index.js migrate"
     },

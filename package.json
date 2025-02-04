@@ -1,35 +1,36 @@
 {
-  "name": "dondersteen-resort",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "frontend:deploy": "cd frontend && pnpm run deploy",
-    "functions:deploy": "pnpm firebase deploy --only=functions",
-    "deploy": "cd frontend && pnpm run build && cd .. && cd backend/functions && pnpm run build && cd .. && pnpm firebase deploy",
-    "deploy:breaking": "IS_BREAKING_CHANGE=true pnpm run deploy",
-    "backend:watch": "cd backend/functions && pnpm run build:watch",
-    "backend:emulate": "pnpm firebase emulators:start --import=backend/emulator-data --export-on-exit=backend/emulator-data",
-    "frontend:dev": "cd frontend && pnpm run dev",
-    "postDeployHook": "node scripts/platform/writeVersion.js",
-    "rules:deploy": "pnpm firebase deploy --only firestore:rules",
-    "stripe:listen": "stripe listen  --forward-to http://localhost:5001/dondersteen-resort/us-central1/ext-firestore-stripe-payments-handleWebhookEvents --forward-connect-to http://localhost:5001/dondersteen-resort/us-central1/stripeWebhookEvents",
-    "start": "pnpm frontend:dev",
-    "startLocal": "concurrently \"pnpm backend:watch\" \"pnpm backend:emulate\" \"pnpm frontend:dev\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "concurrently": "^8.2.2",
-    "firebase-tools": "^13.11.4"
-  },
-  "dependencies": {
-    "@radix-ui/react-slider": "^1.2.2",
-    "@radix-ui/react-switch": "^1.1.2",
-    "axios": "^1.7.2",
-    "firebase-admin": "^12.1.0",
-    "google-auth-library": "^9.14.1",
-    "recharts": "^2.15.0"
-  }
+    "name": "dondersteen-resort",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "frontend:deploy": "cd frontend && pnpm run deploy",
+        "functions:deploy": "pnpm firebase deploy --only=functions",
+        "deploy": "cd frontend && pnpm run build && cd .. && cd backend/functions && pnpm run build && cd .. && pnpm firebase deploy",
+        "deploy:breaking": "IS_BREAKING_CHANGE=true pnpm run deploy",
+        "backend:watch": "cd backend/functions && pnpm run build:watch",
+        "backend:emulate": "pnpm firebase emulators:start --import=backend/emulator-data --export-on-exit=backend/emulator-data",
+        "frontend:dev": "cd frontend && pnpm run dev",
+        "postDeployHook": "cd scripts && pnpm run write-version --prod",
+        "write-version": "cd scripts && pnpm run write-version",
+        "rules:deploy": "pnpm firebase deploy --only firestore:rules",
+        "stripe:listen": "stripe listen  --forward-to http://localhost:5001/dondersteen-resort/us-central1/ext-firestore-stripe-payments-handleWebhookEvents --forward-connect-to http://localhost:5001/dondersteen-resort/us-central1/stripeWebhookEvents",
+        "start": "pnpm frontend:dev",
+        "startLocal": "concurrently \"pnpm backend:watch\" \"pnpm backend:emulate\" \"pnpm frontend:dev\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "firebase-tools": "^13.11.4"
+    },
+    "dependencies": {
+        "@radix-ui/react-slider": "^1.2.2",
+        "@radix-ui/react-switch": "^1.1.2",
+        "axios": "^1.7.2",
+        "firebase-admin": "^12.1.0",
+        "google-auth-library": "^9.14.1",
+        "recharts": "^2.15.0"
+    }
 }
