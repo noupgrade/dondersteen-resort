@@ -1,18 +1,20 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { Input } from '@/shared/ui/input'
-import { Button } from '@/shared/ui/button'
-import { Label } from '@/shared/ui/label'
-import { Badge } from '@/shared/ui/badge'
-import { Textarea } from '@/shared/ui/textarea'
+import { useCallback, useEffect, useState } from 'react'
+
 import { HotelAvailabilityCalendar } from '@/components/hotel-availability-calendar'
+import { useHotelPricingConfig } from '@/shared/hooks/use-hotel-pricing-config'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+
+import { EmployeesManagement } from '../configuracion/components/employees-management'
+import { HolidayDialog } from './disponibilidad/components/dialogs/holiday-dialog'
+import { ManageDatesDialog } from './disponibilidad/components/dialogs/manage-dates-dialog'
 import { useAvailabilityDialogs } from './disponibilidad/hooks/use-availability-dialogs'
 import { useAvailabilityOperations } from './disponibilidad/hooks/use-availability-operations'
-import { ManageDatesDialog } from './disponibilidad/components/dialogs/manage-dates-dialog'
-import { HolidayDialog } from './disponibilidad/components/dialogs/holiday-dialog'
 import { DateRange } from './disponibilidad/types'
-import { EmployeesManagement } from '../configuracion/components/employees-management'
 
 export default function SetupPage() {
     // Estados para la configuración general
@@ -22,35 +24,13 @@ export default function SetupPage() {
         hotelCloseTime: '20:00',
         groomingOpenTime: '09:00',
         groomingCloseTime: '19:00',
-        // Precios base hotel
-        smallDogPrice: 25,
-        mediumDogPrice: 30,
-        largeDogPrice: 35,
-        daycarePrice: 20,
-        highSeasonIncrease: 10,
-        iva: 21,
-        // Descuentos hotel
-        vipDogDiscount: 5,
-        employeeDogDiscount: 10,
-        twoPetsDiscount: 8,
-        threePetsDiscount: 12,
     })
 
-    // Estados para servicios adicionales de hotel
-    const [hotelServices, setHotelServices] = useState({
-        driver: {
-            pickup: { name: 'Recogida', price: 15 },
-            delivery: { name: 'Entrega', price: 15 },
-            complete: { name: 'Completo', price: 25 },
-        },
-        specialFood: { name: 'Comida especial', price: 5 },
-        medication: {
-            once: { name: 'Una vez al día', price: 3 },
-            multiple: { name: 'Varias veces al día', price: 5 },
-        },
-        healing: { name: 'Curas', price: 5 },
-        outOfHours: { name: 'Recogida fuera de horario', price: 10 },
-    })
+    const {
+        config: hotelPricing,
+        updateConfig: updateHotelPricing,
+        loading: hotelPricingLoading,
+    } = useHotelPricingConfig()
 
     // Estados para servicios de peluquería
     const [groomingServices, setGroomingServices] = useState({
@@ -62,7 +42,7 @@ export default function SetupPage() {
         brushing: { name: 'Cepillado', minPrice: 15, maxPrice: 20 },
         spa: { name: 'Spa', minPrice: 30, maxPrice: 35 },
         spaOzone: { name: 'Spa + Ozono', minPrice: 40, maxPrice: 45 },
-        extremelyDirty: { name: 'Extremadamente sucio', minPrice: 35, maxPrice: 45 }
+        extremelyDirty: { name: 'Extremadamente sucio', minPrice: 35, maxPrice: 45 },
     })
 
     // Estados para plantillas de correo
@@ -82,7 +62,7 @@ export default function SetupPage() {
             hotelBookingConfirmation: '',
             bookingModification: '',
             groomingProposal: '',
-        }
+        },
     })
 
     // Estados para usuarios y roles
@@ -119,7 +99,7 @@ export default function SetupPage() {
                 handleDialogOpenChange(true)
             }
         },
-        [setSelectedRange, handleDialogOpenChange]
+        [setSelectedRange, handleDialogOpenChange],
     )
 
     const handleGeneralConfigSubmit = (e: React.FormEvent) => {
@@ -136,7 +116,6 @@ export default function SetupPage() {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
     const [originalConfig, setOriginalConfig] = useState<{
         generalConfig: typeof generalConfig
-        hotelServices: typeof hotelServices
         groomingServices: typeof groomingServices
         emailTemplates: typeof emailTemplates
     } | null>(null)
@@ -145,9 +124,8 @@ export default function SetupPage() {
     useEffect(() => {
         setOriginalConfig({
             generalConfig,
-            hotelServices,
             groomingServices,
-            emailTemplates
+            emailTemplates,
         })
     }, []) // Dependencias vacías para que solo se ejecute al montar el componente
 
@@ -155,22 +133,21 @@ export default function SetupPage() {
     useEffect(() => {
         if (originalConfig) {
             const hasGeneralChanges = JSON.stringify(originalConfig.generalConfig) !== JSON.stringify(generalConfig)
-            const hasHotelChanges = JSON.stringify(originalConfig.hotelServices) !== JSON.stringify(hotelServices)
-            const hasGroomingChanges = JSON.stringify(originalConfig.groomingServices) !== JSON.stringify(groomingServices)
+            const hasGroomingChanges =
+                JSON.stringify(originalConfig.groomingServices) !== JSON.stringify(groomingServices)
             const hasTemplateChanges = JSON.stringify(originalConfig.emailTemplates) !== JSON.stringify(emailTemplates)
 
-            setHasUnsavedChanges(hasGeneralChanges || hasHotelChanges || hasGroomingChanges || hasTemplateChanges)
+            setHasUnsavedChanges(hasGeneralChanges || hasGroomingChanges || hasTemplateChanges)
         }
-    }, [generalConfig, hotelServices, groomingServices, emailTemplates, originalConfig])
+    }, [generalConfig, groomingServices, emailTemplates, originalConfig])
 
     const handleSave = async () => {
         // TODO: Implementar la lógica de guardado
         console.log('Guardando cambios...')
         setOriginalConfig({
             generalConfig,
-            hotelServices,
             groomingServices,
-            emailTemplates
+            emailTemplates,
         })
         setHasUnsavedChanges(false)
     }
@@ -179,20 +156,19 @@ export default function SetupPage() {
         // Restaurar al estado original
         if (originalConfig) {
             setGeneralConfig(originalConfig.generalConfig)
-            setHotelServices(originalConfig.hotelServices)
             setGroomingServices(originalConfig.groomingServices)
             setEmailTemplates(originalConfig.emailTemplates)
             setHasUnsavedChanges(false)
         }
     }
 
-    if (isLoading) {
+    if (hotelPricingLoading) {
         return (
             <div className='container mx-auto p-6'>
-                <div className='flex items-center justify-center h-[60vh]'>
-                    <div className='text-center space-y-4'>
-                        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto'></div>
-                        <p className='text-muted-foreground'>Cargando disponibilidad...</p>
+                <div className='flex h-[60vh] items-center justify-center'>
+                    <div className='space-y-4 text-center'>
+                        <div className='mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary'></div>
+                        <p className='text-muted-foreground'>Cargando configuración...</p>
                     </div>
                 </div>
             </div>
@@ -200,11 +176,13 @@ export default function SetupPage() {
     }
 
     const dateStatus = selectedRange.from && selectedRange.to ? getSelectedDatesStatus(selectedRange) : null
-    const hasSpecialConditions = dateStatus ? dateStatus.hasBlocked || dateStatus.hasHolidays || dateStatus.hasHighSeason : false
+    const hasSpecialConditions = dateStatus
+        ? dateStatus.hasBlocked || dateStatus.hasHolidays || dateStatus.hasHighSeason
+        : false
 
     return (
         <div className='container mx-auto p-6 pb-24'>
-            <h1 className='text-3xl font-bold mb-6'>Configuración</h1>
+            <h1 className='mb-6 text-3xl font-bold'>Configuración</h1>
 
             <Tabs defaultValue='general' className='space-y-6'>
                 <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
@@ -241,10 +219,12 @@ export default function SetupPage() {
                                         <Input
                                             type='time'
                                             value={generalConfig.hotelOpenTime}
-                                            onChange={(e) => setGeneralConfig({
-                                                ...generalConfig,
-                                                hotelOpenTime: e.target.value
-                                            })}
+                                            onChange={e =>
+                                                setGeneralConfig({
+                                                    ...generalConfig,
+                                                    hotelOpenTime: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className='space-y-2'>
@@ -252,10 +232,12 @@ export default function SetupPage() {
                                         <Input
                                             type='time'
                                             value={generalConfig.hotelCloseTime}
-                                            onChange={(e) => setGeneralConfig({
-                                                ...generalConfig,
-                                                hotelCloseTime: e.target.value
-                                            })}
+                                            onChange={e =>
+                                                setGeneralConfig({
+                                                    ...generalConfig,
+                                                    hotelCloseTime: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className='space-y-2'>
@@ -263,10 +245,12 @@ export default function SetupPage() {
                                         <Input
                                             type='time'
                                             value={generalConfig.groomingOpenTime}
-                                            onChange={(e) => setGeneralConfig({
-                                                ...generalConfig,
-                                                groomingOpenTime: e.target.value
-                                            })}
+                                            onChange={e =>
+                                                setGeneralConfig({
+                                                    ...generalConfig,
+                                                    groomingOpenTime: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                     <div className='space-y-2'>
@@ -274,10 +258,12 @@ export default function SetupPage() {
                                         <Input
                                             type='time'
                                             value={generalConfig.groomingCloseTime}
-                                            onChange={(e) => setGeneralConfig({
-                                                ...generalConfig,
-                                                groomingCloseTime: e.target.value
-                                            })}
+                                            onChange={e =>
+                                                setGeneralConfig({
+                                                    ...generalConfig,
+                                                    groomingCloseTime: e.target.value,
+                                                })
+                                            }
                                         />
                                     </div>
                                 </form>
@@ -296,11 +282,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.smallDogPrice}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        smallDogPrice: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.smallDogPrice}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            smallDogPrice: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>€</span>
@@ -311,11 +298,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.mediumDogPrice}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        mediumDogPrice: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.mediumDogPrice}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            mediumDogPrice: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>€</span>
@@ -326,11 +314,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.largeDogPrice}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        largeDogPrice: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.largeDogPrice}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            largeDogPrice: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>€</span>
@@ -341,11 +330,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.daycarePrice}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        daycarePrice: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.daycarePrice}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            daycarePrice: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>€</span>
@@ -356,11 +346,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.highSeasonIncrease}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        highSeasonIncrease: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.highSeasonIncrease}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            highSeasonIncrease: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>%</span>
@@ -371,11 +362,12 @@ export default function SetupPage() {
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={generalConfig.iva}
-                                                    onChange={(e) => setGeneralConfig({
-                                                        ...generalConfig,
-                                                        iva: Number(e.target.value)
-                                                    })}
+                                                    value={hotelPricing?.iva}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            iva: Number(e.target.value),
+                                                        })
+                                                    }
                                                     className='w-24'
                                                 />
                                                 <span>%</span>
@@ -384,18 +376,19 @@ export default function SetupPage() {
                                     </div>
 
                                     <div className='space-y-4'>
-                                        <h3 className='font-semibold mb-4'>Descuentos</h3>
+                                        <h3 className='mb-4 font-semibold'>Descuentos</h3>
                                         <div className='space-y-4'>
                                             <div className='space-y-2'>
                                                 <Label>Perros VIP</Label>
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={generalConfig.vipDogDiscount}
-                                                        onChange={(e) => setGeneralConfig({
-                                                            ...generalConfig,
-                                                            vipDogDiscount: Number(e.target.value)
-                                                        })}
+                                                        value={hotelPricing?.vipDogDiscount}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                vipDogDiscount: Number(e.target.value),
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€</span>
@@ -406,11 +399,12 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={generalConfig.employeeDogDiscount}
-                                                        onChange={(e) => setGeneralConfig({
-                                                            ...generalConfig,
-                                                            employeeDogDiscount: Number(e.target.value)
-                                                        })}
+                                                        value={hotelPricing?.employeeDogDiscount}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                employeeDogDiscount: Number(e.target.value),
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€</span>
@@ -421,11 +415,12 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={generalConfig.twoPetsDiscount}
-                                                        onChange={(e) => setGeneralConfig({
-                                                            ...generalConfig,
-                                                            twoPetsDiscount: Number(e.target.value)
-                                                        })}
+                                                        value={hotelPricing?.twoPetsDiscount}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                twoPetsDiscount: Number(e.target.value),
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€</span>
@@ -436,11 +431,12 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={generalConfig.threePetsDiscount}
-                                                        onChange={(e) => setGeneralConfig({
-                                                            ...generalConfig,
-                                                            threePetsDiscount: Number(e.target.value)
-                                                        })}
+                                                        value={hotelPricing?.threePetsDiscount}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                threePetsDiscount: Number(e.target.value),
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€</span>
@@ -459,24 +455,25 @@ export default function SetupPage() {
                             <CardContent>
                                 <form className='space-y-6'>
                                     <div>
-                                        <h3 className='font-semibold mb-4'>Servicio de Transporte</h3>
+                                        <h3 className='mb-4 font-semibold'>Servicio de Transporte</h3>
                                         <div className='grid grid-cols-3 gap-4'>
                                             <div className='space-y-2'>
                                                 <Label className='text-sm text-gray-500'>Recogida</Label>
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={hotelServices.driver.pickup.price}
-                                                        onChange={(e) => setHotelServices({
-                                                            ...hotelServices,
-                                                            driver: {
-                                                                ...hotelServices.driver,
-                                                                pickup: {
-                                                                    ...hotelServices.driver.pickup,
-                                                                    price: Number(e.target.value)
-                                                                }
-                                                            }
-                                                        })}
+                                                        value={hotelPricing?.driver.pickup.price}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                driver: {
+                                                                    ...hotelPricing?.driver,
+                                                                    pickup: {
+                                                                        ...hotelPricing?.driver.pickup,
+                                                                        price: Number(e.target.value),
+                                                                    },
+                                                                },
+                                                            })
+                                                        }
                                                     />
                                                     <span>€</span>
                                                 </div>
@@ -486,17 +483,18 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={hotelServices.driver.delivery.price}
-                                                        onChange={(e) => setHotelServices({
-                                                            ...hotelServices,
-                                                            driver: {
-                                                                ...hotelServices.driver,
-                                                                delivery: {
-                                                                    ...hotelServices.driver.delivery,
-                                                                    price: Number(e.target.value)
-                                                                }
-                                                            }
-                                                        })}
+                                                        value={hotelPricing?.driver.delivery.price}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                driver: {
+                                                                    ...hotelPricing?.driver,
+                                                                    delivery: {
+                                                                        ...hotelPricing?.driver.delivery,
+                                                                        price: Number(e.target.value),
+                                                                    },
+                                                                },
+                                                            })
+                                                        }
                                                     />
                                                     <span>€</span>
                                                 </div>
@@ -506,17 +504,18 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={hotelServices.driver.complete.price}
-                                                        onChange={(e) => setHotelServices({
-                                                            ...hotelServices,
-                                                            driver: {
-                                                                ...hotelServices.driver,
-                                                                complete: {
-                                                                    ...hotelServices.driver.complete,
-                                                                    price: Number(e.target.value)
-                                                                }
-                                                            }
-                                                        })}
+                                                        value={hotelPricing?.driver.complete.price}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                driver: {
+                                                                    ...hotelPricing?.driver,
+                                                                    complete: {
+                                                                        ...hotelPricing?.driver.complete,
+                                                                        price: Number(e.target.value),
+                                                                    },
+                                                                },
+                                                            })
+                                                        }
                                                     />
                                                     <span>€</span>
                                                 </div>
@@ -525,20 +524,21 @@ export default function SetupPage() {
                                     </div>
 
                                     <div>
-                                        <h3 className='font-semibold mb-4'>Comida Especial</h3>
+                                        <h3 className='mb-4 font-semibold'>Comida Especial</h3>
                                         <div className='space-y-2'>
                                             <Label className='text-sm text-gray-500'>Precio por día</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={hotelServices.specialFood.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        specialFood: {
-                                                            ...hotelServices.specialFood,
-                                                            price: Number(e.target.value)
-                                                        }
-                                                    })}
+                                                    value={hotelPricing?.specialFood.price}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            specialFood: {
+                                                                ...hotelPricing?.specialFood,
+                                                                price: Number(e.target.value),
+                                                            },
+                                                        })
+                                                    }
                                                 />
                                                 <span>€</span>
                                             </div>
@@ -546,24 +546,25 @@ export default function SetupPage() {
                                     </div>
 
                                     <div>
-                                        <h3 className='font-semibold mb-4'>Medicación</h3>
+                                        <h3 className='mb-4 font-semibold'>Medicación</h3>
                                         <div className='grid grid-cols-2 gap-4'>
                                             <div className='space-y-2'>
                                                 <Label className='text-sm text-gray-500'>Una vez al día</Label>
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={hotelServices.medication.once.price}
-                                                        onChange={(e) => setHotelServices({
-                                                            ...hotelServices,
-                                                            medication: {
-                                                                ...hotelServices.medication,
-                                                                once: {
-                                                                    ...hotelServices.medication.once,
-                                                                    price: Number(e.target.value)
-                                                                }
-                                                            }
-                                                        })}
+                                                        value={hotelPricing?.medication.once.price}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                medication: {
+                                                                    ...hotelPricing?.medication,
+                                                                    once: {
+                                                                        ...hotelPricing?.medication.once,
+                                                                        price: Number(e.target.value),
+                                                                    },
+                                                                },
+                                                            })
+                                                        }
                                                     />
                                                     <span>€</span>
                                                 </div>
@@ -573,17 +574,18 @@ export default function SetupPage() {
                                                 <div className='flex items-center gap-2'>
                                                     <Input
                                                         type='number'
-                                                        value={hotelServices.medication.multiple.price}
-                                                        onChange={(e) => setHotelServices({
-                                                            ...hotelServices,
-                                                            medication: {
-                                                                ...hotelServices.medication,
-                                                                multiple: {
-                                                                    ...hotelServices.medication.multiple,
-                                                                    price: Number(e.target.value)
-                                                                }
-                                                            }
-                                                        })}
+                                                        value={hotelPricing?.medication.multiple.price}
+                                                        onChange={e =>
+                                                            updateHotelPricing({
+                                                                medication: {
+                                                                    ...hotelPricing?.medication,
+                                                                    multiple: {
+                                                                        ...hotelPricing?.medication.multiple,
+                                                                        price: Number(e.target.value),
+                                                                    },
+                                                                },
+                                                            })
+                                                        }
                                                     />
                                                     <span>€</span>
                                                 </div>
@@ -592,20 +594,21 @@ export default function SetupPage() {
                                     </div>
 
                                     <div>
-                                        <h3 className='font-semibold mb-4'>Curas</h3>
+                                        <h3 className='mb-4 font-semibold'>Curas</h3>
                                         <div className='space-y-2'>
                                             <Label className='text-sm text-gray-500'>Precio por día</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={hotelServices.healing.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        healing: {
-                                                            ...hotelServices.healing,
-                                                            price: Number(e.target.value)
-                                                        }
-                                                    })}
+                                                    value={hotelPricing?.healing.price}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            healing: {
+                                                                ...hotelPricing?.healing,
+                                                                price: Number(e.target.value),
+                                                            },
+                                                        })
+                                                    }
                                                 />
                                                 <span>€</span>
                                             </div>
@@ -613,20 +616,21 @@ export default function SetupPage() {
                                     </div>
 
                                     <div>
-                                        <h3 className='font-semibold mb-4'>Recogida fuera de horario</h3>
+                                        <h3 className='mb-4 font-semibold'>Recogida fuera de horario</h3>
                                         <div className='space-y-2'>
                                             <Label className='text-sm text-gray-500'>Precio</Label>
                                             <div className='flex items-center gap-2'>
                                                 <Input
                                                     type='number'
-                                                    value={hotelServices.outOfHours.price}
-                                                    onChange={(e) => setHotelServices({
-                                                        ...hotelServices,
-                                                        outOfHours: {
-                                                            ...hotelServices.outOfHours,
-                                                            price: Number(e.target.value)
-                                                        }
-                                                    })}
+                                                    value={hotelPricing?.outOfHours.price}
+                                                    onChange={e =>
+                                                        updateHotelPricing({
+                                                            outOfHours: {
+                                                                ...hotelPricing?.outOfHours,
+                                                                price: Number(e.target.value),
+                                                            },
+                                                        })
+                                                    }
                                                 />
                                                 <span>€</span>
                                             </div>
@@ -643,33 +647,37 @@ export default function SetupPage() {
                             <CardContent>
                                 <form className='grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4'>
                                     {Object.entries(groomingServices).map(([key, service]) => (
-                                        <div key={key} className='space-y-2 p-4 rounded-lg border bg-card'>
+                                        <div key={key} className='space-y-2 rounded-lg border bg-card p-4'>
                                             <Label>{service.name}</Label>
                                             <div className='flex items-center gap-2'>
-                                                <div className='flex-1 flex items-center gap-2'>
+                                                <div className='flex flex-1 items-center gap-2'>
                                                     <Input
                                                         type='number'
                                                         value={service.minPrice}
-                                                        onChange={(e) => setGroomingServices({
-                                                            ...groomingServices,
-                                                            [key]: {
-                                                                ...service,
-                                                                minPrice: Number(e.target.value)
-                                                            }
-                                                        })}
+                                                        onChange={e =>
+                                                            setGroomingServices({
+                                                                ...groomingServices,
+                                                                [key]: {
+                                                                    ...service,
+                                                                    minPrice: Number(e.target.value),
+                                                                },
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€ -</span>
                                                     <Input
                                                         type='number'
                                                         value={service.maxPrice}
-                                                        onChange={(e) => setGroomingServices({
-                                                            ...groomingServices,
-                                                            [key]: {
-                                                                ...service,
-                                                                maxPrice: Number(e.target.value)
-                                                            }
-                                                        })}
+                                                        onChange={e =>
+                                                            setGroomingServices({
+                                                                ...groomingServices,
+                                                                [key]: {
+                                                                    ...service,
+                                                                    maxPrice: Number(e.target.value),
+                                                                },
+                                                            })
+                                                        }
                                                         className='w-24'
                                                     />
                                                     <span>€</span>
@@ -753,13 +761,11 @@ export default function SetupPage() {
 
             {/* Botones flotantes */}
             {hasUnsavedChanges && (
-                <div className='fixed bottom-8 left-0 right-0 mx-auto w-fit flex gap-4 bg-white p-4 rounded-lg shadow-lg border'>
-                    <Button variant="outline" onClick={handleCancel}>
+                <div className='fixed bottom-8 left-0 right-0 mx-auto flex w-fit gap-4 rounded-lg border bg-white p-4 shadow-lg'>
+                    <Button variant='outline' onClick={handleCancel}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleSave}>
-                        Guardar cambios
-                    </Button>
+                    <Button onClick={handleSave}>Guardar cambios</Button>
                 </div>
             )}
 
@@ -778,8 +784,8 @@ export default function SetupPage() {
                 open={isHolidayDialogOpen}
                 onOpenChange={handleHolidayDialogOpenChange}
                 selectedRange={selectedRange}
-                onSubmit={(holidayName) => handleAddHolidays(selectedRange, holidayName)}
+                onSubmit={holidayName => handleAddHolidays(selectedRange, holidayName)}
             />
         </div>
     )
-} 
+}

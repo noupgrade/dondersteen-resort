@@ -16,27 +16,25 @@ export function PetInformationStep({ form, onAddPet, onRemovePet }: PetInformati
     const pets = form.watch('pets')
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Paso 1: Tus mascotas</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className=''>
-                    {pets.map((_, index) => (
-                        <PetDetailsForm key={index} form={form} petIndex={index} onRemove={() => onRemovePet(index)} />
-                    ))}
-                    {pets.length < 2 && (
-                        <Button type='button' variant='outline' className='w-full' onClick={onAddPet}>
-                            Añadir otra mascota
-                        </Button>
-                    )}
-                    {pets.length >= 2 && (
-                        <div className='bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-4'>
-                            <p>Para más de 2 mascotas, por favor llama al teléfono: <strong>123-456-7890</strong></p>
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+        <div className='flex flex-col space-y-4 p-4'>
+            <h1 className='text-2xl font-bold'>Paso 1: Tus mascotas</h1>
+            <div className=''>
+                {pets.map((_, index) => (
+                    <PetDetailsForm key={index} form={form} petIndex={index} onRemove={() => onRemovePet(index)} />
+                ))}
+                {pets.length < 2 && (
+                    <Button type='button' variant='outline' className='w-full' onClick={onAddPet}>
+                        Añadir otra mascota
+                    </Button>
+                )}
+                {pets.length >= 2 && (
+                    <div className='mt-4 border-l-4 border-yellow-500 bg-yellow-100 p-4 text-yellow-700'>
+                        <p>
+                            Para más de 2 mascotas, por favor llama al teléfono: <strong>123-456-7890</strong>
+                        </p>
+                    </div>
+                )}
+            </div>
+        </div>
     )
 }

@@ -1,70 +1,59 @@
 import { AdditionalService } from '../types/additional-services'
 import { PetFormData } from '@/features/booking/types/booking.types'
 import { differenceInDays, isValid } from 'date-fns'
-
-type PetSize = 'pequeño' | 'mediano' | 'grande' | 'extra-grande'
+import { PetSize } from '@/shared/types/pet.types'
 
 const BASE_PRICES: Record<PetSize, number> = {
     pequeño: 32,
     mediano: 35,
-    grande: 39,
-    'extra-grande': 45
+    grande: 39
 }
 
 const GROOMING_PRICES: Record<string, Record<PetSize, { min: number, max: number }>> = {
     bath_and_brush: {
         pequeño: { min: 25, max: 30 },
         mediano: { min: 30, max: 35 },
-        grande: { min: 35, max: 40 },
-        'extra-grande': { min: 40, max: 45 }
+        grande: { min: 35, max: 40 }
     },
     bath_and_trim: {
         pequeño: { min: 35, max: 40 },
         mediano: { min: 40, max: 45 },
-        grande: { min: 45, max: 50 },
-        'extra-grande': { min: 50, max: 55 }
+        grande: { min: 45, max: 50 }
     },
     stripping: {
         pequeño: { min: 45, max: 50 },
         mediano: { min: 50, max: 55 },
-        grande: { min: 55, max: 60 },
-        'extra-grande': { min: 60, max: 65 }
+        grande: { min: 55, max: 60 }
     },
     deshedding: {
         pequeño: { min: 45, max: 50 },
         mediano: { min: 50, max: 55 },
-        grande: { min: 55, max: 60 },
-        'extra-grande': { min: 60, max: 65 }
+        grande: { min: 55, max: 60 }
     },
     brushing: {
         pequeño: { min: 15, max: 20 },
         mediano: { min: 20, max: 25 },
-        grande: { min: 25, max: 30 },
-        'extra-grande': { min: 30, max: 35 }
+        grande: { min: 25, max: 30 }
     },
     spa: {
         pequeño: { min: 30, max: 35 },
         mediano: { min: 35, max: 40 },
-        grande: { min: 40, max: 45 },
-        'extra-grande': { min: 45, max: 50 }
+        grande: { min: 40, max: 45 }
     },
     spa_ozone: {
         pequeño: { min: 40, max: 45 },
         mediano: { min: 45, max: 50 },
-        grande: { min: 50, max: 55 },
-        'extra-grande': { min: 55, max: 60 }
+        grande: { min: 50, max: 55 }
     },
     knots: {
         pequeño: { min: 12, max: 15 },
         mediano: { min: 15, max: 18 },
-        grande: { min: 18, max: 21 },
-        'extra-grande': { min: 21, max: 24 }
+        grande: { min: 18, max: 21 }
     },
     extremely_dirty: {
         pequeño: { min: 35, max: 40 },
         mediano: { min: 40, max: 45 },
-        grande: { min: 45, max: 50 },
-        'extra-grande': { min: 50, max: 55 }
+        grande: { min: 45, max: 50 }
     }
 }
 

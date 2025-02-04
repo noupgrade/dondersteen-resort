@@ -11,10 +11,6 @@ service cloud.firestore {
       return request.auth != null
     }
 
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId
-    }
-
     // app_versions collection for versioning
     match /app_versions/{appVersionId} {
       allow write: if false; // Only this script has access
@@ -40,6 +36,10 @@ service cloud.firestore {
     // Reservations collection
     match /reservations/{reservationId} {
       allow read, write, update, list: if true; // TODO: Remove this when we have a proper auth system
+    }
+
+    match /configs/hotel_pricing {
+      allow read, write: if true;
     }
   }
 }

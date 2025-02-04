@@ -3,12 +3,15 @@
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
+import { usePetPricing } from '@/shared/hooks/use-pet-pricing'
+import { cn } from '@/shared/lib/utils'
+import { PetSize } from '@/shared/types/pet.types'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'
 import { Input } from '@/shared/ui/input'
-import { Textarea } from '@/shared/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Textarea } from '@/shared/ui/textarea'
 
 type PetDetailsFormProps = {
     form: UseFormReturn<any>
@@ -17,113 +20,175 @@ type PetDetailsFormProps = {
 }
 
 export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps) {
+    const { getSizeFromWeight, getPriceBySize } = usePetPricing()
+
     useEffect(() => {
         const subscription = form.watch((value, { name }) => {
             if (name?.startsWith(`pets.${petIndex}.weight`)) {
                 const weight = parseFloat(value.pets[petIndex].weight)
-                let size = ''
-                if (weight <= 10) size = 'pequeño'
-                else if (weight <= 20) size = 'mediano'
-                else if (weight <= 40) size = 'grande'
-                else size = 'extra-grande'
+                const size = getSizeFromWeight(weight)
                 form.setValue(`pets.${petIndex}.size`, size)
             }
         })
         return () => subscription.unsubscribe()
-    }, [form, petIndex])
+    }, [form, petIndex, getSizeFromWeight])
 
     const petName = form.watch(`pets.${petIndex}.name`)
+    const size = form.watch(`pets.${petIndex}.size`) as PetSize | undefined
 
     return (
-        <Card className='mb-6 bg-slate-50'>
-            <CardHeader>
-                <h3 className='text-lg font-semibold'>
+        <Card className='mb-6 bg-gradient-to-br from-slate-50 to-white shadow-sm transition-shadow duration-200 hover:shadow-md'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4'>
+                <h3 className='text-lg font-semibold text-slate-800'>
                     Mascota {petIndex + 1}
-                    {petName ? ` - ${petName}` : ''}
+                    {petName ? <span className='ml-1 text-primary'>- {petName}</span> : ''}
                 </h3>
+                {petIndex > 0 && (
+                    <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        onClick={onRemove}
+                        className='text-red-500 hover:bg-red-50 hover:text-red-700'
+                    >
+                        Eliminar
+                    </Button>
+                )}
             </CardHeader>
-            <CardContent className='space-y-4'>
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.name`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre</FormLabel>
-                            <FormControl>
-                                <Input placeholder='Nombre de la mascota' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.breed`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Raza</FormLabel>
-                            <FormControl>
-                                <Input placeholder='Raza' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.weight`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Peso (kg)</FormLabel>
-                            <FormControl>
-                                <Input type='number' step='0.1' placeholder='Peso' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.size`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Tamaño</FormLabel>
-                            <FormControl>
-                                <Input readOnly {...field} />
-                            </FormControl>
-                            <p className='text-sm text-muted-foreground'>
-                                {field.value === 'pequeño' && 'Precio: 32€/día'}
-                                {field.value === 'mediano' && 'Precio: 35€/día'}
-                                {field.value === 'grande' && 'Precio: 39€/día'}
-                                {field.value === 'extra-grande' && 'Precio: 45€/día'}
-                            </p>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.age`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Edad</FormLabel>
-                            <FormControl>
-                                <Input type='number' placeholder='Edad' {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+            <CardContent>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.name`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Nombre</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder='Nombre de la mascota'
+                                        {...field}
+                                        className='bg-white focus:ring-2'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.breed`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Raza</FormLabel>
+                                <FormControl>
+                                    <Input placeholder='Raza' {...field} className='bg-white focus:ring-2' />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.weight`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Peso (kg)</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type='number'
+                                        step='0.1'
+                                        placeholder='Peso'
+                                        {...field}
+                                        className='bg-white focus:ring-2'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.size`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Tamaño</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        readOnly
+                                        value={field.value}
+                                        className={cn(
+                                            'cursor-not-allowed bg-white',
+                                            field.value === 'pequeño' && 'text-green-600',
+                                            field.value === 'mediano' && 'text-blue-600',
+                                            field.value === 'grande' && 'text-orange-600',
+                                        )}
+                                    />
+                                </FormControl>
+                                <p className='mt-1 text-sm text-muted-foreground'>
+                                    {size && `${getPriceBySize(size)}€/día`}
+                                </p>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.age`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Edad</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type='number'
+                                        placeholder='Edad'
+                                        {...field}
+                                        className='bg-white focus:ring-2'
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name={`pets.${petIndex}.isNeutered`}
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className='text-slate-700'>Castrado/Esterilizado</FormLabel>
+                                <FormControl>
+                                    <Select
+                                        value={field.value ? 'yes' : 'no'}
+                                        onValueChange={(value: 'yes' | 'no') => field.onChange(value === 'yes')}
+                                    >
+                                        <SelectTrigger
+                                            className={cn(
+                                                'border-2 bg-white',
+                                                field.value ? 'border-green-200' : 'border-amber-200',
+                                            )}
+                                        >
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value='yes'>Sí</SelectItem>
+                                            <SelectItem value='no'>No</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
                 <FormField
                     control={form.control}
                     name={`pets.${petIndex}.personality`}
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Personalidad y hábitos</FormLabel>
+                        <FormItem className='mt-4'>
+                            <FormLabel className='text-slate-700'>Personalidad y hábitos</FormLabel>
                             <FormControl>
                                 <Textarea
                                     placeholder='Por favor, infórmanos sobre la personalidad y los hábitos de tu mascota en detalle para que podamos ayudar a tu mascota a adaptarse al nuevo entorno sin problemas.'
-                                    className='min-h-[100px]'
+                                    className='min-h-[100px] resize-y bg-white focus:ring-2'
                                     {...field}
                                 />
                             </FormControl>
@@ -131,35 +196,6 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name={`pets.${petIndex}.isNeutered`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Castrado/Esterilizado</FormLabel>
-                            <FormControl>
-                                <Select
-                                    value={field.value ? 'yes' : 'no'}
-                                    onValueChange={(value: 'yes' | 'no') => field.onChange(value === 'yes')}
-                                >
-                                    <SelectTrigger className={`${field.value ? 'bg-green-50' : 'bg-amber-50'}`}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="yes">Sí</SelectItem>
-                                        <SelectItem value="no">No</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                {petIndex > 0 && (
-                    <Button type='button' variant='destructive' size='sm' onClick={onRemove} className='mt-2'>
-                        Eliminar mascota
-                    </Button>
-                )}
             </CardContent>
         </Card>
     )
