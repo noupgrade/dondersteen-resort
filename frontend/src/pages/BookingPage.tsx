@@ -202,11 +202,11 @@ export default function BookingPage() {
                                         </Button>
                                     )}
                                     {state.currentStep < 4 ? (
-                                        <Button type='button' onClick={nextStep}>
+                                        <Button type='button' className='mx-4 w-full' onClick={nextStep}>
                                             Siguiente
                                         </Button>
                                     ) : (
-                                        <Button type='button' onClick={handleSubmit}>
+                                        <Button type='button' className='mx-4 w-full' onClick={handleSubmit}>
                                             Confirmar reserva
                                         </Button>
                                     )}
@@ -215,7 +215,9 @@ export default function BookingPage() {
                         </Form>
                     </div>
                     <div className='lg:col-span-1'>
-                        <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
+                        {state.selectedDates && (
+                            <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
+                        )}
                     </div>
                 </div>
 
