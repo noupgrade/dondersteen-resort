@@ -9,7 +9,7 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
-import { EmployeesManagement } from '../configuracion/components/employees-management'
+import { EmployeesManagement } from './components/employees-management'
 import { HolidayDialog } from './disponibilidad/components/dialogs/holiday-dialog'
 import { ManageDatesDialog } from './disponibilidad/components/dialogs/manage-dates-dialog'
 import { useAvailabilityDialogs } from './disponibilidad/hooks/use-availability-dialogs'
