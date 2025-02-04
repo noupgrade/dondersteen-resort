@@ -3,6 +3,7 @@ Use clean code principles
 This is a pnpm monorepo project, so use the correct commands to install dependencies and run scripts.
 There is a frontend/ a backend/ and a scripts/ folder.
 Do not modify other features of the pages that are not related to the ones you are working on.
+When you change the signature of a function or a type, look for all the usages and update the usages in the rest of files.
 When creating a data model, review the existing ones and try to reuse the same structure if possible.
 When you modify a type, check if you need to update the existing examples of objects of that type.
 
