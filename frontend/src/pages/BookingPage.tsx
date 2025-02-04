@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { AlertCircle } from 'lucide-react'
@@ -23,6 +24,7 @@ import { Button } from '@/shared/ui/button'
 import { Form } from '@/shared/ui/form'
 
 export default function BookingPage() {
+    const { t } = useTranslation()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const userId = searchParams.get('userId')
@@ -198,12 +200,12 @@ export default function BookingPage() {
                                 <div className='flex justify-between space-x-4'>
                                     {state.currentStep > 1 && (
                                         <Button type='button' variant='outline' onClick={prevStep}>
-                                            Anterior
+                                            {t('booking.navigation.previous', 'Anterior')}
                                         </Button>
                                     )}
                                     {state.currentStep < 4 ? (
                                         <Button type='button' className='mx-4 w-full' onClick={nextStep}>
-                                            Siguiente
+                                            {t('booking.navigation.next', 'Siguiente')}
                                         </Button>
                                     ) : (
                                         <Button type='button' className='mx-4 w-full' onClick={handleSubmit}>

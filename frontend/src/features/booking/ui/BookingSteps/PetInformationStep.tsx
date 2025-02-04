@@ -1,4 +1,5 @@
 import { UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { PetDetailsForm } from '@/components/pet-details-form'
 import { Button } from '@/shared/ui/button'
@@ -13,24 +14,28 @@ interface PetInformationStepProps {
 }
 
 export function PetInformationStep({ form, onAddPet, onRemovePet }: PetInformationStepProps) {
+    const { t } = useTranslation()
     const pets = form.watch('pets')
 
     return (
         <div className='flex flex-col space-y-4 p-4'>
-            <h1 className='text-2xl font-bold'>Paso 1: Tus mascotas</h1>
+            <h1 className='text-2xl font-bold'>{t('booking.step1.title', 'Paso 1: Tus mascotas')}</h1>
             <div className=''>
                 {pets.map((_, index) => (
                     <PetDetailsForm key={index} form={form} petIndex={index} onRemove={() => onRemovePet(index)} />
                 ))}
                 {pets.length < 2 && (
                     <Button type='button' variant='outline' className='w-full' onClick={onAddPet}>
-                        Añadir otra mascota
+                        {t('booking.step1.addPet', 'Añadir otra mascota')}
                     </Button>
                 )}
                 {pets.length >= 2 && (
                     <div className='mt-4 border-l-4 border-yellow-500 bg-yellow-100 p-4 text-yellow-700'>
                         <p>
-                            Para más de 2 mascotas, por favor llama al teléfono: <strong>123-456-7890</strong>
+                            {t(
+                                'booking.step1.maxPetsMessage',
+                                'Para más de 2 mascotas, por favor llama al teléfono: 123-456-7890',
+                            )}
                         </p>
                     </div>
                 )}

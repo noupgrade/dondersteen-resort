@@ -1,3 +1,26 @@
 {
-  "rejectProposal": "rejectProposal"
+    "rejectProposal": "Reject Proposal",
+    "booking.step1.title": "Step 1: Your Pets",
+    "booking.step1.petFields.title": "Pet {{number}}",
+    "booking.step1.petFields.name": "Name",
+    "booking.step1.petFields.breed": "Breed",
+    "booking.step1.petFields.weight": "Weight (kg)",
+    "booking.step1.petFields.size": "Size",
+    "booking.step1.petFields.age": "Age",
+    "booking.step1.petFields.personality": "Personality and habits",
+    "booking.step1.petFields.personalityPlaceholder": "Please tell us about your pet's personality and habits in detail so we can help them adapt to the new environment smoothly.",
+    "booking.step1.petFields.sex": "Sex",
+    "booking.step1.petFields.isNeutered": "Neutered/Spayed",
+    "booking.step1.petFields.sizes.pequeño": "Small",
+    "booking.step1.petFields.sizes.mediano": "Medium",
+    "booking.step1.petFields.sizes.grande": "Large",
+    "booking.step1.petFields.yes": "Yes",
+    "booking.step1.petFields.no": "No",
+    "booking.step1.addPet": "Add another pet",
+    "booking.step1.removePet": "Remove",
+    "booking.step1.error": "Please complete all pet fields before continuing.",
+    "booking.step1.maxPetsMessage": "For more than 2 pets, please call: 123-456-7890",
+    "booking.navigation.next": "Next",
+    "booking.navigation.previous": "Previous",
+    "booking.pricePerDay": "{{price}}€/day"
 }

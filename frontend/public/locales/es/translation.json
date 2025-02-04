@@ -1,3 +1,26 @@
 {
-
+    "rejectProposal": "Rechazar propuesta",
+    "booking.step1.title": "Paso 1: Tus mascotas",
+    "booking.step1.petFields.title": "Mascota {{number}}",
+    "booking.step1.petFields.name": "Nombre",
+    "booking.step1.petFields.breed": "Raza",
+    "booking.step1.petFields.weight": "Peso (kg)",
+    "booking.step1.petFields.size": "Tamaño",
+    "booking.step1.petFields.age": "Edad",
+    "booking.step1.petFields.personality": "Personalidad y hábitos",
+    "booking.step1.petFields.personalityPlaceholder": "Por favor, infórmanos sobre la personalidad y los hábitos de tu mascota en detalle para que podamos ayudar a tu mascota a adaptarse al nuevo entorno sin problemas.",
+    "booking.step1.petFields.sex": "Sexo",
+    "booking.step1.petFields.isNeutered": "Castrado/Esterilizado",
+    "booking.step1.petFields.sizes.pequeño": "Pequeño",
+    "booking.step1.petFields.sizes.mediano": "Mediano",
+    "booking.step1.petFields.sizes.grande": "Grande",
+    "booking.step1.petFields.yes": "Sí",
+    "booking.step1.petFields.no": "No",
+    "booking.step1.addPet": "Añadir otra mascota",
+    "booking.step1.removePet": "Eliminar",
+    "booking.step1.error": "Por favor, completa todos los campos de las mascotas antes de continuar.",
+    "booking.step1.maxPetsMessage": "Para más de 2 mascotas, por favor llama al teléfono: 123-456-7890",
+    "booking.navigation.next": "Siguiente",
+    "booking.navigation.previous": "Anterior",
+    "booking.pricePerDay": "{{price}}€/día"
 }

@@ -6,6 +6,7 @@ Do not modify other features of the pages that are not related to the ones you a
 When you change the signature of a function or a type, look for all the usages and update the usages in the rest of files.
 When creating a data model, review the existing ones and try to reuse the same structure if possible.
 When you modify a type, check if you need to update the existing examples of objects of that type.
+For managing translations you must use useTranslation hook from react-i18next and the translation files in the frontend/public/locales folder. Use dot notation to access the translations instead of nesting them. When calling the t function use spanish as the default language inlined.
 
 In the frontend project you must take into account our code structure rules
 
@@ -40,8 +41,6 @@ api and lib (utils/hooks), but you can omit some or add more, as you see fit.
 
 In order to not overengineer we will add the following rules to the original architecture:
 
--   We'll only use `widgets` in case the composition of `features`/`entities` needs to be reused in multiple `pages`, otherwise we'll use that composition directly in the `page` that needs it.
--   Only when a `feature` is reused in multiple higher layers will we put it at the root `features` folder, in case it's only used in one higher layer it will go inside a `features` folder inside that layer.
--   Only when an `entity` is reused in multiple higher layers will we put it at the root `entities` folder, in case it's only used in one higher layer it will go inside an `entities` folder inside that layer.
-
-
+- We'll only use `widgets` in case the composition of `features`/`entities` needs to be reused in multiple `pages`, otherwise we'll use that composition directly in the `page` that needs it.
+- Only when a `feature` is reused in multiple higher layers will we put it at the root `features` folder, in case it's only used in one higher layer it will go inside a `features` folder inside that layer.
+- Only when an `entity` is reused in multiple higher layers will we put it at the root `entities` folder, in case it's only used in one higher layer it will go inside an `entities` folder inside that layer.

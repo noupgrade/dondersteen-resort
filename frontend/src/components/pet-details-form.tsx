@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { usePetPricing } from '@/shared/hooks/use-pet-pricing'
 import { cn } from '@/shared/lib/utils'
@@ -20,6 +21,7 @@ type PetDetailsFormProps = {
 }
 
 export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps) {
+    const { t } = useTranslation()
     const { getSizeFromWeight, getPriceBySize } = usePetPricing()
 
     useEffect(() => {
@@ -40,7 +42,7 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
         <Card className='mb-6 bg-gradient-to-br from-slate-50 to-white shadow-sm transition-shadow duration-200 hover:shadow-md'>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4'>
                 <h3 className='text-lg font-semibold text-slate-800'>
-                    Mascota {petIndex + 1}
+                    {t('booking.step1.petFields.title', 'Mascota {{number}}', { number: petIndex + 1 })}
                     {petName ? <span className='ml-1 text-primary'>- {petName}</span> : ''}
                 </h3>
                 {petIndex > 0 && (
@@ -51,7 +53,7 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         onClick={onRemove}
                         className='text-red-500 hover:bg-red-50 hover:text-red-700'
                     >
-                        Eliminar
+                        {t('booking.step1.removePet', 'Eliminar')}
                     </Button>
                 )}
             </CardHeader>
@@ -62,10 +64,12 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.name`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Nombre</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.name', 'Nombre')}
+                                </FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder='Nombre de la mascota'
+                                        placeholder={t('booking.step1.petFields.name', 'Nombre')}
                                         {...field}
                                         className='bg-white focus:ring-2'
                                     />
@@ -79,9 +83,15 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.breed`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Raza</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.breed', 'Raza')}
+                                </FormLabel>
                                 <FormControl>
-                                    <Input placeholder='Raza' {...field} className='bg-white focus:ring-2' />
+                                    <Input
+                                        placeholder={t('booking.step1.petFields.breed', 'Raza')}
+                                        {...field}
+                                        className='bg-white focus:ring-2'
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -92,12 +102,14 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.weight`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Peso (kg)</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.weight', 'Peso (kg)')}
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         type='number'
                                         step='0.1'
-                                        placeholder='Peso'
+                                        placeholder={t('booking.step1.petFields.weight', 'Peso (kg)')}
                                         {...field}
                                         className='bg-white focus:ring-2'
                                     />
@@ -111,11 +123,13 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.size`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Tamaño</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.size', 'Tamaño')}
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         readOnly
-                                        value={field.value}
+                                        value={t(`booking.step1.petFields.sizes.${field.value}`, field.value)}
                                         className={cn(
                                             'cursor-not-allowed bg-white',
                                             field.value === 'pequeño' && 'text-green-600',
@@ -125,7 +139,8 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                                     />
                                 </FormControl>
                                 <p className='mt-1 text-sm text-muted-foreground'>
-                                    {size && `${getPriceBySize(size)}€/día`}
+                                    {size &&
+                                        t('booking.pricePerDay', '{{price}}€/día', { price: getPriceBySize(size) })}
                                 </p>
                                 <FormMessage />
                             </FormItem>
@@ -136,11 +151,13 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.age`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Edad</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.age', 'Edad')}
+                                </FormLabel>
                                 <FormControl>
                                     <Input
                                         type='number'
-                                        placeholder='Edad'
+                                        placeholder={t('booking.step1.petFields.age', 'Edad')}
                                         {...field}
                                         className='bg-white focus:ring-2'
                                     />
@@ -154,7 +171,9 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                         name={`pets.${petIndex}.isNeutered`}
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className='text-slate-700'>Castrado/Esterilizado</FormLabel>
+                                <FormLabel className='text-slate-700'>
+                                    {t('booking.step1.petFields.isNeutered', 'Castrado/Esterilizado')}
+                                </FormLabel>
                                 <FormControl>
                                     <Select
                                         value={field.value ? 'yes' : 'no'}
@@ -169,8 +188,10 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value='yes'>Sí</SelectItem>
-                                            <SelectItem value='no'>No</SelectItem>
+                                            <SelectItem value='yes'>
+                                                {t('booking.step1.petFields.yes', 'Sí')}
+                                            </SelectItem>
+                                            <SelectItem value='no'>{t('booking.step1.petFields.no', 'No')}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </FormControl>
@@ -184,10 +205,15 @@ export function PetDetailsForm({ form, petIndex, onRemove }: PetDetailsFormProps
                     name={`pets.${petIndex}.personality`}
                     render={({ field }) => (
                         <FormItem className='mt-4'>
-                            <FormLabel className='text-slate-700'>Personalidad y hábitos</FormLabel>
+                            <FormLabel className='text-slate-700'>
+                                {t('booking.step1.petFields.personality', 'Personalidad y hábitos')}
+                            </FormLabel>
                             <FormControl>
                                 <Textarea
-                                    placeholder='Por favor, infórmanos sobre la personalidad y los hábitos de tu mascota en detalle para que podamos ayudar a tu mascota a adaptarse al nuevo entorno sin problemas.'
+                                    placeholder={t(
+                                        'booking.step1.petFields.personalityPlaceholder',
+                                        'Por favor, infórmanos sobre la personalidad y los hábitos de tu mascota en detalle para que podamos ayudar a tu mascota a adaptarse al nuevo entorno sin problemas.',
+                                    )}
                                     className='min-h-[100px] resize-y bg-white focus:ring-2'
                                     {...field}
                                 />
