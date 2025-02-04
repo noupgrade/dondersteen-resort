@@ -131,7 +131,7 @@ export default function BookingPage() {
                 )}
                 <img src='/dondersteen-logo.png' alt='Dondersteen Logo' className='mx-auto mb-8 h-24' />
                 <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
-                    <div className='lg:col-span-2'>
+                    <div className={`${!state.selectedDates ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
                         <Form {...form}>
                             <div className='space-y-8'>
                                 {state.currentStep === 1 && (
@@ -214,11 +214,12 @@ export default function BookingPage() {
                             </div>
                         </Form>
                     </div>
-                    <div className='lg:col-span-1'>
-                        {state.selectedDates && (
+
+                    {state.selectedDates && (
+                        <div className='lg:col-span-1'>
                             <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 <ConfirmationDialog
