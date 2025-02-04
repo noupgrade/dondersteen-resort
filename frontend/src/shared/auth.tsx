@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
-import { User, signInAnonymously } from 'firebase/auth'
+import { User as FUser, signInAnonymously } from 'firebase/auth'
 
 import { auth, onAuthStateChanged } from '@/shared/firebase/firebase.ts'
 
 import { TrackingService } from './lib/tracking'
+
+type User = FUser & { isStaff: boolean }
 
 interface AuthContextType {
     user?: User
@@ -40,7 +42,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         () =>
             onAuthStateChanged(async newUser => {
                 if (newUser) {
-                    setUser(newUser)
+                    const token = await newUser.getIdTokenResult()
+                    // @ts-expect-error adding custom property to user.
+                    //  Using it this way to avoid losing the methods of the user object
+                    newUser.isStaff = !!token.claims.isStaff
+                    setUser(newUser as User)
                     TrackingService.identify(newUser.uid)
                     TrackingService.setUser({
                         id: newUser.uid,
@@ -48,6 +54,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                         email: newUser.email,
                         name: newUser.displayName,
                         phone: newUser.phoneNumber,
+                        // @ts-expect-error custom property of user.
+                        type: newUser.isStaff ? 'staff' : 'end-customer',
                     })
                 } else setUser(undefined)
                 if (isLoading) setIsLoading(false)
@@ -58,7 +66,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const anonymousSignIn = async () => {
         setIsLoading(true)
         return await signInAnonymously(auth)
-            .then(credentials => credentials.user)
+            .then(
+                (credentials): User => ({
+                    ...credentials.user,
+                    isStaff: false,
+                }),
+            )
             .finally(() => setIsLoading(false))
     }
 

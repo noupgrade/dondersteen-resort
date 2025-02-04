@@ -4,8 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "designate-as-admin": "node index.js designate-as-admin",
-        "list-admin-users": "node index.js list-admin-users",
+        "designate-as-staff": "node index.js designate-as-staff",
+        "list-staff-users": "node index.js list-staff-users",
         "migrate": "node index.js migrate"
     },
     "keywords": [],

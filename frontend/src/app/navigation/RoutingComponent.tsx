@@ -1,26 +1,26 @@
 import { Route, Routes } from 'react-router-dom'
 
 import { ReservationProvider } from '@/components/ReservationContext'
-import { useIsMobile } from '@/shared/lib/hooks/useIsMobile'
-
 import { LoginPage } from '@/pages/login/LoginPage'
-import PanelInternoLayout from '@/pages/panel-interno/layout'
-import PanelInterno from '@/pages/panel-interno/page'
-import MobilePanelInterno from '@/pages/panel-interno/mobile/page'
 import PlanningPage from '@/pages/panel-interno/PlanningPage'
 import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage'
-import SetupPage from '@/pages/panel-interno/setup/page'
-import TiendaPage from '@/pages/panel-interno/tienda/page'
-import StorePage from '@/pages/panel-interno/tienda/store'
-import EmployeeSelection from '@/pages/panel-interno/tienda/employee-selection'
 import BillingPage from '@/pages/panel-interno/facturacion/page'
+import PanelInternoLayout from '@/pages/panel-interno/layout'
+import MobilePanelInterno from '@/pages/panel-interno/mobile/page'
+import PanelInterno from '@/pages/panel-interno/page'
+import SetupPage from '@/pages/panel-interno/setup/page'
+import EmployeeSelection from '@/pages/panel-interno/tienda/employee-selection'
+import StorePage from '@/pages/panel-interno/tienda/store'
+import { useIsMobile } from '@/shared/lib/hooks/useIsMobile'
+
 import BookingPage from '../../pages/BookingPage'
 import ClientDetailsPage from '../../pages/ClientPage'
 import ClientesPage from '../../pages/ClientsPage'
 import Home from '../../pages/HomePage'
-import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage'
 import PeluqueriaBookingPage from '../../pages/PeluqueriaBooking'
 import PerfilClientesPage from '../../pages/PerfilClientesPage'
+import PeluqueriaPage from '../../pages/panel-interno/HairSalonInternalPanelPage'
+import { ProtectedStaffPage } from './ProtectedPage'
 import { WithAnonymousUser } from './WithAnonymousUser'
 
 export const RoutingComponent = () => {
@@ -32,7 +32,7 @@ export const RoutingComponent = () => {
             <Route
                 path='/booking'
                 element={
-                    <WithAnonymousUser userType='endUser'>
+                    <WithAnonymousUser>
                         <ReservationProvider>
                             <BookingPage />
                         </ReservationProvider>
@@ -43,7 +43,7 @@ export const RoutingComponent = () => {
             <Route
                 path='/peluqueria-booking'
                 element={
-                    <WithAnonymousUser userType='endUser'>
+                    <WithAnonymousUser>
                         <ReservationProvider>
                             <PeluqueriaBookingPage />
                         </ReservationProvider>
@@ -53,7 +53,7 @@ export const RoutingComponent = () => {
             <Route
                 path='/perfil-clientes'
                 element={
-                    <WithAnonymousUser userType='endUser'>
+                    <WithAnonymousUser>
                         <ReservationProvider>
                             <PerfilClientesPage />
                         </ReservationProvider>
@@ -63,7 +63,7 @@ export const RoutingComponent = () => {
             <Route
                 path='/panel-interno/*'
                 element={
-                    <WithAnonymousUser userType='admin'>
+                    <ProtectedStaffPage>
                         <ReservationProvider>
                             {isMobile ? (
                                 <MobilePanelInterno />
@@ -84,7 +84,7 @@ export const RoutingComponent = () => {
                                 </PanelInternoLayout>
                             )}
                         </ReservationProvider>
-                    </WithAnonymousUser>
+                    </ProtectedStaffPage>
                 }
             />
             <Route path='*' element={<div>404 - Page not found</div>} />

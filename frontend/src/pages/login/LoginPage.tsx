@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import GoogleButton from 'react-google-button'
 import { Navigate, useSearchParams } from 'react-router-dom'
+
 import { motion } from 'framer-motion'
 
 import { useAuth } from '@/shared/auth.tsx'
@@ -33,11 +34,7 @@ function LoginButton(props: { onClick: () => Promise<void> }) {
                                 transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
                                 className='w-full max-w-[300px]'
                             >
-                                <img
-                                    src='/dondersteen-logo.png'
-                                    alt='Dondersteen Resort'
-                                    className='w-full'
-                                />
+                                <img src='/dondersteen-logo.png' alt='Dondersteen Resort' className='w-full' />
                             </motion.div>
 
                             {/* Animation */}
@@ -64,7 +61,7 @@ function LoginButton(props: { onClick: () => Promise<void> }) {
                                 <GoogleButton
                                     onClick={props.onClick}
                                     label='Inicia sesión con Google'
-                                    className='!w-full !rounded-lg !bg-blue-600 !font-medium !text-sm !transition-colors hover:!bg-blue-700'
+                                    className='!w-full !rounded-lg !bg-blue-600 !text-sm !font-medium !transition-colors hover:!bg-blue-700'
                                 />
                             </motion.div>
                         </CardContent>
@@ -79,12 +76,6 @@ export const LoginPage = () => {
     const { user } = useAuth()
     const [searchParams] = useSearchParams()
     const redirect = searchParams.get('redirect')
-
-    useEffect(() => {
-        TrackingService.trackPageView({
-            page: 'login',
-        })
-    }, [])
 
     const handleLogin = async () => {
         try {

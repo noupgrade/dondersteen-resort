@@ -4,7 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Helper function to check if user is authenticated staff
     function isStaff() {
-      return request.auth != null // && request.auth.token.isStaff == true; // TODO: Uncomment this when we have a proper auth system
+      return request.auth != null && request.auth.token.isStaff == true;
     }
 
     function isAuthenticated() {
@@ -39,7 +39,8 @@ service cloud.firestore {
     }
 
     match /configs/hotel_pricing {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isStaff();
     }
   }
 }

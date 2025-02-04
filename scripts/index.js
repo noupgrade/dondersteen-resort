@@ -1,14 +1,14 @@
 const { Command } = require('commander')
 const program = new Command()
 const { setConfig } = require('./config')
-const designateAsAdmin = require('./admins/designateAsAdmin')
-const listAdminUsers = require('./admins/listAdminUsers')
+const designateAsStaff = require('./admins/designateAsStaff')
+const listStaffUsers = require('./admins/listStaffUsers')
 const runMigration = require('./platform/migrations/runMigration')
 
 program.option('--prod', 'Run in production mode', false)
 
-program.addCommand(designateAsAdmin)
-program.addCommand(listAdminUsers)
+program.addCommand(designateAsStaff)
+program.addCommand(listStaffUsers)
 program.addCommand(runMigration)
 
 program.hook('preAction', command => {
