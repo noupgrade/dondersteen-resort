@@ -22,6 +22,12 @@ service cloud.firestore {
       allow read, write: if isStaff(); // Only staff can modify store config
     }
 
+    // Global configuration document
+    match /configs/global_configs {
+      allow read: if true; // Anyone can read global configs
+      allow write: if isStaff(); // Only staff can modify global configs
+    }
+
     // Hotel availability configuration
     match /configs/hotel-availability {
       allow read, write: if true;

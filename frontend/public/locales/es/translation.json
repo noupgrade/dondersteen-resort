@@ -19,7 +19,7 @@
     "booking.step1.addPet": "Añadir otra mascota",
     "booking.step1.removePet": "Eliminar",
     "booking.step1.error": "Por favor, completa todos los campos de las mascotas antes de continuar.",
-    "booking.step1.maxPetsMessage": "Para más de 2 mascotas, por favor llama al teléfono: 123-456-7890",
+    "booking.step1.maxPetsMessage": "Para más de 2 mascotas, por favor llama al teléfono: {{phoneNumber}}",
     "booking.navigation.next": "Siguiente",
     "booking.navigation.previous": "Anterior",
     "booking.pricePerDay": "{{price}}€/día"
