@@ -2,7 +2,7 @@ import { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
 import { PetDetailsForm } from '@/components/pet-details-form'
-import { useGlobalConfig } from '@/shared/hooks/use-global-config'
+import { useGlobalPublicConfig } from '@/shared/hooks/use-global-config'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
@@ -16,8 +16,7 @@ interface PetInformationStepProps {
 
 export function PetInformationStep({ form, onAddPet, onRemovePet }: PetInformationStepProps) {
     const { t } = useTranslation()
-    const { data: globalConfig } = useGlobalConfig()
-    console.log(globalConfig)
+    const { data: globalConfig } = useGlobalPublicConfig()
     const pets = form.watch('pets')
 
     return (

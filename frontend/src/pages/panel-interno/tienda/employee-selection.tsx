@@ -2,13 +2,13 @@ import { useNavigate } from 'react-router-dom'
 
 import { Loader2 } from 'lucide-react'
 
-import { useGlobalConfig } from '@/shared/hooks/use-global-config'
+import { useGlobalPrivateConfig } from '@/shared/hooks/use-global-config'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
 export default function EmployeeSelection() {
     const navigate = useNavigate()
-    const { data: config, loading: isLoading } = useGlobalConfig()
+    const { data: config, loading: isLoading } = useGlobalPrivateConfig()
 
     const handleEmployeeSelect = (employee: { id: string; name: string }) => {
         // Guardar el empleado seleccionado en sessionStorage

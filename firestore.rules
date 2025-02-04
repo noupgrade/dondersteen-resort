@@ -23,9 +23,12 @@ service cloud.firestore {
     }
 
     // Global configuration document
-    match /configs/global_configs {
-      allow read: if true; // Anyone can read global configs
-      allow write: if isStaff(); // Only staff can modify global configs
+    match /configs/global_configs_private {
+      allow read, write: if isStaff();
+    }
+
+    match /configs/global_configs_public {
+      allow read, write: if isAuthenticated();
     }
 
     // Hotel availability configuration

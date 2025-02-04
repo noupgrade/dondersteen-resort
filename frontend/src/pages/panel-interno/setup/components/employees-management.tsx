@@ -1,34 +1,32 @@
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
-import { X } from 'lucide-react'
-import { useDocument } from '@/shared/firebase/hooks/useDocument'
 
-interface Employee {
-    id: string
-    name: string
-}
+import { X } from 'lucide-react'
+
+import { useDocument } from '@/shared/firebase/hooks/useDocument'
+import { GlobalPrivateConfig, useGlobalPrivateConfig } from '@/shared/hooks/use-global-config'
+import { Button } from '@/shared/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Input } from '@/shared/ui/input'
 
 export function EmployeesManagement() {
     const [newEmployeeName, setNewEmployeeName] = useState('')
-    const { document: config, setDocument } = useDocument<{ employees?: Employee[] }>({
+    const { document: config, setDocument } = useDocument<GlobalPrivateConfig>({
         collectionName: 'configs',
-        id: 'global_configs'
+        id: 'global_configs_private',
     })
 
     const handleAddEmployee = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!newEmployeeName.trim()) return
 
-        const newEmployee: Employee = {
+        const newEmployee = {
             id: crypto.randomUUID(),
-            name: newEmployeeName.trim()
+            name: newEmployeeName.trim(),
         }
 
         await setDocument({
             ...config,
-            employees: [...(config?.employees || []), newEmployee]
+            employees: [...(config?.employees || []), newEmployee],
         })
         setNewEmployeeName('')
     }
@@ -36,7 +34,7 @@ export function EmployeesManagement() {
     const handleRemoveEmployee = async (id: string) => {
         await setDocument({
             ...config,
-            employees: (config?.employees || []).filter(emp => emp.id !== id)
+            employees: (config?.employees || []).filter(emp => emp.id !== id),
         })
     }
 
@@ -46,39 +44,30 @@ export function EmployeesManagement() {
                 <CardTitle>Gestión de Empleados</CardTitle>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleAddEmployee} className="flex gap-2 mb-4">
+                <form onSubmit={handleAddEmployee} className='mb-4 flex gap-2'>
                     <Input
                         value={newEmployeeName}
-                        onChange={(e) => setNewEmployeeName(e.target.value)}
-                        placeholder="Nombre del empleado"
-                        className="flex-1"
+                        onChange={e => setNewEmployeeName(e.target.value)}
+                        placeholder='Nombre del empleado'
+                        className='flex-1'
                     />
-                    <Button type="submit">Añadir</Button>
+                    <Button type='submit'>Añadir</Button>
                 </form>
 
-                <div className="space-y-2">
-                    {config?.employees?.map((employee) => (
-                        <div
-                            key={employee.id}
-                            className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                        >
+                <div className='space-y-2'>
+                    {config?.employees?.map(employee => (
+                        <div key={employee.id} className='flex items-center justify-between rounded-md bg-gray-50 p-2'>
                             <span>{employee.name}</span>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleRemoveEmployee(employee.id)}
-                            >
-                                <X className="h-4 w-4" />
+                            <Button variant='ghost' size='icon' onClick={() => handleRemoveEmployee(employee.id)}>
+                                <X className='h-4 w-4' />
                             </Button>
                         </div>
                     ))}
                     {(!config?.employees || config.employees.length === 0) && (
-                        <p className="text-muted-foreground text-center py-4">
-                            No hay empleados registrados
-                        </p>
+                        <p className='py-4 text-center text-muted-foreground'>No hay empleados registrados</p>
                     )}
                 </div>
             </CardContent>
         </Card>
     )
-} 
+}
