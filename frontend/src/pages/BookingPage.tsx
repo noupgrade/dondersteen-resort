@@ -22,6 +22,7 @@ import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Form } from '@/shared/ui/form'
+import { LanguageSwitchButton } from '@/shared/ui/language-switch-button'
 
 export default function BookingPage() {
     const { t } = useTranslation()
@@ -106,6 +107,9 @@ export default function BookingPage() {
     return (
         <>
             <div className='container mx-auto max-w-4xl py-8'>
+                <div className='absolute right-4 top-4 z-50'>
+                    <LanguageSwitchButton />
+                </div>
                 {type === 'budget' && (
                     <Alert variant='destructive' className='mb-6'>
                         <AlertCircle className='h-4 w-4' />
