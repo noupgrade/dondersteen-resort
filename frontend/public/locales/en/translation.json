@@ -45,5 +45,20 @@
     "booking.step2.time.selectTime": "Select time",
     "booking.step2.alerts.saturdayCheckIn": "On Saturdays, pet drop-off must be before 2:00 PM.",
     "booking.step2.alerts.saturdayCheckOut": "On Saturdays, pet pick-up must be before 2:00 PM.",
-    "booking.step2.alerts.outOfHours": "Hotel hours: 8:00 AM to 6:00 PM. Check-in/out outside these hours: €70 additional fee."
+    "booking.step2.alerts.outOfHours": "Hotel hours: 8:00 AM to 6:00 PM. Check-in/out outside these hours: €70 additional fee.",
+    "booking.summary.title": "Booking Summary",
+    "booking.summary.dates.checkIn": "Check-in: {{date}}",
+    "booking.summary.dates.checkOut": "Check-out: {{date}}",
+    "booking.summary.dates.daycare": "Daycare",
+    "booking.summary.dates.nights": "{{nights}} nights",
+    "booking.summary.transport.title": "Transport Service",
+    "booking.summary.transport.fromPrice": "From €40",
+    "booking.summary.transport.priceNote": "Final price will depend on location and will be agreed directly with the driver",
+    "booking.summary.pet.stay": "Stay ({{size}})",
+    "booking.summary.pet.daycare": "Daycare",
+    "booking.summary.subtotal": "Subtotal",
+    "booking.summary.multiPetDiscount": "Multiple pets discount",
+    "booking.summary.multiPetDiscountValue": "-10%",
+    "booking.summary.total": "Total",
+    "booking.summary.driverServiceNote": "+ driver service"
 }

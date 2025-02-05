@@ -1,12 +1,14 @@
+import { useTranslation } from 'react-i18next'
+
 import { format, isValid } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { enUS, es } from 'date-fns/locale'
 import { Bed, Clock } from 'lucide-react'
 
-import { AdditionalService } from '@/shared/types/additional-services'
-import { formatCurrency } from '@/shared/utils/format'
-import { ServiceItem } from '@/shared/ui/service-item'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { PetFormData } from '@/features/booking/types/booking.types'
+import { AdditionalService } from '@/shared/types/additional-services'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { ServiceItem } from '@/shared/ui/service-item'
+import { formatCurrency } from '@/shared/utils/format'
 import { calculateNights, calculateTotalPrice } from '@/shared/utils/pricing'
 
 interface BookingSummaryProps {
@@ -18,11 +20,9 @@ interface BookingSummaryProps {
     services: AdditionalService[]
 }
 
-export function BookingSummary({
-    dates,
-    pets,
-    services,
-}: BookingSummaryProps) {
+export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
+    const { t, i18n } = useTranslation()
+    const dateLocale = i18n.language === 'es' ? es : enUS
     const nights = calculateNights(dates)
     const priceBreakdown = calculateTotalPrice(dates, pets, services)
     const hasMultiplePets = pets.length > 1
@@ -32,31 +32,41 @@ export function BookingSummary({
     const servicesByPet = pets.map((pet, index) => ({
         pet,
         services: services.filter(s => s.petIndex === index && s.type !== 'driver'),
-        breakdown: priceBreakdown.petsBreakdown[index]
+        breakdown: priceBreakdown.petsBreakdown[index],
     }))
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Resumen de la reserva</CardTitle>
+                <CardTitle>{t('booking.summary.title')}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className='space-y-6'>
                 {/* Dates */}
                 {dates && isValid(dates.from) && isValid(dates.to) && (
                     <div>
-                        <div className="space-y-2 text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                <p>Entrada: {format(dates.from, 'PPP', { locale: es })}</p>
+                        <div className='space-y-2 text-muted-foreground'>
+                            <div className='flex items-center gap-2'>
+                                <Clock className='h-4 w-4' />
+                                <p>
+                                    {t('booking.summary.dates.checkIn', {
+                                        date: format(dates.from, 'PPP', { locale: dateLocale }),
+                                    })}
+                                </p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                <p>Salida: {format(dates.to, 'PPP', { locale: es })}</p>
+                            <div className='flex items-center gap-2'>
+                                <Clock className='h-4 w-4' />
+                                <p>
+                                    {t('booking.summary.dates.checkOut', {
+                                        date: format(dates.to, 'PPP', { locale: dateLocale }),
+                                    })}
+                                </p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Bed className="h-4 w-4" />
-                                <p className="text-sm">
-                                    {nights === 0 ? 'Guardería' : `${nights} noches`}
+                            <div className='flex items-center gap-2'>
+                                <Bed className='h-4 w-4' />
+                                <p className='text-sm'>
+                                    {nights === 0
+                                        ? t('booking.summary.dates.daycare')
+                                        : t('booking.summary.dates.nights', { nights })}
                                 </p>
                             </div>
                         </div>
@@ -66,16 +76,16 @@ export function BookingSummary({
                 {/* Driver Service */}
                 {driverService && (
                     <div>
-                        <h3 className="font-medium mb-2">Servicio de transporte</h3>
-                        <div className="flex flex-col gap-1">
-                            <div className="flex items-center justify-between">
+                        <h3 className='mb-2 font-medium'>{t('booking.summary.transport.title')}</h3>
+                        <div className='flex flex-col gap-1'>
+                            <div className='flex items-center justify-between'>
                                 <ServiceItem service={driverService} />
-                                <span className="text-sm text-yellow-600">
-                                    Desde 40€
+                                <span className='text-sm text-yellow-600'>
+                                    {t('booking.summary.transport.fromPrice')}
                                 </span>
                             </div>
-                            <p className="text-xs text-muted-foreground italic">
-                                El precio final dependerá de la ubicación y se acordará directamente con el chofer
+                            <p className='text-xs italic text-muted-foreground'>
+                                {t('booking.summary.transport.priceNote')}
                             </p>
                         </div>
                     </div>
@@ -84,29 +94,33 @@ export function BookingSummary({
                 {/* Pets and their services */}
                 {servicesByPet.map(({ pet, services, breakdown }, index) => (
                     <div key={index}>
-                        <h3 className="font-medium mb-2">
+                        <h3 className='mb-2 font-medium'>
                             {pet.name} ({pet.breed})
                         </h3>
-                        <div className="space-y-2 pl-4">
-                            <div className="flex items-center justify-between text-sm text-muted-foreground">
-                                <div className="flex items-center gap-2">
-                                    <Bed className="h-4 w-4" />
+                        <div className='space-y-2 pl-4'>
+                            <div className='flex items-center justify-between text-sm text-muted-foreground'>
+                                <div className='flex items-center gap-2'>
+                                    <Bed className='h-4 w-4' />
                                     <span>
-                                        {nights === 0 ? 'Guardería' : `Estancia (${pet.size})`}
+                                        {nights === 0
+                                            ? t('booking.summary.pet.daycare')
+                                            : t('booking.summary.pet.stay', { size: pet.size })}
                                     </span>
                                 </div>
                                 <span>{formatCurrency(breakdown.basePrice)}</span>
                             </div>
                             {services.map((service, serviceIndex) => (
-                                <div key={serviceIndex} className="flex items-center justify-between">
+                                <div key={serviceIndex} className='flex items-center justify-between'>
                                     <ServiceItem service={service} />
-                                    <span className="text-sm text-muted-foreground">
-                                        {formatCurrency(breakdown.services.find(s => s.name === service.type)?.price ?? 0)}
+                                    <span className='text-sm text-muted-foreground'>
+                                        {formatCurrency(
+                                            breakdown.services.find(s => s.name === service.type)?.price ?? 0,
+                                        )}
                                     </span>
                                 </div>
                             ))}
-                            <div className="flex items-center justify-between font-medium pt-1">
-                                <span>Subtotal</span>
+                            <div className='flex items-center justify-between pt-1 font-medium'>
+                                <span>{t('booking.summary.subtotal')}</span>
                                 <span>{formatCurrency(breakdown.subtotal)}</span>
                             </div>
                         </div>
@@ -114,20 +128,22 @@ export function BookingSummary({
                 ))}
 
                 {/* Total */}
-                <div className="border-t pt-4 space-y-2">
+                <div className='space-y-2 border-t pt-4'>
                     {hasMultiplePets && (
-                        <div className="flex justify-between text-sm text-green-600">
-                            <span>Descuento múltiples mascotas</span>
-                            <span>-10%</span>
+                        <div className='flex justify-between text-sm text-green-600'>
+                            <span>{t('booking.summary.multiPetDiscount')}</span>
+                            <span>{t('booking.summary.multiPetDiscountValue')}</span>
                         </div>
                     )}
-                    <div className="flex flex-col gap-1">
-                        <div className="flex justify-between">
-                            <span className="font-medium">Total</span>
-                            <span className="font-semibold">{formatCurrency(priceBreakdown.total)}</span>
+                    <div className='flex flex-col gap-1'>
+                        <div className='flex justify-between'>
+                            <span className='font-medium'>{t('booking.summary.total')}</span>
+                            <span className='font-semibold'>{formatCurrency(priceBreakdown.total)}</span>
                         </div>
                         {driverService && (
-                            <span className="text-sm text-yellow-600 text-right">+ servicio de chofer</span>
+                            <span className='text-right text-sm text-yellow-600'>
+                                {t('booking.summary.driverServiceNote')}
+                            </span>
                         )}
                     </div>
                 </div>

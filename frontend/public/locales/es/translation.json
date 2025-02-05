@@ -45,5 +45,20 @@
     "booking.step2.time.selectTime": "Selecciona la hora",
     "booking.step2.alerts.saturdayCheckIn": "Los sábados la entrega del perro debe ser antes de las 14:00h.",
     "booking.step2.alerts.saturdayCheckOut": "Los sábados la recogida debe ser antes de las 14:00h.",
-    "booking.step2.alerts.outOfHours": "Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales."
+    "booking.step2.alerts.outOfHours": "Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales.",
+    "booking.summary.title": "Resumen de la reserva",
+    "booking.summary.dates.checkIn": "Entrada: {{date}}",
+    "booking.summary.dates.checkOut": "Salida: {{date}}",
+    "booking.summary.dates.daycare": "Guardería",
+    "booking.summary.dates.nights": "{{nights}} noches",
+    "booking.summary.transport.title": "Servicio de transporte",
+    "booking.summary.transport.fromPrice": "Desde 40€",
+    "booking.summary.transport.priceNote": "El precio final dependerá de la ubicación y se acordará directamente con el chofer",
+    "booking.summary.pet.stay": "Estancia ({{size}})",
+    "booking.summary.pet.daycare": "Guardería",
+    "booking.summary.subtotal": "Subtotal",
+    "booking.summary.multiPetDiscount": "Descuento múltiples mascotas",
+    "booking.summary.multiPetDiscountValue": "-10%",
+    "booking.summary.total": "Total",
+    "booking.summary.driverServiceNote": "+ servicio de chofer"
 }

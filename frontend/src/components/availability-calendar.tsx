@@ -3,7 +3,7 @@ import { DateRange } from 'react-day-picker'
 import { useTranslation } from 'react-i18next'
 
 import { format, isSaturday } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { enUS, es } from 'date-fns/locale'
 import { Clock, Truck } from 'lucide-react'
 
 import { cn } from '@/shared/lib/styles/class-merge'
@@ -47,7 +47,10 @@ export function AvailabilityCalendar({
     const { isWeekend, isHighSeason, isDateBlocked, isHoliday } = useHotelAvailability()
     const hotelAvailability = getCalendarAvailability('hotel')
 
-    const { t } = useTranslation()
+    const { t, i18n } = useTranslation()
+
+    // Get the correct locale based on the current language
+    const calendarLocale = i18n.language === 'es' ? es : enUS
 
     const isOutOfHours = (hour: number) => hour < 8 || hour >= 19
     const checkInHour = parseInt(checkInTime.split(':')[0], 10)
@@ -196,7 +199,7 @@ export function AvailabilityCalendar({
                             )
                         }}
                         fromDate={new Date()}
-                        locale={es}
+                        locale={calendarLocale}
                     />
                     <div className='flex flex-wrap justify-start gap-2'>
                         <div className='flex items-center'>
