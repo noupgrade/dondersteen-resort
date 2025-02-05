@@ -136,7 +136,7 @@ export default function BookingPage() {
                     </Alert>
                 )}
                 <img src='/dondersteen-logo.png' alt='Dondersteen Logo' className='mx-auto mb-8 h-24' />
-                <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
+                <div className='grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8'>
                     <div className={`${!state.selectedDates ? 'lg:col-span-3' : 'lg:col-span-2'}`}>
                         <Form {...form}>
                             <div className='space-y-8'>
@@ -200,35 +200,30 @@ export default function BookingPage() {
                                         <AlertDescription>{state.formError}</AlertDescription>
                                     </Alert>
                                 )}
-
-                                {state.selectedDates && (
-                                    <div className='lg:col-span-1 lg:pt-12'>
-                                        <BookingSummary
-                                            pets={watchedPets}
-                                            dates={state.selectedDates}
-                                            services={watchedServices}
-                                        />
-                                    </div>
-                                )}
-
-                                <div className='flex justify-between space-x-4'>
-                                    {state.currentStep > 1 && (
-                                        <Button type='button' variant='outline' onClick={prevStep}>
-                                            {t('booking.navigation.previous', 'Anterior')}
-                                        </Button>
-                                    )}
-                                    {state.currentStep < 4 ? (
-                                        <Button type='button' className='w-full' onClick={nextStep}>
-                                            {t('booking.navigation.next', 'Siguiente')}
-                                        </Button>
-                                    ) : (
-                                        <Button type='button' className='w-full' onClick={handleSubmit}>
-                                            Confirmar reserva
-                                        </Button>
-                                    )}
-                                </div>
                             </div>
                         </Form>
+                    </div>
+
+                    <div className='flex flex-col gap-4 lg:col-span-1'>
+                        {state.selectedDates && (
+                            <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
+                        )}
+                        <div className='flex justify-between space-x-4'>
+                            {state.currentStep > 1 && (
+                                <Button type='button' variant='outline' onClick={prevStep}>
+                                    {t('booking.navigation.previous', 'Anterior')}
+                                </Button>
+                            )}
+                            {state.currentStep < 4 ? (
+                                <Button type='button' className='w-full' onClick={nextStep}>
+                                    {t('booking.navigation.next', 'Siguiente')}
+                                </Button>
+                            ) : (
+                                <Button type='button' className='w-full' onClick={handleSubmit}>
+                                    Confirmar reserva
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
