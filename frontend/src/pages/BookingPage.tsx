@@ -106,7 +106,7 @@ export default function BookingPage() {
 
     return (
         <>
-            <div className='container mx-auto max-w-4xl py-8'>
+            <div className='container mx-auto max-w-4xl p-4'>
                 <div className='absolute right-4 top-4 z-50'>
                     <LanguageSwitchButton />
                 </div>
@@ -201,6 +201,16 @@ export default function BookingPage() {
                                     </Alert>
                                 )}
 
+                                {state.selectedDates && (
+                                    <div className='lg:col-span-1 lg:pt-12'>
+                                        <BookingSummary
+                                            pets={watchedPets}
+                                            dates={state.selectedDates}
+                                            services={watchedServices}
+                                        />
+                                    </div>
+                                )}
+
                                 <div className='flex justify-between space-x-4'>
                                     {state.currentStep > 1 && (
                                         <Button type='button' variant='outline' onClick={prevStep}>
@@ -208,11 +218,11 @@ export default function BookingPage() {
                                         </Button>
                                     )}
                                     {state.currentStep < 4 ? (
-                                        <Button type='button' className='mx-4 w-full' onClick={nextStep}>
+                                        <Button type='button' className='w-full' onClick={nextStep}>
                                             {t('booking.navigation.next', 'Siguiente')}
                                         </Button>
                                     ) : (
-                                        <Button type='button' className='mx-4 w-full' onClick={handleSubmit}>
+                                        <Button type='button' className='w-full' onClick={handleSubmit}>
                                             Confirmar reserva
                                         </Button>
                                     )}
@@ -220,12 +230,6 @@ export default function BookingPage() {
                             </div>
                         </Form>
                     </div>
-
-                    {state.selectedDates && (
-                        <div className='lg:col-span-1'>
-                            <BookingSummary pets={watchedPets} dates={state.selectedDates} services={watchedServices} />
-                        </div>
-                    )}
                 </div>
 
                 <ConfirmationDialog

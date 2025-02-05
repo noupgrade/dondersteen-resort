@@ -1,6 +1,5 @@
 {
     "rejectProposal": "Rechazar propuesta",
-    "booking.step1.title": "Paso 1: Tus mascotas",
     "booking.step1.petFields.title": "Mascota {{number}}",
     "booking.step1.petFields.name": "Nombre",
     "booking.step1.petFields.breed": "Raza",

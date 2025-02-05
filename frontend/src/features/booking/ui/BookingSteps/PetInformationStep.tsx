@@ -20,8 +20,7 @@ export function PetInformationStep({ form, onAddPet, onRemovePet }: PetInformati
     const pets = form.watch('pets')
 
     return (
-        <div className='flex flex-col space-y-4 p-4'>
-            <h1 className='text-2xl font-bold'>{t('booking.step1.title', 'Paso 1: Tus mascotas')}</h1>
+        <div className='flex flex-col space-y-4'>
             <div className=''>
                 {pets.map((_, index) => (
                     <PetDetailsForm key={index} form={form} petIndex={index} onRemove={() => onRemovePet(index)} />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 
 export function ImportantNotes() {
     return (
-        <Card className='mt-6'>
+        <Card>
             <CardHeader>
                 <CardTitle>Notas importantes:</CardTitle>
             </CardHeader>

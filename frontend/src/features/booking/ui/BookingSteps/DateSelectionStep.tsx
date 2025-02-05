@@ -1,12 +1,14 @@
 import { UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+
 import { AlertCircle } from 'lucide-react'
 
 import { AvailabilityCalendar } from '@/components/availability-calendar'
 import { ImportantNotes } from '@/components/important-notes'
-import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { BookingFormData, DateRange } from '../../types/booking.types'
 import { AdditionalService } from '@/shared/types/additional-services'
+import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
+
+import { BookingFormData, DateRange } from '../../types/booking.types'
 
 interface DateSelectionStepProps {
     form: UseFormReturn<BookingFormData>
@@ -23,14 +25,12 @@ export function DateSelectionStep({
     dateError,
     capacity,
 }: DateSelectionStepProps) {
+    const { t } = useTranslation()
     const services = form.watch('services')
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Paso 2: Selecciona las fechas</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <div className='flex flex-col space-y-4'>
+            <div className='flex flex-col items-center'>
                 <AvailabilityCalendar
                     onSelect={onDateSelect}
                     onServiceChange={onServiceChange}
@@ -44,8 +44,10 @@ export function DateSelectionStep({
                         <AlertDescription>{dateError}</AlertDescription>
                     </Alert>
                 )}
-                <ImportantNotes />
-            </CardContent>
-        </Card>
+                <div className='mt-6 w-full max-w-2xl'>
+                    <ImportantNotes />
+                </div>
+            </div>
+        </div>
     )
-} 
+}

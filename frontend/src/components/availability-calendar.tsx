@@ -1,24 +1,24 @@
 import { useState } from 'react'
+import { DateRange } from 'react-day-picker'
+
 import { format, isSaturday } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Truck } from 'lucide-react'
+import { Clock, Truck } from 'lucide-react'
 
+import { cn } from '@/shared/lib/styles/class-merge'
+import { AdditionalService, DriverService } from '@/shared/types/additional-services'
+import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Calendar } from '@/shared/ui/calendar'
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { cn } from '@/shared/lib/styles/class-merge'
-import { useReservation } from './ReservationContext'
-import { useHotelAvailability } from './HotelAvailabilityContext'
-import { Alert, AlertDescription } from '@/shared/ui/alert'
-import { DateRange } from 'react-day-picker'
-import { Checkbox } from '@/shared/ui/checkbox'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
-import { AdditionalService, DriverService } from '@/shared/types/additional-services'
+import { Separator } from '@/shared/ui/separator'
 
-const AVAILABLE_HOURS = [
-    '11:00', '12:00', '13:00', '14:00',
-    '16:00', '17:00', '18:00'
-]
+import { useHotelAvailability } from './HotelAvailabilityContext'
+import { useReservation } from './ReservationContext'
+
+const AVAILABLE_HOURS = ['11:00', '12:00', '13:00', '14:00', '16:00', '17:00', '18:00']
 
 interface AvailabilityCalendarProps {
     className?: string
@@ -28,12 +28,18 @@ interface AvailabilityCalendarProps {
     initialServices?: AdditionalService[]
 }
 
-export function AvailabilityCalendar({ className, onSelect, onServiceChange, capacity, initialServices = [] }: AvailabilityCalendarProps) {
+export function AvailabilityCalendar({
+    className,
+    onSelect,
+    onServiceChange,
+    capacity,
+    initialServices = [],
+}: AvailabilityCalendarProps) {
     const [selectedDates, setSelectedDates] = useState<DateRange | undefined>()
     const [checkInTime, setCheckInTime] = useState<string>('14:00')
     const [checkOutTime, setCheckOutTime] = useState<string>('12:00')
     const [driverService, setDriverService] = useState<DriverService | undefined>(
-        initialServices.find(s => s.type === 'driver') as DriverService | undefined
+        initialServices.find(s => s.type === 'driver') as DriverService | undefined,
     )
 
     const { getCalendarAvailability } = useReservation()
@@ -92,7 +98,7 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                 type: 'driver',
                 serviceType: 'both',
                 petIndex: 0,
-                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)
+                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour),
             }
             setDriverService(newService)
             onServiceChange([...initialServices.filter(s => s.type !== 'driver'), newService])
@@ -107,7 +113,7 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
             const newService: DriverService = {
                 ...driverService,
                 serviceType: value,
-                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour)
+                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour),
             }
             setDriverService(newService)
             onServiceChange([...initialServices.filter(s => s.type !== 'driver'), newService])
@@ -127,84 +133,99 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
         : AVAILABLE_HOURS
 
     return (
-        <div className='space-y-4'>
-            <Calendar
-                mode='range'
-                selected={selectedDates}
-                onSelect={handleSelect}
-                className={cn('rounded-md border', className)}
-                modifiers={{
-                    available: date => {
-                        const dateString = format(date, 'yyyy-MM-dd')
-                        const currentOccupancy = hotelAvailability[dateString] || 0
-                        return currentOccupancy < capacity && !isDateBlocked(dateString)
-                    },
-                    highSeason: date => {
-                        const dateString = format(date, 'yyyy-MM-dd')
-                        return isHighSeason(dateString)
-                    },
-                    weekend: date => {
-                        const dateString = format(date, 'yyyy-MM-dd')
-                        return isRestrictedDay(dateString)
-                    },
-                    saturday: date => isSaturday(date),
-                    start: date => Boolean(selectedDates?.from && format(date, 'yyyy-MM-dd') === format(selectedDates.from, 'yyyy-MM-dd')),
-                    end: date => Boolean(selectedDates?.to && format(date, 'yyyy-MM-dd') === format(selectedDates.to, 'yyyy-MM-dd')),
-                    range: date =>
-                        Boolean(
-                            selectedDates?.from &&
-                            selectedDates?.to &&
-                            date > selectedDates.from &&
-                            date < selectedDates.to,
-                        ),
-                }}
-                modifiersStyles={{
-                    available: { backgroundColor: '#2d6a4f', color: 'white' },
-                    highSeason: { backgroundColor: '#22c55e', color: 'white' },
-                    weekend: { backgroundColor: '#f59e0b', color: 'white', cursor: 'not-allowed' },
-                    saturday: { backgroundColor: '#fbbf24', color: 'white' },
-                    start: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
-                    end: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
-                    range: {
-                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                    },
-                }}
-                disabled={date => {
-                    const dateString = format(date, 'yyyy-MM-dd')
-                    const currentOccupancy = hotelAvailability[dateString] || 0
-                    return currentOccupancy >= capacity || isRestrictedDay(dateString) || isDateBlocked(dateString)
-                }}
-                fromDate={new Date()}
-                locale={es}
-            />
-            <div className='flex flex-wrap justify-center gap-4 text-sm'>
-                <div className='flex items-center'>
-                    <div className='mr-2 h-4 w-4 rounded bg-[#2d6a4f]'></div>
-                    <span>Disponible</span>
-                </div>
-                <div className='flex items-center'>
-                    <div className='mr-2 h-4 w-4 rounded bg-[#22c55e]'></div>
-                    <span>Temporada Alta</span>
-                </div>
-                <div className='flex items-center'>
-                    <div className='mr-2 h-4 w-4 rounded bg-[#f59e0b]'></div>
-                    <span>Festivos (sin entradas ni salidas)</span>
-                </div>
-                <div className='flex items-center'>
-                    <div className='mr-2 h-4 w-4 rounded bg-[#fbbf24]'></div>
-                    <span>Sábados: horario especial</span>
-                </div>
-                <div className='flex items-center'>
-                    <div className='mr-2 h-4 w-4 rounded bg-gray-200'></div>
-                    <span>No disponible</span>
-                </div>
-            </div>
-            <div className='mt-4 space-y-4'>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Servicios generales</CardTitle>
-                    </CardHeader>
-                    <CardContent className='space-y-4'>
+        <div className='space-y-6'>
+            <Card>
+                <CardContent className='mt-4 space-y-6'>
+                    <Calendar
+                        mode='range'
+                        selected={selectedDates}
+                        onSelect={handleSelect}
+                        className={cn('rounded-md border', className)}
+                        modifiers={{
+                            available: date => {
+                                const dateString = format(date, 'yyyy-MM-dd')
+                                const currentOccupancy = hotelAvailability[dateString] || 0
+                                return currentOccupancy < capacity && !isDateBlocked(dateString)
+                            },
+                            highSeason: date => {
+                                const dateString = format(date, 'yyyy-MM-dd')
+                                return isHighSeason(dateString)
+                            },
+                            weekend: date => {
+                                const dateString = format(date, 'yyyy-MM-dd')
+                                return isRestrictedDay(dateString)
+                            },
+                            saturday: date => isSaturday(date),
+                            start: date =>
+                                Boolean(
+                                    selectedDates?.from &&
+                                        format(date, 'yyyy-MM-dd') === format(selectedDates.from, 'yyyy-MM-dd'),
+                                ),
+                            end: date =>
+                                Boolean(
+                                    selectedDates?.to &&
+                                        format(date, 'yyyy-MM-dd') === format(selectedDates.to, 'yyyy-MM-dd'),
+                                ),
+                            range: date =>
+                                Boolean(
+                                    selectedDates?.from &&
+                                        selectedDates?.to &&
+                                        date > selectedDates.from &&
+                                        date < selectedDates.to,
+                                ),
+                        }}
+                        modifiersStyles={{
+                            available: { backgroundColor: '#2d6a4f', color: 'white' },
+                            highSeason: { backgroundColor: '#22c55e', color: 'white' },
+                            weekend: { backgroundColor: '#f59e0b', color: 'white', cursor: 'not-allowed' },
+                            saturday: { backgroundColor: '#fbbf24', color: 'white' },
+                            start: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
+                            end: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
+                            range: {
+                                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            },
+                        }}
+                        disabled={date => {
+                            const dateString = format(date, 'yyyy-MM-dd')
+                            const currentOccupancy = hotelAvailability[dateString] || 0
+                            return (
+                                currentOccupancy >= capacity || isRestrictedDay(dateString) || isDateBlocked(dateString)
+                            )
+                        }}
+                        fromDate={new Date()}
+                        locale={es}
+                    />
+                    <div className='flex flex-wrap justify-start gap-2'>
+                        <div className='flex items-center'>
+                            <div className='mr-2 h-4 w-4 rounded bg-[#2d6a4f]'></div>
+                            <span className='text-sm'>Disponible</span>
+                        </div>
+                        <div className='flex items-center'>
+                            <div className='mr-2 h-4 w-4 rounded bg-[#22c55e]'></div>
+                            <span className='text-sm'>Temporada Alta</span>
+                        </div>
+                        <div className='flex items-center'>
+                            <div className='mr-2 h-4 w-4 rounded bg-[#f59e0b]'></div>
+                            <span className='text-sm'>Festivos</span>
+                        </div>
+                        <div className='flex items-center'>
+                            <div className='mr-2 h-4 w-4 rounded bg-[#fbbf24]'></div>
+                            <span className='text-sm'>Sábados</span>
+                        </div>
+                        <div className='flex items-center'>
+                            <div className='mr-2 h-4 w-4 rounded bg-gray-200'></div>
+                            <span className='text-sm'>No disponible</span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Servicios y horarios</CardTitle>
+                </CardHeader>
+                <CardContent className='space-y-6'>
+                    <div className='space-y-4'>
                         <div className='flex items-center space-x-2'>
                             <Checkbox
                                 id='transport'
@@ -213,16 +234,17 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                             />
                             <Label htmlFor='transport' className='flex items-center'>
                                 <Truck className='mr-2 h-4 w-4' />
-                                Chofer
+                                Servicio de chofer
                             </Label>
                         </div>
                         {driverService && (
                             <div className='ml-6 space-y-4'>
                                 <div className='space-y-2'>
-                                    <Label>Tipo de servicio</Label>
                                     <Select
                                         value={driverService.serviceType}
-                                        onValueChange={value => handleDriverServiceTypeChange(value as 'pickup' | 'dropoff' | 'both')}
+                                        onValueChange={value =>
+                                            handleDriverServiceTypeChange(value as 'pickup' | 'dropoff' | 'both')
+                                        }
                                     >
                                         <SelectTrigger className='w-[180px]'>
                                             <SelectValue placeholder='Selecciona el tipo' />
@@ -236,82 +258,110 @@ export function AvailabilityCalendar({ className, onSelect, onServiceChange, cap
                                 </div>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
-
-                <div className='flex gap-4'>
-                    <div className='space-y-2'>
-                        <Label htmlFor='checkInTime'>Hora de entrada:</Label>
-                        <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
-                            <SelectTrigger className='w-[180px]'>
-                                <SelectValue placeholder='Selecciona la hora' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(driverService?.serviceType === 'pickup' || driverService?.serviceType === 'both') ? (
-                                    Array.from({ length: 24 }, (_, i) => i).map(hour => (
-                                        <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                            {`${hour.toString().padStart(2, '0')}:00`}
-                                        </SelectItem>
-                                    ))
-                                ) : (
-                                    availableCheckInHours.map(hour => (
-                                        <SelectItem key={hour} value={hour}>
-                                            {hour}
-                                        </SelectItem>
-                                    ))
-                                )}
-                            </SelectContent>
-                        </Select>
                     </div>
 
-                    <div className='space-y-2'>
-                        <Label htmlFor='checkOutTime'>Hora de salida:</Label>
-                        <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
-                            <SelectTrigger className='w-[180px]'>
-                                <SelectValue placeholder='Selecciona la hora' />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(driverService?.serviceType === 'dropoff' || driverService?.serviceType === 'both') ? (
-                                    Array.from({ length: 24 }, (_, i) => i).map(hour => (
-                                        <SelectItem key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                                            {`${hour.toString().padStart(2, '0')}:00`}
-                                        </SelectItem>
-                                    ))
-                                ) : (
-                                    availableCheckOutHours.map(hour => (
-                                        <SelectItem key={hour} value={hour}>
-                                            {hour}
-                                        </SelectItem>
-                                    ))
-                                )}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+                    <Separator />
 
-                {isSaturdayCheckIn && (!driverService || (driverService.serviceType !== 'pickup' && driverService.serviceType !== 'both')) && (
-                    <Alert variant='destructive'>
-                        <AlertDescription>
-                            Los sábados la entrega del perro debe ser antes de las 14:00h.
-                        </AlertDescription>
-                    </Alert>
-                )}
-                {isSaturdayCheckOut && (!driverService || (driverService.serviceType !== 'dropoff' && driverService.serviceType !== 'both')) && (
-                    <Alert variant='destructive'>
-                        <AlertDescription>
-                            Los sábados la recogida debe ser antes de las 14:00h.
-                        </AlertDescription>
-                    </Alert>
-                )}
-                {((isOutOfHours(checkInHour) && (!driverService || (driverService.serviceType !== 'pickup' && driverService.serviceType !== 'both'))) ||
-                    (isOutOfHours(checkOutHour) && (!driverService || (driverService.serviceType !== 'dropoff' && driverService.serviceType !== 'both')))) && (
-                        <Alert variant='destructive'>
-                            <AlertDescription>
-                                Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€ adicionales.
-                            </AlertDescription>
-                        </Alert>
+                    <div>
+                        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                            <div className='space-y-2'>
+                                <Label htmlFor='checkInTime'>Hora de entrada:</Label>
+                                <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
+                                    <SelectTrigger className='w-full'>
+                                        <SelectValue placeholder='Selecciona la hora' />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {driverService?.serviceType === 'pickup' ||
+                                        driverService?.serviceType === 'both'
+                                            ? Array.from({ length: 24 }, (_, i) => i).map(hour => (
+                                                  <SelectItem
+                                                      key={hour}
+                                                      value={`${hour.toString().padStart(2, '0')}:00`}
+                                                  >
+                                                      {`${hour.toString().padStart(2, '0')}:00`}
+                                                  </SelectItem>
+                                              ))
+                                            : availableCheckInHours.map(hour => (
+                                                  <SelectItem key={hour} value={hour}>
+                                                      {hour}
+                                                  </SelectItem>
+                                              ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className='space-y-2'>
+                                <Label htmlFor='checkOutTime'>Hora de salida:</Label>
+                                <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
+                                    <SelectTrigger className='w-full'>
+                                        <SelectValue placeholder='Selecciona la hora' />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {driverService?.serviceType === 'dropoff' ||
+                                        driverService?.serviceType === 'both'
+                                            ? Array.from({ length: 24 }, (_, i) => i).map(hour => (
+                                                  <SelectItem
+                                                      key={hour}
+                                                      value={`${hour.toString().padStart(2, '0')}:00`}
+                                                  >
+                                                      {`${hour.toString().padStart(2, '0')}:00`}
+                                                  </SelectItem>
+                                              ))
+                                            : availableCheckOutHours.map(hour => (
+                                                  <SelectItem key={hour} value={hour}>
+                                                      {hour}
+                                                  </SelectItem>
+                                              ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {(isSaturdayCheckIn ||
+                        isSaturdayCheckOut ||
+                        isOutOfHours(checkInHour) ||
+                        isOutOfHours(checkOutHour)) && (
+                        <div className='space-y-2'>
+                            {isSaturdayCheckIn &&
+                                (!driverService ||
+                                    (driverService.serviceType !== 'pickup' &&
+                                        driverService.serviceType !== 'both')) && (
+                                    <Alert variant='destructive'>
+                                        <AlertDescription>
+                                            Los sábados la entrega del perro debe ser antes de las 14:00h.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                            {isSaturdayCheckOut &&
+                                (!driverService ||
+                                    (driverService.serviceType !== 'dropoff' &&
+                                        driverService.serviceType !== 'both')) && (
+                                    <Alert variant='destructive'>
+                                        <AlertDescription>
+                                            Los sábados la recogida debe ser antes de las 14:00h.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                            {((isOutOfHours(checkInHour) &&
+                                (!driverService ||
+                                    (driverService.serviceType !== 'pickup' &&
+                                        driverService.serviceType !== 'both'))) ||
+                                (isOutOfHours(checkOutHour) &&
+                                    (!driverService ||
+                                        (driverService.serviceType !== 'dropoff' &&
+                                            driverService.serviceType !== 'both')))) && (
+                                <Alert variant='destructive'>
+                                    <AlertDescription>
+                                        Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€
+                                        adicionales.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                        </div>
                     )}
-            </div>
+                </CardContent>
+            </Card>
         </div>
     )
 }
