@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 
 import { useDocument } from '@/shared/firebase/hooks/useDocument'
-import { GlobalPrivateConfig, useGlobalPrivateConfig } from '@/shared/hooks/use-global-config'
+import { GlobalPrivateConfig } from '@/shared/hooks/use-global-config'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
