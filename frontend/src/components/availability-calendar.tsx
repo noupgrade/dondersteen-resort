@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DateRange } from 'react-day-picker'
+import { useTranslation } from 'react-i18next'
 
 import { format, isSaturday } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -45,6 +46,8 @@ export function AvailabilityCalendar({
     const { getCalendarAvailability } = useReservation()
     const { isWeekend, isHighSeason, isDateBlocked, isHoliday } = useHotelAvailability()
     const hotelAvailability = getCalendarAvailability('hotel')
+
+    const { t } = useTranslation()
 
     const isOutOfHours = (hour: number) => hour < 8 || hour >= 19
     const checkInHour = parseInt(checkInTime.split(':')[0], 10)
@@ -198,23 +201,23 @@ export function AvailabilityCalendar({
                     <div className='flex flex-wrap justify-start gap-2'>
                         <div className='flex items-center'>
                             <div className='mr-2 h-4 w-4 rounded bg-[#2d6a4f]'></div>
-                            <span className='text-sm'>Disponible</span>
+                            <span className='text-sm'>{t('booking.step2.calendar.available')}</span>
                         </div>
                         <div className='flex items-center'>
                             <div className='mr-2 h-4 w-4 rounded bg-[#22c55e]'></div>
-                            <span className='text-sm'>Temporada Alta</span>
+                            <span className='text-sm'>{t('booking.step2.calendar.highSeason')}</span>
                         </div>
                         <div className='flex items-center'>
                             <div className='mr-2 h-4 w-4 rounded bg-[#f59e0b]'></div>
-                            <span className='text-sm'>Festivos</span>
+                            <span className='text-sm'>{t('booking.step2.calendar.holidays')}</span>
                         </div>
                         <div className='flex items-center'>
                             <div className='mr-2 h-4 w-4 rounded bg-[#fbbf24]'></div>
-                            <span className='text-sm'>Sábados</span>
+                            <span className='text-sm'>{t('booking.step2.calendar.saturdays')}</span>
                         </div>
                         <div className='flex items-center'>
                             <div className='mr-2 h-4 w-4 rounded bg-gray-200'></div>
-                            <span className='text-sm'>No disponible</span>
+                            <span className='text-sm'>{t('booking.step2.calendar.notAvailable')}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -222,7 +225,7 @@ export function AvailabilityCalendar({
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Servicios y horarios</CardTitle>
+                    <CardTitle>{t('booking.step2.services.title')}</CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-6'>
                     <div className='space-y-4'>
@@ -234,7 +237,7 @@ export function AvailabilityCalendar({
                             />
                             <Label htmlFor='transport' className='flex items-center'>
                                 <Truck className='mr-2 h-4 w-4' />
-                                Servicio de chofer
+                                {t('booking.step2.services.driver')}
                             </Label>
                         </div>
                         {driverService && (
@@ -247,12 +250,18 @@ export function AvailabilityCalendar({
                                         }
                                     >
                                         <SelectTrigger className='w-[180px]'>
-                                            <SelectValue placeholder='Selecciona el tipo' />
+                                            <SelectValue placeholder={t('booking.step2.services.driverType')} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value='pickup'>Solo recogida</SelectItem>
-                                            <SelectItem value='dropoff'>Solo entrega</SelectItem>
-                                            <SelectItem value='both'>Recogida y entrega</SelectItem>
+                                            <SelectItem value='pickup'>
+                                                {t('booking.step2.services.driverType.pickup')}
+                                            </SelectItem>
+                                            <SelectItem value='dropoff'>
+                                                {t('booking.step2.services.driverType.dropoff')}
+                                            </SelectItem>
+                                            <SelectItem value='both'>
+                                                {t('booking.step2.services.driverType.both')}
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -265,10 +274,10 @@ export function AvailabilityCalendar({
                     <div>
                         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                             <div className='space-y-2'>
-                                <Label htmlFor='checkInTime'>Hora de entrada:</Label>
+                                <Label htmlFor='checkInTime'>{t('booking.step2.time.checkIn')}</Label>
                                 <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
                                     <SelectTrigger className='w-full'>
-                                        <SelectValue placeholder='Selecciona la hora' />
+                                        <SelectValue placeholder={t('booking.step2.time.selectTime')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {driverService?.serviceType === 'pickup' ||
@@ -291,10 +300,10 @@ export function AvailabilityCalendar({
                             </div>
 
                             <div className='space-y-2'>
-                                <Label htmlFor='checkOutTime'>Hora de salida:</Label>
+                                <Label htmlFor='checkOutTime'>{t('booking.step2.time.checkOut')}</Label>
                                 <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
                                     <SelectTrigger className='w-full'>
-                                        <SelectValue placeholder='Selecciona la hora' />
+                                        <SelectValue placeholder={t('booking.step2.time.selectTime')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {driverService?.serviceType === 'dropoff' ||
@@ -328,9 +337,7 @@ export function AvailabilityCalendar({
                                     (driverService.serviceType !== 'pickup' &&
                                         driverService.serviceType !== 'both')) && (
                                     <Alert variant='destructive'>
-                                        <AlertDescription>
-                                            Los sábados la entrega del perro debe ser antes de las 14:00h.
-                                        </AlertDescription>
+                                        <AlertDescription>{t('booking.step2.alerts.saturdayCheckIn')}</AlertDescription>
                                     </Alert>
                                 )}
                             {isSaturdayCheckOut &&
@@ -339,7 +346,7 @@ export function AvailabilityCalendar({
                                         driverService.serviceType !== 'both')) && (
                                     <Alert variant='destructive'>
                                         <AlertDescription>
-                                            Los sábados la recogida debe ser antes de las 14:00h.
+                                            {t('booking.step2.alerts.saturdayCheckOut')}
                                         </AlertDescription>
                                     </Alert>
                                 )}
@@ -352,10 +359,7 @@ export function AvailabilityCalendar({
                                         (driverService.serviceType !== 'dropoff' &&
                                             driverService.serviceType !== 'both')))) && (
                                 <Alert variant='destructive'>
-                                    <AlertDescription>
-                                        Horario del hotel: 8:00 a 18:00. Entrada/salida fuera de horario: 70€
-                                        adicionales.
-                                    </AlertDescription>
+                                    <AlertDescription>{t('booking.step2.alerts.outOfHours')}</AlertDescription>
                                 </Alert>
                             )}
                         </div>
