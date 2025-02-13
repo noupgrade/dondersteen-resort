@@ -95,7 +95,7 @@ export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
                 {servicesByPet.map(({ pet, services, breakdown }, index) => (
                     <div key={index}>
                         <h3 className='mb-2 font-medium'>
-                            {pet.name} ({pet.breed})
+                            {pet.name && pet.breed ? `${pet.name} (${pet.breed})` : ''}
                         </h3>
                         <div className='space-y-2 pl-4'>
                             <div className='flex items-center justify-between text-sm text-muted-foreground'>
@@ -110,7 +110,7 @@ export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
                                 <span>{formatCurrency(breakdown.basePrice)}</span>
                             </div>
                             {services.map((service, serviceIndex) => (
-                                <div key={serviceIndex} className='flex items-center justify-between'>
+                                <div key={serviceIndex} className='flex items-center justify-between gap-2'>
                                     <ServiceItem service={service} />
                                     <span className='text-sm text-muted-foreground'>
                                         {formatCurrency(

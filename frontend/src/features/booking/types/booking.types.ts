@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { AdditionalService } from '@/shared/types/additional-services'
 
 export interface DateRange {
@@ -34,7 +35,7 @@ export const petFormSchema = z.object({
     age: z.string().min(1, 'La edad es requerida'),
     personality: z.string(),
     sex: z.enum(['M', 'F']),
-    isNeutered: z.boolean()
+    isNeutered: z.boolean(),
 })
 
 export const bookingFormSchema = z.object({
@@ -63,4 +64,4 @@ export interface BookingState {
 
 export const BASE_PRICE_PER_DAY = 25
 export const LARGE_DOG_SURCHARGE = 5
-export const MEDIUM_DOG_SURCHARGE = 3 
+export const MEDIUM_DOG_SURCHARGE = 3

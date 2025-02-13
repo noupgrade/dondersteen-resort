@@ -6,7 +6,7 @@ Do not modify other features of the pages that are not related to the ones you a
 When you change the signature of a function or a type, look for all the usages and update the usages in the rest of files.
 When creating a data model, review the existing ones and try to reuse the same structure if possible.
 When you modify a type, check if you need to update the existing examples of objects of that type.
-For managing translations you must use useTranslation hook from react-i18next and the translation files in the frontend/public/locales folder. Use dot notation to access the translations instead of nesting them. When calling the t function use spanish as the default language inlined. Ensure you always add the key and the translation value to the translation files.
+For managing translations you must use useTranslation hook from react-i18next and the translation files in the frontend/public/locales folder. Use dot notation to access the translations instead of nesting them. When calling the t function use spanish as the default language inlined like t('example.key', 'Ejemplo de traducción'). Ensure you always add the key and the translation value to the translation files.
 
 In the frontend project you must take into account our code structure rules
 

@@ -50,7 +50,7 @@ export function AvailabilityCalendar({
     const { t, i18n } = useTranslation()
 
     // Get the correct locale based on the current language
-    const calendarLocale = i18n.language === 'es' ? es : enUS
+    const calendarLocale = i18n.language === 'en' ? enUS : es
 
     const isOutOfHours = (hour: number) => hour < 8 || hour >= 19
     const checkInHour = parseInt(checkInTime.split(':')[0], 10)

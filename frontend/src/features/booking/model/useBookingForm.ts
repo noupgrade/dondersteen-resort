@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { format, isValid } from 'date-fns'
 import { useSearchParams } from 'react-router-dom'
+
+import { format, isValid } from 'date-fns'
 
 import { useReservation } from '@/components/ReservationContext'
 import { AdditionalService } from '@/shared/types/additional-services'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 import {
     BookingFormData,
     BookingState,
     DateRange,
     PetData,
     PetFormData,
-    bookingFormSchema
+    bookingFormSchema,
 } from '../types/booking.types'
 
 interface UseBookingFormProps {
@@ -39,23 +41,25 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     const form = useForm<BookingFormData>({
         resolver: zodResolver(bookingFormSchema),
         defaultValues: {
-            pets: [{
-                name: '',
-                breed: '',
-                weight: '0',
-                size: 'pequeño' as const,
-                age: '0',
-                personality: '',
-                sex: 'M' as const,
-                isNeutered: false
-            }],
+            pets: [
+                {
+                    name: '',
+                    breed: '',
+                    weight: '0',
+                    size: 'pequeño' as const,
+                    age: '0',
+                    personality: '',
+                    sex: 'M' as const,
+                    isNeutered: false,
+                },
+            ],
             dates: null,
             services: [],
             clientName: '',
             clientLastName: '',
             clientEmail: '',
             clientPhone: '',
-            ...defaultValues
+            ...defaultValues,
         },
     })
 
@@ -105,7 +109,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
 
     // Save form data whenever it changes
     useEffect(() => {
-        const subscription = form.watch((formData) => {
+        const subscription = form.watch(formData => {
             const dataToSave = {
                 ...formData,
                 dates: state.selectedDates,
@@ -129,16 +133,19 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     const addPet = useCallback(() => {
         const currentPets = form.getValues('pets')
         if (currentPets.length < 2) {
-            const newPets = [...currentPets, {
-                name: '',
-                breed: '',
-                weight: '0',
-                size: 'pequeño' as const,
-                age: '0',
-                personality: '',
-                sex: 'M' as const,
-                isNeutered: false
-            }]
+            const newPets = [
+                ...currentPets,
+                {
+                    name: '',
+                    breed: '',
+                    weight: '0',
+                    size: 'pequeño' as const,
+                    age: '0',
+                    personality: '',
+                    sex: 'M' as const,
+                    isNeutered: false,
+                },
+            ]
             form.setValue('pets', newPets)
         }
     }, [form])
@@ -161,7 +168,10 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             const errors = form.formState.errors
 
             if (errors.pets) {
-                setState(prev => ({ ...prev, formError: 'Por favor, revisa la información de las mascotas. Hay campos inválidos o incompletos.' }))
+                setState(prev => ({
+                    ...prev,
+                    formError: 'Por favor, revisa la información de las mascotas. Hay campos inválidos o incompletos.',
+                }))
                 return false
             }
 
@@ -171,7 +181,10 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             }
 
             if (errors.clientName || errors.clientLastName || errors.clientEmail || errors.clientPhone) {
-                setState(prev => ({ ...prev, formError: 'Por favor, revisa tus datos de contacto. Hay campos inválidos o incompletos.' }))
+                setState(prev => ({
+                    ...prev,
+                    formError: 'Por favor, revisa tus datos de contacto. Hay campos inválidos o incompletos.',
+                }))
                 return false
             }
         }
@@ -180,105 +193,108 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         return isValid
     }, [form, state.selectedDates])
 
-    const handleSubmit = useCallback(async (e: React.FormEvent) => {
-        console.log('handleSubmit', state.currentStep)
-        e.preventDefault()
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            console.log('handleSubmit', state.currentStep)
+            e.preventDefault()
 
-        const isValid = await form.trigger()
+            const isValid = await form.trigger()
 
-        if (isValid && state.selectedDates) {
-            const values = form.getValues()
-            const transformedPets: PetData[] = (values.pets as PetFormData[]).map(pet => ({
-                name: pet.name,
-                breed: pet.breed,
-                weight: Number(pet.weight),
-                size: pet.size,
-                sex: pet.sex,
-                isNeutered: pet.isNeutered || false
-            }))
+            if (isValid && state.selectedDates) {
+                const values = form.getValues()
+                const transformedPets: PetData[] = (values.pets as PetFormData[]).map(pet => ({
+                    name: pet.name,
+                    breed: pet.breed,
+                    weight: Number(pet.weight),
+                    size: pet.size,
+                    sex: pet.sex,
+                    isNeutered: pet.isNeutered || false,
+                }))
 
-            // Filter out any undefined or null values from services
-            const cleanedServices: AdditionalService[] = values.services
-                .filter(service => service !== null)
-                .map(service => {
-                    switch (service.type) {
-                        case 'driver':
-                            return {
-                                type: 'driver' as const,
-                                petIndex: service.petIndex,
-                                serviceType: service.serviceType
-                            }
-                        case 'special_food':
-                            return {
-                                type: 'special_food' as const,
-                                petIndex: service.petIndex,
-                                foodType: service.foodType
-                            }
-                        case 'medication':
-                            return {
-                                type: 'medication' as const,
-                                petIndex: service.petIndex,
-                                comment: service.comment,
-                                frequency: service.frequency
-                            }
-                        case 'special_care':
-                            return {
-                                type: 'special_care' as const,
-                                petIndex: service.petIndex,
-                                comment: service.comment
-                            }
-                        case 'hairdressing':
-                            return {
-                                type: 'hairdressing' as const,
-                                petIndex: service.petIndex,
-                                services: service.services
-                            }
-                        default:
-                            return service as AdditionalService
-                    }
-                })
+                // Filter out any undefined or null values from services
+                const cleanedServices: AdditionalService[] = values.services
+                    .filter(service => service !== null)
+                    .map(service => {
+                        switch (service.type) {
+                            case 'driver':
+                                return {
+                                    type: 'driver' as const,
+                                    petIndex: service.petIndex,
+                                    serviceType: service.serviceType,
+                                }
+                            case 'special_food':
+                                return {
+                                    type: 'special_food' as const,
+                                    petIndex: service.petIndex,
+                                    foodType: service.foodType,
+                                }
+                            case 'medication':
+                                return {
+                                    type: 'medication' as const,
+                                    petIndex: service.petIndex,
+                                    comment: service.comment,
+                                    frequency: service.frequency,
+                                }
+                            case 'special_care':
+                                return {
+                                    type: 'special_care' as const,
+                                    petIndex: service.petIndex,
+                                    comment: service.comment,
+                                }
+                            case 'hairdressing':
+                                return {
+                                    type: 'hairdressing' as const,
+                                    petIndex: service.petIndex,
+                                    services: service.services,
+                                }
+                            default:
+                                return service as AdditionalService
+                        }
+                    })
 
-            const newReservation = {
-                type: type === 'budget' ? 'hotel-budget' as const : 'hotel' as const,
-                checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
-                checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
-                checkInTime: state.checkInTime,
-                checkOutTime: state.checkOutTime,
-                client: {
-                    name: `${values.clientName} ${values.clientLastName}`,
-                    phone: values.clientPhone,
-                    email: values.clientEmail,
-                },
-                pets: transformedPets,
-                additionalServices: cleanedServices,
-                roomNumber: '',
-                status: 'pending' as const,
-                totalPrice: state.totalPrice,
-                paymentStatus: 'Pendiente' as const,
-            }
+                const newReservation = {
+                    type: type === 'budget' ? ('hotel-budget' as const) : ('hotel' as const),
+                    checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
+                    checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
+                    checkInTime: state.checkInTime,
+                    checkOutTime: state.checkOutTime,
+                    client: {
+                        name: `${values.clientName} ${values.clientLastName}`,
+                        phone: values.clientPhone,
+                        email: values.clientEmail,
+                    },
+                    pets: transformedPets,
+                    additionalServices: cleanedServices,
+                    roomNumber: '',
+                    status: 'pending' as const,
+                    totalPrice: state.totalPrice,
+                    paymentStatus: 'Pendiente' as const,
+                }
 
-            try {
-                console.log('newReservation', newReservation)
-                const savedReservation = await addReservation(newReservation)
+                try {
+                    console.log('newReservation', newReservation)
+                    const savedReservation = await addReservation(newReservation)
+                    setState(prev => ({
+                        ...prev,
+                        confirmedReservationId: savedReservation.id,
+                    }))
+                    localStorage.removeItem('bookingFormData')
+                } catch (error) {
+                    console.error('Error saving reservation:', error)
+                    setState(prev => ({
+                        ...prev,
+                        formError: 'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
+                    }))
+                }
+            } else {
                 setState(prev => ({
                     ...prev,
-                    confirmedReservationId: savedReservation.id
-                }))
-                localStorage.removeItem('bookingFormData')
-            } catch (error) {
-                console.error('Error saving reservation:', error)
-                setState(prev => ({
-                    ...prev,
-                    formError: 'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.'
+                    formError: 'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
                 }))
             }
-        } else {
-            setState(prev => ({
-                ...prev,
-                formError: 'Por favor, revisa todos los campos. Hay información incompleta o inválida.'
-            }))
-        }
-    }, [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation])
+        },
+        [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation],
+    )
 
     const nextStep = useCallback(async () => {
         let isValid = false
@@ -288,10 +304,11 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         switch (state.currentStep) {
             case 1:
                 isValid = await form.trigger('pets', { shouldFocus: true })
+                console.log('isValid', isValid)
                 if (!isValid) {
                     setState(prev => ({
                         ...prev,
-                        formError: 'Por favor, completa todos los campos de las mascotas antes de continuar.'
+                        formError: 'Por favor, completa todos los campos de las mascotas antes de continuar.',
                     }))
                 }
                 break
@@ -312,6 +329,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
 
         if (isValid) {
             setState(prev => ({ ...prev, currentStep: Math.min(prev.currentStep + 1, 4) }))
+            window.scrollTo({ top: 0 })
         }
     }, [form, state.currentStep, state.selectedDates])
 
@@ -320,23 +338,26 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             ...prev,
             formError: '',
             dateError: '',
-            currentStep: Math.max(prev.currentStep - 1, 1)
+            currentStep: Math.max(prev.currentStep - 1, 1),
         }))
+        window.scrollTo({ top: 0 })
     }, [])
 
     const clearForm = useCallback(() => {
         localStorage.removeItem('bookingFormData')
         form.reset({
-            pets: [{
-                name: '',
-                breed: '',
-                weight: '0',
-                size: 'pequeño' as const,
-                age: '0',
-                personality: '',
-                sex: 'M' as const,
-                isNeutered: false
-            }],
+            pets: [
+                {
+                    name: '',
+                    breed: '',
+                    weight: '0',
+                    size: 'pequeño' as const,
+                    age: '0',
+                    personality: '',
+                    sex: 'M' as const,
+                    isNeutered: false,
+                },
+            ],
             dates: null,
             services: [],
             clientName: '',
@@ -369,4 +390,4 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         prevStep,
         clearForm,
     }
-} 
+}
