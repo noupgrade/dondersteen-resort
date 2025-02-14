@@ -209,9 +209,8 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     }, [form, state.selectedDates, t])
 
     const handleSubmit = useCallback(
-        async (e: React.FormEvent) => {
+        async () => {
             console.log('handleSubmit', state.currentStep)
-            e.preventDefault()
 
             const isValid = await form.trigger()
 
@@ -294,6 +293,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                         confirmedReservationId: savedReservation.id,
                     }))
                     localStorage.removeItem('bookingFormData')
+                    return savedReservation.id
                 } catch (error) {
                     console.error('Error saving reservation:', error)
                     setState(prev => ({
@@ -303,6 +303,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                             'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
                         ),
                     }))
+                    return undefined
                 }
             } else {
                 setState(prev => ({
@@ -312,6 +313,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                         'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
                     ),
                 }))
+                return undefined
             }
         },
         [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation, t],

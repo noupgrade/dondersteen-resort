@@ -8,7 +8,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertCircle } from 'lucide-react'
 
 import { BookingSummary } from '@/components/booking-summary'
-import { ConfirmationDialog } from '@/components/confirmation-dialog'
 import { useBookingCalculations } from '@/features/booking/model/useBookingCalculations'
 import { useBookingForm } from '@/features/booking/model/useBookingForm'
 import {
@@ -208,23 +207,22 @@ export default function BookingPage() {
                                     {t('booking.navigation.next', 'Siguiente')}
                                 </Button>
                             ) : (
-                                <Button type='button' className='w-full' onClick={handleSubmit}>
-                                    Confirmar reserva
+                                <Button
+                                    type='button'
+                                    className='w-full'
+                                    onClick={async () => {
+                                        const reservationId = await handleSubmit()
+                                        if (reservationId) {
+                                            navigate(`/booking/confirmation/${reservationId}`)
+                                        }
+                                    }}
+                                >
+                                    {t('booking.navigation.confirm', 'Confirmar reserva')}
                                 </Button>
                             )}
                         </div>
                     </div>
                 </div>
-
-                <ConfirmationDialog
-                    open={state.confirmedReservationId !== ''}
-                    onOpenChange={open => {
-                        if (!open) {
-                            setState(prev => ({ ...prev, confirmedReservationId: '' }))
-                        }
-                    }}
-                    reservationId={state.confirmedReservationId}
-                />
             </div>
         </>
     )

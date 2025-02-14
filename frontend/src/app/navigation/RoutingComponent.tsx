@@ -13,6 +13,7 @@ import EmployeeSelection from '@/pages/panel-interno/tienda/employee-selection'
 import StorePage from '@/pages/panel-interno/tienda/store'
 import { useIsMobile } from '@/shared/lib/hooks/useIsMobile'
 
+import BookingConfirmationPage from '../../pages/BookingConfirmationPage'
 import BookingPage from '../../pages/BookingPage'
 import ClientDetailsPage from '../../pages/ClientPage'
 import ClientesPage from '../../pages/ClientsPage'
@@ -35,6 +36,16 @@ export const RoutingComponent = () => {
                     <WithAnonymousUser>
                         <ReservationProvider>
                             <BookingPage />
+                        </ReservationProvider>
+                    </WithAnonymousUser>
+                }
+            />
+            <Route
+                path='/booking/confirmation/:reservationId'
+                element={
+                    <WithAnonymousUser>
+                        <ReservationProvider>
+                            <BookingConfirmationPage />
                         </ReservationProvider>
                     </WithAnonymousUser>
                 }
