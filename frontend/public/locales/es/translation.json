@@ -98,5 +98,12 @@
     "booking.step3.petServices.hairdressing.spa": "Spa",
     "booking.step3.petServices.hairdressing.spaOzone": "Spa+ozono",
     "booking.step3.petServices.hairdressing.knots": "Nudos",
-    "booking.step3.petServices.hairdressing.extremelyDirty": "Extremadamente sucio"
+    "booking.step3.petServices.hairdressing.extremelyDirty": "Extremadamente sucio",
+    "booking.step3.petServices.specialCare.required": "Este campo es obligatorio",
+    "booking.errors.petFields": "Por favor, completa todos los campos de las mascotas antes de continuar.",
+    "booking.errors.dateSelection": "Por favor, selecciona las fechas de entrada y salida.",
+    "booking.errors.specialCare": "Por favor, escribe las instrucciones para los cuidados especiales antes de continuar.",
+    "booking.errors.contactInfo": "Por favor, revisa tus datos de contacto. Hay campos inválidos o incompletos.",
+    "booking.errors.incompleteForm": "Por favor, revisa todos los campos. Hay información incompleta o inválida.",
+    "booking.errors.saveReservation": "Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo."
 }

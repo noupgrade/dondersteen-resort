@@ -98,5 +98,12 @@
     "booking.step3.petServices.medication.selectFrequency": "Select frequency",
     "booking.step3.petServices.medication.onceDaily": "Once daily",
     "booking.step3.petServices.medication.multipleTimes": "Multiple times per day",
-    "booking.step3.petServices.medication.placeholder": "Details about the medication..."
+    "booking.step3.petServices.medication.placeholder": "Details about the medication...",
+    "booking.step3.petServices.specialCare.required": "Este campo es obligatorio",
+    "booking.errors.petFields": "Please complete all pet fields before continuing.",
+    "booking.errors.dateSelection": "Please select check-in and check-out dates.",
+    "booking.errors.specialCare": "Please write instructions for special care before continuing.",
+    "booking.errors.contactInfo": "Please review your contact information. There are invalid or incomplete fields.",
+    "booking.errors.incompleteForm": "Please review all fields. There is incomplete or invalid information.",
+    "booking.errors.saveReservation": "There was an error saving the reservation. Please try again."
 }

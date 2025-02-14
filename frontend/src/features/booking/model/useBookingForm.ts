@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 
 import { format, isValid } from 'date-fns'
@@ -23,6 +24,7 @@ interface UseBookingFormProps {
 
 export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
     const [searchParams] = useSearchParams()
+    const { t } = useTranslation()
     const type = searchParams.get('type')
     const [state, setState] = useState<BookingState>({
         currentStep: 1,
@@ -171,20 +173,32 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             if (errors.pets) {
                 setState(prev => ({
                     ...prev,
-                    formError: 'Por favor, revisa la información de las mascotas. Hay campos inválidos o incompletos.',
+                    formError: t(
+                        'booking.errors.petFields',
+                        'Por favor, completa todos los campos de las mascotas antes de continuar.',
+                    ),
                 }))
                 return false
             }
 
             if (!state.selectedDates) {
-                setState(prev => ({ ...prev, formError: 'Por favor, selecciona las fechas de entrada y salida.' }))
+                setState(prev => ({
+                    ...prev,
+                    formError: t(
+                        'booking.errors.dateSelection',
+                        'Por favor, selecciona las fechas de entrada y salida.',
+                    ),
+                }))
                 return false
             }
 
             if (errors.clientName || errors.clientLastName || errors.clientEmail || errors.clientPhone) {
                 setState(prev => ({
                     ...prev,
-                    formError: 'Por favor, revisa tus datos de contacto. Hay campos inválidos o incompletos.',
+                    formError: t(
+                        'booking.errors.contactInfo',
+                        'Por favor, revisa tus datos de contacto. Hay campos inválidos o incompletos.',
+                    ),
                 }))
                 return false
             }
@@ -192,7 +206,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
 
         setState(prev => ({ ...prev, formError: '' }))
         return isValid
-    }, [form, state.selectedDates])
+    }, [form, state.selectedDates, t])
 
     const handleSubmit = useCallback(
         async (e: React.FormEvent) => {
@@ -284,23 +298,29 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                     console.error('Error saving reservation:', error)
                     setState(prev => ({
                         ...prev,
-                        formError: 'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
+                        formError: t(
+                            'booking.errors.saveReservation',
+                            'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
+                        ),
                     }))
                 }
             } else {
                 setState(prev => ({
                     ...prev,
-                    formError: 'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
+                    formError: t(
+                        'booking.errors.incompleteForm',
+                        'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
+                    ),
                 }))
             }
         },
-        [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation],
+        [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation, t],
     )
 
     const nextStep = useCallback(async () => {
         let isValid = false
 
-        setState(prev => ({ ...prev, formError: '' })) // Clear the form error when attempting to move to next step
+        setState(prev => ({ ...prev, formError: '' }))
         console.log('state.currentStep', state.currentStep)
         switch (state.currentStep) {
             case 1:
@@ -309,18 +329,41 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
                 if (!isValid) {
                     setState(prev => ({
                         ...prev,
-                        formError: 'Por favor, completa todos los campos de las mascotas antes de continuar.',
+                        formError: t(
+                            'booking.errors.petFields',
+                            'Por favor, completa todos los campos de las mascotas antes de continuar.',
+                        ),
                     }))
                 }
                 break
             case 2:
                 if (!state.selectedDates) {
-                    setState(prev => ({ ...prev, dateError: 'Por favor, selecciona tus fechas antes de continuar.' }))
+                    setState(prev => ({
+                        ...prev,
+                        dateError: t(
+                            'booking.errors.dateSelection',
+                            'Por favor, selecciona las fechas de entrada y salida.',
+                        ),
+                    }))
                     return
                 }
                 isValid = true
                 break
             case 3:
+                const services = form.getValues('services')
+                const specialCareServices = services.filter(service => service.type === 'special_care')
+                const invalidSpecialCare = specialCareServices.some(service => !service.comment?.trim())
+
+                if (invalidSpecialCare) {
+                    setState(prev => ({
+                        ...prev,
+                        formError: t(
+                            'booking.errors.specialCare',
+                            'Por favor, escribe las instrucciones para los cuidados especiales antes de continuar.',
+                        ),
+                    }))
+                    return
+                }
                 isValid = true
                 break
             case 4:
@@ -332,7 +375,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
             setState(prev => ({ ...prev, currentStep: Math.min(prev.currentStep + 1, 4) }))
             window.scrollTo({ top: 0 })
         }
-    }, [form, state.currentStep, state.selectedDates])
+    }, [form, state.currentStep, state.selectedDates, t])
 
     const prevStep = useCallback(() => {
         setState(prev => ({
