@@ -28,6 +28,9 @@ interface AvailabilityCalendarProps {
     onServiceChange: (services: AdditionalService[]) => void
     capacity: number
     initialServices?: AdditionalService[]
+    initialDates?: DateRange | null
+    initialCheckInTime?: string
+    initialCheckOutTime?: string
 }
 
 export function AvailabilityCalendar({
@@ -36,10 +39,22 @@ export function AvailabilityCalendar({
     onServiceChange,
     capacity,
     initialServices = [],
+    initialDates,
+    initialCheckInTime = '14:00',
+    initialCheckOutTime = '12:00',
 }: AvailabilityCalendarProps) {
-    const [selectedDates, setSelectedDates] = useState<DateRange | undefined>()
-    const [checkInTime, setCheckInTime] = useState<string>('14:00')
-    const [checkOutTime, setCheckOutTime] = useState<string>('12:00')
+    const [selectedDates, setSelectedDates] = useState<DateRange | undefined>(() => {
+        if (initialDates?.from && initialDates?.to) {
+            // Ensure we create new Date objects from the dates
+            return {
+                from: new Date(initialDates.from),
+                to: new Date(initialDates.to),
+            }
+        }
+        return undefined
+    })
+    const [checkInTime, setCheckInTime] = useState<string>(initialCheckInTime)
+    const [checkOutTime, setCheckOutTime] = useState<string>(initialCheckOutTime)
     const [driverService, setDriverService] = useState<DriverService | undefined>(
         initialServices.find(s => s.type === 'driver') as DriverService | undefined,
     )
@@ -68,6 +83,7 @@ export function AvailabilityCalendar({
         if (range?.to && isRestrictedDay(format(range.to, 'yyyy-MM-dd'))) {
             return
         }
+        console.log('range', range)
 
         if (range?.from && range?.to) {
             const start = new Date(range.from)
@@ -80,8 +96,8 @@ export function AvailabilityCalendar({
         }
 
         setSelectedDates(range)
-        if (range?.from && range?.to) {
-            onSelect({ from: range.from, to: range.to }, checkInTime, checkOutTime)
+        if (range?.from) {
+            onSelect({ from: range.from, to: range.to || range.from }, checkInTime, checkOutTime)
         }
     }
 
@@ -174,6 +190,7 @@ export function AvailabilityCalendar({
                         selected={selectedDates}
                         onSelect={handleSelect}
                         className={cn('rounded-md border', className)}
+                        defaultMonth={initialDates?.from ? new Date(initialDates.from) : undefined}
                         modifiers={{
                             available: date => {
                                 const dateString = format(date, 'yyyy-MM-dd')

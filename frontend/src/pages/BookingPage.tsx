@@ -155,6 +155,7 @@ export default function BookingPage() {
                                                     checkInTime,
                                                     checkOutTime,
                                                 }))
+                                                form.setValue('dates', range)
                                             } else {
                                                 setState(prev => ({
                                                     ...prev,
@@ -162,22 +163,10 @@ export default function BookingPage() {
                                                     checkInTime: '14:00',
                                                     checkOutTime: '12:00',
                                                 }))
+                                                form.setValue('dates', null)
                                             }
                                         }}
-                                        onServiceChange={services => {
-                                            // Keep all services except driver service
-                                            const nonDriverServices = form
-                                                .getValues('services')
-                                                .filter(s => s.type !== 'driver')
-                                            // Add new driver service if present
-                                            const driverService = services.find(s => s.type === 'driver')
-                                            form.setValue(
-                                                'services',
-                                                driverService
-                                                    ? [...nonDriverServices, driverService]
-                                                    : nonDriverServices,
-                                            )
-                                        }}
+                                        onServiceChange={handleServiceChange}
                                         dateError={state.dateError}
                                         capacity={calculateCapacity(form.getValues('pets'))}
                                     />

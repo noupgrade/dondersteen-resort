@@ -104,7 +104,9 @@ export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
                                     <span>
                                         {nights === 0
                                             ? t('booking.summary.pet.daycare')
-                                            : t('booking.summary.pet.stay', { size: pet.size })}
+                                            : t('booking.summary.pet.stay', {
+                                                  size: t(`booking.step1.petFields.sizes.${pet.size}`, pet.size),
+                                              })}
                                     </span>
                                 </div>
                                 <span>{formatCurrency(breakdown.basePrice)}</span>

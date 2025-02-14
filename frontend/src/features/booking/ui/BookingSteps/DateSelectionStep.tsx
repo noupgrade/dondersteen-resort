@@ -27,6 +27,7 @@ export function DateSelectionStep({
 }: DateSelectionStepProps) {
     const { t } = useTranslation()
     const services = form.watch('services')
+    const dates = form.watch('dates')
 
     return (
         <div className='flex flex-col space-y-4'>
@@ -36,6 +37,7 @@ export function DateSelectionStep({
                     onServiceChange={onServiceChange}
                     capacity={capacity}
                     initialServices={services}
+                    initialDates={dates}
                 />
                 {dateError && (
                     <Alert variant='destructive' className='mt-4'>
