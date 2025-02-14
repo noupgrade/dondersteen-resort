@@ -20,6 +20,7 @@ import { useHotelAvailability } from './HotelAvailabilityContext'
 import { useReservation } from './ReservationContext'
 
 const AVAILABLE_HOURS = ['11:00', '12:00', '13:00', '14:00', '16:00', '17:00', '18:00']
+const DRIVER_SERVICE_HOURS = Array.from({ length: 10 }, (_, i) => `${(i + 9).toString().padStart(2, '0')}:00`)
 
 interface AvailabilityCalendarProps {
     className?: string
@@ -85,6 +86,11 @@ export function AvailabilityCalendar({
     }
 
     const handleCheckInTimeChange = (time: string) => {
+        // If driver service is active, only allow times between 9:00 and 18:00
+        if (driverService && isOutsideDriverServiceHours(time)) {
+            return
+        }
+
         setCheckInTime(time)
         if (selectedDates?.from && selectedDates?.to) {
             onSelect({ from: selectedDates.from, to: selectedDates.to }, time, checkOutTime)
@@ -92,6 +98,11 @@ export function AvailabilityCalendar({
     }
 
     const handleCheckOutTimeChange = (time: string) => {
+        // If driver service is active, only allow times between 9:00 and 18:00
+        if (driverService && isOutsideDriverServiceHours(time)) {
+            return
+        }
+
         setCheckOutTime(time)
         if (selectedDates?.from && selectedDates?.to) {
             onSelect({ from: selectedDates.from, to: selectedDates.to }, checkInTime, time)
@@ -100,11 +111,22 @@ export function AvailabilityCalendar({
 
     const handleDriverServiceChange = (checked: boolean) => {
         if (checked) {
+            // Reset times to be within driver service hours if they're outside the range
+            const newCheckInTime = isOutsideDriverServiceHours(checkInTime) ? '09:00' : checkInTime
+            const newCheckOutTime = isOutsideDriverServiceHours(checkOutTime) ? '18:00' : checkOutTime
+
+            setCheckInTime(newCheckInTime)
+            setCheckOutTime(newCheckOutTime)
+
+            if (selectedDates?.from && selectedDates?.to) {
+                onSelect({ from: selectedDates.from, to: selectedDates.to }, newCheckInTime, newCheckOutTime)
+            }
+
             const newService: DriverService = {
                 type: 'driver',
                 serviceType: 'both',
                 petIndex: 0,
-                isOutOfHours: isOutOfHours(checkInHour) || isOutOfHours(checkOutHour),
+                isOutOfHours: false,
             }
             setDriverService(newService)
             onServiceChange([...initialServices.filter(s => s.type !== 'driver'), newService])
@@ -137,6 +159,11 @@ export function AvailabilityCalendar({
     const availableCheckOutHours = isSaturdayCheckOut
         ? AVAILABLE_HOURS.filter(hour => parseInt(hour) < 14)
         : AVAILABLE_HOURS
+
+    const isOutsideDriverServiceHours = (time: string) => {
+        const hour = parseInt(time.split(':')[0], 10)
+        return hour < 9 || hour > 18
+    }
 
     return (
         <div className='space-y-6'>
@@ -283,14 +310,10 @@ export function AvailabilityCalendar({
                                         <SelectValue placeholder={t('booking.step2.time.selectTime')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {driverService?.serviceType === 'pickup' ||
-                                        driverService?.serviceType === 'both'
-                                            ? Array.from({ length: 24 }, (_, i) => i).map(hour => (
-                                                  <SelectItem
-                                                      key={hour}
-                                                      value={`${hour.toString().padStart(2, '0')}:00`}
-                                                  >
-                                                      {`${hour.toString().padStart(2, '0')}:00`}
+                                        {driverService
+                                            ? DRIVER_SERVICE_HOURS.map(hour => (
+                                                  <SelectItem key={hour} value={hour}>
+                                                      {hour}
                                                   </SelectItem>
                                               ))
                                             : availableCheckInHours.map(hour => (
@@ -309,14 +332,10 @@ export function AvailabilityCalendar({
                                         <SelectValue placeholder={t('booking.step2.time.selectTime')} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {driverService?.serviceType === 'dropoff' ||
-                                        driverService?.serviceType === 'both'
-                                            ? Array.from({ length: 24 }, (_, i) => i).map(hour => (
-                                                  <SelectItem
-                                                      key={hour}
-                                                      value={`${hour.toString().padStart(2, '0')}:00`}
-                                                  >
-                                                      {`${hour.toString().padStart(2, '0')}:00`}
+                                        {driverService
+                                            ? DRIVER_SERVICE_HOURS.map(hour => (
+                                                  <SelectItem key={hour} value={hour}>
+                                                      {hour}
                                                   </SelectItem>
                                               ))
                                             : availableCheckOutHours.map(hour => (

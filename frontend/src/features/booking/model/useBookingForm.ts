@@ -69,6 +69,7 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         if (savedData) {
             try {
                 const parsedData = JSON.parse(savedData)
+                console.log('parsedData', parsedData)
 
                 // Restore dates if they exist
                 if (parsedData.dates) {
