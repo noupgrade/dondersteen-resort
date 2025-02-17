@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { format, isSaturday } from 'date-fns'
 import { enUS, es } from 'date-fns/locale'
-import { Clock, Truck } from 'lucide-react'
+import { Truck } from 'lucide-react'
 
 import { cn } from '@/shared/lib/styles/class-merge'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
@@ -18,7 +18,6 @@ import { AdditionalService, DriverService } from '@monorepo/functions/src/types/
 import { InfoCircledIcon } from '@radix-ui/react-icons'
 
 import { useHotelAvailability } from './HotelAvailabilityContext'
-import { useReservation } from './ReservationContext'
 
 const AVAILABLE_HOURS = ['11:00', '12:00', '13:00', '14:00', '16:00', '17:00', '18:00']
 const DRIVER_SERVICE_HOURS = Array.from({ length: 10 }, (_, i) => `${(i + 9).toString().padStart(2, '0')}:00`)
@@ -60,9 +59,7 @@ export function AvailabilityCalendar({
         initialServices.find(s => s.type === 'driver') as DriverService | undefined,
     )
 
-    const { getCalendarAvailability } = useReservation()
     const { isWeekend, isHighSeason, isDateBlocked, isHoliday } = useHotelAvailability()
-    const hotelAvailability = getCalendarAvailability('hotel')
 
     const { t, i18n } = useTranslation()
 
@@ -194,9 +191,7 @@ export function AvailabilityCalendar({
                         defaultMonth={initialDates?.from ? new Date(initialDates.from) : undefined}
                         modifiers={{
                             available: date => {
-                                const dateString = format(date, 'yyyy-MM-dd')
-                                const currentOccupancy = hotelAvailability[dateString] || 0
-                                return currentOccupancy < capacity && !isDateBlocked(dateString)
+                                return !isDateBlocked(format(date, 'yyyy-MM-dd'))
                             },
                             highSeason: date => {
                                 const dateString = format(date, 'yyyy-MM-dd')
@@ -226,9 +221,9 @@ export function AvailabilityCalendar({
                                 ),
                         }}
                         modifiersStyles={{
-                            available: { backgroundColor: '#2d6a4f', color: 'white' },
-                            highSeason: { backgroundColor: '#22c55e', color: 'white' },
-                            weekend: { backgroundColor: '#f59e0b', color: 'white', cursor: 'not-allowed' },
+                            available: { backgroundColor: '#7D8F53', color: 'white' },
+                            highSeason: { backgroundColor: '#2d6a4f', color: 'white' },
+                            weekend: { backgroundColor: 'red', color: 'white', cursor: 'not-allowed' },
                             saturday: { backgroundColor: '#fbbf24', color: 'white' },
                             start: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
                             end: { backgroundColor: '#93c5fd', color: 'black', fontWeight: 'bold' },
@@ -238,21 +233,18 @@ export function AvailabilityCalendar({
                         }}
                         disabled={date => {
                             const dateString = format(date, 'yyyy-MM-dd')
-                            const currentOccupancy = hotelAvailability[dateString] || 0
-                            return (
-                                currentOccupancy >= capacity || isRestrictedDay(dateString) || isDateBlocked(dateString)
-                            )
+                            return isRestrictedDay(dateString) || isDateBlocked(dateString)
                         }}
                         fromDate={new Date()}
                         locale={calendarLocale}
                     />
                     <div className='flex flex-wrap justify-start gap-2'>
                         <div className='flex items-center'>
-                            <div className='mr-2 h-4 w-4 rounded bg-[#2d6a4f]'></div>
+                            <div className='bg-dondersteen mr-2 h-4 w-4 rounded'></div>
                             <span className='text-sm'>{t('booking.step2.calendar.available')}</span>
                         </div>
                         <div className='flex items-center'>
-                            <div className='mr-2 h-4 w-4 rounded bg-[#22c55e]'></div>
+                            <div className='mr-2 h-4 w-4 rounded bg-[#2d6a4f]'></div>
                             <span className='text-sm'>{t('booking.step2.calendar.highSeason')}</span>
                         </div>
                         <div className='flex items-center'>

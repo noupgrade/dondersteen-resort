@@ -1,16 +1,11 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo } from 'react'
 
-import { addDays, format } from 'date-fns'
 
 import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
 import { HairSalonReservation, HotelReservation, Reservation } from '@monorepo/functions/src/types/reservations'
-
-type CalendarAvailability = {
-    [date: string]: number
-}
 
 type ReservationDocument = Reservation & FSDocument
 
@@ -24,7 +19,6 @@ type ReservationContextType = {
     deleteReservation: (id: string) => Promise<void>
     getReservationsByClientId: (clientId: string) => ReservationDocument[]
     getReservationsByDate: (date: string) => ReservationDocument[]
-    getCalendarAvailability: (type: 'hotel' | 'peluqueria') => CalendarAvailability
     isLoading: boolean
 }
 
@@ -175,40 +169,6 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         [reservations],
     )
 
-    const getCalendarAvailability = useCallback(
-        (type: 'hotel' | 'peluqueria') => {
-            const availability: CalendarAvailability = {}
-
-            if (type === 'hotel') {
-                reservations
-                    .filter(res => res.type === 'hotel' && res.status !== 'cancelled')
-                    .forEach(reservation => {
-                        const hotelReservation = reservation as HotelReservation
-                        if (hotelReservation.checkInDate && hotelReservation.checkOutDate) {
-                            let currentDate = new Date(hotelReservation.checkInDate)
-                            const endDate = new Date(hotelReservation.checkOutDate)
-
-                            while (currentDate <= endDate) {
-                                const dateStr = format(currentDate, 'yyyy-MM-dd')
-                                availability[dateStr] = (availability[dateStr] || 0) + 1
-                                currentDate = addDays(currentDate, 1)
-                            }
-                        }
-                    })
-            } else {
-                reservations
-                    .filter(res => res.type === 'peluqueria' && res.status !== 'cancelled')
-                    .forEach(reservation => {
-                        const dateStr = reservation.date
-                        availability[dateStr] = (availability[dateStr] || 0) + 1
-                    })
-            }
-
-            return availability
-        },
-        [reservations],
-    )
-
     return (
         <ReservationContext.Provider
             value={{
@@ -219,7 +179,6 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 deleteReservation,
                 getReservationsByClientId,
                 getReservationsByDate,
-                getCalendarAvailability,
                 isLoading,
             }}
         >

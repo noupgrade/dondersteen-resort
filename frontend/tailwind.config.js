@@ -84,6 +84,7 @@ export default {
                 900: '#234c56',
                 950: '#12323a',
             },
+            dondersteen: '#7D8F53',
         },
     },
     plugins: [tailwindAnimate],
