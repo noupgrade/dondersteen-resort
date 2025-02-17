@@ -343,7 +343,11 @@ export function AvailabilityCalendar({
                     <div>
                         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
                             <div className='space-y-2'>
-                                <Label htmlFor='checkInTime'>{t('booking.step2.time.checkIn')}</Label>
+                                <Label htmlFor='checkInTime'>
+                                    {driverService?.serviceType === 'pickup' || driverService?.serviceType === 'both'
+                                        ? t('booking.step2.time.preferredPickup', 'Hora de recogida preferida')
+                                        : t('booking.step2.time.checkIn', 'Hora de recogida')}
+                                </Label>
                                 <Select onValueChange={handleCheckInTimeChange} defaultValue={checkInTime}>
                                     <SelectTrigger className='w-full'>
                                         <SelectValue placeholder={t('booking.step2.time.selectTime')} />
@@ -365,7 +369,11 @@ export function AvailabilityCalendar({
                             </div>
 
                             <div className='space-y-2'>
-                                <Label htmlFor='checkOutTime'>{t('booking.step2.time.checkOut')}</Label>
+                                <Label htmlFor='checkOutTime'>
+                                    {driverService?.serviceType === 'dropoff' || driverService?.serviceType === 'both'
+                                        ? t('booking.step2.time.preferredDropoff', 'Hora de salida preferida')
+                                        : t('booking.step2.time.checkOut', 'Hora de salida')}
+                                </Label>
                                 <Select onValueChange={handleCheckOutTimeChange} defaultValue={checkOutTime}>
                                     <SelectTrigger className='w-full'>
                                         <SelectValue placeholder={t('booking.step2.time.selectTime')} />

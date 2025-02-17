@@ -5,6 +5,7 @@ import { enUS, es } from 'date-fns/locale'
 import { Bed, Clock } from 'lucide-react'
 
 import { PetFormData } from '@/features/booking/types/booking.types'
+import { useHotelPricingConfig } from '@/shared/hooks/use-hotel-pricing-config'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ServiceItem } from '@/shared/ui/service-item'
 import { formatCurrency } from '@/shared/utils/format'
@@ -22,6 +23,7 @@ interface BookingSummaryProps {
 
 export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
     const { t, i18n } = useTranslation()
+    const { config } = useHotelPricingConfig()
     const dateLocale = i18n.language === 'es' ? es : enUS
     const nights = calculateNights(dates)
     const priceBreakdown = calculateTotalPrice(dates, pets, services)
@@ -34,6 +36,20 @@ export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
         services: services.filter(s => s.petIndex === index && s.type !== 'driver'),
         breakdown: priceBreakdown.petsBreakdown[index],
     }))
+
+    const getDriverPrice = () => {
+        if (!config || !driverService) return 0
+        switch (driverService.serviceType) {
+            case 'pickup':
+                return config.driver.pickup.price
+            case 'dropoff':
+                return config.driver.delivery.price
+            case 'both':
+                return config.driver.complete.price
+            default:
+                return 0
+        }
+    }
 
     return (
         <Card>
@@ -81,7 +97,9 @@ export function BookingSummary({ dates, pets, services }: BookingSummaryProps) {
                             <div className='flex items-center justify-between'>
                                 <ServiceItem service={driverService} />
                                 <span className='text-sm text-yellow-600'>
-                                    {t('booking.summary.transport.fromPrice')}
+                                    {t('booking.summary.transport.fromPrice', 'Desde {{price}}€', {
+                                        price: getDriverPrice(),
+                                    })}
                                 </span>
                             </div>
                             <p className='text-xs italic text-muted-foreground'>
