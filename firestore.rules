@@ -44,7 +44,7 @@ service cloud.firestore {
 
     // Reservations collection
     match /reservations/{reservationId} {
-      allow read, write, update, list: if true; // TODO: Remove this when we have a proper auth system
+      allow read, write, update, list: if isStaff(); // Clients write via the backend functions
     }
 
     match /configs/hotel_pricing {
