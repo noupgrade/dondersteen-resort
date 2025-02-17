@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { AdditionalService } from '@/shared/types/additional-services'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 export interface DateRange {
     from: Date

@@ -5,8 +5,8 @@ import { AlertCircle } from 'lucide-react'
 
 import { AvailabilityCalendar } from '@/components/availability-calendar'
 import { ImportantNotes } from '@/components/important-notes'
-import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 import { BookingFormData, DateRange } from '../../types/booking.types'
 

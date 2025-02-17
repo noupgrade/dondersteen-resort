@@ -1,17 +1,21 @@
 import { useState } from 'react'
+
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar, Clock, Eye } from 'lucide-react'
-import { HairSalonTask } from '@/components/ReservationContext'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import { Label } from '@/shared/ui/label'
-import { Input } from '@/shared/ui/input'
-import { Button } from '@/shared/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
-import { DEFAULT_DURATIONS } from '../model/task-utils'
-import { DatePicker } from '@/shared/ui/date-picker'
+
 import { useReservation } from '@/components/ReservationContext'
+import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { Button } from '@/shared/ui/button'
+import { DatePicker } from '@/shared/ui/date-picker'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { HairSalonTask } from '@monorepo/functions/src/types/reservations'
+import { HairdressingServiceType } from '@monorepo/functions/src/types/services'
+
+import { DEFAULT_DURATIONS } from '../model/task-utils'
 import { HairSalonReservationModal } from './HairSalonReservationModal'
 
 interface TaskModalProps {
@@ -30,7 +34,7 @@ const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     spa: 'Spa',
     spa_ozone: 'Spa con ozono',
     knots: 'Nudos',
-    extremely_dirty: 'Extremadamente sucio'
+    extremely_dirty: 'Extremadamente sucio',
 }
 
 const durationOptions = [15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180]
@@ -75,8 +79,8 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
             service: {
                 type: 'hairdressing',
                 petIndex: task.service.petIndex,
-                services: [selectedService]
-            }
+                services: [selectedService],
+            },
         })
     }
 
@@ -94,16 +98,16 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
                         <DialogTitle>Editar Tarea</DialogTitle>
                     </DialogHeader>
 
-                    <div className="grid gap-6 py-4">
+                    <div className='grid gap-6 py-4'>
                         {/* Service Selection */}
-                        <div className="space-y-2">
+                        <div className='space-y-2'>
                             <Label>Servicio</Label>
                             <Select value={selectedService} onValueChange={setSelectedService}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecciona el servicio" />
+                                    <SelectValue placeholder='Selecciona el servicio' />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {availableServices.map((service) => (
+                                    {availableServices.map(service => (
                                         <SelectItem key={service} value={service}>
                                             {serviceTypeLabels[service]}
                                         </SelectItem>
@@ -113,33 +117,30 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
                         </div>
 
                         {/* Date and Time */}
-                        <div className="space-y-4">
-                            <div className="space-y-2">
+                        <div className='space-y-4'>
+                            <div className='space-y-2'>
                                 <Label>Fecha</Label>
-                                <DatePicker
-                                    date={selectedDate}
-                                    onSelect={handleDateSelect}
-                                />
+                                <DatePicker date={selectedDate} onSelect={handleDateSelect} />
                             </div>
-                            <div className="space-y-2">
+                            <div className='space-y-2'>
                                 <Label>Hora</Label>
                                 <Input
-                                    type="time"
+                                    type='time'
                                     value={selectedTime}
-                                    onChange={(e) => setSelectedTime(e.target.value)}
+                                    onChange={e => setSelectedTime(e.target.value)}
                                 />
                             </div>
                         </div>
 
                         {/* Duration */}
-                        <div className="space-y-2">
-                            <Label htmlFor="duration">Duración (minutos)</Label>
+                        <div className='space-y-2'>
+                            <Label htmlFor='duration'>Duración (minutos)</Label>
                             <Select value={duration} onValueChange={setDuration}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Selecciona la duración" />
+                                    <SelectValue placeholder='Selecciona la duración' />
                                 </SelectTrigger>
-                                <SelectContent className="max-h-[200px]">
-                                    {durationOptions.map((mins) => (
+                                <SelectContent className='max-h-[200px]'>
+                                    {durationOptions.map(mins => (
                                         <SelectItem key={mins} value={mins.toString()}>
                                             {mins} minutos
                                         </SelectItem>
@@ -151,23 +152,21 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
                         {/* View Reservation Button */}
                         {reservation && (
                             <Button
-                                variant="outline"
-                                className="w-full flex items-center gap-2"
+                                variant='outline'
+                                className='flex w-full items-center gap-2'
                                 onClick={() => setIsReservationModalOpen(true)}
                             >
-                                <Eye className="h-4 w-4" />
+                                <Eye className='h-4 w-4' />
                                 Ver Reserva Completa
                             </Button>
                         )}
                     </div>
 
-                    <div className="flex justify-end gap-4">
-                        <Button variant="outline" onClick={onClose}>
+                    <div className='flex justify-end gap-4'>
+                        <Button variant='outline' onClick={onClose}>
                             Cancelar
                         </Button>
-                        <Button onClick={handleSave}>
-                            Guardar
-                        </Button>
+                        <Button onClick={handleSave}>Guardar</Button>
                     </div>
                 </DialogContent>
             </Dialog>
@@ -186,4 +185,4 @@ export function TaskModal({ task, isOpen, onClose, onSave }: TaskModalProps) {
             )}
         </>
     )
-} 
+}

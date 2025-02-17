@@ -1,4 +1,5 @@
-import { Pet, Client } from '@/components/ReservationContext'
+import { Pet } from '@monorepo/functions/src/types/reservations'
+import { Client } from '@monorepo/functions/src/types/reservations'
 
 export interface ClientProfile {
     client: Client
@@ -11,7 +12,7 @@ const mockClientProfile: ClientProfile = {
         name: 'John Doe',
         phone: '+34123456789',
         email: 'john.doe@example.com',
-        address: 'Calle Principal 123, 28001 Madrid'
+        address: 'Calle Principal 123, 28001 Madrid',
     },
     pets: [
         {
@@ -25,25 +26,25 @@ const mockClientProfile: ClientProfile = {
                 {
                     type: 'special_food',
                     petIndex: 0,
-                    foodType: 'refrigerated'
+                    foodType: 'refrigerated',
                 },
                 {
                     type: 'medication',
                     petIndex: 0,
                     comment: 'Antiinflamatorio cada 12h',
-                    frequency: 'single'
+                    frequency: 'single',
                 },
                 {
                     type: 'special_care',
                     petIndex: 0,
-                    comment: 'Revisión diaria de articulaciones'
+                    comment: 'Revisión diaria de articulaciones',
                 },
                 {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_brush', 'deshedding', 'spa']
-                }
-            ]
+                    services: ['bath_and_brush', 'deshedding', 'spa'],
+                },
+            ],
         },
         {
             id: 'pet2',
@@ -56,40 +57,40 @@ const mockClientProfile: ClientProfile = {
                 {
                     type: 'special_food',
                     petIndex: 1,
-                    foodType: 'frozen'
+                    foodType: 'frozen',
                 },
                 {
                     type: 'medication',
                     petIndex: 1,
                     comment: 'Vitaminas por la mañana',
-                    frequency: 'single'
+                    frequency: 'single',
                 },
                 {
                     type: 'special_care',
                     petIndex: 1,
-                    comment: 'Limpieza de oídos diaria'
+                    comment: 'Limpieza de oídos diaria',
                 },
                 {
                     type: 'hairdressing',
                     petIndex: 1,
-                    services: ['bath_and_trim', 'spa_ozone']
-                }
-            ]
-        }
-    ]
+                    services: ['bath_and_trim', 'spa_ozone'],
+                },
+            ],
+        },
+    ],
 }
 
-export function useClientProfile(userId: string): { data: ClientProfile | null, isLoading: boolean } {
+export function useClientProfile(userId: string): { data: ClientProfile | null; isLoading: boolean } {
     if (userId === '') {
         return {
             data: null,
-            isLoading: false
+            isLoading: false,
         }
     }
 
     // In future iterations, this will fetch data based on userId
     return {
         data: mockClientProfile,
-        isLoading: false
+        isLoading: false,
     }
-} 
+}

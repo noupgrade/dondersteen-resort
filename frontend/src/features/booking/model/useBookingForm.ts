@@ -6,8 +6,8 @@ import { useSearchParams } from 'react-router-dom'
 import { format, isValid } from 'date-fns'
 
 import { useReservation } from '@/components/ReservationContext'
-import { AdditionalService } from '@/shared/types/additional-services'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 import {
     BookingFormData,
@@ -208,116 +208,113 @@ export function useBookingForm({ defaultValues }: UseBookingFormProps = {}) {
         return isValid
     }, [form, state.selectedDates, t])
 
-    const handleSubmit = useCallback(
-        async () => {
-            console.log('handleSubmit', state.currentStep)
+    const handleSubmit = useCallback(async () => {
+        console.log('handleSubmit', state.currentStep)
 
-            const isValid = await form.trigger()
+        const isValid = await form.trigger()
 
-            if (isValid && state.selectedDates) {
-                const values = form.getValues()
-                const transformedPets: PetData[] = (values.pets as PetFormData[]).map(pet => ({
-                    name: pet.name,
-                    breed: pet.breed,
-                    weight: Number(pet.weight),
-                    size: pet.size,
-                    sex: pet.sex,
-                    isNeutered: pet.isNeutered || false,
+        if (isValid && state.selectedDates) {
+            const values = form.getValues()
+            const transformedPets: PetData[] = (values.pets as PetFormData[]).map(pet => ({
+                name: pet.name,
+                breed: pet.breed,
+                weight: Number(pet.weight),
+                size: pet.size,
+                sex: pet.sex,
+                isNeutered: pet.isNeutered || false,
+            }))
+
+            // Filter out any undefined or null values from services
+            const cleanedServices: AdditionalService[] = values.services
+                .filter(service => service !== null)
+                .map(service => {
+                    switch (service.type) {
+                        case 'driver':
+                            return {
+                                type: 'driver' as const,
+                                petIndex: service.petIndex,
+                                serviceType: service.serviceType,
+                            }
+                        case 'special_food':
+                            return {
+                                type: 'special_food' as const,
+                                petIndex: service.petIndex,
+                                foodType: service.foodType,
+                            }
+                        case 'medication':
+                            return {
+                                type: 'medication' as const,
+                                petIndex: service.petIndex,
+                                comment: service.comment,
+                                frequency: service.frequency,
+                            }
+                        case 'special_care':
+                            return {
+                                type: 'special_care' as const,
+                                petIndex: service.petIndex,
+                                comment: service.comment,
+                            }
+                        case 'hairdressing':
+                            return {
+                                type: 'hairdressing' as const,
+                                petIndex: service.petIndex,
+                                services: service.services,
+                            }
+                        default:
+                            return service as AdditionalService
+                    }
+                })
+
+            const newReservation = {
+                type: type === 'budget' ? ('hotel-budget' as const) : ('hotel' as const),
+                checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
+                checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
+                checkInTime: state.checkInTime,
+                checkOutTime: state.checkOutTime,
+                client: {
+                    name: `${values.clientName} ${values.clientLastName}`,
+                    phone: values.clientPhone,
+                    email: values.clientEmail,
+                },
+                pets: transformedPets,
+                additionalServices: cleanedServices,
+                roomNumber: '',
+                status: 'pending' as const,
+                totalPrice: state.totalPrice,
+                paymentStatus: 'Pendiente' as const,
+            }
+
+            try {
+                console.log('newReservation', newReservation)
+                const savedReservation = await addReservation(newReservation)
+                setState(prev => ({
+                    ...prev,
+                    confirmedReservationId: savedReservation.id,
                 }))
-
-                // Filter out any undefined or null values from services
-                const cleanedServices: AdditionalService[] = values.services
-                    .filter(service => service !== null)
-                    .map(service => {
-                        switch (service.type) {
-                            case 'driver':
-                                return {
-                                    type: 'driver' as const,
-                                    petIndex: service.petIndex,
-                                    serviceType: service.serviceType,
-                                }
-                            case 'special_food':
-                                return {
-                                    type: 'special_food' as const,
-                                    petIndex: service.petIndex,
-                                    foodType: service.foodType,
-                                }
-                            case 'medication':
-                                return {
-                                    type: 'medication' as const,
-                                    petIndex: service.petIndex,
-                                    comment: service.comment,
-                                    frequency: service.frequency,
-                                }
-                            case 'special_care':
-                                return {
-                                    type: 'special_care' as const,
-                                    petIndex: service.petIndex,
-                                    comment: service.comment,
-                                }
-                            case 'hairdressing':
-                                return {
-                                    type: 'hairdressing' as const,
-                                    petIndex: service.petIndex,
-                                    services: service.services,
-                                }
-                            default:
-                                return service as AdditionalService
-                        }
-                    })
-
-                const newReservation = {
-                    type: type === 'budget' ? ('hotel-budget' as const) : ('hotel' as const),
-                    checkInDate: format(state.selectedDates.from, 'yyyy-MM-dd'),
-                    checkOutDate: format(state.selectedDates.to, 'yyyy-MM-dd'),
-                    checkInTime: state.checkInTime,
-                    checkOutTime: state.checkOutTime,
-                    client: {
-                        name: `${values.clientName} ${values.clientLastName}`,
-                        phone: values.clientPhone,
-                        email: values.clientEmail,
-                    },
-                    pets: transformedPets,
-                    additionalServices: cleanedServices,
-                    roomNumber: '',
-                    status: 'pending' as const,
-                    totalPrice: state.totalPrice,
-                    paymentStatus: 'Pendiente' as const,
-                }
-
-                try {
-                    console.log('newReservation', newReservation)
-                    const savedReservation = await addReservation(newReservation)
-                    setState(prev => ({
-                        ...prev,
-                        confirmedReservationId: savedReservation.id,
-                    }))
-                    localStorage.removeItem('bookingFormData')
-                    return savedReservation.id
-                } catch (error) {
-                    console.error('Error saving reservation:', error)
-                    setState(prev => ({
-                        ...prev,
-                        formError: t(
-                            'booking.errors.saveReservation',
-                            'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
-                        ),
-                    }))
-                    return undefined
-                }
-            } else {
+                localStorage.removeItem('bookingFormData')
+                return savedReservation.id
+            } catch (error) {
+                console.error('Error saving reservation:', error)
                 setState(prev => ({
                     ...prev,
                     formError: t(
-                        'booking.errors.incompleteForm',
-                        'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
+                        'booking.errors.saveReservation',
+                        'Hubo un error al guardar la reserva. Por favor, inténtalo de nuevo.',
                     ),
                 }))
                 return undefined
             }
-        },
-        [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation, t],
-    )
+        } else {
+            setState(prev => ({
+                ...prev,
+                formError: t(
+                    'booking.errors.incompleteForm',
+                    'Por favor, revisa todos los campos. Hay información incompleta o inválida.',
+                ),
+            }))
+            return undefined
+        }
+    }, [form, state.selectedDates, state.checkInTime, state.checkOutTime, state.totalPrice, addReservation, t])
 
     const nextStep = useCallback(async () => {
         let isValid = false

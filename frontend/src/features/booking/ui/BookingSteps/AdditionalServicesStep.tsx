@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { AlertCircle } from 'lucide-react'
 
 import { AdditionalServices } from '@/components/additional-services'
-import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 import { BookingFormData } from '../../types/booking.types'
 

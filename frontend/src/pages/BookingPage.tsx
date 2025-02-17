@@ -17,11 +17,11 @@ import {
     PetInformationStep,
 } from '@/features/booking/ui/BookingSteps'
 import { useClientProfile } from '@/hooks/use-client-profile'
-import { AdditionalService } from '@/shared/types/additional-services'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Button } from '@/shared/ui/button'
 import { Form } from '@/shared/ui/form'
 import { LanguageSwitchButton } from '@/shared/ui/language-switch-button'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 export default function BookingPage() {
     const { t } = useTranslation()

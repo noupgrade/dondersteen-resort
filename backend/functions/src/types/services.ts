@@ -52,18 +52,3 @@ export type AdditionalService =
     | MedicationService
     | SpecialCareService
     | HairdressingService
-
-export const isDriverService = (service: AdditionalService): service is DriverService =>
-    service.type === 'driver'
-
-export const isSpecialFoodService = (service: AdditionalService): service is SpecialFoodService =>
-    service.type === 'special_food'
-
-export const isMedicationService = (service: AdditionalService): service is MedicationService =>
-    service.type === 'medication'
-
-export const isSpecialCareService = (service: AdditionalService): service is SpecialCareService =>
-    service.type === 'special_care'
-
-export const isHairdressingService = (service: AdditionalService): service is HairdressingService =>
-    service.type === 'hairdressing' 

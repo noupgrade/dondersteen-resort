@@ -1,6 +1,6 @@
 import { Heart, Pill, Scissors, Truck, UtensilsCrossed } from 'lucide-react'
 
-import { AdditionalService, ServiceType } from '@/shared/types/additional-services'
+import { AdditionalService, ServiceType } from '@monorepo/functions/src/types/services'
 
 const getServiceIcon = (serviceType: ServiceType) => {
     switch (serviceType) {

@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { 
-    Calendar,
-    Clock,
-    Euro,
-    Camera,
-    X,
-    Save,
-    Hotel,
-    Users,
-    Trash2,
-    Phone,
-    Car,
+import {
     Building2,
+    Calendar,
+    Camera,
+    Car,
+    Clock,
+    Copy,
+    Euro,
+    Hotel,
+    Phone,
     Plus,
-    Copy
+    Save,
+    Trash2,
+    Users,
+    X,
 } from 'lucide-react'
 
-import { Button } from '@/shared/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { cn } from '@/shared/lib/utils'
+import { isHairdressingService } from '@/shared/types/isHairdressingService'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,16 +31,17 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "@/shared/ui/alert-dialog"
+} from '@/shared/ui/alert-dialog'
+import { Badge } from '@/shared/ui/badge'
+import { Button } from '@/shared/ui/button'
+import { DatePicker } from '@/shared/ui/date-picker'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Badge } from '@/shared/ui/badge'
-import { HairSalonReservation } from '@/components/ReservationContext'
-import { cn } from '@/shared/lib/utils'
-import { HairdressingServiceType, isDriverService, isHairdressingService } from '@/shared/types/additional-services'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { DatePicker } from '@/shared/ui/date-picker'
 import { Separator } from '@/shared/ui/separator'
+import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { HairdressingServiceType } from '@monorepo/functions/src/types/services'
 
 interface HairSalonReservationModalProps {
     reservation: HairSalonReservation
@@ -58,7 +60,7 @@ const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     spa: 'Spa',
     spa_ozone: 'Spa con ozono',
     knots: 'Nudos',
-    extremely_dirty: 'Extremadamente sucio'
+    extremely_dirty: 'Extremadamente sucio',
 }
 
 const serviceTypeColors: Record<HairdressingServiceType, string> = {
@@ -70,7 +72,7 @@ const serviceTypeColors: Record<HairdressingServiceType, string> = {
     spa: 'bg-teal-50 text-teal-700 border-teal-200',
     spa_ozone: 'bg-indigo-50 text-indigo-700 border-indigo-200',
     knots: 'bg-red-50 text-red-700 border-red-200',
-    extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200'
+    extremely_dirty: 'bg-yellow-50 text-yellow-700 border-yellow-200',
 }
 
 const durationOptions = [15, 30, 45, 60, 75, 90, 105, 120]
@@ -84,30 +86,30 @@ interface SubAppointmentDialogProps {
 
 function SubAppointmentDialog({ isOpen, onClose, services, onServiceSelect }: SubAppointmentDialogProps) {
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[400px]">
+        <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
+            <DialogContent className='sm:max-w-[400px]'>
                 <DialogHeader>
                     <DialogTitle>Seleccionar Servicio para Subcita</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    {services.map((service) => (
+                <div className='grid gap-4 py-4'>
+                    {services.map(service => (
                         <Button
                             key={service}
-                            variant="outline"
-                            className="w-full justify-start gap-2"
+                            variant='outline'
+                            className='w-full justify-start gap-2'
                             onClick={() => onServiceSelect(service)}
                         >
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className='h-4 w-4' />
                             {serviceTypeLabels[service]}
                         </Button>
                     ))}
                     <Separator />
                     <Button
-                        variant="outline"
-                        className="w-full justify-start gap-2"
+                        variant='outline'
+                        className='w-full justify-start gap-2'
                         onClick={() => onServiceSelect('duplicate')}
                     >
-                        <Copy className="h-4 w-4" />
+                        <Copy className='h-4 w-4' />
                         Duplicar todos los servicios
                     </Button>
                 </div>
@@ -116,12 +118,12 @@ function SubAppointmentDialog({ isOpen, onClose, services, onServiceSelect }: Su
     )
 }
 
-export function HairSalonReservationModal({ 
+export function HairSalonReservationModal({
     reservation,
     isOpen,
     onClose,
     onSave,
-    onDelete
+    onDelete,
 }: HairSalonReservationModalProps) {
     const [duration, setDuration] = useState(reservation.duration?.toString() || '60')
     const [price, setPrice] = useState(reservation.precioEstimado?.toString() || '')
@@ -168,7 +170,7 @@ export function HairSalonReservationModal({
             duration: durationNum,
             precioEstimado: priceNum,
             resultImage: previewUrl ? previewUrl : undefined,
-            horaDefinitiva: selectedTime // Update hora definitiva with the new time
+            horaDefinitiva: selectedTime, // Update hora definitiva with the new time
         }
 
         try {
@@ -221,31 +223,33 @@ export function HairSalonReservationModal({
     }
 
     return (
-        <Dialog 
-            open={isOpen} 
-            onOpenChange={(open) => {
+        <Dialog
+            open={isOpen}
+            onOpenChange={open => {
                 if (!open) {
                     resetForm()
                     onClose()
                 }
             }}
         >
-            <DialogContent className="sm:max-w-[600px]">
-                <DialogHeader className="flex flex-row items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
+            <DialogContent className='sm:max-w-[600px]'>
+                <DialogHeader className='flex flex-row items-center justify-between border-b pb-4'>
+                    <div className='flex items-center gap-4'>
                         <DialogTitle>Detalles de la Cita</DialogTitle>
-                        <Badge 
-                            variant="outline" 
+                        <Badge
+                            variant='outline'
                             className={cn(
-                                "ml-2",
-                                reservation.source === 'hotel' ? "bg-emerald-50 text-emerald-700" : "bg-violet-50 text-violet-700"
+                                'ml-2',
+                                reservation.source === 'hotel'
+                                    ? 'bg-emerald-50 text-emerald-700'
+                                    : 'bg-violet-50 text-violet-700',
                             )}
                         >
-                            <div className="flex items-center gap-1.5">
+                            <div className='flex items-center gap-1.5'>
                                 {reservation.source === 'hotel' ? (
-                                    <Hotel className="h-3 w-3" />
+                                    <Hotel className='h-3 w-3' />
                                 ) : (
-                                    <Users className="h-3 w-3" />
+                                    <Users className='h-3 w-3' />
                                 )}
                                 {reservation.source === 'hotel' ? 'Hotel' : 'Externo'}
                             </div>
@@ -253,70 +257,78 @@ export function HairSalonReservationModal({
                     </div>
                 </DialogHeader>
 
-                <div className="grid gap-6 py-4">
+                <div className='grid gap-6 py-4'>
                     {/* Client and Pet Info */}
-                    <div className="grid gap-6">
-                        <div className="space-y-4">
+                    <div className='grid gap-6'>
+                        <div className='space-y-4'>
                             <div>
-                                <h3 className="font-medium text-lg">{reservation.pet.name}</h3>
-                                <p className="text-sm text-muted-foreground">{reservation.pet.breed}</p>
-                                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                                <h3 className='text-lg font-medium'>{reservation.pet.name}</h3>
+                                <p className='text-sm text-muted-foreground'>{reservation.pet.breed}</p>
+                                <div className='mt-2 flex items-center gap-2 text-sm text-muted-foreground'>
                                     <span>Tamaño: {reservation.pet.size}</span>
                                     <span>•</span>
                                     <span>Peso: {reservation.pet.weight}kg</span>
                                 </div>
                             </div>
-                            <div className="space-y-1">
-                                <p className="text-sm text-muted-foreground">{reservation.client.name}</p>
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Phone className="h-3 w-3" />
+                            <div className='space-y-1'>
+                                <p className='text-sm text-muted-foreground'>{reservation.client.name}</p>
+                                <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                                    <Phone className='h-3 w-3' />
                                     {reservation.client.phone}
                                 </div>
                                 {reservation.client.email && (
-                                    <p className="text-sm text-muted-foreground">{reservation.client.email}</p>
+                                    <p className='text-sm text-muted-foreground'>{reservation.client.email}</p>
                                 )}
                             </div>
                         </div>
 
                         <Separator />
-                        
+
                         {/* Fechas y Horarios */}
-                        <div className="space-y-4">
-                            <h4 className="font-medium">Fechas y Horarios</h4>
-                            <div className="space-y-4">
+                        <div className='space-y-4'>
+                            <h4 className='font-medium'>Fechas y Horarios</h4>
+                            <div className='space-y-4'>
                                 {/* Fecha y hora de la cita */}
-                                <div className="space-y-2">
+                                <div className='space-y-2'>
                                     <Label>Fecha de la cita</Label>
-                                    <DatePicker
-                                        date={selectedDate}
-                                        onSelect={handleDateSelect}
-                                    />
+                                    <DatePicker date={selectedDate} onSelect={handleDateSelect} />
                                 </div>
-                                <div className="space-y-2">
+                                <div className='space-y-2'>
                                     <Label>Hora de la cita</Label>
                                     <Input
-                                        type="time"
+                                        type='time'
                                         value={selectedTime}
-                                        onChange={(e) => setSelectedTime(e.target.value)}
+                                        onChange={e => setSelectedTime(e.target.value)}
                                     />
                                 </div>
 
                                 {/* Fechas de hotel si es una reserva de hotel */}
                                 {reservation.source === 'hotel' && (
-                                    <div className="space-y-2 mt-4 pt-4 border-t">
-                                        <h5 className="font-medium text-sm text-muted-foreground">Información del Hotel</h5>
+                                    <div className='mt-4 space-y-2 border-t pt-4'>
+                                        <h5 className='text-sm font-medium text-muted-foreground'>
+                                            Información del Hotel
+                                        </h5>
                                         {reservation.hotelCheckIn && (
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <Calendar className="h-4 w-4 text-gray-500" />
-                                                <span>Check-in: {format(new Date(reservation.hotelCheckIn), "d 'de' MMMM", { locale: es })}</span>
+                                            <div className='flex items-center gap-2 text-sm'>
+                                                <Calendar className='h-4 w-4 text-gray-500' />
+                                                <span>
+                                                    Check-in:{' '}
+                                                    {format(new Date(reservation.hotelCheckIn), "d 'de' MMMM", {
+                                                        locale: es,
+                                                    })}
+                                                </span>
                                             </div>
                                         )}
                                         {reservation.hotelCheckOut && (
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <Calendar className="h-4 w-4 text-gray-500" />
+                                            <div className='flex items-center gap-2 text-sm'>
+                                                <Calendar className='h-4 w-4 text-gray-500' />
                                                 <span>
-                                                    Check-out: {format(new Date(reservation.hotelCheckOut), "d 'de' MMMM", { locale: es })}
-                                                    {reservation.hotelCheckOutTime && ` - ${reservation.hotelCheckOutTime}`}
+                                                    Check-out:{' '}
+                                                    {format(new Date(reservation.hotelCheckOut), "d 'de' MMMM", {
+                                                        locale: es,
+                                                    })}
+                                                    {reservation.hotelCheckOutTime &&
+                                                        ` - ${reservation.hotelCheckOutTime}`}
                                                 </span>
                                             </div>
                                         )}
@@ -325,8 +337,8 @@ export function HairSalonReservationModal({
 
                                 {/* Hora solicitada para reservas externas */}
                                 {reservation.source === 'external' && reservation.requestedTime && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Clock className="h-4 w-4" />
+                                    <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                                        <Clock className='h-4 w-4' />
                                         <span>Hora solicitada: {reservation.requestedTime}</span>
                                     </div>
                                 )}
@@ -336,27 +348,27 @@ export function HairSalonReservationModal({
                         <Separator />
 
                         {/* Services */}
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <h4 className="font-medium">Servicios</h4>
+                        <div className='space-y-4'>
+                            <div className='flex items-center justify-between'>
+                                <h4 className='font-medium'>Servicios</h4>
                                 <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-2"
+                                    variant='outline'
+                                    size='sm'
+                                    className='flex items-center gap-2'
                                     onClick={() => setIsSubAppointmentDialogOpen(true)}
                                 >
-                                    <Plus className="h-4 w-4" />
+                                    <Plus className='h-4 w-4' />
                                     Añadir Subcita
                                 </Button>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className='flex flex-wrap gap-2'>
                                 {services.map((service, index) => (
                                     <Badge
                                         key={index}
-                                        variant="outline"
+                                        variant='outline'
                                         className={cn(
-                                            "text-xs px-2 py-0.5 border-[1.5px] whitespace-nowrap",
-                                            serviceTypeColors[service]
+                                            'whitespace-nowrap border-[1.5px] px-2 py-0.5 text-xs',
+                                            serviceTypeColors[service],
                                         )}
                                     >
                                         {serviceTypeLabels[service]}
@@ -364,8 +376,8 @@ export function HairSalonReservationModal({
                                 ))}
                             </div>
                             {hasDriverService && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Car className="h-4 w-4" />
+                                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                                    <Car className='h-4 w-4' />
                                     <span>Servicio de recogida incluido</span>
                                 </div>
                             )}
@@ -381,15 +393,15 @@ export function HairSalonReservationModal({
                         <Separator />
 
                         {/* Duration and Price */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="duration">Duración (minutos)</Label>
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div className='space-y-2'>
+                                <Label htmlFor='duration'>Duración (minutos)</Label>
                                 <Select value={duration} onValueChange={setDuration}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Selecciona la duración" />
+                                        <SelectValue placeholder='Selecciona la duración' />
                                     </SelectTrigger>
-                                    <SelectContent className="max-h-[200px]">
-                                        {durationOptions.map((mins) => (
+                                    <SelectContent className='max-h-[200px]'>
+                                        {durationOptions.map(mins => (
                                             <SelectItem key={mins} value={mins.toString()}>
                                                 {mins} minutos
                                             </SelectItem>
@@ -397,73 +409,71 @@ export function HairSalonReservationModal({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="price">Precio (€)</Label>
+                            <div className='space-y-2'>
+                                <Label htmlFor='price'>Precio (€)</Label>
                                 <Input
-                                    id="price"
-                                    type="number"
+                                    id='price'
+                                    type='number'
                                     value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    className={!price ? "border-red-500" : ""}
+                                    onChange={e => setPrice(e.target.value)}
+                                    className={!price ? 'border-red-500' : ''}
                                 />
-                                {!price && (
-                                    <p className="text-sm text-red-500">El precio es requerido</p>
-                                )}
+                                {!price && <p className='text-sm text-red-500'>El precio es requerido</p>}
                             </div>
                         </div>
 
                         {/* Result Image */}
-                        <div className="space-y-4">
+                        <div className='space-y-4'>
                             <Label>Foto del Resultado</Label>
-                            <div className="flex items-center gap-4">
+                            <div className='flex items-center gap-4'>
                                 <Button
-                                    variant="outline"
+                                    variant='outline'
                                     onClick={() => document.getElementById('image-upload')?.click()}
-                                    className="flex items-center gap-2"
+                                    className='flex items-center gap-2'
                                 >
-                                    <Camera className="h-4 w-4" />
+                                    <Camera className='h-4 w-4' />
                                     Subir Foto
                                 </Button>
                                 <input
-                                    id="image-upload"
-                                    type="file"
-                                    accept="image/*"
+                                    id='image-upload'
+                                    type='file'
+                                    accept='image/*'
                                     onChange={handleImageChange}
-                                    className="hidden"
+                                    className='hidden'
                                 />
                             </div>
                             {previewUrl && (
-                                <div className="relative w-48 h-48">
+                                <div className='relative h-48 w-48'>
                                     <img
                                         src={previewUrl}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover rounded-md"
+                                        alt='Preview'
+                                        className='h-full w-full rounded-md object-cover'
                                     />
                                     <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute top-2 right-2"
+                                        variant='destructive'
+                                        size='icon'
+                                        className='absolute right-2 top-2'
                                         onClick={() => {
                                             setResultImage(null)
                                             setPreviewUrl(null)
                                         }}
                                     >
-                                        <X className="h-4 w-4" />
+                                        <X className='h-4 w-4' />
                                     </Button>
                                 </div>
                             )}
                         </div>
 
                         {/* Actions */}
-                        <div className="flex justify-between gap-4 pt-4 border-t">
+                        <div className='flex justify-between gap-4 border-t pt-4'>
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button 
-                                        variant="destructive" 
-                                        className="flex items-center gap-2"
+                                    <Button
+                                        variant='destructive'
+                                        className='flex items-center gap-2'
                                         disabled={!onDelete}
                                     >
-                                        <Trash2 className="h-4 w-4" />
+                                        <Trash2 className='h-4 w-4' />
                                         Eliminar Cita
                                     </Button>
                                 </AlertDialogTrigger>
@@ -471,23 +481,24 @@ export function HairSalonReservationModal({
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            Esta acción no se puede deshacer. Se eliminará permanentemente la cita de {reservation.pet.name}.
+                                            Esta acción no se puede deshacer. Se eliminará permanentemente la cita de{' '}
+                                            {reservation.pet.name}.
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction 
+                                        <AlertDialogAction
                                             onClick={handleDelete}
-                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
                                         >
                                             Eliminar
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                             </AlertDialog>
-                            <div className="flex gap-2">
-                                <Button 
-                                    variant="outline" 
+                            <div className='flex gap-2'>
+                                <Button
+                                    variant='outline'
                                     onClick={() => {
                                         resetForm()
                                         onClose()
@@ -495,12 +506,8 @@ export function HairSalonReservationModal({
                                 >
                                     Cancelar
                                 </Button>
-                                <Button 
-                                    onClick={handleSave} 
-                                    className="flex items-center gap-2"
-                                    disabled={!duration}
-                                >
-                                    <Save className="h-4 w-4" />
+                                <Button onClick={handleSave} className='flex items-center gap-2' disabled={!duration}>
+                                    <Save className='h-4 w-4' />
                                     Guardar Cambios
                                 </Button>
                             </div>
@@ -510,4 +517,4 @@ export function HairSalonReservationModal({
             </DialogContent>
         </Dialog>
     )
-} 
+}

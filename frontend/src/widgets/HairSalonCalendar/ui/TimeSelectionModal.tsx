@@ -1,15 +1,13 @@
+import { useEffect, useState } from 'react'
+
+import { isHairdressingService } from '@/shared/types/isHairdressingService'
 import { Button } from '@/shared/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
-import { HairSalonReservation } from '@/components/ReservationContext'
-import { useState, useEffect } from 'react'
+import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { HairdressingServiceType } from '@monorepo/functions/src/types/services'
+
 import { useCalendarStore } from '../model/store'
 
 interface TimeSelectionModalProps {
@@ -29,16 +27,10 @@ const serviceTypeLabels: Record<HairdressingServiceType, string> = {
     spa: 'Spa',
     spa_ozone: 'Spa con ozono',
     knots: 'Nudos',
-    extremely_dirty: 'Extremadamente sucio'
+    extremely_dirty: 'Extremadamente sucio',
 }
 
-export function TimeSelectionModal({
-    isOpen,
-    onClose,
-    onSelectTime,
-    hour,
-    reservation
-}: TimeSelectionModalProps) {
+export function TimeSelectionModal({ isOpen, onClose, onSelectTime, hour, reservation }: TimeSelectionModalProps) {
     const minutes = [0, 15, 30, 45]
     const durations = [15, 30, 45, 60, 75, 90]
     const { scheduledTasks } = useCalendarStore()
@@ -56,7 +48,7 @@ export function TimeSelectionModal({
         'spa',
         'spa_ozone',
         'knots',
-        'extremely_dirty'
+        'extremely_dirty',
     ]
 
     // Find the first unassigned service from the reservation
@@ -79,9 +71,7 @@ export function TimeSelectionModal({
                     .filter((service): service is HairdressingServiceType => service !== null)
 
                 // Find the first service that doesn't have a task
-                const firstUnassignedService = reservationServices.find(
-                    service => !assignedServices.includes(service)
-                )
+                const firstUnassignedService = reservationServices.find(service => !assignedServices.includes(service))
 
                 if (firstUnassignedService) {
                     setSelectedService(firstUnassignedService)
@@ -104,20 +94,23 @@ export function TimeSelectionModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
                     <DialogTitle>Crear tarea</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className='grid gap-4 py-4'>
                     {/* Service selection */}
-                    <div className="space-y-2">
+                    <div className='space-y-2'>
                         <Label>Servicio</Label>
-                        <Select value={selectedService} onValueChange={(value) => setSelectedService(value as HairdressingServiceType)}>
+                        <Select
+                            value={selectedService}
+                            onValueChange={value => setSelectedService(value as HairdressingServiceType)}
+                        >
                             <SelectTrigger>
-                                <SelectValue placeholder="Selecciona un servicio" />
+                                <SelectValue placeholder='Selecciona un servicio' />
                             </SelectTrigger>
                             <SelectContent>
-                                {allServices.map((service) => (
+                                {allServices.map(service => (
                                     <SelectItem key={service} value={service}>
                                         {serviceTypeLabels[service]}
                                     </SelectItem>
@@ -127,14 +120,14 @@ export function TimeSelectionModal({
                     </div>
 
                     {/* Duration selection */}
-                    <div className="space-y-2">
+                    <div className='space-y-2'>
                         <Label>Duración (minutos)</Label>
                         <Select value={selectedDuration} onValueChange={setSelectedDuration}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Selecciona la duración" />
+                                <SelectValue placeholder='Selecciona la duración' />
                             </SelectTrigger>
                             <SelectContent>
-                                {durations.map((duration) => (
+                                {durations.map(duration => (
                                     <SelectItem key={duration} value={duration.toString()}>
                                         {duration} minutos
                                     </SelectItem>
@@ -144,15 +137,15 @@ export function TimeSelectionModal({
                     </div>
 
                     {/* Time selection */}
-                    <div className="space-y-2">
+                    <div className='space-y-2'>
                         <Label>Hora de inicio</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                            {minutes.map((minute) => (
+                        <div className='grid grid-cols-2 gap-4'>
+                            {minutes.map(minute => (
                                 <Button
                                     key={minute}
                                     onClick={() => handleTimeSelect(minute)}
-                                    variant="outline"
-                                    className="text-lg"
+                                    variant='outline'
+                                    className='text-lg'
                                     disabled={!selectedService}
                                 >
                                     {hour}:{minute.toString().padStart(2, '0')}
@@ -164,4 +157,4 @@ export function TimeSelectionModal({
             </DialogContent>
         </Dialog>
     )
-} 
+}

@@ -1,26 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Button } from '@/shared/ui/button'
+
 import { PlusCircle } from 'lucide-react'
+import { Hotel, Users } from 'lucide-react'
 
-import {
-    Hotel,
-    Users
-} from 'lucide-react'
-
-import { HairSalonReservation, useHairSalonReservations, useReservation } from '@/components/ReservationContext.tsx'
+import { useHairSalonReservations, useReservation } from '@/components/ReservationContext.tsx'
+import { useClientSearch } from '@/shared/hooks/use-client-search'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
+import { ClientSearchModal } from '@/shared/ui/client-search-modal'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { useToast } from '@/shared/ui/use-toast.ts'
 import { HairSalonCalendarWidget } from '@/widgets/HairSalonCalendar'
-import { ReservationCard } from '@/widgets/HairSalonCalendar/ui/ReservationCard'
+import { useCalendarStore } from '@/widgets/HairSalonCalendar/model/store'
+import {
+    type CheckoutChange,
+    CheckoutChangesNotificationBanner,
+} from '@/widgets/HairSalonCalendar/ui/CheckoutChangesNotificationBanner'
 import { HairSalonReservationModal } from '@/widgets/HairSalonCalendar/ui/HairSalonReservationModal'
 import { ManageReservationBanner } from '@/widgets/HairSalonCalendar/ui/ManageReservationBanner'
-import { CheckoutChangesNotificationBanner, type CheckoutChange } from '@/widgets/HairSalonCalendar/ui/CheckoutChangesNotificationBanner'
-import { useCalendarStore } from '@/widgets/HairSalonCalendar/model/store'
+import { ReservationCard } from '@/widgets/HairSalonCalendar/ui/ReservationCard'
 import { useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
-import { ClientSearchModal } from '@/shared/ui/client-search-modal'
-import { useClientSearch } from '@/shared/hooks/use-client-search'
+import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
 
 // Mock de cambios de checkout - Esto vendría de tu backend
 const mockCheckoutChanges: CheckoutChange[] = [
@@ -35,7 +36,7 @@ const mockCheckoutChanges: CheckoutChange[] = [
         newTime: '14:00',
         timestamp: new Date().toISOString(),
         services: ['bath_and_trim', 'spa'],
-        reservationId: 'EXAMPLE_HAIRSALON_2'
+        reservationId: 'EXAMPLE_HAIRSALON_2',
     },
     {
         id: '2',
@@ -48,8 +49,8 @@ const mockCheckoutChanges: CheckoutChange[] = [
         newTime: '10:00',
         timestamp: new Date().toISOString(),
         services: ['bath_and_brush', 'deshedding', 'spa_ozone'],
-        reservationId: 'EXAMPLE_HAIRSALON_3'
-    }
+        reservationId: 'EXAMPLE_HAIRSALON_3',
+    },
 ]
 
 export default function HairSalonInternalPanelPage() {
@@ -136,9 +137,9 @@ export default function HairSalonInternalPanelPage() {
             })
         } else {
             toast({
-                title: "Error",
-                description: "No se encontró la reserva correspondiente",
-                variant: "destructive"
+                title: 'Error',
+                description: 'No se encontró la reserva correspondiente',
+                variant: 'destructive',
             })
         }
     }
@@ -154,7 +155,7 @@ export default function HairSalonInternalPanelPage() {
                 date: selectedChange.newDate,
                 time: '', // Quitar la hora para que vaya a sin hora asignada
                 requestedTime: selectedChange.newTime,
-                checkoutChangeAccepted: true
+                checkoutChangeAccepted: true,
             }
 
             // Actualizar en el contexto de reservas
@@ -164,8 +165,8 @@ export default function HairSalonInternalPanelPage() {
             await updateCalendarReservation(updatedReservation)
 
             toast({
-                title: "Cambios aceptados",
-                description: "Los cambios han sido aceptados. La cita se ha movido a citas sin hora asignada."
+                title: 'Cambios aceptados',
+                description: 'Los cambios han sido aceptados. La cita se ha movido a citas sin hora asignada.',
             })
 
             // Eliminar el cambio de la lista
@@ -183,9 +184,9 @@ export default function HairSalonInternalPanelPage() {
         } catch (error) {
             console.error('Error al actualizar la reserva:', error)
             toast({
-                title: "Error",
-                description: "No se pudieron aplicar los cambios. Por favor, inténtalo de nuevo.",
-                variant: "destructive"
+                title: 'Error',
+                description: 'No se pudieron aplicar los cambios. Por favor, inténtalo de nuevo.',
+                variant: 'destructive',
             })
         }
     }
@@ -197,7 +198,7 @@ export default function HairSalonInternalPanelPage() {
             // Actualizar el estado de la reserva
             const updatedReservation: HairSalonReservation = {
                 ...selectedReservation,
-                checkoutChangeRejected: true
+                checkoutChangeRejected: true,
             }
 
             // Actualizar en el contexto de reservas
@@ -212,13 +213,13 @@ export default function HairSalonInternalPanelPage() {
                     petName: selectedChange.petName,
                     roomNumber: selectedChange.roomNumber,
                     currentDate: selectedChange.currentDate,
-                    currentTime: selectedChange.currentTime
-                }
+                    currentTime: selectedChange.currentTime,
+                },
             })
 
             toast({
-                title: "Cambios rechazados",
-                description: "Los cambios han sido rechazados. La cita mantiene su horario original."
+                title: 'Cambios rechazados',
+                description: 'Los cambios han sido rechazados. La cita mantiene su horario original.',
             })
 
             // Eliminar el cambio de la lista
@@ -236,9 +237,9 @@ export default function HairSalonInternalPanelPage() {
         } catch (error) {
             console.error('Error al rechazar los cambios:', error)
             toast({
-                title: "Error",
-                description: "No se pudieron rechazar los cambios. Por favor, inténtalo de nuevo.",
-                variant: "destructive"
+                title: 'Error',
+                description: 'No se pudieron rechazar los cambios. Por favor, inténtalo de nuevo.',
+                variant: 'destructive',
             })
         }
     }
@@ -259,17 +260,14 @@ export default function HairSalonInternalPanelPage() {
             window.location.href = `/peluqueria-booking?${params.toString()}`
         },
         redirectPath: '/peluqueria-booking',
-        requirePetSelection: true
+        requirePetSelection: true,
     })
 
     return (
         <div className='p-4 md:p-6'>
-            <div className='flex items-center justify-between mb-4'>
+            <div className='mb-4 flex items-center justify-between'>
                 <h1 className='text-3xl font-bold'>Peluquería</h1>
-                <Button
-                    className='bg-[#34D399] text-white hover:bg-[#34D399]/90'
-                    onClick={handleOpen}
-                >
+                <Button className='bg-[#34D399] text-white hover:bg-[#34D399]/90' onClick={handleOpen}>
                     <PlusCircle className='mr-2 h-4 w-4' /> Nueva Reserva
                 </Button>
             </div>
@@ -280,7 +278,7 @@ export default function HairSalonInternalPanelPage() {
                 onClientSelect={handleClientSelect}
                 redirectPath={redirectPath}
                 requirePetSelection={requirePetSelection}
-                title="Buscar Cliente para Peluquería"
+                title='Buscar Cliente para Peluquería'
             />
 
             {/* Banner de notificaciones de cambios de checkout */}
@@ -291,7 +289,7 @@ export default function HairSalonInternalPanelPage() {
                 onRejectChange={handleRejectChange}
             />
 
-            <div className="mt-6">
+            <div className='mt-6'>
                 <Tabs value={activeTab} onValueChange={handleTabChange} className='space-y-6'>
                     <TabsList className='grid w-full grid-cols-2 gap-4 bg-transparent p-0'>
                         <TabsTrigger
@@ -311,7 +309,7 @@ export default function HairSalonInternalPanelPage() {
                     <TabsContent value='pending' className='mt-6'>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-2xl">Solicitudes pendientes de Peluquería</CardTitle>
+                                <CardTitle className='text-2xl'>Solicitudes pendientes de Peluquería</CardTitle>
                                 <CardDescription>
                                     Revisa y gestiona las solicitudes de peluquería en espera
                                 </CardDescription>
@@ -321,12 +319,12 @@ export default function HairSalonInternalPanelPage() {
                                     {/* Sección de Reservas de Hotel */}
                                     {hotelReservations.length > 0 && (
                                         <div>
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Hotel className="h-5 w-5 text-primary" />
-                                                <h3 className="text-lg font-semibold">Reservas de Hotel</h3>
+                                            <div className='mb-4 flex items-center gap-2'>
+                                                <Hotel className='h-5 w-5 text-primary' />
+                                                <h3 className='text-lg font-semibold'>Reservas de Hotel</h3>
                                             </div>
-                                            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                                                <div className="grid grid-flow-col auto-cols-[calc(33.333%-0.5rem)] md:auto-cols-[300px] gap-4 pb-2">
+                                            <div className='scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-x-auto'>
+                                                <div className='grid auto-cols-[calc(33.333%-0.5rem)] grid-flow-col gap-4 pb-2 md:auto-cols-[300px]'>
                                                     {hotelReservations.map(reservation => (
                                                         <ReservationCard
                                                             key={reservation.id}
@@ -343,12 +341,12 @@ export default function HairSalonInternalPanelPage() {
                                     {/* Sección de Reservas Externas */}
                                     {externalReservations.length > 0 && (
                                         <div>
-                                            <div className="flex items-center gap-2 mb-4">
-                                                <Users className="h-5 w-5 text-primary" />
-                                                <h3 className="text-lg font-semibold">Reservas Externas</h3>
+                                            <div className='mb-4 flex items-center gap-2'>
+                                                <Users className='h-5 w-5 text-primary' />
+                                                <h3 className='text-lg font-semibold'>Reservas Externas</h3>
                                             </div>
-                                            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                                                <div className="grid grid-flow-col auto-cols-[calc(33.333%-0.5rem)] md:auto-cols-[300px] gap-4 pb-2">
+                                            <div className='scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-x-auto'>
+                                                <div className='grid auto-cols-[calc(33.333%-0.5rem)] grid-flow-col gap-4 pb-2 md:auto-cols-[300px]'>
                                                     {externalReservations.map(reservation => (
                                                         <ReservationCard
                                                             key={reservation.id}
@@ -364,8 +362,8 @@ export default function HairSalonInternalPanelPage() {
 
                                     {/* Mensaje cuando no hay reservas */}
                                     {pendingReservations.length === 0 && (
-                                        <div className="text-center py-8">
-                                            <p className="text-muted-foreground">No hay reservas pendientes</p>
+                                        <div className='py-8 text-center'>
+                                            <p className='text-muted-foreground'>No hay reservas pendientes</p>
                                         </div>
                                     )}
                                 </div>

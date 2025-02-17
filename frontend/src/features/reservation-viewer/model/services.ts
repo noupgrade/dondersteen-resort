@@ -1,4 +1,5 @@
-import { type AdditionalService, isDriverService } from '@/shared/types/additional-services'
+import { isDriverService } from '@/shared/types/isHairdressingService'
+import { type AdditionalService } from '@monorepo/functions/src/types/services'
 
 export interface ServicesByPet {
     [petIndex: string]: AdditionalService[]
@@ -29,11 +30,11 @@ export function getTransportService(services: AdditionalService[]): TransportSer
     const serviceTypeText = {
         pickup: 'Recogida',
         dropoff: 'Entrega',
-        both: 'Recogida y entrega'
+        both: 'Recogida y entrega',
     }
 
     return {
         service: transportService,
-        text: serviceTypeText[transportService.serviceType]
+        text: serviceTypeText[transportService.serviceType],
     }
 }

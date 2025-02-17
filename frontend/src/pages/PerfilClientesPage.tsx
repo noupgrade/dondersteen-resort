@@ -17,24 +17,10 @@ import {
     X,
 } from 'lucide-react'
 
-import {
-    type Client,
-    type HairSalonReservation,
-    type HotelReservation,
-    type Pet,
-} from '@/components/ReservationContext'
 import { PetCard } from '@/components/pet-card.tsx'
 import { useClientProfile } from '@/hooks/use-client-profile'
 import { useAuth } from '@/shared/auth'
 import { cn } from '@/shared/lib/styles/class-merge.ts'
-import {
-    AdditionalService,
-    DriverService,
-    HairdressingService,
-    MedicationService,
-    SpecialCareService,
-    SpecialFoodService,
-} from '@/shared/types/additional-services'
 import { Alert, AlertDescription } from '@/shared/ui/alert.tsx'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { Button } from '@/shared/ui/button.tsx'
@@ -43,6 +29,18 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/shared/ui/input.tsx'
 import { Label } from '@/shared/ui/label.tsx'
 import { LanguageSwitchButton } from '@/shared/ui/language-switch-button'
+import { type HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { type Pet } from '@monorepo/functions/src/types/reservations'
+import { type Client } from '@monorepo/functions/src/types/reservations'
+import { type HotelReservation } from '@monorepo/functions/src/types/reservations'
+import {
+    AdditionalService,
+    DriverService,
+    HairdressingService,
+    MedicationService,
+    SpecialCareService,
+    SpecialFoodService,
+} from '@monorepo/functions/src/types/services'
 
 const SpainFlag = () => (
     <svg viewBox='0 0 640 480' className='h-6 w-8'>

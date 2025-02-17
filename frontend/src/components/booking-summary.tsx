@@ -5,11 +5,11 @@ import { enUS, es } from 'date-fns/locale'
 import { Bed, Clock } from 'lucide-react'
 
 import { PetFormData } from '@/features/booking/types/booking.types'
-import { AdditionalService } from '@/shared/types/additional-services'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { ServiceItem } from '@/shared/ui/service-item'
 import { formatCurrency } from '@/shared/utils/format'
 import { calculateNights, calculateTotalPrice } from '@/shared/utils/pricing'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 interface BookingSummaryProps {
     dates: {

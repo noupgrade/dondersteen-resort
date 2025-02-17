@@ -1,6 +1,9 @@
 import { addMinutes, parse } from 'date-fns'
-import { HairSalonReservation, HairSalonTask } from '@/components/ReservationContext'
-import { HairdressingServiceType, isHairdressingService } from '@/shared/types/additional-services'
+
+import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { HairSalonTask } from '@monorepo/functions/src/types/reservations'
+import { HairdressingServiceType } from '@monorepo/functions/src/types/services'
 
 export const DEFAULT_DURATIONS: Record<HairdressingServiceType, number> = {
     bath_and_brush: 60,
@@ -11,7 +14,7 @@ export const DEFAULT_DURATIONS: Record<HairdressingServiceType, number> = {
     spa: 45,
     spa_ozone: 60,
     knots: 30,
-    extremely_dirty: 90
+    extremely_dirty: 90,
 }
 
 // Helper to generate unique IDs
@@ -31,32 +34,30 @@ export function addMinutesToTimeString(time: string, minutes: number): string {
 export function createTasksFromReservation(
     reservation: HairSalonReservation,
     initialDate: string,
-    initialTime: string
+    initialTime: string,
 ): HairSalonTask[] {
     const tasks: HairSalonTask[] = []
     let currentTime = initialTime
 
-    reservation.additionalServices
-        .filter(isHairdressingService)
-        .forEach(service => {
-            service.services.forEach(serviceType => {
-                tasks.push({
-                    id: generateId(),
-                    reservationId: reservation.id,
-                    service: {
-                        type: 'hairdressing',
-                        petIndex: service.petIndex,
-                        services: [serviceType]
-                    },
-                    date: initialDate,
-                    time: currentTime,
-                    duration: DEFAULT_DURATIONS[serviceType]
-                })
-
-                // Calculate next task start time
-                currentTime = addMinutesToTimeString(currentTime, DEFAULT_DURATIONS[serviceType])
+    reservation.additionalServices.filter(isHairdressingService).forEach(service => {
+        service.services.forEach(serviceType => {
+            tasks.push({
+                id: generateId(),
+                reservationId: reservation.id,
+                service: {
+                    type: 'hairdressing',
+                    petIndex: service.petIndex,
+                    services: [serviceType],
+                },
+                date: initialDate,
+                time: currentTime,
+                duration: DEFAULT_DURATIONS[serviceType],
             })
+
+            // Calculate next task start time
+            currentTime = addMinutesToTimeString(currentTime, DEFAULT_DURATIONS[serviceType])
         })
+    })
 
     return tasks
 }
@@ -67,10 +68,7 @@ export function validateTaskSequence(tasks: HairSalonTask[]): boolean {
     return true
 }
 
-export function calculateTaskConflicts(
-    tasks: HairSalonTask[],
-    newTask: HairSalonTask
-): HairSalonTask[] {
+export function calculateTaskConflicts(tasks: HairSalonTask[], newTask: HairSalonTask): HairSalonTask[] {
     const conflicts: HairSalonTask[] = []
     const newTaskStart = parse(`${newTask.date} ${newTask.time}`, 'yyyy-MM-dd HH:mm', new Date())
     const newTaskEnd = addMinutes(newTaskStart, newTask.duration)
@@ -106,4 +104,4 @@ export function isTaskInProgress(task: HairSalonTask): boolean {
     const taskEnd = addMinutes(taskDate, task.duration)
 
     return now >= taskDate && now < taskEnd
-} 
+}

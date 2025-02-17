@@ -1,4 +1,5 @@
-import type { HairSalonReservation, HairSalonTask } from '@/components/ReservationContext'
+import type { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import type { HairSalonTask } from '@monorepo/functions/src/types/reservations'
 
 export type CalendarView = 'day' | 'week'
 
@@ -50,5 +51,5 @@ export interface TimeSlot {
 
 export const BUSINESS_HOURS = {
     start: 8,
-    end: 19
-} 
+    end: 19,
+}

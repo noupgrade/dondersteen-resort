@@ -1,9 +1,10 @@
 import { addDays, format, subDays } from 'date-fns'
-import { Reservation } from '@/components/ReservationContext'
-import { AdditionalService, HairdressingService, DriverService } from '@/shared/types/additional-services'
+
+import { Reservation } from '@monorepo/functions/src/types/reservations'
+import { AdditionalService, DriverService, HairdressingService } from '@monorepo/functions/src/types/services'
 
 // Example reservations that will be managed in the context
-export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
+export const EXAMPLE_RESERVATIONS: Reservation[] = [
     {
         id: 'EXAMPLE_HAIRSALON_1',
         type: 'peluqueria',
@@ -14,26 +15,26 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_1',
             name: 'John Smith',
             phone: '666555444',
-            email: 'john@example.com'
+            email: 'john@example.com',
         },
         pet: {
             id: 'PET_1',
             name: 'Buddy',
             breed: 'Golden Retriever',
             size: 'grande',
-            weight: 30
+            weight: 30,
         },
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush', 'deshedding']
+                services: ['bath_and_brush', 'deshedding'],
             } satisfies HairdressingService,
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'dropoff'
-            } satisfies DriverService
+                serviceType: 'dropoff',
+            } satisfies DriverService,
         ],
         status: 'pending',
         totalPrice: 75,
@@ -50,11 +51,11 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_brush']
+                    services: ['bath_and_brush'],
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:00',
-                duration: 30
+                duration: 30,
             },
             {
                 id: 'task2',
@@ -62,13 +63,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['deshedding']
+                    services: ['deshedding'],
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:30',
-                duration: 30
-            }
-        ]
+                duration: 30,
+            },
+        ],
     },
     {
         id: 'EXAMPLE_HAIRSALON_2',
@@ -80,21 +81,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_2',
             name: 'Alice Johnson',
             phone: '666777888',
-            email: 'alice@example.com'
+            email: 'alice@example.com',
         },
         pet: {
             id: 'PET_2',
             name: 'Daisy',
             breed: 'Poodle',
             size: 'pequeño',
-            weight: 5
+            weight: 5,
         },
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_trim', 'spa']
-            } satisfies HairdressingService
+                services: ['bath_and_trim', 'spa'],
+            } satisfies HairdressingService,
         ],
         status: 'pending',
         totalPrice: 65,
@@ -110,11 +111,11 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_trim']
+                    services: ['bath_and_trim'],
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '11:00',
-                duration: 30
+                duration: 30,
             },
             {
                 id: 'task4',
@@ -122,13 +123,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['spa']
+                    services: ['spa'],
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '11:30',
-                duration: 30
-            }
-        ]
+                duration: 30,
+            },
+        ],
     },
     {
         id: 'EXAMPLE_HAIRSALON_3',
@@ -140,21 +141,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_3',
             name: 'Carlos Rodriguez',
             phone: '666999000',
-            email: 'carlos@example.com'
+            email: 'carlos@example.com',
         },
         pet: {
             id: 'PET_3',
             name: 'Shadow',
             breed: 'Husky',
             size: 'grande',
-            weight: 28
+            weight: 28,
         },
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush', 'deshedding', 'spa_ozone']
-            }
+                services: ['bath_and_brush', 'deshedding', 'spa_ozone'],
+            },
         ],
         status: 'pending',
         totalPrice: 90,
@@ -167,11 +168,11 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_brush']
+                    services: ['bath_and_brush'],
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '11:30',
-                duration: 30
+                duration: 30,
             },
             {
                 id: 'task6',
@@ -179,11 +180,11 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['deshedding']
+                    services: ['deshedding'],
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '12:00',
-                duration: 30
+                duration: 30,
             },
             {
                 id: 'task7',
@@ -191,13 +192,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['spa_ozone']
+                    services: ['spa_ozone'],
                 },
                 date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
                 time: '12:30',
-                duration: 30
-            }
-        ]
+                duration: 30,
+            },
+        ],
     },
     // Check-in today - 3 pets
     {
@@ -210,7 +211,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_4',
             name: 'Emma Wilson',
             phone: '666555444',
-            email: 'emma@example.com'
+            email: 'emma@example.com',
         },
         pets: [
             {
@@ -218,39 +219,39 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Golden Retriever',
                 weight: 30,
                 size: 'grande',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Bailey',
                 breed: 'Beagle',
                 weight: 12,
                 size: 'mediano',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Oliver',
                 breed: 'Yorkshire',
                 weight: 3,
                 size: 'pequeño',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
-            }
+                foodType: 'refrigerated',
+            },
         ],
         roomNumber: 'HAB.1',
         status: 'confirmed',
         totalPrice: 300,
-        paymentStatus: 'Pagado'
+        paymentStatus: 'Pagado',
     },
     // Check-in today - 2 pets
     {
@@ -263,7 +264,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_5',
             name: 'David Brown',
             phone: '666777888',
-            email: 'david@example.com'
+            email: 'david@example.com',
         },
         pets: [
             {
@@ -271,37 +272,37 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Labrador',
                 weight: 25,
                 size: 'grande',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Leo',
                 breed: 'French Bulldog',
                 weight: 12,
                 size: 'mediano',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'refrigerated',
             },
             {
                 type: 'special_care',
                 petIndex: 0,
-                comment: 'Necesita cuidados especiales'
-            }
+                comment: 'Necesita cuidados especiales',
+            },
         ],
         roomNumber: 'HAB.2',
         status: 'confirmed',
         totalPrice: 500,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Check-in tomorrow - 3 pets
     {
@@ -314,7 +315,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_6',
             name: 'Sophie Martinez',
             phone: '666999000',
-            email: 'sophie@example.com'
+            email: 'sophie@example.com',
         },
         pets: [
             {
@@ -322,44 +323,44 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'German Shepherd',
                 weight: 35,
                 size: 'grande',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Atlas',
                 breed: 'Border Collie',
                 weight: 20,
                 size: 'mediano',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Nova',
                 breed: 'Poodle',
                 weight: 5,
                 size: 'pequeño',
-                sex: 'F'
-            }
+                sex: 'F',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'refrigerated',
             },
             {
                 type: 'special_care',
                 petIndex: 0,
-                comment: 'Necesita cuidados especiales'
-            }
+                comment: 'Necesita cuidados especiales',
+            },
         ],
         roomNumber: 'HAB.3',
         status: 'pending',
         totalPrice: 600,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Check-out today - 2 pets
     {
@@ -372,7 +373,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_7',
             name: 'Isabella Taylor',
             phone: '666111222',
-            email: 'isabella@example.com'
+            email: 'isabella@example.com',
         },
         pets: [
             {
@@ -380,37 +381,37 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Poodle',
                 weight: 8,
                 size: 'pequeño',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Duke',
                 breed: 'Schnauzer',
                 weight: 15,
                 size: 'mediano',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'refrigerated',
             },
             {
                 type: 'special_care',
                 petIndex: 0,
-                comment: 'Necesita cuidados especiales'
-            }
+                comment: 'Necesita cuidados especiales',
+            },
         ],
         roomNumber: 'HAB.4',
         status: 'confirmed',
         totalPrice: 400,
-        paymentStatus: 'Pagado'
+        paymentStatus: 'Pagado',
     },
     // Check-out today - 3 pets
     {
@@ -423,7 +424,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_8',
             name: 'Lucas Anderson',
             phone: '666333444',
-            email: 'lucas@example.com'
+            email: 'lucas@example.com',
         },
         pets: [
             {
@@ -431,39 +432,39 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Husky',
                 weight: 28,
                 size: 'grande',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Lily',
                 breed: 'Cocker Spaniel',
                 weight: 13,
                 size: 'mediano',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Ziggy',
                 breed: 'Jack Russell',
                 weight: 6,
                 size: 'pequeño',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
-            }
+                foodType: 'refrigerated',
+            },
         ],
         roomNumber: 'HAB.5',
         status: 'confirmed',
         totalPrice: 700,
-        paymentStatus: 'Pagado'
+        paymentStatus: 'Pagado',
     },
     // Check-out today - 2 pets with driver service
     {
@@ -476,7 +477,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_9',
             name: 'Elena Garcia',
             phone: '666444555',
-            email: 'elena@example.com'
+            email: 'elena@example.com',
         },
         pets: [
             {
@@ -484,32 +485,32 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Shih Tzu',
                 weight: 5,
                 size: 'pequeño',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Chloe',
                 breed: 'Maltese',
                 weight: 4,
                 size: 'pequeño',
-                sex: 'F'
-            }
+                sex: 'F',
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'dropoff'
-            } as AdditionalService
+                serviceType: 'dropoff',
+            } as AdditionalService,
         ],
         roomNumber: 'HAB.6',
         status: 'confirmed',
         totalPrice: 350,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // External reservations
     {
@@ -522,21 +523,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_10',
             name: 'Victoria Ruiz',
             phone: '666111222',
-            email: 'victoria@example.com'
+            email: 'victoria@example.com',
         },
         pet: {
             id: 'PET_4',
             name: 'Molly',
             breed: 'Yorkshire Terrier',
             size: 'pequeño',
-            weight: 3
+            weight: 3,
         },
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_trim']
-            } satisfies HairdressingService
+                services: ['bath_and_trim'],
+            } satisfies HairdressingService,
         ],
         status: 'pending',
         totalPrice: 45,
@@ -550,13 +551,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_trim']
+                    services: ['bath_and_trim'],
                 },
                 date: format(new Date(), 'yyyy-MM-dd'),
                 time: '10:00',
-                duration: 45
-            }
-        ]
+                duration: 45,
+            },
+        ],
     },
     {
         id: 'EXAMPLE_EXTERNAL_2',
@@ -568,21 +569,21 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_11',
             name: 'Marco Fernandez',
             phone: '666333444',
-            email: 'marco@example.com'
+            email: 'marco@example.com',
         },
         pet: {
             id: 'PET_5',
             name: 'Bruno',
             breed: 'Bulldog Francés',
             size: 'mediano',
-            weight: 12
+            weight: 12,
         },
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush', 'spa']
-            } satisfies HairdressingService
+                services: ['bath_and_brush', 'spa'],
+            } satisfies HairdressingService,
         ],
         status: 'pending',
         totalPrice: 60,
@@ -596,11 +597,11 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['bath_and_brush']
+                    services: ['bath_and_brush'],
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '16:30',
-                duration: 30
+                duration: 30,
             },
             {
                 id: 'task10',
@@ -608,13 +609,13 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 service: {
                     type: 'hairdressing',
                     petIndex: 0,
-                    services: ['spa']
+                    services: ['spa'],
                 },
                 date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
                 time: '17:00',
-                duration: 30
-            }
-        ]
+                duration: 30,
+            },
+        ],
     },
     // Active reservations with different transport services
     {
@@ -627,7 +628,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_12',
             name: 'Gabriel Torres',
             phone: '666777888',
-            email: 'gabriel@example.com'
+            email: 'gabriel@example.com',
         },
         pets: [
             {
@@ -635,20 +636,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'German Shepherd',
                 weight: 35,
                 size: 'grande',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'pickup'
-            } as AdditionalService
+                serviceType: 'pickup',
+            } as AdditionalService,
         ],
         roomNumber: 'HAB.7',
         status: 'confirmed',
         totalPrice: 400,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_ACTIVE_2',
@@ -660,7 +661,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_13',
             name: 'Lucia Morales',
             phone: '666999000',
-            email: 'lucia@example.com'
+            email: 'lucia@example.com',
         },
         pets: [
             {
@@ -668,20 +669,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Husky',
                 weight: 28,
                 size: 'grande',
-                sex: 'F'
-            }
+                sex: 'F',
+            },
         ],
         additionalServices: [
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'dropoff'
-            } as AdditionalService
+                serviceType: 'dropoff',
+            } as AdditionalService,
         ],
         roomNumber: 'HAB.8',
         status: 'confirmed',
         totalPrice: 350,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_ACTIVE_3',
@@ -693,7 +694,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_14',
             name: 'Adrian Navarro',
             phone: '666444333',
-            email: 'adrian@example.com'
+            email: 'adrian@example.com',
         },
         pets: [
             {
@@ -701,20 +702,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Golden Retriever',
                 weight: 32,
                 size: 'grande',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'both'
-            } as AdditionalService
+                serviceType: 'both',
+            } as AdditionalService,
         ],
         roomNumber: 'HAB.9',
         status: 'confirmed',
         totalPrice: 450,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Ejemplos de guardería (mismo día de check-in y check-out)
     {
@@ -728,7 +729,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_15',
             name: 'Diana Jimenez',
             phone: '666123456',
-            email: 'diana@example.com'
+            email: 'diana@example.com',
         },
         pets: [
             {
@@ -736,20 +737,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'French Bulldog',
                 weight: 12,
                 size: 'mediano',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'special_care',
                 petIndex: 0,
-                comment: 'Necesita supervisión constante'
-            }
+                comment: 'Necesita supervisión constante',
+            },
         ],
         roomNumber: 'HAB.10',
         status: 'confirmed',
         totalPrice: 25,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_DAYCARE_2',
@@ -762,7 +763,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_16',
             name: 'Roberto Herrera',
             phone: '666234567',
-            email: 'roberto@example.com'
+            email: 'roberto@example.com',
         },
         pets: [
             {
@@ -770,20 +771,20 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Poodle',
                 weight: 5,
                 size: 'pequeño',
-                sex: 'F'
-            }
+                sex: 'F',
+            },
         ],
         additionalServices: [
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'both'
-            } as AdditionalService
+                serviceType: 'both',
+            } as AdditionalService,
         ],
         roomNumber: 'HAB.11',
         status: 'confirmed',
         totalPrice: 35,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_DAYCARE_3',
@@ -796,7 +797,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_17',
             name: 'Raquel Ortiz',
             phone: '666345678',
-            email: 'raquel@example.com'
+            email: 'raquel@example.com',
         },
         pets: [
             {
@@ -804,32 +805,32 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Beagle',
                 weight: 15,
                 size: 'mediano',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Raven',
                 breed: 'Beagle',
                 weight: 14,
                 size: 'mediano',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'refrigerated',
             },
             {
                 type: 'special_food',
                 petIndex: 1,
-                foodType: 'refrigerated'
-            }
+                foodType: 'refrigerated',
+            },
         ],
         roomNumber: 'HAB.12',
         status: 'confirmed',
         totalPrice: 50,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Reserva pendiente de hotel 1
     {
@@ -842,7 +843,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_PENDING_1',
             name: 'Marina Lopez',
             phone: '666111222',
-            email: 'marina@example.com'
+            email: 'marina@example.com',
         },
         pets: [
             {
@@ -850,27 +851,27 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Cavalier King Charles',
                 weight: 8,
                 size: 'pequeño',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Jasper',
                 breed: 'Cavalier King Charles',
                 weight: 9,
                 size: 'pequeño',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
-            }
+                foodType: 'refrigerated',
+            },
         ],
         roomNumber: 'HAB.4',
         status: 'pending',
         totalPrice: 240,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Reserva pendiente de hotel 2
     {
@@ -883,7 +884,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_PENDING_2',
             name: 'Hugo Diaz',
             phone: '666333444',
-            email: 'hugo@example.com'
+            email: 'hugo@example.com',
         },
         pets: [
             {
@@ -891,34 +892,34 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Maine Coon',
                 weight: 7,
                 size: 'mediano',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Pearl',
                 breed: 'Siamese',
                 weight: 4,
                 size: 'pequeño',
-                sex: 'F'
+                sex: 'F',
             },
             {
                 name: 'Ash',
                 breed: 'Persian',
                 weight: 5,
                 size: 'pequeño',
-                sex: 'M'
-            }
+                sex: 'M',
+            },
         ],
         additionalServices: [
             {
                 type: 'special_care',
                 petIndex: 0,
-                comment: 'Medicación diaria'
-            }
+                comment: 'Medicación diaria',
+            },
         ],
         roomNumber: 'HAB.5',
         status: 'pending',
         totalPrice: 400,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Reserva pendiente de hotel 3
     {
@@ -931,7 +932,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_PENDING_3',
             name: 'Carla Vega',
             phone: '666555666',
-            email: 'ana@example.com'
+            email: 'ana@example.com',
         },
         pets: [
             {
@@ -939,27 +940,27 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 breed: 'Shih Tzu',
                 weight: 5,
                 size: 'pequeño',
-                sex: 'M'
+                sex: 'M',
             },
             {
                 name: 'Lola',
                 breed: 'Shih Tzu',
                 weight: 4,
                 size: 'pequeño',
-                sex: 'F'
-            }
+                sex: 'F',
+            },
         ],
         additionalServices: [
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'both'
-            }
+                serviceType: 'both',
+            },
         ],
         roomNumber: 'HAB.6',
         status: 'pending',
         totalPrice: 320,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     // Presupuestos de hotel
     {
@@ -973,7 +974,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_BUDGET_1',
             name: 'Laura Presupuesto',
             phone: '666777999',
-            email: 'laura.p@example.com'
+            email: 'laura.p@example.com',
         },
         pets: [
             {
@@ -982,7 +983,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 30,
                 size: 'grande',
                 sex: 'M',
-                isNeutered: true
+                isNeutered: true,
             },
             {
                 name: 'Luna',
@@ -990,29 +991,29 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 28,
                 size: 'grande',
                 sex: 'F',
-                isNeutered: true
-            }
+                isNeutered: true,
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush', 'deshedding']
+                services: ['bath_and_brush', 'deshedding'],
             },
             {
                 type: 'hairdressing',
                 petIndex: 1,
-                services: ['bath_and_brush', 'deshedding']
+                services: ['bath_and_brush', 'deshedding'],
             },
             {
                 type: 'driver',
                 petIndex: 0,
-                serviceType: 'both'
-            }
+                serviceType: 'both',
+            },
         ],
         status: 'pending',
         totalPrice: 750,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_BUDGET_2',
@@ -1025,7 +1026,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_BUDGET_2',
             name: 'Carlos Presupuesto',
             phone: '666888000',
-            email: 'carlos.p@example.com'
+            email: 'carlos.p@example.com',
         },
         pets: [
             {
@@ -1034,25 +1035,25 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 35,
                 size: 'grande',
                 sex: 'M',
-                isNeutered: false
-            }
+                isNeutered: false,
+            },
         ],
         additionalServices: [
             {
                 type: 'special_food',
                 petIndex: 0,
-                foodType: 'refrigerated'
+                foodType: 'refrigerated',
             },
             {
                 type: 'medication',
                 petIndex: 0,
                 comment: 'Medicación diaria para las articulaciones',
-                frequency: 'multiple'
-            }
+                frequency: 'multiple',
+            },
         ],
         status: 'pending',
         totalPrice: 500,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_BUDGET_3',
@@ -1065,7 +1066,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_BUDGET_3',
             name: 'Ana Presupuesto',
             phone: '666999111',
-            email: 'ana.p@example.com'
+            email: 'ana.p@example.com',
         },
         pets: [
             {
@@ -1074,7 +1075,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 3,
                 size: 'pequeño',
                 sex: 'F',
-                isNeutered: true
+                isNeutered: true,
             },
             {
                 name: 'Max',
@@ -1082,7 +1083,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 3.5,
                 size: 'pequeño',
                 sex: 'M',
-                isNeutered: true
+                isNeutered: true,
             },
             {
                 name: 'Nina',
@@ -1090,29 +1091,29 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
                 weight: 2.8,
                 size: 'pequeño',
                 sex: 'F',
-                isNeutered: true
-            }
+                isNeutered: true,
+            },
         ],
         additionalServices: [
             {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_trim', 'spa']
+                services: ['bath_and_trim', 'spa'],
             },
             {
                 type: 'hairdressing',
                 petIndex: 1,
-                services: ['bath_and_trim', 'spa']
+                services: ['bath_and_trim', 'spa'],
             },
             {
                 type: 'hairdressing',
                 petIndex: 2,
-                services: ['bath_and_trim', 'spa']
-            }
+                services: ['bath_and_trim', 'spa'],
+            },
         ],
         status: 'pending',
         totalPrice: 450,
-        paymentStatus: 'Pendiente'
+        paymentStatus: 'Pendiente',
     },
     {
         id: 'EXAMPLE_UNSCHEDULED_1',
@@ -1124,20 +1125,22 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_10',
             name: 'Pedro Gómez',
             phone: '611222333',
-            email: 'pedro@example.com'
+            email: 'pedro@example.com',
         },
         pet: {
             id: 'PET_10',
             name: 'Nala',
             breed: 'Pastor Alemán',
             size: 'grande',
-            weight: 30
+            weight: 30,
         },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['deshedding', 'bath_and_brush']
-        } satisfies HairdressingService],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['deshedding', 'bath_and_brush'],
+            } satisfies HairdressingService,
+        ],
         status: 'confirmed',
         observations: 'Cliente habitual',
         totalPrice: 50,
@@ -1145,7 +1148,7 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
         hasDriverService: true,
         hotelCheckIn: format(new Date(), 'yyyy-MM-dd'),
         hotelCheckOut: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-        hotelCheckOutTime: '12:00'
+        hotelCheckOutTime: '12:00',
     },
     {
         id: 'EXAMPLE_UNSCHEDULED_2',
@@ -1157,23 +1160,25 @@ export const EXAMPLE_RESERVATIONS: (Reservation)[] = [
             id: 'EXAMPLE_CLIENT_11',
             name: 'Carmen Rodríguez',
             phone: '644555666',
-            email: 'carmen@example.com'
+            email: 'carmen@example.com',
         },
         pet: {
             id: 'PET_11',
             name: 'Coco',
             breed: 'Bulldog Francés',
             size: 'mediano',
-            weight: 12
+            weight: 12,
         },
-        additionalServices: [{
-            type: 'hairdressing',
-            petIndex: 0,
-            services: ['bath_and_trim', 'spa']
-        } satisfies HairdressingService],
+        additionalServices: [
+            {
+                type: 'hairdressing',
+                petIndex: 0,
+                services: ['bath_and_trim', 'spa'],
+            } satisfies HairdressingService,
+        ],
         status: 'confirmed',
         totalPrice: 40,
         paymentStatus: 'pending',
-        requestedTime: '16:00'
-    }
-] 
+        requestedTime: '16:00',
+    },
+]

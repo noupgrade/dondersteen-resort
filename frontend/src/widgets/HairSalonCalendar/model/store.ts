@@ -1,9 +1,11 @@
 import { addDays, format } from 'date-fns'
 import { create } from 'zustand'
 
-import type { HairSalonReservation, HairSalonTask } from '@/components/ReservationContext'
-import type { CalendarState, CalendarView, DraggedItem } from './types'
+import type { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import type { HairSalonTask } from '@monorepo/functions/src/types/reservations'
+
 import { calculateTaskConflicts, createTasksFromReservation } from './task-utils'
+import type { CalendarState, CalendarView, DraggedItem } from './types'
 
 interface CalendarStore extends CalendarState {
     setDraggedItem: (item: DraggedItem | null) => void
@@ -31,13 +33,13 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
     view: 'day',
     selectedDate: new Date(),
 
-    setDraggedItem: (item) => set({ draggedItem: item }),
-    setSelectedTask: (task) => set({ selectedTask: task }),
-    setSelectedReservation: (reservation) => set({ selectedReservation: reservation }),
-    setIsTouchMode: (isTouchMode) => set({ isTouchMode }),
+    setDraggedItem: item => set({ draggedItem: item }),
+    setSelectedTask: task => set({ selectedTask: task }),
+    setSelectedReservation: reservation => set({ selectedReservation: reservation }),
+    setIsTouchMode: isTouchMode => set({ isTouchMode }),
     setView: (view: CalendarView) => set({ view }),
     setSelectedDate: (date: Date) => set({ selectedDate: date }),
-    setScheduledTasks: (tasks) => set({ scheduledTasks: tasks }),
+    setScheduledTasks: tasks => set({ scheduledTasks: tasks }),
 
     createTasksFromReservation: async (reservation, date, time) => {
         console.log('Create task')
@@ -45,7 +47,7 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 
         set(state => ({
             scheduledTasks: [...state.scheduledTasks, ...tasks],
-            selectedReservation: null
+            selectedReservation: null,
         }))
 
         return Promise.resolve()
@@ -62,36 +64,34 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 
         set(state => ({
             scheduledTasks: state.scheduledTasks.map(t =>
-                t.id === task.id ? { ...t, date: newDate, time: newTime } : t
-            )
+                t.id === task.id ? { ...t, date: newDate, time: newTime } : t,
+            ),
         }))
 
         return Promise.resolve()
     },
 
-    updateTask: async (updatedTask) => {
+    updateTask: async updatedTask => {
         set(state => ({
-            scheduledTasks: state.scheduledTasks.map(t =>
-                t.id === updatedTask.id ? updatedTask : t
-            )
+            scheduledTasks: state.scheduledTasks.map(t => (t.id === updatedTask.id ? updatedTask : t)),
         }))
 
         return Promise.resolve()
     },
 
-    deleteTask: async (taskId) => {
+    deleteTask: async taskId => {
         set(state => ({
-            scheduledTasks: state.scheduledTasks.filter(t => t.id !== taskId)
+            scheduledTasks: state.scheduledTasks.filter(t => t.id !== taskId),
         }))
 
         return Promise.resolve()
     },
 
-    getTasksByReservation: (reservationId) => {
+    getTasksByReservation: reservationId => {
         return get().scheduledTasks.filter(t => t.reservationId === reservationId)
     },
 
     getTasksForTimeSlot: (date, time) => {
         return get().scheduledTasks.filter(t => t.date === date && t.time === time)
-    }
-})) 
+    },
+}))

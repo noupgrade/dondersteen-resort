@@ -3,22 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { Dog, Home, Ruler } from 'lucide-react'
 
-import { HotelReservation, useReservation } from './ReservationContext'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/shared/ui/card'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/ui/select'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { HotelReservation } from '@monorepo/functions/src/types/reservations'
+
+import { useReservation } from './ReservationContext'
 
 type PetCardProps = {
     pet: HotelReservation['pets'][0]
@@ -28,12 +17,12 @@ type PetCardProps = {
     currentPetsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> }
 }
 
-function RoomDisplay({ room, pets }: { room: string, pets?: Array<{ name: string; breed: string; sex: string }> }) {
+function RoomDisplay({ room, pets }: { room: string; pets?: Array<{ name: string; breed: string; sex: string }> }) {
     return (
-        <div className="flex flex-col gap-0.25 pl-2 min-w-0">
-            <div className="text-start font-medium truncate">{room}</div>
+        <div className='gap-0.25 flex min-w-0 flex-col pl-2'>
+            <div className='truncate text-start font-medium'>{room}</div>
             {pets && pets.length > 0 && (
-                <div className="text-xs text-muted-foreground truncate">
+                <div className='truncate text-xs text-muted-foreground'>
                     {pets.map(p => `${p.name} (${p.breed}) ${p.sex === 'M' ? '♂️' : '♀️'}`).join(', ')}
                 </div>
             )}
@@ -43,50 +32,37 @@ function RoomDisplay({ room, pets }: { room: string, pets?: Array<{ name: string
 
 function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsInRooms }: PetCardProps) {
     return (
-        <Card className="mb-4 last:mb-0">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Dog className="h-5 w-5" />
+        <Card className='mb-4 last:mb-0'>
+            <CardHeader className='pb-2'>
+                <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
+                    <Dog className='h-5 w-5' />
                     {pet.name}
                 </CardTitle>
                 <CardDescription>
                     {pet.breed} - {pet.sex === 'M' ? '♂️' : '♀️'} - {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                        <Select
-                            onValueChange={onRoomAssign}
-                            defaultValue={pet.roomNumber}
-                        >
+            <CardContent className='grid gap-4'>
+                <div className='flex items-center gap-4'>
+                    <div className='flex-1'>
+                        <Select onValueChange={onRoomAssign} defaultValue={pet.roomNumber}>
                             <SelectTrigger
-                                className={`w-full min-h-[2.75rem] ${!pet.roomNumber ? 'bg-amber-100 border-amber-300 hover:bg-amber-200' : ''}`}
+                                className={`min-h-[2.75rem] w-full ${!pet.roomNumber ? 'border-amber-300 bg-amber-100 hover:bg-amber-200' : ''}`}
                             >
-                                <div className="flex items-center gap-2 w-full">
+                                <div className='flex w-full items-center gap-2'>
                                     <Home className={`h-4 w-4 shrink-0 ${!pet.roomNumber ? 'text-amber-500' : ''}`} />
                                     {pet.roomNumber ? (
-                                        <RoomDisplay
-                                            room={pet.roomNumber}
-                                            pets={currentPetsInRooms[pet.roomNumber]}
-                                        />
+                                        <RoomDisplay room={pet.roomNumber} pets={currentPetsInRooms[pet.roomNumber]} />
                                     ) : (
-                                        <span className="text-amber-700">Asignar Habitación</span>
+                                        <span className='text-amber-700'>Asignar Habitación</span>
                                     )}
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
-                                <div className="max-h-[300px] overflow-auto">
+                                <div className='max-h-[300px] overflow-auto'>
                                     {availableRooms.map(room => (
-                                        <SelectItem
-                                            key={room}
-                                            value={room}
-                                            className="py-2"
-                                        >
-                                            <RoomDisplay
-                                                room={room}
-                                                pets={currentPetsInRooms[room]}
-                                            />
+                                        <SelectItem key={room} value={room} className='py-2'>
+                                            <RoomDisplay room={room} pets={currentPetsInRooms[room]} />
                                         </SelectItem>
                                     ))}
                                 </div>
@@ -94,21 +70,18 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
                         </Select>
                     </div>
 
-                    <div className="flex-1">
-                        <Select
-                            onValueChange={onSizeChange}
-                            defaultValue={pet.size}
-                        >
-                            <SelectTrigger className="w-full min-h-[2.75rem]">
-                                <div className="flex items-center gap-2">
-                                    <Ruler className="h-4 w-4 shrink-0" />
-                                    <SelectValue placeholder="Seleccionar Tamaño" />
+                    <div className='flex-1'>
+                        <Select onValueChange={onSizeChange} defaultValue={pet.size}>
+                            <SelectTrigger className='min-h-[2.75rem] w-full'>
+                                <div className='flex items-center gap-2'>
+                                    <Ruler className='h-4 w-4 shrink-0' />
+                                    <SelectValue placeholder='Seleccionar Tamaño' />
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="pequeño">Pequeño</SelectItem>
-                                <SelectItem value="mediano">Mediano</SelectItem>
-                                <SelectItem value="grande">Grande</SelectItem>
+                                <SelectItem value='pequeño'>Pequeño</SelectItem>
+                                <SelectItem value='mediano'>Mediano</SelectItem>
+                                <SelectItem value='grande'>Grande</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -122,8 +95,16 @@ export function CheckIns() {
     const { reservations, updateReservation } = useReservation()
     const [checkIns, setCheckIns] = useState<HotelReservation[]>([])
     const [availableRooms] = useState<string[]>([
-        'HAB.1', 'HAB.2', 'HAB.3', 'HAB.4', 'HAB.5',
-        'HAB.6', 'HAB.7', 'HAB.8', 'HAB.9', 'HAB.10'
+        'HAB.1',
+        'HAB.2',
+        'HAB.3',
+        'HAB.4',
+        'HAB.5',
+        'HAB.6',
+        'HAB.7',
+        'HAB.8',
+        'HAB.9',
+        'HAB.10',
     ])
 
     // Usar useMemo para calcular los perros en las habitaciones
@@ -138,13 +119,14 @@ export function CheckIns() {
         // Obtener todas las reservas activas (incluyendo check-ins de hoy)
         const today = format(new Date(), 'yyyy-MM-dd')
         const activeReservations = [
-            ...reservations.filter(r =>
-                r.type === 'hotel' &&
-                r.status === 'confirmed' &&
-                (new Date(r.checkOutDate) > new Date() || r.checkOutDate === today)
+            ...reservations.filter(
+                r =>
+                    r.type === 'hotel' &&
+                    r.status === 'confirmed' &&
+                    (new Date(r.checkOutDate) > new Date() || r.checkOutDate === today),
             ),
             // Incluir también los check-ins de hoy que aún no tienen habitación asignada
-            ...checkIns
+            ...checkIns,
         ]
 
         // Mapear todas las mascotas a sus habitaciones
@@ -155,7 +137,7 @@ export function CheckIns() {
                         petsInRooms[pet.roomNumber].push({
                             name: pet.name,
                             breed: pet.breed,
-                            sex: pet.sex
+                            sex: pet.sex,
                         })
                     }
                 })
@@ -168,99 +150,93 @@ export function CheckIns() {
     useEffect(() => {
         const today = format(new Date(), 'yyyy-MM-dd')
         const todayCheckIns = reservations.filter(
-            r => r.type === 'hotel' &&
-                r.checkInDate === today &&
-                r.status === 'confirmed'
+            r => r.type === 'hotel' && r.checkInDate === today && r.status === 'confirmed',
         ) as HotelReservation[]
 
         setCheckIns(todayCheckIns)
     }, [reservations])
 
-    const handleRoomAssign = useCallback(async (reservationId: string, petIndex: number, room: string) => {
-        const reservation = checkIns.find(r => r.id === reservationId)
-        if (!reservation) return
+    const handleRoomAssign = useCallback(
+        async (reservationId: string, petIndex: number, room: string) => {
+            const reservation = checkIns.find(r => r.id === reservationId)
+            if (!reservation) return
 
-        const updatedPets = [...reservation.pets]
-        updatedPets[petIndex] = { ...updatedPets[petIndex], roomNumber: room }
+            const updatedPets = [...reservation.pets]
+            updatedPets[petIndex] = { ...updatedPets[petIndex], roomNumber: room }
 
-        try {
-            // Actualizar la reserva en el contexto
+            try {
+                // Actualizar la reserva en el contexto
+                await updateReservation(reservationId, {
+                    pets: updatedPets,
+                    // Actualizar también el roomNumber de la reserva si es el primer perro asignado
+                    roomNumber: reservation.roomNumber || room,
+                })
+
+                // Actualizar el estado local de checkIns
+                setCheckIns(prevCheckIns =>
+                    prevCheckIns.map(r =>
+                        r.id === reservationId ? { ...r, pets: updatedPets, roomNumber: r.roomNumber || room } : r,
+                    ),
+                )
+            } catch (error) {
+                console.error('Error al asignar habitación:', error)
+                // Aquí podrías añadir una notificación de error si lo deseas
+            }
+        },
+        [checkIns, updateReservation],
+    )
+
+    const handleSizeChange = useCallback(
+        async (reservationId: string, petIndex: number, size: 'pequeño' | 'mediano' | 'grande') => {
+            const reservation = checkIns.find(r => r.id === reservationId)
+            if (!reservation) return
+
+            const updatedPets = [...reservation.pets]
+            const oldSize = updatedPets[petIndex].size
+            updatedPets[petIndex] = { ...updatedPets[petIndex], size }
+
+            // Ajustar el precio basado en el cambio de tamaño
+            const priceAdjustments = {
+                pequeño: 20,
+                mediano: 25,
+                grande: 30,
+            }
+
+            const oldPrice = priceAdjustments[oldSize]
+            const newPrice = priceAdjustments[size]
+            const priceDifference = newPrice - oldPrice
+
+            const newTotalPrice = reservation.totalPrice + priceDifference
+
             await updateReservation(reservationId, {
                 pets: updatedPets,
-                // Actualizar también el roomNumber de la reserva si es el primer perro asignado
-                roomNumber: reservation.roomNumber || room
+                totalPrice: newTotalPrice,
             })
-
-            // Actualizar el estado local de checkIns
-            setCheckIns(prevCheckIns =>
-                prevCheckIns.map(r =>
-                    r.id === reservationId
-                        ? { ...r, pets: updatedPets, roomNumber: r.roomNumber || room }
-                        : r
-                )
-            )
-        } catch (error) {
-            console.error('Error al asignar habitación:', error)
-            // Aquí podrías añadir una notificación de error si lo deseas
-        }
-    }, [checkIns, updateReservation])
-
-    const handleSizeChange = useCallback(async (
-        reservationId: string,
-        petIndex: number,
-        size: 'pequeño' | 'mediano' | 'grande'
-    ) => {
-        const reservation = checkIns.find(r => r.id === reservationId)
-        if (!reservation) return
-
-        const updatedPets = [...reservation.pets]
-        const oldSize = updatedPets[petIndex].size
-        updatedPets[petIndex] = { ...updatedPets[petIndex], size }
-
-        // Ajustar el precio basado en el cambio de tamaño
-        const priceAdjustments = {
-            pequeño: 20,
-            mediano: 25,
-            grande: 30
-        }
-
-        const oldPrice = priceAdjustments[oldSize]
-        const newPrice = priceAdjustments[size]
-        const priceDifference = newPrice - oldPrice
-
-        const newTotalPrice = reservation.totalPrice + priceDifference
-
-        await updateReservation(reservationId, {
-            pets: updatedPets,
-            totalPrice: newTotalPrice
-        })
-    }, [checkIns, updateReservation])
+        },
+        [checkIns, updateReservation],
+    )
 
     if (checkIns.length === 0) {
-        return (
-            <div className="text-center py-8 text-muted-foreground">
-                No hay check-ins programados para hoy
-            </div>
-        )
+        return <div className='py-8 text-center text-muted-foreground'>No hay check-ins programados para hoy</div>
     }
 
     return (
-        <div className="space-y-6">
+        <div className='space-y-6'>
             {checkIns.map(reservation => (
-                <Card key={reservation.id} className="overflow-hidden">
+                <Card key={reservation.id} className='overflow-hidden'>
                     <CardHeader>
                         <CardTitle>{reservation.client.name}</CardTitle>
                         <CardDescription>
                             Check-in: {reservation.checkInTime} - {reservation.pets.length} mascotas
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="grid gap-4">
+                    <CardContent className='grid gap-4'>
                         {reservation.pets.map((pet, index) => (
                             <PetCard
                                 key={index}
                                 pet={pet}
-                                onRoomAssign={(room) => handleRoomAssign(reservation.id, index, room)}
-                                onSizeChange={(size) => handleSizeChange(reservation.id, index, size)}
+                                onRoomAssign={room => handleRoomAssign(reservation.id, index, room)}
+                                onSizeChange={size => handleSizeChange(reservation.id, index, size)}
                                 availableRooms={availableRooms}
                                 currentPetsInRooms={currentPetsInRooms}
                             />

@@ -2,23 +2,36 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { PawPrint, PlusCircle, UtensilsCrossed, Truck, Scissors, Pill, Heart, Clock, DollarSign, Search } from 'lucide-react'
+import {
+    Clock,
+    DollarSign,
+    Heart,
+    PawPrint,
+    Pill,
+    PlusCircle,
+    Scissors,
+    Search,
+    Truck,
+    UtensilsCrossed,
+} from 'lucide-react'
 
-import { HotelReservation, HairSalonReservation, useReservation } from '@/components/ReservationContext.tsx'
+import { useReservation } from '@/components/ReservationContext.tsx'
 import { CheckIns } from '@/components/check-ins.tsx'
 import { CheckOuts } from '@/components/check-outs.tsx'
 import { PendingRequests } from '@/components/pending-requests.tsx'
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
+import { useClientSearch } from '@/shared/hooks/use-client-search'
+import { Badge } from '@/shared/ui/badge.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
-import { Badge } from '@/shared/ui/badge.tsx'
-import { Input } from '@/shared/ui/input.tsx'
-import { ServiceType } from '@/shared/types/additional-services'
-import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
-import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
-import { HotelNotificationBanner, useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
 import { ClientSearchModal } from '@/shared/ui/client-search-modal'
-import { useClientSearch } from '@/shared/hooks/use-client-search'
+import { Input } from '@/shared/ui/input.tsx'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
+import { HotelNotificationBanner, useHotelNotificationStore } from '@/widgets/HotelNotificationBanner'
+import { HotelReservationsCalendarWidget } from '@/widgets/HotelReservationsCalendar'
+import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { HotelReservation } from '@monorepo/functions/src/types/reservations'
+import { ServiceType } from '@monorepo/functions/src/types/services'
 
 export default function PanelInterno() {
     const { reservations } = useReservation()
@@ -36,7 +49,7 @@ export default function PanelInterno() {
     const [bookingType, setBookingType] = useState<'hotel' | 'budget' | null>(null)
 
     const { isOpen, handleOpen, handleClose, handleClientSelect, redirectPath, requirePetSelection } = useClientSearch({
-        onClientSelect: (clientId) => {
+        onClientSelect: clientId => {
             if (bookingType === 'hotel') {
                 window.location.href = `/booking?userId=${clientId}`
             } else if (bookingType === 'budget') {
@@ -44,19 +57,18 @@ export default function PanelInterno() {
             }
         },
         redirectPath: bookingType === 'budget' ? '/booking?type=budget' : '/booking',
-        requirePetSelection: false
+        requirePetSelection: false,
     })
 
     useEffect(() => {
         const today = format(new Date(), 'yyyy-MM-dd')
-        setPendingRequests(
-            reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[]
-        )
+        setPendingRequests(reservations.filter(r => r.type === 'hotel' && r.status === 'pending') as HotelReservation[])
         const active = reservations
             .filter(
-                r => r.type === 'hotel' &&
+                r =>
+                    r.type === 'hotel' &&
                     new Date(r.checkInDate) <= new Date() &&
-                    new Date(r.checkOutDate) > new Date()
+                    new Date(r.checkOutDate) > new Date(),
             )
             .sort((a, b) => {
                 if (a.type === 'hotel' && b.type === 'hotel') {
@@ -66,12 +78,8 @@ export default function PanelInterno() {
             }) as HotelReservation[]
         setActiveReservations(active)
         setFilteredReservations(active)
-        setCheckIns(
-            reservations.filter(r => r.type === 'hotel' && r.checkInDate === today) as HotelReservation[]
-        )
-        setCheckOuts(
-            reservations.filter(r => r.type === 'hotel' && r.checkOutDate === today) as HotelReservation[]
-        )
+        setCheckIns(reservations.filter(r => r.type === 'hotel' && r.checkInDate === today) as HotelReservation[])
+        setCheckOuts(reservations.filter(r => r.type === 'hotel' && r.checkOutDate === today) as HotelReservation[])
     }, [reservations])
 
     useEffect(() => {
@@ -111,15 +119,15 @@ export default function PanelInterno() {
     const getServiceIcon = (serviceType: ServiceType) => {
         switch (serviceType) {
             case 'driver':
-                return <Truck className="h-4 w-4 text-blue-500" />
+                return <Truck className='h-4 w-4 text-blue-500' />
             case 'special_food':
-                return <UtensilsCrossed className="h-4 w-4 text-orange-500" />
+                return <UtensilsCrossed className='h-4 w-4 text-orange-500' />
             case 'medication':
-                return <Pill className="h-4 w-4 text-red-500" />
+                return <Pill className='h-4 w-4 text-red-500' />
             case 'special_care':
-                return <Heart className="h-4 w-4 text-pink-500" />
+                return <Heart className='h-4 w-4 text-pink-500' />
             case 'hairdressing':
-                return <Scissors className="h-4 w-4 text-purple-500" />
+                return <Scissors className='h-4 w-4 text-purple-500' />
             default:
                 return null
         }
@@ -146,7 +154,7 @@ export default function PanelInterno() {
         <div className='container mx-auto space-y-6 p-6'>
             <div className='flex items-center justify-between'>
                 <h1 className='text-4xl font-bold text-[#101828]'>Hotel</h1>
-                <div className="flex gap-2">
+                <div className='flex gap-2'>
                     <Button
                         className='bg-[#4B6BFB] text-white hover:bg-[#4B6BFB]/90'
                         onClick={() => {
@@ -177,10 +185,7 @@ export default function PanelInterno() {
                 title={bookingType === 'budget' ? 'Buscar Cliente para Presupuesto' : 'Buscar Cliente para Reserva'}
             />
 
-            <HotelNotificationBanner
-                notifications={notifications}
-                onDismiss={dismissNotification}
-            />
+            <HotelNotificationBanner notifications={notifications} onDismiss={dismissNotification} />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
                 <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>
@@ -191,8 +196,8 @@ export default function PanelInterno() {
                         Reservas activas
                         {activeReservations.length > 0 && (
                             <Badge
-                                variant="destructive"
-                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                variant='destructive'
+                                className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs'
                             >
                                 {activeReservations.length}
                             </Badge>
@@ -211,8 +216,8 @@ export default function PanelInterno() {
                         Solicitudes pendientes
                         {pendingRequests.length > 0 && (
                             <Badge
-                                variant="destructive"
-                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                variant='destructive'
+                                className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs'
                             >
                                 {pendingRequests.length}
                             </Badge>
@@ -225,8 +230,8 @@ export default function PanelInterno() {
                         Entradas
                         {checkIns.length > 0 && (
                             <Badge
-                                variant="destructive"
-                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                variant='destructive'
+                                className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs'
                             >
                                 {checkIns.length}
                             </Badge>
@@ -239,8 +244,8 @@ export default function PanelInterno() {
                         Salidas
                         {checkOuts.length > 0 && (
                             <Badge
-                                variant="destructive"
-                                className="absolute -right-2 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                                variant='destructive'
+                                className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs'
                             >
                                 {checkOuts.length}
                             </Badge>
@@ -255,51 +260,57 @@ export default function PanelInterno() {
                     </Card>
                 </TabsContent>
                 <TabsContent value='active'>
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                            <div className="relative flex-1">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <div className='space-y-4'>
+                        <div className='flex items-center gap-4'>
+                            <div className='relative flex-1'>
+                                <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                                 <Input
-                                    placeholder="Buscar por nombre del cliente o mascota..."
+                                    placeholder='Buscar por nombre del cliente o mascota...'
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-8"
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                    className='pl-8'
                                 />
                             </div>
                         </div>
 
-                        {filteredReservations.map((reservation) => (
+                        {filteredReservations.map(reservation => (
                             <Card
                                 key={reservation.id}
-                                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                                className='cursor-pointer overflow-hidden transition-shadow hover:shadow-md'
                                 onClick={() => handleViewReservation(reservation)}
                             >
-                                <div className="flex">
-                                    <div className="w-64 shrink-0 bg-[#4B6BFB]/5 p-6 flex flex-col justify-between space-y-6">
-                                        <div className="space-y-6">
+                                <div className='flex'>
+                                    <div className='flex w-64 shrink-0 flex-col justify-between space-y-6 bg-[#4B6BFB]/5 p-6'>
+                                        <div className='space-y-6'>
                                             <div>
-                                                <CardTitle className="text-lg font-semibold">
+                                                <CardTitle className='text-lg font-semibold'>
                                                     {reservation.client.name}
                                                 </CardTitle>
-                                                <div className="space-y-1 mt-1 text-sm text-muted-foreground">
+                                                <div className='mt-1 space-y-1 text-sm text-muted-foreground'>
                                                     <p>{reservation.client.phone}</p>
                                                     <p>{reservation.client.email}</p>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="h-4 w-4" />
-                                                    <span className="text-sm text-muted-foreground">
-                                                        {format(new Date(reservation.checkInDate), 'dd/MM/yyyy')} - {format(new Date(reservation.checkOutDate), 'dd/MM/yyyy')}
+                                            <div className='space-y-2'>
+                                                <div className='flex items-center gap-2'>
+                                                    <Clock className='h-4 w-4' />
+                                                    <span className='text-sm text-muted-foreground'>
+                                                        {format(new Date(reservation.checkInDate), 'dd/MM/yyyy')} -{' '}
+                                                        {format(new Date(reservation.checkOutDate), 'dd/MM/yyyy')}
                                                     </span>
                                                 </div>
-                                                {reservation.additionalServices.some(service => service.type === 'driver') && (
-                                                    <div className="flex items-center gap-2">
-                                                        <Truck className="h-4 w-4 text-[#4B6BFB]" />
-                                                        <span className="text-sm text-muted-foreground">
+                                                {reservation.additionalServices.some(
+                                                    service => service.type === 'driver',
+                                                ) && (
+                                                    <div className='flex items-center gap-2'>
+                                                        <Truck className='h-4 w-4 text-[#4B6BFB]' />
+                                                        <span className='text-sm text-muted-foreground'>
                                                             {(() => {
-                                                                const transportService = reservation.additionalServices.find(service => service.type === 'driver')
+                                                                const transportService =
+                                                                    reservation.additionalServices.find(
+                                                                        service => service.type === 'driver',
+                                                                    )
                                                                 switch (transportService?.serviceType) {
                                                                     case 'pickup':
                                                                         return 'Recogida'
@@ -317,43 +328,65 @@ export default function PanelInterno() {
                                             </div>
                                         </div>
 
-                                        <Badge variant={reservation.paymentStatus === 'Pagado' ? 'default' : 'destructive'} className="w-fit">
+                                        <Badge
+                                            variant={reservation.paymentStatus === 'Pagado' ? 'default' : 'destructive'}
+                                            className='w-fit'
+                                        >
                                             {reservation.paymentStatus}
                                         </Badge>
                                     </div>
-                                    <CardContent className="flex-1 p-6">
-                                        <div className="flex flex-col h-full">
-                                            <div className="flex-grow space-y-6">
+                                    <CardContent className='flex-1 p-6'>
+                                        <div className='flex h-full flex-col'>
+                                            <div className='flex-grow space-y-6'>
                                                 {/* Mascotas y sus servicios */}
                                                 {reservation.pets.map((pet, petIndex) => {
                                                     // Filtrar servicios para esta mascota
-                                                    const petServices = reservation.additionalServices
-                                                        .filter(service =>
+                                                    const petServices = reservation.additionalServices.filter(
+                                                        service =>
                                                             service.petIndex === petIndex &&
-                                                            (service.type as ServiceType) !== 'driver' // Excluir servicio de transporte
-                                                        );
+                                                            (service.type as ServiceType) !== 'driver', // Excluir servicio de transporte
+                                                    )
 
                                                     return (
-                                                        <div key={petIndex} className={`${petIndex < reservation.pets.length - 1 ? 'border-b border-border' : ''}`}>
-                                                            <div className="py-4">
-                                                                <div className="grid grid-cols-[auto,1fr] gap-6">
-                                                                    <div className="flex items-start gap-2">
-                                                                        <PawPrint className="h-4 w-4 mt-1 text-[#4B6BFB]" />
+                                                        <div
+                                                            key={petIndex}
+                                                            className={`${petIndex < reservation.pets.length - 1 ? 'border-b border-border' : ''}`}
+                                                        >
+                                                            <div className='py-4'>
+                                                                <div className='grid grid-cols-[auto,1fr] gap-6'>
+                                                                    <div className='flex items-start gap-2'>
+                                                                        <PawPrint className='mt-1 h-4 w-4 text-[#4B6BFB]' />
                                                                         <div>
-                                                                            <p className="font-medium">{pet.name} ({reservation.roomNumber})</p>
-                                                                            <p className="text-sm text-muted-foreground">
-                                                                                {pet.breed} · {pet.size} · {pet.weight}kg · {pet.sex === 'M' ? 'Macho' : 'Hembra'} · {pet.isNeutered ? 'Castrado/a' : 'No castrado/a'}
+                                                                            <p className='font-medium'>
+                                                                                {pet.name} ({reservation.roomNumber})
+                                                                            </p>
+                                                                            <p className='text-sm text-muted-foreground'>
+                                                                                {pet.breed} · {pet.size} · {pet.weight}
+                                                                                kg ·{' '}
+                                                                                {pet.sex === 'M'
+                                                                                    ? 'Macho'
+                                                                                    : 'Hembra'} ·{' '}
+                                                                                {pet.isNeutered
+                                                                                    ? 'Castrado/a'
+                                                                                    : 'No castrado/a'}
                                                                             </p>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex flex-wrap gap-4">
+                                                                    <div className='flex flex-wrap gap-4'>
                                                                         {petServices.map((service, index) => {
-                                                                            const icon = getServiceIcon(service.type as ServiceType)
+                                                                            const icon = getServiceIcon(
+                                                                                service.type as ServiceType,
+                                                                            )
                                                                             return icon ? (
-                                                                                <div key={index} className="flex items-center gap-2">
+                                                                                <div
+                                                                                    key={index}
+                                                                                    className='flex items-center gap-2'
+                                                                                >
                                                                                     {icon}
-                                                                                    <span className="text-sm text-muted-foreground">
-                                                                                        {formatServiceName(service.type as ServiceType)}
+                                                                                    <span className='text-sm text-muted-foreground'>
+                                                                                        {formatServiceName(
+                                                                                            service.type as ServiceType,
+                                                                                        )}
                                                                                     </span>
                                                                                 </div>
                                                                             ) : null
@@ -365,9 +398,9 @@ export default function PanelInterno() {
                                                     )
                                                 })}
 
-                                                <div className="flex items-center justify-between border-t pt-6">
-                                                    <span className="font-semibold">Precio Total</span>
-                                                    <span className="text-lg font-bold">{reservation.totalPrice}€</span>
+                                                <div className='flex items-center justify-between border-t pt-6'>
+                                                    <span className='font-semibold'>Precio Total</span>
+                                                    <span className='text-lg font-bold'>{reservation.totalPrice}€</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -377,7 +410,7 @@ export default function PanelInterno() {
                         ))}
 
                         {filteredReservations.length === 0 && searchTerm && (
-                            <div className="text-center py-8 text-muted-foreground">
+                            <div className='py-8 text-center text-muted-foreground'>
                                 No se encontraron reservas que coincidan con la búsqueda
                             </div>
                         )}
@@ -412,4 +445,3 @@ export default function PanelInterno() {
         </div>
     )
 }
-

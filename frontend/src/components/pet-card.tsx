@@ -1,11 +1,13 @@
+import { useState } from 'react'
+
+import { Heart, PawPrint, Pencil, Pill, Scissors, Trash2, Truck, User2, UtensilsCrossed } from 'lucide-react'
+
+import { EditPetDialog } from '@/features/pet-management/ui/EditPetDialog'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent } from '@/shared/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
-import { PawPrint, Pencil, Trash2, User2, Truck, UtensilsCrossed, Pill, Heart, Scissors } from 'lucide-react'
-import { useState } from 'react'
-import { Pet } from './ReservationContext'
-import { EditPetDialog } from '@/features/pet-management/ui/EditPetDialog'
-import { AdditionalService } from '@/shared/types/additional-services'
+import { Pet } from '@monorepo/functions/src/types/reservations'
+import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 const translations = {
     breed: { es: 'Raza', en: 'Breed' },
@@ -24,7 +26,7 @@ const translations = {
     deletePet: { es: 'Eliminar Mascota', en: 'Delete Pet' },
     confirmDelete: {
         es: '¿Estás seguro de que quieres eliminar esta mascota?',
-        en: 'Are you sure you want to delete this pet?'
+        en: 'Are you sure you want to delete this pet?',
     },
     yes: { es: 'Sí', en: 'Yes' },
     no: { es: 'No', en: 'No' },
@@ -35,7 +37,7 @@ const translations = {
     specialCare: { es: 'Curas', en: 'Special care' },
     hairdressing: { es: 'Peluquería', en: 'Hairdressing' },
     neutered: { es: 'Castrado/a', en: 'Neutered/Spayed' },
-    notNeutered: { es: 'No castrado/a', en: 'Not neutered/spayed' }
+    notNeutered: { es: 'No castrado/a', en: 'Not neutered/spayed' },
 } as const
 
 interface PetCardProps {
@@ -72,15 +74,15 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
     const getServiceIcon = (service: AdditionalService) => {
         switch (service.type) {
             case 'driver':
-                return <Truck className="h-4 w-4 text-blue-500" />
+                return <Truck className='h-4 w-4 text-blue-500' />
             case 'special_food':
-                return <UtensilsCrossed className="h-4 w-4 text-blue-500" />
+                return <UtensilsCrossed className='h-4 w-4 text-blue-500' />
             case 'medication':
-                return <Pill className="h-4 w-4 text-blue-500" />
+                return <Pill className='h-4 w-4 text-blue-500' />
             case 'special_care':
-                return <Heart className="h-4 w-4 text-blue-500" />
+                return <Heart className='h-4 w-4 text-blue-500' />
             case 'hairdressing':
-                return <Scissors className="h-4 w-4 text-blue-500" />
+                return <Scissors className='h-4 w-4 text-blue-500' />
         }
     }
 
@@ -100,15 +102,15 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
     }
 
     return (
-        <Card className='bg-gray-50 shadow-md transition-shadow hover:shadow-lg w-full'>
+        <Card className='w-full bg-gray-50 shadow-md transition-shadow hover:shadow-lg'>
             <CardContent className='p-3 sm:p-4'>
-                <h3 className='mb-3 sm:mb-4 text-lg sm:text-xl font-bold text-blue-600'>{pet.name}</h3>
+                <h3 className='mb-3 text-lg font-bold text-blue-600 sm:mb-4 sm:text-xl'>{pet.name}</h3>
 
-                <div className='grid grid-cols-1 gap-3 sm:gap-4 text-sm'>
+                <div className='grid grid-cols-1 gap-3 text-sm sm:gap-4'>
                     <div className='space-y-2 sm:space-y-3'>
-                        <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
+                        <div className='flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2'>
                             <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <PawPrint className='h-4 w-4 text-blue-500 shrink-0' />
+                                <PawPrint className='h-4 w-4 shrink-0 text-blue-500' />
                                 <span className='font-semibold'>
                                     {t('breed')} / {t('size')}:
                                 </span>
@@ -117,21 +119,22 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
                                 {pet.breed} | {translateSize(pet.size)}
                             </span>
                         </div>
-                        <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'>
+                        <div className='flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2'>
                             <div className='flex items-center gap-1.5 sm:gap-2'>
-                                <User2 className='h-4 w-4 text-blue-500 shrink-0' />
+                                <User2 className='h-4 w-4 shrink-0 text-blue-500' />
                                 <span className='font-semibold'>
                                     {t('sex')} / {t('weight')}:
                                 </span>
                             </div>
                             <span className='pl-5 sm:pl-0'>
-                                {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')} | {pet.isNeutered ? t('neutered') : t('notNeutered')}
+                                {translateSex(pet.sex || 'M')} | {pet.weight} {t('kg')} |{' '}
+                                {pet.isNeutered ? t('neutered') : t('notNeutered')}
                             </span>
                         </div>
                         {pet.additionalServices && pet.additionalServices.length > 0 && (
                             <div className='flex flex-col gap-1 sm:gap-2'>
                                 <span className='font-semibold'>{t('services')}:</span>
-                                <div className='pl-5 sm:pl-0 flex flex-wrap gap-2'>
+                                <div className='flex flex-wrap gap-2 pl-5 sm:pl-0'>
                                     {pet.additionalServices.map((service, index) => (
                                         <div key={index} className='flex items-center gap-1.5 text-sm text-gray-600'>
                                             {getServiceIcon(service)}
@@ -144,7 +147,7 @@ export const PetCard = ({ pet, language, onSave, onDelete }: PetCardProps) => {
                     </div>
                 </div>
 
-                <div className='mt-4 sm:mt-6 flex flex-col gap-2'>
+                <div className='mt-4 flex flex-col gap-2 sm:mt-6'>
                     <Button
                         onClick={() => setIsEditDialogOpen(true)}
                         size='sm'

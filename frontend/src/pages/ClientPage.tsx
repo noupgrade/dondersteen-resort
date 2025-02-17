@@ -3,16 +3,17 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { ChevronLeft, Download, Save } from 'lucide-react'
 
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { Button } from '@/shared/ui/button.tsx'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card.tsx'
 import { Input } from '@/shared/ui/input.tsx'
 import { ScrollArea } from '@/shared/ui/scroll-area.tsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table.tsx'
 import { Textarea } from '@/shared/ui/textarea.tsx'
-import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select.tsx'
+import { type HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { type HotelReservation } from '@monorepo/functions/src/types/reservations'
 
 type MockClient = {
     id: string
@@ -47,7 +48,7 @@ const mockHotelReservation1: HotelReservation = {
     client: {
         name: 'María García',
         phone: '+34123456789',
-        email: 'maria@example.com'
+        email: 'maria@example.com',
     },
     pets: [
         {
@@ -55,20 +56,20 @@ const mockHotelReservation1: HotelReservation = {
             breed: 'Labrador',
             size: 'grande',
             weight: 30,
-            sex: 'M'
-        }
+            sex: 'M',
+        },
     ],
     additionalServices: [
         {
             type: 'hairdressing',
             petIndex: 0,
-            services: ['bath_and_brush']
+            services: ['bath_and_brush'],
         },
         {
             type: 'special_care',
             petIndex: 0,
-            comment: 'Paseo extra'
-        }
+            comment: 'Paseo extra',
+        },
     ],
     shopProducts: [
         {
@@ -76,19 +77,19 @@ const mockHotelReservation1: HotelReservation = {
             name: 'Royal Canin Maxi Adult',
             quantity: 2,
             unitPrice: 15.99,
-            totalPrice: 31.98
+            totalPrice: 31.98,
         },
         {
             id: 'prod2',
             name: 'Collar antiparasitario',
             quantity: 1,
-            unitPrice: 25.50,
-            totalPrice: 25.50
-        }
+            unitPrice: 25.5,
+            totalPrice: 25.5,
+        },
     ],
     status: 'confirmed',
     totalPrice: 250,
-    paymentStatus: 'Pagado'
+    paymentStatus: 'Pagado',
 }
 
 const mockHotelReservation2: HotelReservation = {
@@ -101,7 +102,7 @@ const mockHotelReservation2: HotelReservation = {
     client: {
         name: 'María García',
         phone: '+34123456789',
-        email: 'maria@example.com'
+        email: 'maria@example.com',
     },
     pets: [
         {
@@ -109,27 +110,27 @@ const mockHotelReservation2: HotelReservation = {
             breed: 'Labrador',
             size: 'grande',
             weight: 30,
-            sex: 'M'
+            sex: 'M',
         },
         {
             name: 'Nacho',
             breed: 'Gato Siamés',
             size: 'pequeño',
             weight: 4,
-            sex: 'M'
-        }
+            sex: 'M',
+        },
     ],
     additionalServices: [
         {
             type: 'hairdressing',
             petIndex: 0,
-            services: ['brushing']
-        }
+            services: ['brushing'],
+        },
     ],
     shopProducts: [],
     status: 'confirmed',
     totalPrice: 180,
-    paymentStatus: 'Pagado'
+    paymentStatus: 'Pagado',
 }
 
 const mockHairSalonReservation1: HairSalonReservation = {
@@ -140,21 +141,21 @@ const mockHairSalonReservation1: HairSalonReservation = {
     client: {
         name: 'María García',
         phone: '+34123456789',
-        email: 'maria@example.com'
+        email: 'maria@example.com',
     },
     pet: {
         id: '1',
         name: 'Rocky',
         breed: 'Labrador',
         size: 'grande',
-        weight: 30
+        weight: 30,
     },
     additionalServices: [
         {
             type: 'hairdressing',
             petIndex: 0,
-            services: ['bath_and_brush', 'deshedding']
-        }
+            services: ['bath_and_brush', 'deshedding'],
+        },
     ],
     shopProducts: [
         {
@@ -162,8 +163,8 @@ const mockHairSalonReservation1: HairSalonReservation = {
             name: 'Champú especial',
             quantity: 1,
             unitPrice: 15.99,
-            totalPrice: 15.99
-        }
+            totalPrice: 15.99,
+        },
     ],
     status: 'confirmed',
     totalPrice: 75,
@@ -176,10 +177,10 @@ const mockHairSalonReservation1: HairSalonReservation = {
             service: {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             date: '2023-12-05',
-            time: '10:00'
+            time: '10:00',
         },
         {
             id: 'task2',
@@ -187,12 +188,12 @@ const mockHairSalonReservation1: HairSalonReservation = {
             service: {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['deshedding']
+                services: ['deshedding'],
             },
             date: '2023-12-05',
-            time: '10:30'
-        }
-    ]
+            time: '10:30',
+        },
+    ],
 }
 
 const mockHairSalonReservation2: HairSalonReservation = {
@@ -203,21 +204,21 @@ const mockHairSalonReservation2: HairSalonReservation = {
     client: {
         name: 'María García',
         phone: '+34123456789',
-        email: 'maria@example.com'
+        email: 'maria@example.com',
     },
     pet: {
         id: '2',
         name: 'Nacho',
         breed: 'Gato Siamés',
         size: 'pequeño',
-        weight: 4
+        weight: 4,
     },
     additionalServices: [
         {
             type: 'hairdressing',
             petIndex: 0,
-            services: ['bath_and_brush']
-        }
+            services: ['bath_and_brush'],
+        },
     ],
     shopProducts: [],
     status: 'confirmed',
@@ -231,12 +232,12 @@ const mockHairSalonReservation2: HairSalonReservation = {
             service: {
                 type: 'hairdressing',
                 petIndex: 0,
-                services: ['bath_and_brush']
+                services: ['bath_and_brush'],
             },
             date: '2023-11-20',
-            time: '16:00'
-        }
-    ]
+            time: '16:00',
+        },
+    ],
 }
 
 const MOCK_CLIENTS: Record<string, MockClient> = {
@@ -259,7 +260,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 medication: 'Antiinflamatorios cada 12 horas',
                 specialFood: 'Dieta hipoalergénica',
                 observations: 'Juguetón, necesita mucho ejercicio',
-                isNeutered: false
+                isNeutered: false,
             },
             {
                 id: '2',
@@ -268,15 +269,15 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Mediano',
                 age: 3,
                 observations: 'Tímido con extraños',
-                isNeutered: false
+                isNeutered: false,
             },
         ],
         reservations: [
             mockHotelReservation1,
             mockHotelReservation2,
             mockHairSalonReservation1,
-            mockHairSalonReservation2
-        ]
+            mockHairSalonReservation2,
+        ],
     },
     '2': {
         id: '2',
@@ -295,8 +296,8 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 size: 'Pequeño',
                 age: 2,
                 observations: 'Muy activa',
-                isNeutered: false
-            }
+                isNeutered: false,
+            },
         ],
         reservations: [
             {
@@ -309,7 +310,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 client: {
                     name: 'Juan Pérez',
                     phone: '+34 987 654 321',
-                    email: 'juan@example.com'
+                    email: 'juan@example.com',
                 },
                 pets: [
                     {
@@ -317,15 +318,15 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                         breed: 'Yorkshire',
                         size: 'pequeño',
                         weight: 3,
-                        sex: 'F'
-                    }
+                        sex: 'F',
+                    },
                 ],
                 additionalServices: [
                     {
                         type: 'hairdressing',
                         petIndex: 0,
-                        services: ['bath_and_trim']
-                    }
+                        services: ['bath_and_trim'],
+                    },
                 ],
                 shopProducts: [
                     {
@@ -333,14 +334,14 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                         name: 'Royal Canin Mini Adult',
                         quantity: 1,
                         unitPrice: 12.99,
-                        totalPrice: 12.99
-                    }
+                        totalPrice: 12.99,
+                    },
                 ],
                 status: 'confirmed',
                 totalPrice: 200,
-                paymentStatus: 'Pagado'
-            }
-        ]
+                paymentStatus: 'Pagado',
+            },
+        ],
     },
     '3': {
         id: '3',
@@ -360,7 +361,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 age: 4,
                 medication: 'Vitaminas diarias',
                 observations: 'Muy sociable',
-                isNeutered: false
+                isNeutered: false,
             },
             {
                 id: '5',
@@ -370,8 +371,8 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 age: 6,
                 specialFood: 'Dieta sin cereales',
                 observations: 'Necesita cepillado diario',
-                isNeutered: false
-            }
+                isNeutered: false,
+            },
         ],
         reservations: [
             {
@@ -384,7 +385,7 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                 client: {
                     name: 'Ana Martínez',
                     phone: '+34 555 123 456',
-                    email: 'ana@example.com'
+                    email: 'ana@example.com',
                 },
                 pets: [
                     {
@@ -392,43 +393,43 @@ const MOCK_CLIENTS: Record<string, MockClient> = {
                         breed: 'Golden Retriever',
                         size: 'grande',
                         weight: 35,
-                        sex: 'M'
+                        sex: 'M',
                     },
                     {
                         name: 'Bella',
                         breed: 'Persa',
                         size: 'mediano',
                         weight: 5,
-                        sex: 'F'
-                    }
+                        sex: 'F',
+                    },
                 ],
                 additionalServices: [
                     {
                         type: 'hairdressing',
                         petIndex: 0,
-                        services: ['bath_and_brush', 'spa']
+                        services: ['bath_and_brush', 'spa'],
                     },
                     {
                         type: 'special_food',
                         petIndex: 1,
-                        foodType: 'refrigerated'
-                    }
+                        foodType: 'refrigerated',
+                    },
                 ],
                 shopProducts: [
                     {
                         id: 'prod4',
                         name: 'Premium Cat Food',
                         quantity: 2,
-                        unitPrice: 20.50,
-                        totalPrice: 41.00
-                    }
+                        unitPrice: 20.5,
+                        totalPrice: 41.0,
+                    },
                 ],
                 status: 'confirmed',
                 totalPrice: 450,
-                paymentStatus: 'Pagado'
-            }
-        ]
-    }
+                paymentStatus: 'Pagado',
+            },
+        ],
+    },
 } as const
 
 type Client = MockClient
@@ -462,9 +463,7 @@ export default function ClientDetailsPage() {
     const handlePetChange = (petId: string, field: keyof MockClient['pets'][0], value: string | number | boolean) => {
         if (!client) return
 
-        const updatedPets = client.pets.map(pet =>
-            pet.id === petId ? { ...pet, [field]: value } : pet
-        )
+        const updatedPets = client.pets.map(pet => (pet.id === petId ? { ...pet, [field]: value } : pet))
 
         setClient({ ...client, pets: updatedPets })
     }
@@ -480,15 +479,17 @@ export default function ClientDetailsPage() {
                     {isEditing ? (
                         <Select
                             value={client.classification}
-                            onValueChange={(value: 'Rango 1' | 'Rango 2' | 'VIP') => setClient({ ...client, classification: value })}
+                            onValueChange={(value: 'Rango 1' | 'Rango 2' | 'VIP') =>
+                                setClient({ ...client, classification: value })
+                            }
                         >
-                            <SelectTrigger className="w-[120px]">
+                            <SelectTrigger className='w-[120px]'>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Rango 1">Rango 1</SelectItem>
-                                <SelectItem value="Rango 2">Rango 2</SelectItem>
-                                <SelectItem value="VIP">VIP</SelectItem>
+                                <SelectItem value='Rango 1'>Rango 1</SelectItem>
+                                <SelectItem value='Rango 2'>Rango 2</SelectItem>
+                                <SelectItem value='VIP'>VIP</SelectItem>
                             </SelectContent>
                         </Select>
                     ) : (
@@ -550,7 +551,9 @@ export default function ClientDetailsPage() {
                                     )}
                                 </div>
                                 <div>
-                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Notas Internas</label>
+                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                        Notas Internas
+                                    </label>
                                     {isEditing ? (
                                         <Textarea
                                             value={client.internalNotes}
@@ -578,45 +581,61 @@ export default function ClientDetailsPage() {
                                         <div className='bg-background p-4'>
                                             <div className='grid grid-cols-2 gap-x-8 gap-y-4'>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Raza</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Raza
+                                                    </label>
                                                     {isEditing ? (
                                                         <Input
                                                             value={pet.breed}
-                                                            onChange={e => handlePetChange(pet.id, 'breed', e.target.value)}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'breed', e.target.value)
+                                                            }
                                                         />
                                                     ) : (
                                                         <p>{pet.breed}</p>
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Edad</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Edad
+                                                    </label>
                                                     {isEditing ? (
                                                         <Input
                                                             type='number'
                                                             value={pet.age}
-                                                            onChange={e => handlePetChange(pet.id, 'age', parseInt(e.target.value))}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'age', parseInt(e.target.value))
+                                                            }
                                                         />
                                                     ) : (
                                                         <p>{pet.age} años</p>
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Tamaño</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Tamaño
+                                                    </label>
                                                     {isEditing ? (
                                                         <Input
                                                             value={pet.size}
-                                                            onChange={e => handlePetChange(pet.id, 'size', e.target.value)}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'size', e.target.value)
+                                                            }
                                                         />
                                                     ) : (
                                                         <p>{pet.size}</p>
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Medicación</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Medicación
+                                                    </label>
                                                     {isEditing ? (
                                                         <Input
                                                             value={pet.medication || ''}
-                                                            onChange={e => handlePetChange(pet.id, 'medication', e.target.value)}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'medication', e.target.value)
+                                                            }
                                                             placeholder='Sin medicación'
                                                         />
                                                     ) : (
@@ -624,11 +643,15 @@ export default function ClientDetailsPage() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Comida Especial</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Comida Especial
+                                                    </label>
                                                     {isEditing ? (
                                                         <Input
                                                             value={pet.specialFood || ''}
-                                                            onChange={e => handlePetChange(pet.id, 'specialFood', e.target.value)}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'specialFood', e.target.value)
+                                                            }
                                                             placeholder='Sin comida especial'
                                                         />
                                                     ) : (
@@ -636,11 +659,15 @@ export default function ClientDetailsPage() {
                                                     )}
                                                 </div>
                                                 <div className='col-span-2'>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Observaciones</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Observaciones
+                                                    </label>
                                                     {isEditing ? (
                                                         <Textarea
                                                             value={pet.observations || ''}
-                                                            onChange={e => handlePetChange(pet.id, 'observations', e.target.value)}
+                                                            onChange={e =>
+                                                                handlePetChange(pet.id, 'observations', e.target.value)
+                                                            }
                                                             placeholder='Sin observaciones'
                                                         />
                                                     ) : (
@@ -648,18 +675,22 @@ export default function ClientDetailsPage() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>Estado</label>
+                                                    <label className='mb-1 block text-sm font-medium text-gray-700'>
+                                                        Estado
+                                                    </label>
                                                     {isEditing ? (
                                                         <Select
                                                             value={pet.isNeutered ? 'yes' : 'no'}
-                                                            onValueChange={(value: 'yes' | 'no') => handlePetChange(pet.id, 'isNeutered', value === 'yes')}
+                                                            onValueChange={(value: 'yes' | 'no') =>
+                                                                handlePetChange(pet.id, 'isNeutered', value === 'yes')
+                                                            }
                                                         >
                                                             <SelectTrigger>
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                <SelectItem value="yes">Castrado/a</SelectItem>
-                                                                <SelectItem value="no">No castrado/a</SelectItem>
+                                                                <SelectItem value='yes'>Castrado/a</SelectItem>
+                                                                <SelectItem value='no'>No castrado/a</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     ) : (

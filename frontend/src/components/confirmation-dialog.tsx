@@ -3,17 +3,11 @@ import { CheckCircle } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
 import { BookingSummary } from '@/components/booking-summary'
-import { Button } from '@/shared/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/ui/dialog'
-import { isHairdressingService, type AdditionalService } from '@/shared/types/additional-services'
 import { PetFormData } from '@/features/booking/types/booking.types'
+import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { Button } from '@/shared/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
+import { type AdditionalService } from '@monorepo/functions/src/types/services'
 
 type ConfirmationDialogProps = {
     open: boolean
@@ -37,7 +31,7 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                 age: '0',
                 personality: '',
                 sex: pet.sex || 'M',
-                isNeutered: pet.isNeutered || false
+                isNeutered: pet.isNeutered || false,
             }))
 
             return (
@@ -67,11 +61,11 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                 spa: 'Spa',
                 spa_ozone: 'Spa con ozono',
                 knots: 'Nudos',
-                extremely_dirty: 'Extremadamente sucio'
+                extremely_dirty: 'Extremadamente sucio',
             } as const
 
             return (
-                <div className='py-4 space-y-4'>
+                <div className='space-y-4 py-4'>
                     <div className='grid grid-cols-2 gap-4'>
                         <div>
                             <p className='text-sm text-muted-foreground'>Fecha</p>
@@ -84,7 +78,9 @@ export function ConfirmationDialog({ open, onOpenChange, reservationId }: Confir
                     </div>
                     <div>
                         <p className='text-sm text-muted-foreground'>Mascota</p>
-                        <p className='font-medium'>{reservation.pet.name} ({reservation.pet.breed})</p>
+                        <p className='font-medium'>
+                            {reservation.pet.name} ({reservation.pet.breed})
+                        </p>
                     </div>
                     <div>
                         <p className='text-sm text-muted-foreground'>Servicios</p>

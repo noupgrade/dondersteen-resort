@@ -1,109 +1,11 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
+import { addDays, format } from 'date-fns'
+
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
-import { addDays, format } from 'date-fns'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
-import { AdditionalService } from '@/shared/types/additional-services'
-
-export type ShopProduct = {
-    id: string
-    name: string
-    quantity: number
-    unitPrice: number
-    totalPrice: number
-}
-
-export type Client = {
-    id?: string
-    name: string
-    phone: string
-    email: string
-    address?: string
-}
-
-export type Pet = {
-    id?: string
-    name: string
-    breed: string
-    size: 'pequeño' | 'mediano' | 'grande'
-    weight: number
-    sex?: 'M' | 'F'
-    isNeutered?: boolean
-    additionalServices?: AdditionalService[] // TODO DO NOT USE THIS UNTIL WE MIGRATE FROM THE RESERVATION TYPE. THIS IS JUST TO BE USED IN THE CUSTOMER PROFILE
-}
-
-export type HotelReservation = {
-    id: string
-    type: 'hotel'
-    checkInDate: string
-    checkInTime: string
-    checkOutDate: string
-    checkOutTime?: string
-    client: Client
-    pets: Pet[]
-    additionalServices: AdditionalService[]
-    shopProducts?: ShopProduct[]
-    status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
-    totalPrice: number
-    paymentStatus: string
-    roomNumber?: string
-    createdAt?: string
-    updatedAt?: string
-}
-
-export type HotelBudget = Omit<HotelReservation, 'type'> & {
-    type: 'hotel-budget'
-}
-
-export type HairSalonTask = {
-    id: string
-    reservationId: string
-    service: AdditionalService
-    date: string
-    time: string
-    duration: number
-}
-
-export type HairSalonReservation = {
-    id: string
-    type: 'peluqueria'
-    source: 'hotel' | 'external'
-    date: string
-    time: string
-    client: Client
-    pet: Pet
-    additionalServices: AdditionalService[]
-    shopProducts?: ShopProduct[]
-    status: 'confirmed' | 'pending' | 'cancelled' | 'propuesta peluqueria'
-    totalPrice: number
-    paymentStatus: string
-    observations?: string
-    tasks?: HairSalonTask[]
-    precioEstimado?: number
-    horaDefinitiva?: string
-    finalPrice?: number
-    priceNote?: string
-    // Campos para reservas de hotel
-    hotelCheckIn?: string
-    hotelCheckOut?: string
-    hotelCheckOutTime?: string
-    hasDriverService?: boolean
-    // Campo para asignar peluquera
-    hairdresser?: 'hairdresser1' | 'hairdresser2'
-    duration?: number
-    // Campo para hora solicitada en reservas externas
-    requestedTime?: string
-    // Campo para hora asignada
-    assignedTime?: string
-    // Campo para foto del resultado
-    resultImage?: string
-    // Campos para cambios de checkout
-    checkoutChangeAccepted?: boolean
-    checkoutChangeRejected?: boolean
-}
-
-export type Reservation = HotelReservation | HairSalonReservation | HotelBudget
+import { HairSalonReservation, HotelReservation, Reservation } from '@monorepo/functions/src/types/reservations'
 
 type CalendarAvailability = {
     [date: string]: number
@@ -177,73 +79,80 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }, [dbReservations])
 
     const unscheduledHairSalonReservations = useMemo(() => {
-        return reservations
-            .filter((r): r is HairSalonReservation =>
-                r.type === 'peluqueria' &&
-                r.status === 'confirmed' &&
-                (!r.tasks || r.tasks.length === 0)
-            )
+        return reservations.filter(
+            (r): r is HairSalonReservation =>
+                r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
+        )
     }, [reservations])
 
-    const addReservation = useCallback(async (reservation: Omit<Reservation, 'id'>) => {
-        // If it's an example reservation
-        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-            const newReservation = {
-                ...reservation,
-                id: `EXAMPLE_${Date.now()}`,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            } as ReservationDocument
+    const addReservation = useCallback(
+        async (reservation: Omit<Reservation, 'id'>) => {
+            // If it's an example reservation
+            if (reservation.client?.id?.startsWith('EXAMPLE_')) {
+                const newReservation = {
+                    ...reservation,
+                    id: `EXAMPLE_${Date.now()}`,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                } as ReservationDocument
 
-            const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations
-                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
-                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+                const storedExampleReservations = localStorage.getItem('exampleReservations')
+                const parsedExampleReservations = storedExampleReservations
+                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
 
-            const updatedReservations = [...parsedExampleReservations, newReservation]
-            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-            return newReservation
-        }
-        return await addDocument(reservation)
-    }, [addDocument])
+                const updatedReservations = [...parsedExampleReservations, newReservation]
+                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+                return newReservation
+            }
+            return await addDocument(reservation)
+        },
+        [addDocument],
+    )
 
-    const updateReservation = useCallback(async (id: string, updatedData: Partial<Reservation>) => {
-        // If it's an example reservation, update it in local storage
-        if (id.startsWith('EXAMPLE_')) {
-            const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations
-                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
-                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+    const updateReservation = useCallback(
+        async (id: string, updatedData: Partial<Reservation>) => {
+            // If it's an example reservation, update it in local storage
+            if (id.startsWith('EXAMPLE_')) {
+                const storedExampleReservations = localStorage.getItem('exampleReservations')
+                const parsedExampleReservations = storedExampleReservations
+                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
 
-            const updatedReservations = parsedExampleReservations.map(r =>
-                r.id === id
-                    ? {
-                        ...r,
-                        ...updatedData,
-                        updatedAt: new Date().toISOString()
-                    }
-                    : r
-            )
-            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-            return Promise.resolve()
-        }
-        await updateDocument(id, updatedData)
-    }, [updateDocument])
+                const updatedReservations = parsedExampleReservations.map(r =>
+                    r.id === id
+                        ? {
+                              ...r,
+                              ...updatedData,
+                              updatedAt: new Date().toISOString(),
+                          }
+                        : r,
+                )
+                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+                return Promise.resolve()
+            }
+            await updateDocument(id, updatedData)
+        },
+        [updateDocument],
+    )
 
-    const deleteReservation = useCallback(async (id: string) => {
-        // If it's an example reservation, remove it from local storage
-        if (id.startsWith('EXAMPLE_')) {
-            const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations
-                ? JSON.parse(storedExampleReservations) as ReservationDocument[]
-                : EXAMPLE_RESERVATIONS as ReservationDocument[]
+    const deleteReservation = useCallback(
+        async (id: string) => {
+            // If it's an example reservation, remove it from local storage
+            if (id.startsWith('EXAMPLE_')) {
+                const storedExampleReservations = localStorage.getItem('exampleReservations')
+                const parsedExampleReservations = storedExampleReservations
+                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
 
-            const updatedReservations = parsedExampleReservations.filter(r => r.id !== id)
-            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-            return Promise.resolve()
-        }
-        await removeDocument(id)
-    }, [removeDocument])
+                const updatedReservations = parsedExampleReservations.filter(r => r.id !== id)
+                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+                return Promise.resolve()
+            }
+            await removeDocument(id)
+        },
+        [removeDocument],
+    )
 
     const getReservationsByClientId = useCallback(
         (clientId: string) => {

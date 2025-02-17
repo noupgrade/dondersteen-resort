@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { useReservation } from '@/components/ReservationContext'
-import { type HairSalonReservation, type HotelReservation } from '@/components/ReservationContext'
+import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
+import { type HairSalonReservation } from '@monorepo/functions/src/types/reservations'
+import { type HotelReservation } from '@monorepo/functions/src/types/reservations'
 
 export default function ReservationDetailsPage() {
     const { id } = useParams()
@@ -23,19 +24,15 @@ export default function ReservationDetailsPage() {
 
     if (!reservation) {
         return (
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <p className="text-lg text-gray-600">Cargando...</p>
+            <div className='flex min-h-screen items-center justify-center bg-gray-100'>
+                <p className='text-lg text-gray-600'>Cargando...</p>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <ReservationViewer
-                reservation={reservation}
-                isOpen={true}
-                onClose={() => navigate('/panel-interno')}
-            />
+        <div className='min-h-screen bg-gray-100'>
+            <ReservationViewer reservation={reservation} isOpen={true} onClose={() => navigate('/panel-interno')} />
         </div>
     )
 }

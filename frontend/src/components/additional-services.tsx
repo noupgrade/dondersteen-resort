@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Heart, Pill, Scissors, Truck, UtensilsCrossed } from 'lucide-react'
 
 import { useServices } from '@/hooks/use-services'
-import { AdditionalService, HairdressingServiceType } from '@/shared/types/additional-services'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Checkbox } from '@/shared/ui/checkbox'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Textarea } from '@/shared/ui/textarea'
+import { AdditionalService, HairdressingServiceType } from '@monorepo/functions/src/types/services'
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => `${hour.toString().padStart(2, '0')}:00`)
 
