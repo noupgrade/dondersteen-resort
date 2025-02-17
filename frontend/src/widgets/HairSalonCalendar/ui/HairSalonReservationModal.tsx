@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isDriverService, isHairdressingService } from '@/shared/types/service-checkers'
 import {
     AlertDialog,
     AlertDialogAction,

@@ -1,6 +1,6 @@
 import { addMinutes, parse } from 'date-fns'
 
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
 import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
 import { HairSalonTask } from '@monorepo/functions/src/types/reservations'
 import { HairdressingServiceType } from '@monorepo/functions/src/types/services'

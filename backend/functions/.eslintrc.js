@@ -28,7 +28,13 @@ module.exports = {
         'quote-props': ['error', 'as-needed'],
         'operator-linebreak': ['error', 'before'],
         'import/no-unresolved': 0,
-        indent: ['error', 4],
+        indent: [
+            'error',
+            4,
+            {
+                SwitchCase: 1,
+            },
+        ],
         semi: ['error', 'never'],
         'require-jsdoc': 0,
         'max-len': [

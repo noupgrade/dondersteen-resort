@@ -1,4 +1,4 @@
-import { isDriverService } from '@/shared/types/isHairdressingService'
+import { isDriverService } from '@/shared/types/service-checkers'
 import { type AdditionalService } from '@monorepo/functions/src/types/services'
 
 export interface ServicesByPet {

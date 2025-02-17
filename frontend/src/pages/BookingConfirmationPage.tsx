@@ -7,7 +7,7 @@ import { CheckCircle } from 'lucide-react'
 import { useReservation } from '@/components/ReservationContext'
 import { BookingSummary } from '@/components/booking-summary'
 import { PetFormData } from '@/features/booking/types/booking.types'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
 import { Button } from '@/shared/ui/button'
 import { LanguageSwitchButton } from '@/shared/ui/language-switch-button'
 

@@ -1,10 +1,5 @@
-import { AdditionalService } from './services';
+import { AdditionalService } from './services'
 
-export interface ExampleType {
-    id: string;
-    name: string;
-    description: string;
-}
 export type HotelReservation = {
     id: string;
     type: 'hotel';
@@ -45,7 +40,9 @@ export type Pet = {
     weight: number;
     sex?: 'M' | 'F';
     isNeutered?: boolean;
-    additionalServices?: AdditionalService[]; // TODO DO NOT USE THIS UNTIL WE MIGRATE FROM THE RESERVATION TYPE. THIS IS JUST TO BE USED IN THE CUSTOMER PROFILE
+    // TODO DO NOT USE THIS UNTIL WE MIGRATE FROM THE RESERVATION TYPE.
+    // THIS IS JUST TO BE USED IN THE CUSTOMER PROFILE
+    additionalServices?: AdditionalService[];
 };
 export type HotelBudget = Omit<HotelReservation, 'type'> & {
     type: 'hotel-budget';

@@ -5,7 +5,7 @@ import { es } from 'date-fns/locale'
 import { Car, Clock, Phone } from 'lucide-react'
 
 import { cn } from '@/shared/lib/styles/class-merge'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
 import { Badge } from '@/shared/ui/badge'
 import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
 import { HairdressingServiceType } from '@monorepo/functions/src/types/services'

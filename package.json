@@ -23,7 +23,8 @@
     "license": "ISC",
     "devDependencies": {
         "concurrently": "^8.2.2",
-        "firebase-tools": "^13.11.4"
+        "firebase-tools": "^13.11.4",
+        "@trivago/prettier-plugin-sort-imports": "^4.3.0"
     },
     "dependencies": {
         "@radix-ui/react-slider": "^1.2.2",

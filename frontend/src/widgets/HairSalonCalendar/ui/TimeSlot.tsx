@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 
 import { cn } from '@/shared/lib/styles/class-merge'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
 import { useToast } from '@/shared/ui/use-toast'
 import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
 import { HairSalonTask } from '@monorepo/functions/src/types/reservations'

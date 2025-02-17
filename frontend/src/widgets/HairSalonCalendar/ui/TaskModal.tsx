@@ -5,7 +5,7 @@ import { es } from 'date-fns/locale'
 import { Calendar, Clock, Eye } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
 import { Button } from '@/shared/ui/button'
 import { DatePicker } from '@/shared/ui/date-picker'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'

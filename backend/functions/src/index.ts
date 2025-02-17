@@ -1,4 +1,4 @@
 import 'source-map-support/register'
+import './FirebaseInit'
 
-export { exampleRequest } from './functions/ExampleRequest'
-
+export { addReservation } from './functions/AddReservation'

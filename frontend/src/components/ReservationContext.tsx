@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 
 import { addDays, format } from 'date-fns'
 
+import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
@@ -85,30 +86,30 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         )
     }, [reservations])
 
-    const addReservation = useCallback(
-        async (reservation: Omit<Reservation, 'id'>) => {
-            // If it's an example reservation
-            if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-                const newReservation = {
-                    ...reservation,
-                    id: `EXAMPLE_${Date.now()}`,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                } as ReservationDocument
+    const addReservation = useCallback(async (reservation: Omit<Reservation, 'id'>) => {
+        // If it's an example reservation
+        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
+            const newReservation = {
+                ...reservation,
+                id: `EXAMPLE_${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            } as ReservationDocument
 
-                const storedExampleReservations = localStorage.getItem('exampleReservations')
-                const parsedExampleReservations = storedExampleReservations
-                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
+            const storedExampleReservations = localStorage.getItem('exampleReservations')
+            const parsedExampleReservations = storedExampleReservations
+                ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+                : (EXAMPLE_RESERVATIONS as ReservationDocument[])
 
-                const updatedReservations = [...parsedExampleReservations, newReservation]
-                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-                return newReservation
-            }
-            return await addDocument(reservation)
-        },
-        [addDocument],
-    )
+            const updatedReservations = [...parsedExampleReservations, newReservation]
+            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
+            return newReservation
+        }
+
+        // Call the backend function
+        const result = await addReservationApi(reservation)
+        return result.data as ReservationDocument
+    }, [])
 
     const updateReservation = useCallback(
         async (id: string, updatedData: Partial<Reservation>) => {

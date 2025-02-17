@@ -3,13 +3,13 @@ import { es } from 'date-fns/locale'
 import { Calendar, Car, Clock, Hotel, Phone, Ruler, Users, Weight, X } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
-import { isHairdressingService } from '@/shared/types/isHairdressingService'
+import { isHairdressingService } from '@/shared/types/service-checkers'
+import { isDriverService } from '@/shared/types/service-checkers'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Separator } from '@/shared/ui/separator'
 import { HairSalonReservation } from '@monorepo/functions/src/types/reservations'
 import { HairdressingServiceType } from '@monorepo/functions/src/types/services'
-import { isDriverService } from '@/shared/types/isHairdressingService'
 
 interface ManageReservationBannerProps {
     reservation: HairSalonReservation

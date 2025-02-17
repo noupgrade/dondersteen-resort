@@ -31,7 +31,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig)
 const auth = getAuth(firebaseApp)
 getAnalytics(firebaseApp)
-const functions = getFunctions(firebaseApp)
+const functions = getFunctions(firebaseApp, 'europe-west3')
 const firestore = getFirestore(firebaseApp)
 const storage = getStorage(firebaseApp)
 
