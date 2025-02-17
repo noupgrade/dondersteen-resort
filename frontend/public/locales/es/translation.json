@@ -36,6 +36,8 @@
     "booking.step2.services.driverType.pickup": "Solo recogida",
     "booking.step2.services.driverType.dropoff": "Solo entrega",
     "booking.step2.services.driverType.both": "Recogida y entrega",
+    "booking.step2.services.driverPriceInfo": "El precio final dependerá de la ubicación y se acordará directamente con el chofer.",
+    "booking.step2.services.driverPriceExample": "San Cugat/Barcelona - 40€",
     "booking.step2.importantNotes.title": "Notas importantes:",
     "booking.step2.importantNotes.bowls": "No traigas comedero/bebedero, proporcionamos platos de acero inoxidable.",
     "booking.step2.importantNotes.firstVisit": "Para primera visita, sugerimos llegada antes del mediodía. Esto permitirá que tu mascota se acostumbre al nuevo entorno antes de acostarse y nos permitirá observar sus reacciones hacia el entorno.",

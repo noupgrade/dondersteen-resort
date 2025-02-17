@@ -15,6 +15,7 @@ import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Separator } from '@/shared/ui/separator'
 import { AdditionalService, DriverService } from '@monorepo/functions/src/types/services'
+import { InfoCircledIcon } from '@radix-ui/react-icons'
 
 import { useHotelAvailability } from './HotelAvailabilityContext'
 import { useReservation } from './ReservationContext'
@@ -312,6 +313,27 @@ export function AvailabilityCalendar({
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                <Alert variant='info'>
+                                    <div className='flex items-start space-x-3'>
+                                        <InfoCircledIcon className='mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600' />
+                                        <div className='space-y-2'>
+                                            <AlertDescription>
+                                                {t(
+                                                    'booking.step2.services.driverPriceInfo',
+                                                    'El precio final dependerá de la ubicación y se acordará directamente con el chofer.',
+                                                )}
+                                            </AlertDescription>
+                                            <div className='flex items-center space-x-2 text-sm text-blue-700'>
+                                                <span>
+                                                    {t(
+                                                        'booking.step2.services.driverPriceExample',
+                                                        'San Cugat/Barcelona - 40€',
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Alert>
                             </div>
                         )}
                     </div>

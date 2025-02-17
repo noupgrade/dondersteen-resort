@@ -34,6 +34,8 @@
     "booking.step2.services.driverType.pickup": "Pickup only",
     "booking.step2.services.driverType.dropoff": "Drop-off only",
     "booking.step2.services.driverType.both": "Pickup and drop-off",
+    "booking.step2.services.driverPriceInfo": "The final price will depend on the location and will be agreed directly with the driver.",
+    "booking.step2.services.driverPriceExample": "San Cugat/Barcelona - 40€",
     "booking.step2.importantNotes.title": "Important notes:",
     "booking.step2.importantNotes.bowls": "Don't bring food/water bowls, we provide stainless steel dishes.",
     "booking.step2.importantNotes.firstVisit": "For first visits, we suggest arriving before noon. This will allow your pet to get used to the new environment before bedtime and will allow us to observe their reactions to the environment.",
