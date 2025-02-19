@@ -1,6 +1,17 @@
-import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, LayoutGrid, Scissors, Users, PanelLeftClose, PanelLeft, ShoppingCart, Settings, Euro } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+
+import {
+    Euro,
+    Home,
+    LayoutGrid,
+    PanelLeft,
+    PanelLeftClose,
+    Scissors,
+    Settings,
+    ShoppingCart,
+    Users,
+} from 'lucide-react'
 
 const Sidebar = () => {
     const location = useLocation()
@@ -11,9 +22,17 @@ const Sidebar = () => {
     }
 
     return (
-        <div className={`relative flex h-full ${isOpen ? 'w-64' : 'w-16'} flex-col border-r bg-white transition-all duration-300`}>
+        <div
+            className={`relative flex h-full ${isOpen ? 'w-64' : 'w-16'} flex-col border-r bg-white transition-all duration-300`}
+        >
             <div className='flex h-16 items-center justify-between border-b px-4'>
-                {isOpen && <span className='text-lg font-semibold'>Dondersteen</span>}
+                {isOpen ? (
+                    <div className='flex items-center gap-2'>
+                        <img src='/dondersteen-logo.png' alt='Dondersteen Logo' className='w-full object-contain p-4' />
+                    </div>
+                ) : (
+                    <img src='/dondersteen-logo.png' alt='Dondersteen Logo' className='h-8 w-8 object-contain' />
+                )}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     className='rounded p-1 hover:bg-gray-100'
@@ -90,7 +109,7 @@ const Sidebar = () => {
                     </li>
                 </ul>
             </nav>
-            <div className="mt-auto border-t">
+            <div className='mt-auto border-t'>
                 <Link
                     to='/panel-interno/setup'
                     className={`flex items-center px-4 py-2 text-sm ${isActive('/panel-interno/setup')}`}
