@@ -182,9 +182,7 @@ export function PendingRequests() {
                                                     <div className='flex items-start gap-2'>
                                                         <PawPrint className='mt-1 h-4 w-4 text-[#4B6BFB]' />
                                                         <div>
-                                                            <p className='font-medium'>
-                                                                {pet.name} ({reservation.roomNumber})
-                                                            </p>
+                                                            <p className='font-medium'>{pet.name}</p>                                                                
                                                             <p className='text-sm text-muted-foreground'>
                                                                 {pet.breed} · {pet.size} · {pet.weight}kg ·{' '}
                                                                 {pet.sex === 'M' ? 'Macho' : 'Hembra'} ·{' '}

@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 
+import { format } from 'date-fns'
+
 import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
@@ -72,6 +74,45 @@ export const useDayReservations = (date: string) => {
 
     return {
         reservations: allReservations as HotelReservation[],
+        isLoading,
+    }
+}
+
+export const useTodayReservations = () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+    const { reservations, isLoading } = useDayReservations(today)
+    const todayCheckIns = reservations.filter(r => r.checkInDate === today)
+
+    return {
+        reservations: todayCheckIns,
+        isLoading,
+    }
+}
+
+export const useTodayCheckIns = () => {
+    const { reservations, isLoading } = useTodayReservations()
+    const today = format(new Date(), 'yyyy-MM-dd')
+
+    const checkIns = useMemo(() => {
+        return reservations.filter(r => r.checkInDate === today)
+    }, [reservations, today])
+
+    return {
+        reservations: checkIns,
+        isLoading,
+    }
+}
+
+export const useTodayCheckOuts = () => {
+    const { reservations, isLoading } = useTodayReservations()
+    const today = format(new Date(), 'yyyy-MM-dd')
+
+    const checkOuts = useMemo(() => {
+        return reservations.filter(r => r.checkOutDate === today)
+    }, [reservations, today])
+
+    return {
+        reservations: checkOuts,
         isLoading,
     }
 }

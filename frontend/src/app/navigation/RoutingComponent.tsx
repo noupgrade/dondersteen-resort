@@ -7,12 +7,12 @@ import ReservationDetailsPage from '@/pages/panel-interno/ReservationDetailsPage
 import BillingPage from '@/pages/panel-interno/facturacion/page'
 import PanelInternoLayout from '@/pages/panel-interno/layout'
 import MobilePanelInterno from '@/pages/panel-interno/mobile/page'
-import PanelInterno from '@/pages/panel-interno/page'
 import SetupPage from '@/pages/panel-interno/setup/page'
 import EmployeeSelection from '@/pages/panel-interno/tienda/employee-selection'
 import StorePage from '@/pages/panel-interno/tienda/store'
 import { useIsMobile } from '@/shared/lib/hooks/useIsMobile'
 
+import HotelManagementPage from '@/pages/panel-interno/HotelManagementPage'
 import BookingConfirmationPage from '../../pages/BookingConfirmationPage'
 import BookingPage from '../../pages/BookingPage'
 import ClientDetailsPage from '../../pages/ClientPage'
@@ -81,7 +81,7 @@ export const RoutingComponent = () => {
                             ) : (
                                 <PanelInternoLayout>
                                     <Routes>
-                                        <Route index element={<PanelInterno />} />
+                                        <Route index element={<HotelManagementPage   />} />
                                         <Route path='peluqueria' element={<PeluqueriaPage />} />
                                         <Route path='tienda' element={<EmployeeSelection />} />
                                         <Route path='tienda/store' element={<StorePage />} />

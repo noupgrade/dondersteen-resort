@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { Clock, DollarSign, PawPrint, Scissors, Truck } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
+import { useReservation, useTodayCheckOuts } from '@/components/ReservationContext'
 import { InvoiceModal } from '@/features/invoice/ui/InvoiceModal'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { Badge } from '@/shared/ui/badge'
@@ -44,32 +44,31 @@ type CheckOut = {
 
 export function CheckOuts() {
     const navigate = useNavigate()
-    const { reservations, updateReservation } = useReservation()
+    const { updateReservation } = useReservation()
+    const { reservations: todayCheckOuts, isLoading } = useTodayCheckOuts()
     const [confirmedCheckOuts, setConfirmedCheckOuts] = useState<string[]>([])
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
     const [isViewerOpen, setIsViewerOpen] = useState(false)
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
     const [checkoutReservation, setCheckoutReservation] = useState<HotelReservation | null>(null)
 
-    // Filter check-outs for today
-    const checkOuts: CheckOut[] = reservations
-        .filter(r => r.type === 'hotel' && new Date(r.checkOutDate).toDateString() === new Date().toDateString())
-        .map(r => ({
-            id: r.id,
-            clientName: r.client.name,
-            clientPhone: r.client.phone,
-            clientEmail: r.client.email,
-            pets: r.pets || [],
-            roomNumber: r.roomNumber || '',
-            checkInDate: r.checkInDate,
-            checkOutDate: r.checkOutDate,
-            paymentStatus: (r.paymentStatus as 'Pagado' | 'Pendiente') || 'Pendiente',
-            totalAmount: r.totalPrice || 0,
-            additionalServices: r.additionalServices || [],
-        }))
+    // Map check-outs to the expected format
+    const checkOuts: CheckOut[] = todayCheckOuts.map(r => ({
+        id: r.id,
+        clientName: r.client.name,
+        clientPhone: r.client.phone,
+        clientEmail: r.client.email,
+        pets: r.pets || [],
+        roomNumber: r.roomNumber || '',
+        checkInDate: r.checkInDate,
+        checkOutDate: r.checkOutDate,
+        paymentStatus: (r.paymentStatus as 'Pagado' | 'Pendiente') || 'Pendiente',
+        totalAmount: r.totalPrice || 0,
+        additionalServices: r.additionalServices || [],
+    }))
 
     const handleConfirmCheckOut = (id: string) => {
-        const reservation = reservations.find(r => r.id === id) as HotelReservation | undefined
+        const reservation = todayCheckOuts.find(r => r.id === id)
         if (reservation) {
             setCheckoutReservation(reservation)
             setIsInvoiceOpen(true)
@@ -77,7 +76,7 @@ export function CheckOuts() {
     }
 
     const handlePaymentAndCheckOut = (id: string) => {
-        const reservation = reservations.find(r => r.id === id) as HotelReservation | undefined
+        const reservation = todayCheckOuts.find(r => r.id === id)
         if (reservation) {
             setCheckoutReservation(reservation)
             setIsInvoiceOpen(true)
@@ -85,7 +84,7 @@ export function CheckOuts() {
     }
 
     const handleViewDetails = (id: string) => {
-        const reservation = reservations.find(r => r.id === id) as HotelReservation | undefined
+        const reservation = todayCheckOuts.find(r => r.id === id)
         if (reservation) {
             setSelectedReservation(reservation)
             setIsViewerOpen(true)
@@ -184,9 +183,15 @@ export function CheckOuts() {
                                                     <div className='flex items-start gap-2'>
                                                         <PawPrint className='mt-1 h-4 w-4 text-[#4B6BFB]' />
                                                         <div>
-                                                            <p className='font-medium'>
-                                                                {pet.name} ({checkOut.roomNumber})
-                                                            </p>
+                                                            <div className='flex items-center gap-2'>
+                                                                <p className='font-medium'>{pet.name}</p>
+                                                                <Badge
+                                                                    variant='secondary'
+                                                                    className='h-5 px-1.5 text-xs'
+                                                                >
+                                                                    {checkOut.roomNumber || 'Sin habitación'}
+                                                                </Badge>
+                                                            </div>
                                                             <p className='text-sm text-muted-foreground'>
                                                                 {pet.breed} · {pet.size} · {pet.weight}kg ·{' '}
                                                                 {pet.sex === 'M' ? 'Macho' : 'Hembra'} ·{' '}

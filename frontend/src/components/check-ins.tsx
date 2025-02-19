@@ -3,16 +3,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { Dog, Home, Ruler } from 'lucide-react'
 
+import { useReservation, useTodayCheckIns } from '@/components/ReservationContext'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { HotelReservation } from '@monorepo/functions/src/types/reservations'
-
-import { useReservation } from './ReservationContext'
+import { PetSize } from '@/shared/types/pet.types'
 
 type PetCardProps = {
     pet: HotelReservation['pets'][0]
     onRoomAssign: (room: string) => void
-    onSizeChange: (size: 'pequeño' | 'mediano' | 'grande') => void
+    onSizeChange: (size: PetSize) => void
     availableRooms: string[]
     currentPetsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> }
 }
@@ -92,8 +92,8 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
 }
 
 export function CheckIns() {
-    const { reservations, updateReservation } = useReservation()
-    const [checkIns, setCheckIns] = useState<HotelReservation[]>([])
+    const { reservations: checkIns, isLoading } = useTodayCheckIns()
+    const { updateReservation } = useReservation()
     const [availableRooms] = useState<string[]>([
         'HAB.1',
         'HAB.2',
@@ -118,43 +118,23 @@ export function CheckIns() {
 
         // Obtener todas las reservas activas (incluyendo check-ins de hoy)
         const today = format(new Date(), 'yyyy-MM-dd')
-        const activeReservations = [
-            ...reservations.filter(
-                r =>
-                    r.type === 'hotel' &&
-                    r.status === 'confirmed' &&
-                    (new Date(r.checkOutDate) > new Date() || r.checkOutDate === today),
-            ),
-            // Incluir también los check-ins de hoy que aún no tienen habitación asignada
-            ...checkIns,
-        ]
+        const activeReservations = checkIns
 
         // Mapear todas las mascotas a sus habitaciones
         activeReservations.forEach(reservation => {
-            if (reservation.type === 'hotel') {
-                reservation.pets.forEach(pet => {
-                    if (pet.roomNumber) {
-                        petsInRooms[pet.roomNumber].push({
-                            name: pet.name,
-                            breed: pet.breed,
-                            sex: pet.sex,
-                        })
-                    }
-                })
-            }
+            reservation.pets.forEach(pet => {
+                if (pet.roomNumber) {
+                    petsInRooms[pet.roomNumber].push({
+                        name: pet.name,
+                        breed: pet.breed,
+                        sex: pet.sex,
+                    })
+                }
+            })
         })
 
         return petsInRooms
-    }, [reservations, availableRooms, checkIns])
-
-    useEffect(() => {
-        const today = format(new Date(), 'yyyy-MM-dd')
-        const todayCheckIns = reservations.filter(
-            r => r.type === 'hotel' && r.checkInDate === today && r.status === 'confirmed',
-        ) as HotelReservation[]
-
-        setCheckIns(todayCheckIns)
-    }, [reservations])
+    }, [availableRooms, checkIns])
 
     const handleRoomAssign = useCallback(
         async (reservationId: string, petIndex: number, room: string) => {
@@ -171,13 +151,6 @@ export function CheckIns() {
                     // Actualizar también el roomNumber de la reserva si es el primer perro asignado
                     roomNumber: reservation.roomNumber || room,
                 })
-
-                // Actualizar el estado local de checkIns
-                setCheckIns(prevCheckIns =>
-                    prevCheckIns.map(r =>
-                        r.id === reservationId ? { ...r, pets: updatedPets, roomNumber: r.roomNumber || room } : r,
-                    ),
-                )
             } catch (error) {
                 console.error('Error al asignar habitación:', error)
                 // Aquí podrías añadir una notificación de error si lo deseas
@@ -215,6 +188,10 @@ export function CheckIns() {
         },
         [checkIns, updateReservation],
     )
+
+    if (isLoading) {
+        return <div className='py-8 text-center text-muted-foreground'>Cargando check-ins...</div>
+    }
 
     if (checkIns.length === 0) {
         return <div className='py-8 text-center text-muted-foreground'>No hay check-ins programados para hoy</div>

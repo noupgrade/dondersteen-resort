@@ -75,9 +75,12 @@ export const ReservationCard = ({ reservation, onClick }: ReservationCardProps) 
                                         <div className='flex items-start gap-2'>
                                             <PawPrint className='mt-1 h-4 w-4 text-[#4B6BFB]' />
                                             <div>
-                                                <p className='font-medium'>
-                                                    {pet.name} ({reservation.roomNumber})
-                                                </p>
+                                                <div className='flex items-center gap-2'>
+                                                    <p className='font-medium'>{pet.name}</p>
+                                                    <Badge variant='secondary' className='h-5 px-1.5 text-xs'>
+                                                        {reservation.roomNumber || 'Sin habitación'}
+                                                    </Badge>
+                                                </div>
                                                 <p className='text-sm text-muted-foreground'>
                                                     {pet.breed} · {pet.size} · {pet.weight}kg ·{' '}
                                                     {pet.sex === 'M' ? 'Macho' : 'Hembra'} ·{' '}

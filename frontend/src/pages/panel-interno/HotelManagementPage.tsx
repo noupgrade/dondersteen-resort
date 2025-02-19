@@ -24,6 +24,8 @@ export default function HotelManagementPage() {
     const [activeTab, setActiveTab] = useState('active')
     const [pendingRequests, setPendingRequests] = useState<HotelReservation[]>([])
     const [activeReservations, setActiveReservations] = useState<HotelReservation[]>([])
+    const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
+    const [searchTerm, setSearchTerm] = useState('')
     const [checkIns, setCheckIns] = useState<HotelReservation[]>([])
     const [checkOuts, setCheckOuts] = useState<HotelReservation[]>([])
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | null>(null)
@@ -57,9 +59,25 @@ export default function HotelManagementPage() {
                 (a, b) => new Date(a.checkOutDate).getTime() - new Date(b.checkOutDate).getTime(),
             ) as HotelReservation[]
         setActiveReservations(active)
+        setFilteredReservations(active)
         setCheckIns(reservations.filter(r => r.type === 'hotel' && r.checkInDate === today) as HotelReservation[])
         setCheckOuts(reservations.filter(r => r.type === 'hotel' && r.checkOutDate === today) as HotelReservation[])
     }, [reservations])
+
+    useEffect(() => {
+        if (searchTerm) {
+            const filtered = activeReservations.filter(reservation => {
+                const clientName = reservation.client.name.toLowerCase()
+                const petNames = reservation.pets.map(pet => pet.name.toLowerCase())
+                const search = searchTerm.toLowerCase()
+
+                return clientName.includes(search) || petNames.some(name => name.includes(search))
+            })
+            setFilteredReservations(filtered)
+        } else {
+            setFilteredReservations(activeReservations)
+        }
+    }, [searchTerm, activeReservations])
 
     useEffect(() => {
         const pendingReservationId = searchParams.get('pendingReservationId')
