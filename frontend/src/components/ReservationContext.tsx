@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 
-
 import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
@@ -45,6 +44,36 @@ export const useHairSalonReservations = (): { reservations: HairSalonReservation
 export const useUnscheduledHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
     const { unscheduledHairSalonReservations } = useReservation()
     return { reservations: unscheduledHairSalonReservations }
+}
+
+export const useDayReservations = (date: string) => {
+    const { results: reservations, isLoading } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        where: [
+            ['type', '==', 'hotel'],
+            ['checkInDate', '<=', date],
+            ['checkOutDate', '>=', date],
+        ],
+        orderBy: ['checkOutDate', 'asc'],
+    })
+
+    const activeExampleReservations = useMemo(() => {
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const exampleReservations = storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+
+        return exampleReservations.filter(r => r.type === 'hotel' && r.checkInDate <= date && r.checkOutDate >= date)
+    }, [date])
+
+    const allReservations = useMemo(() => {
+        return [...reservations, ...activeExampleReservations]
+    }, [reservations, activeExampleReservations])
+
+    return {
+        reservations: allReservations as HotelReservation[],
+        isLoading,
+    }
 }
 
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

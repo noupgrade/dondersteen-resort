@@ -39,7 +39,7 @@ async function listenToVersionChanges() {
     getCollection<Version>(
         {
             orderBy: ['createdAt', 'desc'],
-            where: ['isBreaking', '==', true],
+            where: [['isBreaking', '==', true]],
             path: 'app_versions',
             limit: 1,
         },

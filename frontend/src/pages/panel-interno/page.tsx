@@ -123,7 +123,6 @@ export default function PanelInterno() {
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
                 <TabNavigation
-                    activeReservations={activeReservations}
                     pendingRequests={pendingRequests}
                     checkIns={checkIns}
                     checkOuts={checkOuts}
@@ -139,9 +138,6 @@ export default function PanelInterno() {
 
                 <TabsContent value='active'>
                     <ActiveReservations
-                        filteredReservations={filteredReservations}
-                        searchTerm={searchTerm}
-                        onSearch={setSearchTerm}
                         onViewReservation={handleViewReservation}
                     />
                 </TabsContent>

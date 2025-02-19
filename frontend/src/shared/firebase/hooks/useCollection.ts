@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { GetCollectionParams, getCollection } from '../getCollection.ts'
 import { deleteDocument, setDocument } from '../DocumentsDAO.ts'
+import { GetCollectionParams, getCollection } from '../getCollection.ts'
 import { FSDocument } from '../types.ts'
 
 interface UseCollectionsResponse<T extends FSDocument> {
@@ -60,44 +60,51 @@ export const useCollection = <T extends FSDocument>({
         }
     }
 
-    const addDocument = useCallback(async (data: Omit<T, 'id' | keyof FSDocument>) => {
-        const timestamp = Date.now()
-        const docWithTimestamps = {
-            ...data,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-        }
-        const newDoc = await setDocument<typeof docWithTimestamps>({
-            collectionName: path,
-            data: docWithTimestamps,
-        })
-        const typedDoc = newDoc as unknown as T
-        setResults([...results, typedDoc])
-        return typedDoc
-    }, [path])
+    const addDocument = useCallback(
+        async (data: Omit<T, 'id' | keyof FSDocument>) => {
+            const timestamp = Date.now()
+            const docWithTimestamps = {
+                ...data,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+            }
+            const newDoc = await setDocument<typeof docWithTimestamps>({
+                collectionName: path,
+                data: docWithTimestamps,
+            })
+            const typedDoc = newDoc as unknown as T
+            setResults([...results, typedDoc])
+            return typedDoc
+        },
+        [path],
+    )
 
-    const updateDocument = useCallback(async (id: string, data: Partial<T>) => {
-        const updatedData = {
-            ...data,
-            updatedAt: Date.now(),
-        }
-        await setDocument<Partial<T>>({
-            collectionName: path,
-            id,
-            data: updatedData,
-        })
-        setResults(prev => prev.map(doc =>
-            doc.id === id ? { ...doc, ...updatedData } as T : doc
-        ))
-    }, [path])
+    const updateDocument = useCallback(
+        async (id: string, data: Partial<T>) => {
+            const updatedData = {
+                ...data,
+                updatedAt: Date.now(),
+            }
+            await setDocument<Partial<T>>({
+                collectionName: path,
+                id,
+                data: updatedData,
+            })
+            setResults(prev => prev.map(doc => (doc.id === id ? ({ ...doc, ...updatedData } as T) : doc)))
+        },
+        [path],
+    )
 
-    const removeDocument = useCallback(async (id: string) => {
-        await deleteDocument({
-            collectionName: path,
-            id,
-        })
-        setResults(prev => prev.filter(doc => doc.id !== id))
-    }, [path])
+    const removeDocument = useCallback(
+        async (id: string) => {
+            await deleteDocument({
+                collectionName: path,
+                id,
+            })
+            setResults(prev => prev.filter(doc => doc.id !== id))
+        },
+        [path],
+    )
 
     return {
         results,

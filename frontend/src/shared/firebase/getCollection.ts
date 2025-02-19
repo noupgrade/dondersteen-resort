@@ -17,7 +17,7 @@ export interface GetCollectionParams {
     orderBy?: Parameters<typeof fOrderBy>
     limit?: number
     startAfter?: number
-    where?: Parameters<typeof fWhere>
+    where?: Parameters<typeof fWhere>[]
 }
 
 export const getCollection = async <T extends FSDocument>(
@@ -28,7 +28,7 @@ export const getCollection = async <T extends FSDocument>(
     const query = fQuery(
         ref,
         ...[
-            ...(where ? [fWhere(...where)] : []),
+            ...(where ? where.map(w => fWhere(...w)) : []),
             ...(orderBy ? [fOrderBy(...orderBy)] : []),
             ...(limit ? [fLimit(limit)] : []),
             ...(startAfter ? [fStartAfter(startAfter)] : []),
