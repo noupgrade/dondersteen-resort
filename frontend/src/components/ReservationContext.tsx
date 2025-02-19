@@ -156,6 +156,134 @@ export const usePendingHotelRequests = () => {
     }
 }
 
+export const useHotelDayReservations = (date: string) => {
+    const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        where: [
+            ['type', '==', 'hotel'],
+            ['status', '==', 'confirmed'],
+            ['checkInDate', '<=', date],
+            ['checkOutDate', '>=', date],
+        ],
+    })
+
+    const activeExampleReservations = useMemo(() => {
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const exampleReservations = storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+
+        return exampleReservations.filter(
+            r => r.type === 'hotel' && r.status === 'confirmed' && r.checkInDate <= date && r.checkOutDate >= date,
+        )
+    }, [date])
+
+    const allReservations = useMemo(() => {
+        return [...dbReservations, ...activeExampleReservations] as HotelReservation[]
+    }, [dbReservations, activeExampleReservations])
+
+    const stats = useMemo(() => {
+        const petsBySize = allReservations.reduce(
+            (sizes, reservation) => {
+                reservation.pets.forEach(pet => {
+                    sizes[pet.size]++
+                })
+                return sizes
+            },
+            { grande: 0, mediano: 0, pequeño: 0 },
+        )
+
+        return {
+            reservations: allReservations,
+            totalPets: allReservations.reduce((total, reservation) => total + reservation.pets.length, 0),
+            petsBySize,
+        }
+    }, [allReservations])
+
+    return { ...stats, isLoading }
+}
+
+export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
+    const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        where: [
+            ['type', '==', 'hotel'],
+            ['status', '==', 'confirmed'],
+            ['checkInDate', '<=', format(endDate, 'yyyy-MM-dd')],
+            ['checkOutDate', '>=', format(startDate, 'yyyy-MM-dd')],
+        ],
+    })
+
+    const activeExampleReservations = useMemo(() => {
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const exampleReservations = storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+
+        return exampleReservations.filter(
+            r =>
+                r.type === 'hotel' &&
+                r.status === 'confirmed' &&
+                r.checkInDate <= format(endDate, 'yyyy-MM-dd') &&
+                r.checkOutDate >= format(startDate, 'yyyy-MM-dd'),
+        )
+    }, [startDate, endDate])
+
+    const allReservations = useMemo(() => {
+        return [...dbReservations, ...activeExampleReservations] as HotelReservation[]
+    }, [dbReservations, activeExampleReservations])
+
+    const stats = useMemo(() => {
+        const petsBySize = allReservations.reduce(
+            (sizes, reservation) => {
+                reservation.pets.forEach(pet => {
+                    sizes[pet.size]++
+                })
+                return sizes
+            },
+            { grande: 0, mediano: 0, pequeño: 0 },
+        )
+
+        return {
+            reservations: allReservations,
+            totalPets: allReservations.reduce((total, reservation) => total + reservation.pets.length, 0),
+            petsBySize,
+        }
+    }, [allReservations])
+
+    return { ...stats, isLoading }
+}
+
+export const usePendingHotelReservation = (reservationId: string | null) => {
+    const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        where: [
+            ['type', '==', 'hotel'],
+            ['status', '==', 'pending'],
+            ['id', '==', reservationId],
+        ],
+        enabled: !!reservationId,
+    })
+
+    const activeExampleReservations = useMemo(() => {
+        if (!reservationId) return []
+
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const exampleReservations = storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+
+        return exampleReservations.filter(r => r.type === 'hotel' && r.status === 'pending' && r.id === reservationId)
+    }, [reservationId])
+
+    const pendingReservation = useMemo(() => {
+        const allReservations = [...dbReservations, ...activeExampleReservations]
+        return allReservations.find((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending') || null
+    }, [dbReservations, activeExampleReservations])
+
+    return { pendingReservation, isLoading }
+}
+
 export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const {
         results: dbReservations,

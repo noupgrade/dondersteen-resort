@@ -1,20 +1,24 @@
 import { format } from 'date-fns'
 
-import { useConfirmedHotelDayReservations, usePendingHotelRequests } from '@/components/ReservationContext'
+import {
+    useConfirmedHotelDayReservations,
+    usePendingHotelRequests,
+    useTodayCheckIns,
+    useTodayCheckOuts,
+} from '@/components/ReservationContext'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
-import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 
-type TabNavigationProps = {
-    checkIns: HotelReservation[]
-    checkOuts: HotelReservation[]
-}
+type TabNavigationProps = {}
 
-export const TabNavigation = ({ checkIns, checkOuts }: TabNavigationProps) => {
+export const TabNavigation = ({}: TabNavigationProps) => {
     const today = format(new Date(), 'yyyy-MM-dd')
     const { reservations: activeReservations } = useConfirmedHotelDayReservations(today)
+
     const { pendingReservations, budgets } = usePendingHotelRequests()
     const totalPendingRequests = pendingReservations.length + budgets.length
+    const { reservations: checkIns } = useTodayCheckIns()
+    const { reservations: checkOuts } = useTodayCheckOuts()
 
     return (
         <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>
