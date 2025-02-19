@@ -1,19 +1,20 @@
 import { format } from 'date-fns'
 
-import { useDayReservations } from '@/components/ReservationContext'
+import { useConfirmedHotelDayReservations, usePendingHotelRequests } from '@/components/ReservationContext'
 import { Badge } from '@/shared/ui/badge.tsx'
 import { TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 
 type TabNavigationProps = {
-    pendingRequests: HotelReservation[]
     checkIns: HotelReservation[]
     checkOuts: HotelReservation[]
 }
 
-export const TabNavigation = ({ pendingRequests, checkIns, checkOuts }: TabNavigationProps) => {
+export const TabNavigation = ({ checkIns, checkOuts }: TabNavigationProps) => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const { reservations: activeReservations } = useDayReservations(today)
+    const { reservations: activeReservations } = useConfirmedHotelDayReservations(today)
+    const { pendingReservations, budgets } = usePendingHotelRequests()
+    const totalPendingRequests = pendingReservations.length + budgets.length
 
     return (
         <TabsList className='grid w-full grid-cols-5 gap-4 bg-transparent p-0'>
@@ -42,12 +43,12 @@ export const TabNavigation = ({ pendingRequests, checkIns, checkOuts }: TabNavig
                 className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
             >
                 Solicitudes pendientes
-                {pendingRequests.length > 0 && (
+                {totalPendingRequests > 0 && (
                     <Badge
                         variant='destructive'
                         className='absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs'
                     >
-                        {pendingRequests.length}
+                        {totalPendingRequests}
                     </Badge>
                 )}
             </TabsTrigger>

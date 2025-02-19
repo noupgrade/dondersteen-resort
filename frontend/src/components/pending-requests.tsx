@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { format } from 'date-fns'
@@ -17,7 +17,7 @@ import {
     UtensilsCrossed,
 } from 'lucide-react'
 
-import { useReservation } from '@/components/ReservationContext'
+import { usePendingHotelRequests, useReservation } from '@/components/ReservationContext'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -28,17 +28,10 @@ import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 import { ServiceType } from '@monorepo/functions/src/types/services'
 
 export function PendingRequests() {
-    const { reservations, updateReservation, deleteReservation } = useReservation()
+    const { updateReservation, deleteReservation } = useReservation()
+    const { pendingReservations, budgets, isLoading } = usePendingHotelRequests()
     const [searchParams, setSearchParams] = useSearchParams()
     const [selectedReservation, setSelectedReservation] = useState<HotelReservation | HotelBudget | null>(null)
-
-    const pendingRequests = useMemo(() => {
-        return reservations.filter((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending')
-    }, [reservations])
-
-    const budgets = useMemo(() => {
-        return reservations.filter((r): r is HotelBudget => r.type === 'hotel-budget')
-    }, [reservations])
 
     const handleCheckAvailability = (reservation: HotelReservation | HotelBudget) => {
         console.log('Checking availability for reservation:', reservation)
@@ -182,7 +175,7 @@ export function PendingRequests() {
                                                     <div className='flex items-start gap-2'>
                                                         <PawPrint className='mt-1 h-4 w-4 text-[#4B6BFB]' />
                                                         <div>
-                                                            <p className='font-medium'>{pet.name}</p>                                                                
+                                                            <p className='font-medium'>{pet.name}</p>
                                                             <p className='text-sm text-muted-foreground'>
                                                                 {pet.breed} · {pet.size} · {pet.weight}kg ·{' '}
                                                                 {pet.sex === 'M' ? 'Macho' : 'Hembra'} ·{' '}
@@ -259,31 +252,37 @@ export function PendingRequests() {
 
     return (
         <div className='space-y-8'>
-            {/* Pending Requests Section */}
-            <div className='space-y-4'>
-                <CardHeader className='px-0'>
-                    <CardTitle>Solicitudes Pendientes</CardTitle>
-                </CardHeader>
-                {pendingRequests.map(renderReservationCard)}
-            </div>
+            {isLoading ? (
+                <div className='py-8 text-center text-muted-foreground'>Cargando solicitudes pendientes...</div>
+            ) : (
+                <>
+                    {/* Pending Requests Section */}
+                    <div className='space-y-4'>
+                        <CardHeader className='px-0'>
+                            <CardTitle>Solicitudes Pendientes</CardTitle>
+                        </CardHeader>
+                        {pendingReservations.map(renderReservationCard)}
+                    </div>
 
-            {/* Budgets Section */}
-            {budgets.length > 0 && (
-                <div className='space-y-4'>
-                    <CardHeader className='px-0'>
-                        <CardTitle>Presupuestos</CardTitle>
-                    </CardHeader>
-                    {budgets.map(renderReservationCard)}
-                </div>
-            )}
+                    {/* Budgets Section */}
+                    {budgets.length > 0 && (
+                        <div className='space-y-4'>
+                            <CardHeader className='px-0'>
+                                <CardTitle>Presupuestos</CardTitle>
+                            </CardHeader>
+                            {budgets.map(renderReservationCard)}
+                        </div>
+                    )}
 
-            {/* Reservation Viewer */}
-            {selectedReservation && (
-                <ReservationViewer
-                    reservation={selectedReservation}
-                    isOpen={true}
-                    onClose={() => setSelectedReservation(null)}
-                />
+                    {/* Reservation Viewer */}
+                    {selectedReservation && (
+                        <ReservationViewer
+                            reservation={selectedReservation}
+                            isOpen={true}
+                            onClose={() => setSelectedReservation(null)}
+                        />
+                    )}
+                </>
             )}
         </div>
     )

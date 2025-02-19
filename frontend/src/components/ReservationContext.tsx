@@ -48,15 +48,15 @@ export const useUnscheduledHairSalonReservations = (): { reservations: HairSalon
     return { reservations: unscheduledHairSalonReservations }
 }
 
-export const useDayReservations = (date: string) => {
+export const useConfirmedHotelDayReservations = (date: string) => {
     const { results: reservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
         where: [
             ['type', '==', 'hotel'],
+            ['status', '==', 'confirmed'],
             ['checkInDate', '<=', date],
             ['checkOutDate', '>=', date],
         ],
-        orderBy: ['checkOutDate', 'asc'],
     })
 
     const activeExampleReservations = useMemo(() => {
@@ -78,9 +78,9 @@ export const useDayReservations = (date: string) => {
     }
 }
 
-export const useTodayReservations = () => {
+export const useHotelConfirmedTodayReservations = () => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const { reservations, isLoading } = useDayReservations(today)
+    const { reservations, isLoading } = useConfirmedHotelDayReservations(today)
     const todayCheckIns = reservations.filter(r => r.checkInDate === today)
 
     return {
@@ -90,7 +90,7 @@ export const useTodayReservations = () => {
 }
 
 export const useTodayCheckIns = () => {
-    const { reservations, isLoading } = useTodayReservations()
+    const { reservations, isLoading } = useHotelConfirmedTodayReservations()
     const today = format(new Date(), 'yyyy-MM-dd')
 
     const checkIns = useMemo(() => {
@@ -104,7 +104,7 @@ export const useTodayCheckIns = () => {
 }
 
 export const useTodayCheckOuts = () => {
-    const { reservations, isLoading } = useTodayReservations()
+    const { reservations, isLoading } = useHotelConfirmedTodayReservations()
     const today = format(new Date(), 'yyyy-MM-dd')
 
     const checkOuts = useMemo(() => {
@@ -113,6 +113,45 @@ export const useTodayCheckOuts = () => {
 
     return {
         reservations: checkOuts,
+        isLoading,
+    }
+}
+
+export const usePendingHotelRequests = () => {
+    const { results: reservations, isLoading } = useCollection<ReservationDocument>({
+        path: 'reservations',
+        where: [
+            ['type', 'in', ['hotel', 'hotel-budget']],
+            ['status', '==', 'pending'],
+        ],
+    })
+
+    const activeExampleReservations = useMemo(() => {
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        const exampleReservations = storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+
+        return exampleReservations.filter(
+            r => (r.type === 'hotel' && r.status === 'pending') || r.type === 'hotel-budget',
+        )
+    }, [])
+
+    const allReservations = useMemo(() => {
+        return [...reservations, ...activeExampleReservations]
+    }, [reservations, activeExampleReservations])
+
+    const pendingReservations = useMemo(() => {
+        return allReservations.filter((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending')
+    }, [allReservations])
+
+    const budgets = useMemo(() => {
+        return allReservations.filter((r): r is HotelReservation => r.type === 'hotel-budget')
+    }, [allReservations])
+
+    return {
+        pendingReservations,
+        budgets,
         isLoading,
     }
 }

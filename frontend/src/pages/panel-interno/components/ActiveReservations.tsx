@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { format } from 'date-fns'
 
-import { useDayReservations } from '@/components/ReservationContext'
+import { useConfirmedHotelDayReservations } from '@/components/ReservationContext'
 import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 
 import { ReservationCard } from './ReservationCard'
@@ -14,7 +14,7 @@ type ActiveReservationsProps = {
 
 export const ActiveReservations = ({ onViewReservation }: ActiveReservationsProps) => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    const { reservations, isLoading } = useDayReservations(today)
+    const { reservations, isLoading } = useConfirmedHotelDayReservations(today)
     const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
     const [searchTerm, setSearchTerm] = useState('')
 
