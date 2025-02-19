@@ -5,19 +5,6 @@ import { SpecialConditionsLegend } from '@/components/special-conditions-legend'
 import { Card } from '@/shared/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 
-interface HotelReservation {
-    id: string
-    roomNumber: string
-    pets: Array<{
-        name: string
-        breed: string
-        size: string
-        medication?: string
-        specialFood?: string
-        observations?: string
-    }>
-}
-
 export default function PlanningPage() {
     const { reservations } = useHotelReservations()
 

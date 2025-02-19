@@ -18,7 +18,7 @@ import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 
 import { ActiveReservations, Header, TabNavigation } from './components'
 
-export default function PanelInterno() {
+export default function HotelManagementPage() {
     const { reservations } = useReservation()
     const [searchParams] = useSearchParams()
     const [activeTab, setActiveTab] = useState('active')
