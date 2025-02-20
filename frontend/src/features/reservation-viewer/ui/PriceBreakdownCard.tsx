@@ -1,5 +1,5 @@
 import { type Discount } from '@/shared/types/discounts'
-import { Reservation } from '@/shared/types/reservations'
+import { Reservation } from '@monorepo/functions/src/types/reservations'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'

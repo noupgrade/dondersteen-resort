@@ -1,4 +1,4 @@
-import { type HotelReservation } from '@/shared/types/reservations'
+import { type HotelReservation } from '@monorepo/functions/src/types/reservations'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { DatePicker } from '@/shared/ui/date-picker'
 import { Input } from '@/shared/ui/input'

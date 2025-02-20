@@ -7,7 +7,7 @@ import { useReservation, useTodayCheckIns } from '@/components/ReservationContex
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { HotelReservation } from '@monorepo/functions/src/types/reservations'
-import { PetSize } from '@/shared/types/pet.types'
+import { PetSize } from '@monorepo/functions/src/types/reservations'
 
 type PetCardProps = {
     pet: HotelReservation['pets'][0]

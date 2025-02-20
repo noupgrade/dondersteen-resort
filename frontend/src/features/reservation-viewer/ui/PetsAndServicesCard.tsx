@@ -1,14 +1,11 @@
 import { PawPrint, Plus, Trash2, Truck } from 'lucide-react'
 
-import { type Pet } from '@/shared/types/pets'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Separator } from '@/shared/ui/separator'
-import { type HairSalonReservation } from '@monorepo/functions/src/types/reservations'
-import { type HotelBudget } from '@monorepo/functions/src/types/reservations'
-import { type HotelReservation } from '@monorepo/functions/src/types/reservations'
+import { type HotelReservation, type Pet } from '@monorepo/functions/src/types/reservations'
 import { type AdditionalService, type HairdressingServiceType } from '@monorepo/functions/src/types/services'
 
 import { getServicesByPet, getTransportService } from '../model/services'
@@ -133,6 +130,7 @@ export function PetsAndServicesCard({
                                 weight: 0,
                                 size: 'pequeño',
                                 sex: 'M',
+                                isNeutered: false,
                             }
                             onPetsChange([...reservation.pets, newPet])
                         }}

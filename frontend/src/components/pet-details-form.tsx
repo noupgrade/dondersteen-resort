@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { usePetPricing } from '@/shared/hooks/use-pet-pricing'
 import { cn } from '@/shared/lib/utils'
-import { PetSize } from '@/shared/types/pet.types'
+import { PetSize } from '@monorepo/functions/src/types/reservations'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader } from '@/shared/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form'

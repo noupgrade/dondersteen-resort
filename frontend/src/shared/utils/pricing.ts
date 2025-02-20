@@ -1,7 +1,7 @@
 import { AdditionalService } from '../types/additional-services'
 import { PetFormData } from '@/features/booking/types/booking.types'
 import { differenceInDays, isValid } from 'date-fns'
-import { PetSize } from '@/shared/types/pet.types'
+import { PetSize } from '@monorepo/functions/src/types/reservations'
 
 const BASE_PRICES: Record<PetSize, number> = {
     pequeño: 32,

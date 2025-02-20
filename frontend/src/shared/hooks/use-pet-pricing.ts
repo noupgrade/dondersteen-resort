@@ -1,4 +1,4 @@
-import { PetSize } from '../types/pet.types'
+import { PetSize } from '@monorepo/functions/src/types/reservations'
 import { useHotelPricingConfig } from './use-hotel-pricing-config'
 
 export function usePetPricing() {

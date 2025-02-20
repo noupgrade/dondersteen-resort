@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import { X } from 'lucide-react'
-
 import { AdditionalServices } from '@/components/additional-services'
-import { PetSize, SIZES } from '@/shared/types/pet.types'
+import { SIZES } from '@/shared/types/pet.types'
 import { Button } from '@/shared/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog'
 import { Input } from '@/shared/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
-import { Pet } from '@monorepo/functions/src/types/reservations'
+import { Pet, PetSize } from '@monorepo/functions/src/types/reservations'
 import { AdditionalService } from '@monorepo/functions/src/types/services'
 
 const translations = {

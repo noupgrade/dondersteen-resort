@@ -1,2 +1,3 @@
-export const SIZES = ['pequeño', 'mediano', 'grande'] as const
-export type PetSize = typeof SIZES[number]
+import { PetSize } from "@monorepo/functions/src/types/reservations"
+
+export const SIZES: PetSize[] = ['pequeño', 'mediano', 'grande'] as const
