@@ -59,7 +59,6 @@ export function CheckOuts() {
         clientPhone: r.client.phone,
         clientEmail: r.client.email,
         pets: r.pets || [],
-        roomNumber: r.roomNumber || '',
         checkInDate: r.checkInDate,
         checkOutDate: r.checkOutDate,
         paymentStatus: (r.paymentStatus as 'Pagado' | 'Pendiente') || 'Pendiente',

@@ -35,7 +35,7 @@ export default function MobilePanelInterno() {
             if (reservation.type === 'hotel') {
                 return reservation.pets.map(pet => ({
                     ...pet,
-                    roomNumber: pet.roomNumber || reservation.roomNumber,
+                    roomNumber: pet.roomNumber,
                     clientName: reservation.client.name,
                     checkOutDate: reservation.checkOutDate,
                     checkInDate: reservation.checkInDate

@@ -113,7 +113,6 @@ export function InvoiceModal({ reservation, isOpen, onClose, onPrintAndPay, onPr
                             <div className='mb-4'>
                                 <div className='flex justify-between'>
                                     <div>FACTURA SIMPLIFICADA</div>
-                                    <div>Mesa: {reservation.roomNumber}</div>
                                 </div>
                                 <div className='flex justify-between'>
                                     <div>DUPLICADO - 2</div>

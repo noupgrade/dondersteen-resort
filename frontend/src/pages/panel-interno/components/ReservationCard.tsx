@@ -78,7 +78,7 @@ export const ReservationCard = ({ reservation, onClick }: ReservationCardProps) 
                                                 <div className='flex items-center gap-2'>
                                                     <p className='font-medium'>{pet.name}</p>
                                                     <Badge variant='secondary' className='h-5 px-1.5 text-xs'>
-                                                        {reservation.roomNumber || 'Sin habitación'}
+                                                        {pet.roomNumber || 'Sin habitación'}
                                                     </Badge>
                                                 </div>
                                                 <p className='text-sm text-muted-foreground'>

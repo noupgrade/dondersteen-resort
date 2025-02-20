@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib/styles/class-merge'
 import { SPECIAL_CONDITIONS } from '@/shared/types/special-conditions'
 import { Badge } from '@/shared/ui/badge'
 import { Card } from '@/shared/ui/card'
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/shared/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/ui/tooltip'
 
 interface Room {
     id: string
@@ -27,6 +27,7 @@ interface HotelReservation {
         medication?: string
         specialFood?: string
         observations?: string
+        roomNumber: string
     }>
 }
 
@@ -38,14 +39,14 @@ interface RoomCardProps {
 
 function Legend() {
     return (
-        <div className="mb-8">
-            <h3 className="mb-2 text-lg font-semibold">Condiciones Especiales</h3>
-            <div className="flex flex-wrap gap-3">
-                {SPECIAL_CONDITIONS.map((condition) => (
+        <div className='mb-8'>
+            <h3 className='mb-2 text-lg font-semibold'>Condiciones Especiales</h3>
+            <div className='flex flex-wrap gap-3'>
+                {SPECIAL_CONDITIONS.map(condition => (
                     <TooltipProvider key={condition.symbol}>
                         <Tooltip>
                             <TooltipTrigger>
-                                <Badge variant="outline" className="text-base">
+                                <Badge variant='outline' className='text-base'>
                                     {condition.symbol} {condition.label}
                                 </Badge>
                             </TooltipTrigger>
@@ -61,10 +62,9 @@ function Legend() {
 }
 
 function RoomCard({ room, onClick, reservations }: RoomCardProps) {
-    const roomReservation = reservations.find(r => r.roomNumber === room.number)
-    const pets = roomReservation?.pets || []
-    const hasManyPets = pets.length > 2
-
+    // Find all pets assigned to this room
+    const petsInRoom = reservations.flatMap(r => r.pets.filter(pet => pet.roomNumber === room.number))
+    const hasManyPets = petsInRoom.length > 2
 
     // Collect all symbols from pets' properties
     const getSymbolsFromPet = (pet: any) => {
@@ -98,43 +98,64 @@ function RoomCard({ room, onClick, reservations }: RoomCardProps) {
     }
 
     return (
-        <div className="w-full h-full" onClick={onClick}>
-            <Card className={cn(
-                'w-full h-full p-3 cursor-pointer hover:bg-gray-50 transition-colors',
-                !roomReservation && 'bg-gray-100'
-            )}>
-                <div className="flex flex-col h-full">
-                    <div className={cn(
-                        "font-bold text-gray-700 border-b pb-2 mb-2",
-                        hasManyPets ? "text-2xl" : "text-3xl"
-                    )}>{room.number}</div>
-                    <div className="flex flex-col">
-                        {pets.map((pet, index) => {
+        <div className='h-full w-full' onClick={onClick}>
+            <Card
+                className={cn(
+                    'h-full w-full cursor-pointer p-3 transition-colors hover:bg-gray-50',
+                    !petsInRoom.length && 'bg-gray-100',
+                )}
+            >
+                <div className='flex h-full flex-col'>
+                    <div
+                        className={cn(
+                            'mb-2 border-b pb-2 font-bold text-gray-700',
+                            hasManyPets ? 'text-2xl' : 'text-3xl',
+                        )}
+                    >
+                        {room.number}
+                    </div>
+                    <div className='flex flex-col'>
+                        {petsInRoom.map((pet, index) => {
                             const petSymbols = getSymbolsFromPet(pet)
                             return (
-                                <div key={index} className={cn(
-                                    "flex flex-wrap items-center gap-x-2 mb-2 last:mb-0",
-                                    hasManyPets && "gap-x-1 mb-1"
-                                )}>
-                                    <span className={cn(
-                                        "font-semibold whitespace-nowrap",
-                                        hasManyPets ? "text-xl" : "text-2xl"
-                                    )}>{pet.name}</span>
+                                <div
+                                    key={index}
+                                    className={cn(
+                                        'mb-2 flex flex-wrap items-center gap-x-2 last:mb-0',
+                                        hasManyPets && 'mb-1 gap-x-1',
+                                    )}
+                                >
+                                    <span
+                                        className={cn(
+                                            'whitespace-nowrap font-semibold',
+                                            hasManyPets ? 'text-xl' : 'text-2xl',
+                                        )}
+                                    >
+                                        {pet.name}
+                                    </span>
                                     {petSymbols.length > 0 && (
-                                        <div className="flex gap-2">
+                                        <div className='flex gap-2'>
                                             {petSymbols.map((symbol, symbolIndex) => {
                                                 const condition = SPECIAL_CONDITIONS.find(c => c.symbol === symbol)
                                                 return condition ? (
                                                     <TooltipProvider key={symbolIndex}>
                                                         <Tooltip>
                                                             <TooltipTrigger>
-                                                                <span className={cn(
-                                                                    "inline-flex items-center justify-center font-semibold",
-                                                                    hasManyPets ? "text-xl min-w-[32px]" : "text-2xl min-w-[40px]"
-                                                                )}>{symbol}</span>
+                                                                <span
+                                                                    className={cn(
+                                                                        'inline-flex items-center justify-center font-semibold',
+                                                                        hasManyPets
+                                                                            ? 'min-w-[32px] text-xl'
+                                                                            : 'min-w-[40px] text-2xl',
+                                                                    )}
+                                                                >
+                                                                    {symbol}
+                                                                </span>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p className={hasManyPets ? "text-lg" : "text-xl"}>{condition.description}</p>
+                                                                <p className={hasManyPets ? 'text-lg' : 'text-xl'}>
+                                                                    {condition.description}
+                                                                </p>
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
@@ -145,10 +166,11 @@ function RoomCard({ room, onClick, reservations }: RoomCardProps) {
                                 </div>
                             )
                         })}
-                        {!pets.length && <span className={cn(
-                            "text-gray-500",
-                            hasManyPets ? "text-xl" : "text-2xl"
-                        )}>Disponible</span>}
+                        {!petsInRoom.length && (
+                            <span className={cn('text-gray-500', hasManyPets ? 'text-xl' : 'text-2xl')}>
+                                Disponible
+                            </span>
+                        )}
                     </div>
                 </div>
             </Card>
@@ -356,21 +378,24 @@ const mockReservations: HotelReservation[] = [
                 size: 'grande',
                 medication: 'Sí',
                 specialFood: 'Sí',
-                observations: 'Escapista, alérgico, necesita manta'
+                observations: 'Escapista, alérgico, necesita manta',
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Nina',
                 breed: 'Chihuahua',
                 size: 'pequeño',
-                observations: 'Sin cama, lata propia'
+                observations: 'Sin cama, lata propia',
+                roomNumber: 'HAB.6',
             },
             {
                 name: 'Toby',
                 breed: 'Pastor Alemán',
                 size: 'grande',
-                observations: 'Poco pienso, añadir carne'
-            }
-        ]
+                observations: 'Poco pienso, añadir carne',
+                roomNumber: 'HAB.5',
+            },
+        ],
     },
     {
         id: '2',
@@ -381,17 +406,19 @@ const mockReservations: HotelReservation[] = [
                 breed: 'Labrador',
                 size: 'mediano',
                 medication: 'Sí',
-                observations: 'Juguete propio, más pienso'
+                observations: 'Juguete propio, más pienso',
+                roomNumber: 'HAB.6',
             },
             {
                 name: 'Lola',
                 breed: 'Beagle',
                 size: 'mediano',
                 specialFood: 'Sí',
-                observations: 'Cama propia, alérgico'
-            }
-        ]
-    }
+                observations: 'Cama propia, alérgico',
+                roomNumber: 'HAB.6',
+            },
+        ],
+    },
 ]
 
 export function HotelFloorPlan({ hotelNumber, reservations: initialReservations }: HotelFloorPlanProps) {
@@ -402,11 +429,13 @@ export function HotelFloorPlan({ hotelNumber, reservations: initialReservations 
 
     useEffect(() => {
         // Para pruebas, mezclamos los datos mock con las reservaciones reales
-        const testReservations = [...mockReservations, ...reservations].filter(
-            r => r.roomNumber && (
-                (hotelNumber === 1 && parseInt(r.roomNumber.split('.')[1]) <= 21) ||
-                (hotelNumber === 2 && parseInt(r.roomNumber.split('.')[1]) >= 25)
-            )
+        const testReservations = [...mockReservations, ...reservations].filter(r =>
+            r.pets.some(
+                pet =>
+                    pet.roomNumber &&
+                    ((hotelNumber === 1 && parseInt(pet.roomNumber.split('.')[1]) <= 21) ||
+                        (hotelNumber === 2 && parseInt(pet.roomNumber.split('.')[1]) >= 25)),
+            ),
         ) as HotelReservation[]
         setLocalReservations(testReservations)
     }, [reservations, hotelNumber])
@@ -416,14 +445,11 @@ export function HotelFloorPlan({ hotelNumber, reservations: initialReservations 
     }
 
     return (
-        <div className="h-full w-full">
-            <div className="relative w-full" style={{ paddingTop: hotelNumber === 1 ? '45%' : '35%' }}>
-                <div className="absolute inset-0">
+        <div className='h-full w-full'>
+            <div className='relative w-full' style={{ paddingTop: hotelNumber === 1 ? '45%' : '35%' }}>
+                <div className='absolute inset-0'>
                     {layout.map(room => (
-                        <div
-                            key={room.id}
-                            style={room.style}
-                        >
+                        <div key={room.id} style={room.style}>
                             <RoomCard
                                 room={room}
                                 onClick={() => handleRoomClick(room)}
@@ -433,14 +459,7 @@ export function HotelFloorPlan({ hotelNumber, reservations: initialReservations 
                     ))}
                 </div>
             </div>
-            {selectedRoom && (
-                <RoomDetailsModal
-                    room={selectedRoom}
-                    onClose={() => setSelectedRoom(null)}
-                />
-            )}
+            {selectedRoom && <RoomDetailsModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />}
         </div>
     )
 }
-
-

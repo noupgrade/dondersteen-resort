@@ -27,13 +27,13 @@ const mapHotelReservation = (data: HotelReservation): Omit<HotelReservation, 'id
         size: pet.size,
         sex: pet.sex,
         isNeutered: pet.isNeutered,
+        roomNumber: pet.roomNumber,
     })),
     additionalServices: data.additionalServices,
     shopProducts: data.shopProducts,
     status: data.status,
     totalPrice: data.totalPrice,
     paymentStatus: data.paymentStatus,
-    roomNumber: data.roomNumber || '',
 })
 
 const mapHotelBudget = (data: HotelBudget): Omit<HotelBudget, 'id'> => ({
@@ -61,7 +61,6 @@ const mapHotelBudget = (data: HotelBudget): Omit<HotelBudget, 'id'> => ({
     status: data.status,
     totalPrice: data.totalPrice,
     paymentStatus: data.paymentStatus,
-    roomNumber: data.roomNumber || '',
 })
 
 const mapHairSalonReservation = (data: HairSalonReservation): Omit<HairSalonReservation, 'id'> => ({

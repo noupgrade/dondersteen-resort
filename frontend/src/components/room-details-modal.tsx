@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { Calendar, PawPrintIcon as Paw, X } from 'lucide-react'
 
 import { useReservation } from '@/components/ReservationContext'
+import { SPECIAL_CONDITIONS } from '@/shared/types/special-conditions'
 import { Alert, AlertDescription } from '@/shared/ui/alert'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
@@ -15,7 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/shared/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { Textarea } from '@/shared/ui/textarea'
-import { SPECIAL_CONDITIONS } from '@/shared/types/special-conditions'
 
 interface Room {
     id: string
@@ -45,7 +45,7 @@ const sizeOptions = ['pequeño', 'mediano', 'grande', 'extra grande']
 const conditionOptions = SPECIAL_CONDITIONS.map(condition => ({
     value: condition.symbol,
     label: condition.label,
-    icon: condition.symbol
+    icon: condition.symbol,
 }))
 
 export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
@@ -58,10 +58,11 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
     const [availablePets, setAvailablePets] = useState<PetInfo[]>([])
 
     useEffect(() => {
-        const roomReservations = reservations.filter(r => r.roomNumber === room.number)
-        const petsInfo = roomReservations.flatMap(r =>
+        // Get all pets that are in this room
+        const petsInRoom = reservations.flatMap(r =>
             r.pets
-                ? r.pets.map(pet => ({
+                .filter(pet => pet.roomNumber === room.number)
+                .map(pet => ({
                     id: `${r.id}-${pet.name}`,
                     name: pet.name,
                     breed: pet.breed,
@@ -72,27 +73,26 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
                     medication: pet.medication || '',
                     specialFood: pet.specialFood || '',
                     observations: pet.observations || '',
-                    roomNumber: r.roomNumber,
-                }))
-                : [],
+                    roomNumber: pet.roomNumber,
+                })),
         )
 
-        setPetInfo(petsInfo)
-        setActiveTab(petsInfo.length > 0 ? petsInfo[0].id : '')
+        setPetInfo(petsInRoom)
+        setActiveTab(petsInRoom.length > 0 ? petsInRoom[0].id : '')
 
-        const rooms = [...new Set(reservations.map(r => r.roomNumber))].filter(r => r && r !== room.number)
-        setAvailableRooms(rooms)
+        // Get all rooms that have pets assigned
+        const occupiedRooms = [...new Set(reservations.flatMap(r => r.pets.map(p => p.roomNumber)))].filter(
+            r => r && r !== room.number,
+        )
+        setAvailableRooms(occupiedRooms)
 
         const allPets = reservations.flatMap(r =>
-            r.pets
-                ? r.pets.map(pet => ({
-                    ...pet,
-                    id: `${r.id}-${pet.name}`,
-                    checkInDate: r.checkInDate,
-                    checkOutDate: r.checkOutDate,
-                    roomNumber: r.roomNumber,
-                }))
-                : [],
+            r.pets.map(pet => ({
+                ...pet,
+                id: `${r.id}-${pet.name}`,
+                checkInDate: r.checkInDate,
+                checkOutDate: r.checkOutDate,
+            })),
         )
 
         const sortedPets = allPets.sort((a, b) => {
@@ -114,17 +114,17 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
                         reservation.pets?.map(p =>
                             p.name === pet.name
                                 ? {
-                                    ...p,
-                                    ...pet,
-                                    medication: pet.conditions.includes('medication') ? pet.medication : undefined,
-                                    specialFood: pet.conditions.includes('specialFood') ? pet.specialFood : undefined,
-                                }
+                                      ...p,
+                                      ...pet,
+                                      roomNumber: pet.roomNumber,
+                                      medication: pet.conditions.includes('medication') ? pet.medication : undefined,
+                                      specialFood: pet.conditions.includes('specialFood') ? pet.specialFood : undefined,
+                                  }
                                 : p,
                         ) || []
 
                     updateReservation(reservationId, {
                         pets: updatedPets,
-                        roomNumber: newRoom || room.number,
                     })
                 }
             })
@@ -142,10 +142,11 @@ export function RoomDetailsModal({ room, onClose }: RoomDetailsModalProps) {
             const [reservationId] = petId.split('-')
             const reservation = reservations.find(r => r.id === reservationId)
             if (reservation) {
-                const updatedPets = [...(reservation.pets || []), selectedPet]
+                const updatedPets = reservation.pets.map(p =>
+                    p.name === selectedPet.name ? { ...p, roomNumber: room.number } : p,
+                )
                 updateReservation(reservationId, {
                     pets: updatedPets,
-                    roomNumber: room.number,
                 })
 
                 const newPet: PetInfo = {

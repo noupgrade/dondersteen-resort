@@ -60,7 +60,7 @@ export function PendingReservationBanner({ reservation, onAccept, onReject }: Pe
                                     <PawPrint className='h-4 w-4 shrink-0 text-[#4B6BFB]' />
                                     <div className='flex-1'>
                                         <p className='text-sm font-medium'>
-                                            {pet.name} ({reservation.roomNumber})
+                                            {pet.name} ({pet.roomNumber || 'Sin habitación'})
                                         </p>
                                         <p className='text-xs text-muted-foreground'>
                                             {pet.breed} · {pet.size} · {pet.weight}kg

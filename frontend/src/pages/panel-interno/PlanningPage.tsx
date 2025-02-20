@@ -8,34 +8,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 export default function PlanningPage() {
     const { reservations } = useHotelReservations()
 
-    const hotel1Reservations = reservations.filter(
-        r => r.roomNumber?.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) <= 21,
+    const hotel1Reservations = reservations.filter(r =>
+        r.pets.some(pet => pet.roomNumber?.startsWith('HAB.') && parseInt(pet.roomNumber.split('.')[1]) <= 21),
     )
-    const hotel2Reservations = reservations.filter(
-        r => r.roomNumber?.startsWith('HAB.') && parseInt(r.roomNumber.split('.')[1]) >= 25,
+    const hotel2Reservations = reservations.filter(r =>
+        r.pets.some(pet => pet.roomNumber?.startsWith('HAB.') && parseInt(pet.roomNumber.split('.')[1]) >= 25),
     )
 
     return (
-        <div className='h-screen flex flex-col p-4 gap-2'>
+        <div className='flex h-screen flex-col gap-2 p-4'>
             <div className='flex items-center justify-between'>
                 <h1 className='text-2xl font-bold'>Planning</h1>
             </div>
 
-            <Tabs defaultValue='daily-needs' className='flex-1 flex flex-col min-h-0'>
+            <Tabs defaultValue='daily-needs' className='flex min-h-0 flex-1 flex-col'>
                 <TabsList className='grid w-full grid-cols-3 gap-4 bg-transparent p-0'>
-                    <TabsTrigger 
+                    <TabsTrigger
                         value='daily-needs'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Necesidades Diarias
                     </TabsTrigger>
-                    <TabsTrigger 
+                    <TabsTrigger
                         value='hotel1'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
                         Hotel 1
                     </TabsTrigger>
-                    <TabsTrigger 
+                    <TabsTrigger
                         value='hotel2'
                         className='relative flex items-center justify-center gap-2 border bg-white shadow-sm hover:bg-gray-50/80 data-[state=active]:border-[#4B6BFB] data-[state=active]:bg-[#4B6BFB] data-[state=active]:text-white'
                     >
@@ -43,23 +43,23 @@ export default function PlanningPage() {
                     </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value='daily-needs' className='flex-1 mt-2'>
-                    <Card className='p-4 h-full'>
+                <TabsContent value='daily-needs' className='mt-2 flex-1'>
+                    <Card className='h-full p-4'>
                         <DailyNeedsList />
                     </Card>
                 </TabsContent>
-                <TabsContent value='hotel1' className='flex-1 mt-2'>
-                    <Card className='p-4 h-full flex flex-col gap-2'>
+                <TabsContent value='hotel1' className='mt-2 flex-1'>
+                    <Card className='flex h-full flex-col gap-2 p-4'>
                         <SpecialConditionsLegend />
-                        <div className='flex-1 min-h-0'>
+                        <div className='min-h-0 flex-1'>
                             <HotelFloorPlan hotelNumber={1} reservations={hotel1Reservations} />
                         </div>
                     </Card>
                 </TabsContent>
-                <TabsContent value='hotel2' className='flex-1 mt-2'>
-                    <Card className='p-4 h-full flex flex-col gap-2'>
+                <TabsContent value='hotel2' className='mt-2 flex-1'>
+                    <Card className='flex h-full flex-col gap-2 p-4'>
                         <SpecialConditionsLegend />
-                        <div className='flex-1 min-h-0'>
+                        <div className='min-h-0 flex-1'>
                             <HotelFloorPlan hotelNumber={2} reservations={hotel2Reservations} />
                         </div>
                     </Card>

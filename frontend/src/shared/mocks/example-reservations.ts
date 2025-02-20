@@ -23,6 +23,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Golden Retriever',
             size: 'grande',
             weight: 30,
+            sex: 'M',
+            isNeutered: true,
+            roomNumber: 'HAB.1',
         },
         additionalServices: [
             {
@@ -89,6 +92,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Poodle',
             size: 'pequeño',
             weight: 5,
+            sex: 'F',
+            isNeutered: true,
+            roomNumber: 'HAB.2',
         },
         additionalServices: [
             {
@@ -149,6 +155,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Husky',
             size: 'grande',
             weight: 28,
+            sex: 'M',
+            isNeutered: true,
+            roomNumber: 'HAB.3',
         },
         additionalServices: [
             {
@@ -220,6 +229,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 30,
                 size: 'grande',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.1',
             },
             {
                 name: 'Bailey',
@@ -227,6 +238,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 12,
                 size: 'mediano',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.1',
             },
             {
                 name: 'Oliver',
@@ -234,6 +247,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 3,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.1',
             },
         ],
         additionalServices: [
@@ -248,7 +263,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 foodType: 'refrigerated',
             },
         ],
-        roomNumber: 'HAB.1',
         status: 'confirmed',
         totalPrice: 300,
         paymentStatus: 'Pagado',
@@ -273,6 +287,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 25,
                 size: 'grande',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.2',
             },
             {
                 name: 'Leo',
@@ -280,6 +296,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 12,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.2',
             },
         ],
         additionalServices: [
@@ -299,7 +317,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 comment: 'Necesita cuidados especiales',
             },
         ],
-        roomNumber: 'HAB.2',
         status: 'confirmed',
         totalPrice: 500,
         paymentStatus: 'Pendiente',
@@ -324,6 +341,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 35,
                 size: 'grande',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.3',
             },
             {
                 name: 'Atlas',
@@ -331,6 +350,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 20,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.3',
             },
             {
                 name: 'Nova',
@@ -338,6 +359,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 5,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.3',
             },
         ],
         additionalServices: [
@@ -357,7 +380,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 comment: 'Necesita cuidados especiales',
             },
         ],
-        roomNumber: 'HAB.3',
         status: 'pending',
         totalPrice: 600,
         paymentStatus: 'Pendiente',
@@ -382,6 +404,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 8,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.4',
             },
             {
                 name: 'Duke',
@@ -389,6 +413,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 15,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.4',
             },
         ],
         additionalServices: [
@@ -408,7 +434,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 comment: 'Necesita cuidados especiales',
             },
         ],
-        roomNumber: 'HAB.4',
         status: 'confirmed',
         totalPrice: 400,
         paymentStatus: 'Pagado',
@@ -433,6 +458,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 28,
                 size: 'grande',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Lily',
@@ -440,6 +467,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 13,
                 size: 'mediano',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Ziggy',
@@ -447,6 +476,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 6,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
         ],
         additionalServices: [
@@ -461,7 +492,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 foodType: 'refrigerated',
             },
         ],
-        roomNumber: 'HAB.5',
         status: 'confirmed',
         totalPrice: 700,
         paymentStatus: 'Pagado',
@@ -486,6 +516,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 5,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.6',
             },
             {
                 name: 'Chloe',
@@ -493,6 +525,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 4,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.6',
             },
         ],
         additionalServices: [
@@ -507,7 +541,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'dropoff',
             } as AdditionalService,
         ],
-        roomNumber: 'HAB.6',
         status: 'confirmed',
         totalPrice: 350,
         paymentStatus: 'Pendiente',
@@ -531,6 +564,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Yorkshire Terrier',
             size: 'pequeño',
             weight: 3,
+            sex: 'F',
+            isNeutered: true,
+            roomNumber: 'HAB.7',
         },
         additionalServices: [
             {
@@ -577,6 +613,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Bulldog Francés',
             size: 'mediano',
             weight: 12,
+            sex: 'M',
+            isNeutered: true,
+            roomNumber: 'HAB.8',
         },
         additionalServices: [
             {
@@ -637,6 +676,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 35,
                 size: 'grande',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.7',
             },
         ],
         additionalServices: [
@@ -646,7 +687,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'pickup',
             } as AdditionalService,
         ],
-        roomNumber: 'HAB.7',
         status: 'confirmed',
         totalPrice: 400,
         paymentStatus: 'Pendiente',
@@ -670,6 +710,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 28,
                 size: 'grande',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.8',
             },
         ],
         additionalServices: [
@@ -679,7 +721,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'dropoff',
             } as AdditionalService,
         ],
-        roomNumber: 'HAB.8',
         status: 'confirmed',
         totalPrice: 350,
         paymentStatus: 'Pendiente',
@@ -703,6 +744,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 32,
                 size: 'grande',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.9',
             },
         ],
         additionalServices: [
@@ -712,7 +755,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'both',
             } as AdditionalService,
         ],
-        roomNumber: 'HAB.9',
         status: 'confirmed',
         totalPrice: 450,
         paymentStatus: 'Pendiente',
@@ -738,6 +780,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 12,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.10',
             },
         ],
         additionalServices: [
@@ -747,7 +791,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 comment: 'Necesita supervisión constante',
             },
         ],
-        roomNumber: 'HAB.10',
         status: 'confirmed',
         totalPrice: 25,
         paymentStatus: 'Pendiente',
@@ -772,6 +815,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 5,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.11',
             },
         ],
         additionalServices: [
@@ -781,7 +826,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'both',
             } as AdditionalService,
         ],
-        roomNumber: 'HAB.11',
         status: 'confirmed',
         totalPrice: 35,
         paymentStatus: 'Pendiente',
@@ -806,6 +850,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 15,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.12',
             },
             {
                 name: 'Raven',
@@ -813,6 +859,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 14,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.12',
             },
         ],
         additionalServices: [
@@ -827,7 +875,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 foodType: 'refrigerated',
             },
         ],
-        roomNumber: 'HAB.12',
         status: 'confirmed',
         totalPrice: 50,
         paymentStatus: 'Pendiente',
@@ -852,6 +899,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 8,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.4',
             },
             {
                 name: 'Jasper',
@@ -859,6 +908,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 9,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.4',
             },
         ],
         additionalServices: [
@@ -868,7 +919,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 foodType: 'refrigerated',
             },
         ],
-        roomNumber: 'HAB.4',
         status: 'pending',
         totalPrice: 240,
         paymentStatus: 'Pendiente',
@@ -893,6 +943,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 7,
                 size: 'mediano',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Pearl',
@@ -900,6 +952,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 4,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Ash',
@@ -907,6 +961,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 5,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.5',
             },
         ],
         additionalServices: [
@@ -916,7 +972,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 comment: 'Medicación diaria',
             },
         ],
-        roomNumber: 'HAB.5',
         status: 'pending',
         totalPrice: 400,
         paymentStatus: 'Pendiente',
@@ -941,6 +996,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 5,
                 size: 'pequeño',
                 sex: 'M',
+                isNeutered: true,
+                roomNumber: 'HAB.6',
             },
             {
                 name: 'Lola',
@@ -948,6 +1005,8 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 weight: 4,
                 size: 'pequeño',
                 sex: 'F',
+                isNeutered: true,
+                roomNumber: 'HAB.6',
             },
         ],
         additionalServices: [
@@ -957,7 +1016,6 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 serviceType: 'both',
             },
         ],
-        roomNumber: 'HAB.6',
         status: 'pending',
         totalPrice: 320,
         paymentStatus: 'Pendiente',
@@ -984,6 +1042,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
+                roomNumber: 'HAB.1',
             },
             {
                 name: 'Luna',
@@ -992,6 +1051,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'F',
                 isNeutered: true,
+                roomNumber: 'HAB.1',
             },
         ],
         additionalServices: [
@@ -1036,6 +1096,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: false,
+                roomNumber: 'HAB.5',
             },
         ],
         additionalServices: [
@@ -1076,6 +1137,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Max',
@@ -1084,6 +1146,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Nina',
@@ -1092,6 +1155,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
+                roomNumber: 'HAB.5',
             },
         ],
         additionalServices: [
@@ -1133,6 +1197,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Pastor Alemán',
             size: 'grande',
             weight: 30,
+            sex: 'F',
+            isNeutered: true,
+            roomNumber: 'HAB.1',
         },
         additionalServices: [
             {
@@ -1168,6 +1235,9 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             breed: 'Bulldog Francés',
             size: 'mediano',
             weight: 12,
+            sex: 'M',
+            isNeutered: true,
+            roomNumber: 'HAB.8',
         },
         additionalServices: [
             {

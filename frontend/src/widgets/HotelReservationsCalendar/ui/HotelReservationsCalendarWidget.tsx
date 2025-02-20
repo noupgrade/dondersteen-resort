@@ -262,7 +262,7 @@ export function HotelReservationsCalendarWidget() {
                                                             ({pet.breed})
                                                         </span>
                                                         <Badge variant='secondary' className='h-5 px-1 text-xs'>
-                                                            {reservation.roomNumber}
+                                                            {pet.roomNumber || 'Sin habitación'}
                                                         </Badge>
                                                     </div>
                                                 </div>

@@ -107,6 +107,19 @@ export function CheckIns() {
         'HAB.10',
     ])
 
+    const handleRoomAssign = useCallback(
+        (reservationId: string, petName: string, room: string) => {
+            const reservation = checkIns.find(r => r.id === reservationId)
+            if (reservation) {
+                const updatedPets = reservation.pets.map(p => (p.name === petName ? { ...p, roomNumber: room } : p))
+                updateReservation(reservationId, {
+                    pets: updatedPets,
+                })
+            }
+        },
+        [checkIns, updateReservation],
+    )
+
     // Usar useMemo para calcular los perros en las habitaciones
     const currentPetsInRooms = useMemo(() => {
         const petsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> } = {}
@@ -135,29 +148,6 @@ export function CheckIns() {
 
         return petsInRooms
     }, [availableRooms, checkIns])
-
-    const handleRoomAssign = useCallback(
-        async (reservationId: string, petIndex: number, room: string) => {
-            const reservation = checkIns.find(r => r.id === reservationId)
-            if (!reservation) return
-
-            const updatedPets = [...reservation.pets]
-            updatedPets[petIndex] = { ...updatedPets[petIndex], roomNumber: room }
-
-            try {
-                // Actualizar la reserva en el contexto
-                await updateReservation(reservationId, {
-                    pets: updatedPets,
-                    // Actualizar también el roomNumber de la reserva si es el primer perro asignado
-                    roomNumber: reservation.roomNumber || room,
-                })
-            } catch (error) {
-                console.error('Error al asignar habitación:', error)
-                // Aquí podrías añadir una notificación de error si lo deseas
-            }
-        },
-        [checkIns, updateReservation],
-    )
 
     const handleSizeChange = useCallback(
         async (reservationId: string, petIndex: number, size: 'pequeño' | 'mediano' | 'grande') => {
@@ -212,7 +202,7 @@ export function CheckIns() {
                             <PetCard
                                 key={index}
                                 pet={pet}
-                                onRoomAssign={room => handleRoomAssign(reservation.id, index, room)}
+                                onRoomAssign={room => handleRoomAssign(reservation.id, pet.name, room)}
                                 onSizeChange={size => handleSizeChange(reservation.id, index, size)}
                                 availableRooms={availableRooms}
                                 currentPetsInRooms={currentPetsInRooms}
