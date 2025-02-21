@@ -184,6 +184,7 @@ export function AvailabilityCalendar({
             <Card>
                 <CardContent className='mt-4 space-y-6'>
                     <Calendar
+                        fillSpace
                         mode='range'
                         selected={selectedDates}
                         onSelect={handleSelect}
