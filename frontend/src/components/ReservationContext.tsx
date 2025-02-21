@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { format } from 'date-fns'
 
@@ -6,11 +6,113 @@ import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
-import { HairSalonReservation, HotelReservation, Reservation } from '@monorepo/functions/src/types/reservations'
+import {
+    HairSalonReservation,
+    HotelReservation,
+    PetSize,
+    Reservation,
+} from '@monorepo/functions/src/types/reservations'
 
 type ReservationDocument = Reservation & FSDocument
 
 export type { ReservationDocument }
+
+type ExampleReservationsContextType = {
+    exampleReservations: ReservationDocument[]
+    addExampleReservation: (reservation: ReservationDocument) => void
+    updateExampleReservation: (id: string, updatedData: Partial<Reservation>) => void
+    deleteExampleReservation: (id: string) => void
+    getExampleReservationsByDate: (date: string) => ReservationDocument[]
+    getExampleHotelReservations: () => HotelReservation[]
+    getExampleHairSalonReservations: () => HairSalonReservation[]
+}
+
+const ExampleReservationsContext = createContext<ExampleReservationsContextType | undefined>(undefined)
+
+export const useExampleReservations = () => {
+    const context = useContext(ExampleReservationsContext)
+    if (!context) {
+        throw new Error('useExampleReservations must be used within an ExampleReservationsProvider')
+    }
+    return context
+}
+
+export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [exampleReservations, setExampleReservations] = useState<ReservationDocument[]>(() => {
+        const storedExampleReservations = localStorage.getItem('exampleReservations')
+        return storedExampleReservations
+            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
+            : EXAMPLE_RESERVATIONS
+    })
+
+    const addExampleReservation = useCallback((reservation: ReservationDocument) => {
+        setExampleReservations(prev => {
+            const updated = [...prev, reservation]
+            localStorage.setItem('exampleReservations', JSON.stringify(updated))
+            return updated
+        })
+    }, [])
+
+    const updateExampleReservation = useCallback((id: string, updatedData: Partial<Reservation>) => {
+        setExampleReservations(prev => {
+            const updated = prev.map(r =>
+                r.id === id
+                    ? {
+                          ...r,
+                          ...updatedData,
+                          updatedAt: new Date().toISOString(),
+                      }
+                    : r,
+            )
+            localStorage.setItem('exampleReservations', JSON.stringify(updated))
+            return updated
+        })
+    }, [])
+
+    const deleteExampleReservation = useCallback((id: string) => {
+        setExampleReservations(prev => {
+            const updated = prev.filter(r => r.id !== id)
+            localStorage.setItem('exampleReservations', JSON.stringify(updated))
+            return updated
+        })
+    }, [])
+
+    const getExampleReservationsByDate = useCallback(
+        (date: string) => {
+            return exampleReservations.filter(r => {
+                if (r.type === 'hotel') {
+                    return r.checkInDate <= date && r.checkOutDate >= date
+                }
+                return r.date === date
+            })
+        },
+        [exampleReservations],
+    )
+
+    const getExampleHotelReservations = useCallback(() => {
+        return exampleReservations.filter((r): r is HotelReservation => r.type === 'hotel')
+    }, [exampleReservations])
+
+    const getExampleHairSalonReservations = useCallback(() => {
+        return exampleReservations.filter((r): r is HairSalonReservation => r.type === 'peluqueria')
+    }, [exampleReservations])
+
+    return (
+        <ExampleReservationsContext.Provider
+            value={{
+                exampleReservations,
+                addExampleReservation,
+                updateExampleReservation,
+                deleteExampleReservation,
+                getExampleReservationsByDate,
+                getExampleHotelReservations,
+                getExampleHairSalonReservations,
+            }}
+        >
+            {children}
+        </ExampleReservationsContext.Provider>
+    )
+}
 
 type ReservationContextType = {
     reservations: ReservationDocument[]
@@ -35,17 +137,27 @@ export const useReservation = () => {
 
 export const useHotelReservations = (): { reservations: HotelReservation[] } => {
     const { reservations } = useReservation()
-    return { reservations: reservations.filter(r => r.type === 'hotel') }
+    const { getExampleHotelReservations } = useExampleReservations()
+    const exampleHotelReservations = getExampleHotelReservations()
+
+    return {
+        reservations: [...reservations.filter(r => r.type === 'hotel'), ...exampleHotelReservations],
+    }
 }
 
 export const useHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
     const { reservations } = useReservation()
-    return { reservations: reservations.filter(r => r.type === 'peluqueria') }
+    const { getExampleHairSalonReservations } = useExampleReservations()
+    const exampleHairSalonReservations = getExampleHairSalonReservations()
+
+    return {
+        reservations: [...reservations.filter(r => r.type === 'peluqueria'), ...exampleHairSalonReservations],
+    }
 }
 
 export const useUnscheduledHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
-    const { unscheduledHairSalonReservations } = useReservation()
-    return { reservations: unscheduledHairSalonReservations }
+    const { reservations } = useReservation()
+    return { reservations: reservations.filter(r => r.type === 'peluqueria') }
 }
 
 export const useConfirmedHotelDayReservations = (date: string) => {
@@ -59,18 +171,12 @@ export const useConfirmedHotelDayReservations = (date: string) => {
         ],
     })
 
-    const activeExampleReservations = useMemo(() => {
-        const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const exampleReservations = storedExampleReservations
-            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-            : EXAMPLE_RESERVATIONS
-
-        return exampleReservations.filter(r => r.type === 'hotel' && r.checkInDate <= date && r.checkOutDate >= date)
-    }, [date])
+    const { getExampleReservationsByDate } = useExampleReservations()
+    const exampleReservations = getExampleReservationsByDate(date).filter(r => r.type === 'hotel')
 
     const allReservations = useMemo(() => {
-        return [...reservations, ...activeExampleReservations]
-    }, [reservations, activeExampleReservations])
+        return [...reservations, ...exampleReservations]
+    }, [reservations, exampleReservations])
 
     return {
         reservations: allReservations as HotelReservation[],
@@ -94,12 +200,76 @@ export const useTodayCheckIns = () => {
     const today = format(new Date(), 'yyyy-MM-dd')
 
     const checkIns = useMemo(() => {
+        console.log('reservations', reservations)
         return reservations.filter(r => r.checkInDate === today)
     }, [reservations, today])
 
     return {
         reservations: checkIns,
         isLoading,
+    }
+}
+
+export const useCheckIns = () => {
+    const { updateReservation } = useReservation()
+    const { reservations: checkIns, isLoading } = useTodayCheckIns()
+    const { updateExampleReservation } = useExampleReservations()
+
+    const handleRoomAssign = useCallback(
+        (reservationId: string, petName: string, room: string) => {
+            const reservation = checkIns.find(r => r.id === reservationId)
+            if (reservation) {
+                const updatedPets = reservation.pets.map(p => (p.name === petName ? { ...p, roomNumber: room } : p))
+
+                if (reservationId.startsWith('EXAMPLE_')) {
+                    updateExampleReservation(reservationId, { pets: updatedPets })
+                } else {
+                    updateReservation(reservationId, { pets: updatedPets })
+                }
+            }
+        },
+        [checkIns, updateReservation, updateExampleReservation],
+    )
+
+    const handleSizeChange = useCallback(
+        async (reservationId: string, petIndex: number, size: PetSize) => {
+            const reservation = checkIns.find(r => r.id === reservationId)
+            if (!reservation) return
+
+            const updatedPets = [...reservation.pets]
+            const oldSize = updatedPets[petIndex].size
+            updatedPets[petIndex] = { ...updatedPets[petIndex], size }
+
+            const priceAdjustments: Record<PetSize, number> = {
+                pequeño: 20,
+                mediano: 25,
+                grande: 30,
+            }
+
+            const oldPrice = priceAdjustments[oldSize]
+            const newPrice = priceAdjustments[size]
+            const priceDifference = newPrice - oldPrice
+
+            const newTotalPrice = reservation.totalPrice + priceDifference
+            const updateData = {
+                pets: updatedPets,
+                totalPrice: newTotalPrice,
+            }
+
+            if (reservationId.startsWith('EXAMPLE_')) {
+                updateExampleReservation(reservationId, updateData)
+            } else {
+                await updateReservation(reservationId, updateData)
+            }
+        },
+        [checkIns, updateReservation, updateExampleReservation],
+    )
+
+    return {
+        checkIns,
+        isLoading,
+        handleRoomAssign,
+        handleSizeChange,
     }
 }
 
@@ -126,16 +296,12 @@ export const usePendingHotelRequests = () => {
         ],
     })
 
+    const { exampleReservations } = useExampleReservations()
     const activeExampleReservations = useMemo(() => {
-        const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const exampleReservations = storedExampleReservations
-            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-            : EXAMPLE_RESERVATIONS
-
         return exampleReservations.filter(
             r => (r.type === 'hotel' && r.status === 'pending') || r.type === 'hotel-budget',
         )
-    }, [])
+    }, [exampleReservations])
 
     const allReservations = useMemo(() => {
         return [...reservations, ...activeExampleReservations]
@@ -297,129 +463,56 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         limit: 100,
     })
 
-    // Combine database reservations with example reservations
-    const reservations = useMemo(() => {
-        const allReservations = [...dbReservations]
-
-        EXAMPLE_RESERVATIONS.forEach(example => {
-            if (!allReservations.some(r => r.id === example.id)) {
-                allReservations.push(example)
-            }
-        })
-
-        return allReservations
-    }, [dbReservations])
-
-    const unscheduledHairSalonReservations = useMemo(() => {
-        return reservations.filter(
-            (r): r is HairSalonReservation =>
-                r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
-        )
-    }, [reservations])
-
-    const addReservation = useCallback(async (reservation: Omit<Reservation, 'id'>) => {
-        // If it's an example reservation
-        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-            const newReservation = {
-                ...reservation,
-                id: `EXAMPLE_${Date.now()}`,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            } as ReservationDocument
-
-            const storedExampleReservations = localStorage.getItem('exampleReservations')
-            const parsedExampleReservations = storedExampleReservations
-                ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-                : (EXAMPLE_RESERVATIONS as ReservationDocument[])
-
-            const updatedReservations = [...parsedExampleReservations, newReservation]
-            localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-            return newReservation
-        }
-
-        // Call the backend function
-        const result = await addReservationApi(reservation)
-        return result.data as ReservationDocument
-    }, [])
-
-    const updateReservation = useCallback(
-        async (id: string, updatedData: Partial<Reservation>) => {
-            // If it's an example reservation, update it in local storage
-            if (id.startsWith('EXAMPLE_')) {
-                const storedExampleReservations = localStorage.getItem('exampleReservations')
-                const parsedExampleReservations = storedExampleReservations
-                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
-
-                const updatedReservations = parsedExampleReservations.map(r =>
-                    r.id === id
-                        ? {
-                              ...r,
-                              ...updatedData,
-                              updatedAt: new Date().toISOString(),
-                          }
-                        : r,
-                )
-                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-                return Promise.resolve()
-            }
-            await updateDocument(id, updatedData)
-        },
-        [updateDocument],
-    )
-
-    const deleteReservation = useCallback(
-        async (id: string) => {
-            // If it's an example reservation, remove it from local storage
-            if (id.startsWith('EXAMPLE_')) {
-                const storedExampleReservations = localStorage.getItem('exampleReservations')
-                const parsedExampleReservations = storedExampleReservations
-                    ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-                    : (EXAMPLE_RESERVATIONS as ReservationDocument[])
-
-                const updatedReservations = parsedExampleReservations.filter(r => r.id !== id)
-                localStorage.setItem('exampleReservations', JSON.stringify(updatedReservations))
-                return Promise.resolve()
-            }
-            await removeDocument(id)
-        },
-        [removeDocument],
-    )
-
-    const getReservationsByClientId = useCallback(
-        (clientId: string) => {
-            return reservations.filter(r => r.client.id === clientId)
-        },
-        [reservations],
-    )
-
-    const getReservationsByDate = useCallback(
-        (date: string) => {
-            return reservations.filter(r => {
-                if (r.type === 'hotel') {
-                    return r.checkInDate === date
-                } else {
-                    return r.date === date
-                }
-            })
-        },
-        [reservations],
-    )
-
     return (
-        <ReservationContext.Provider
-            value={{
-                reservations,
-                unscheduledHairSalonReservations,
-                addReservation,
-                updateReservation,
-                deleteReservation,
-                getReservationsByClientId,
-                getReservationsByDate,
-                isLoading,
-            }}
-        >
-            {children}
-        </ReservationContext.Provider>
+        <ExampleReservationsProvider>
+            <ReservationContext.Provider
+                value={{
+                    reservations: dbReservations,
+                    unscheduledHairSalonReservations: dbReservations.filter(
+                        (r): r is HairSalonReservation =>
+                            r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
+                    ),
+                    addReservation: async (reservation: Omit<Reservation, 'id'>) => {
+                        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
+                            const newReservation = {
+                                ...reservation,
+                                id: `EXAMPLE_${Date.now()}`,
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString(),
+                            } as ReservationDocument
+                            return newReservation
+                        }
+                        const result = await addReservationApi(reservation)
+                        return result.data as ReservationDocument
+                    },
+                    updateReservation: async (id: string, updatedData: Partial<Reservation>) => {
+                        if (id.startsWith('EXAMPLE_')) {
+                            return
+                        }
+                        await updateDocument(id, updatedData)
+                    },
+                    deleteReservation: async (id: string) => {
+                        if (id.startsWith('EXAMPLE_')) {
+                            return
+                        }
+                        await removeDocument(id)
+                    },
+                    getReservationsByClientId: (clientId: string) => {
+                        return dbReservations.filter(r => r.client.id === clientId)
+                    },
+                    getReservationsByDate: (date: string) => {
+                        return dbReservations.filter(r => {
+                            if (r.type === 'hotel') {
+                                return r.checkInDate === date
+                            }
+                            return r.date === date
+                        })
+                    },
+                    isLoading,
+                }}
+            >
+                {children}
+            </ReservationContext.Provider>
+        </ExampleReservationsProvider>
     )
 }
