@@ -67,14 +67,7 @@ export function HotelReservationsCalendarWidget() {
     const handleAccept = async (reservation: HotelReservation) => {
         try {
             console.log('Accepting reservation:', reservation)
-            const updatedReservation: Partial<HotelReservation> = {
-                ...reservation,
-                status: 'confirmed',
-                type: 'hotel',
-                updatedAt: new Date().toISOString(),
-            }
-
-            await updateReservation(reservation.id, updatedReservation)
+            await updateReservation(reservation.id, {status: 'confirmed'})
             console.log('Reservation accepted successfully')
 
             const newParams = new URLSearchParams(searchParams)

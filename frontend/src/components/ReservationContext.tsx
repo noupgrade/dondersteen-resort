@@ -450,7 +450,7 @@ export const usePendingHotelReservation = (reservationId: string | null) => {
     return { pendingReservation, isLoading }
 }
 
-export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const InnerReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const {
         results: dbReservations,
         isLoading,
@@ -462,57 +462,107 @@ export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         orderBy: ['createdAt', 'desc'],
         limit: 100,
     })
+    console.log('dbReservations', dbReservations)
+
+    const {
+        exampleReservations,
+        addExampleReservation,
+        updateExampleReservation,
+        deleteExampleReservation,
+        getExampleReservationsByDate,
+    } = useExampleReservations()
+
+    const addReservation = useCallback(
+        async (reservation: Omit<Reservation, 'id'>) => {
+            if (reservation.client?.id?.startsWith('EXAMPLE_')) {
+                const newReservation = {
+                    ...reservation,
+                    id: `EXAMPLE_${Date.now()}`,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                } as ReservationDocument
+                addExampleReservation(newReservation)
+                return newReservation
+            }
+            const result = await addReservationApi(reservation)
+            return result.data as ReservationDocument
+        },
+        [addExampleReservation],
+    )
+
+    const updateReservation = useCallback(
+        async (id: string, updatedData: Partial<Reservation>) => {
+            if (id.startsWith('EXAMPLE_')) {
+                updateExampleReservation(id, updatedData)
+                return
+            }
+            await updateDocument(id, {
+                ...updatedData,
+                updatedAt: new Date().toISOString(),
+            })
+        },
+        [updateDocument, updateExampleReservation],
+    )
+
+    const deleteReservation = useCallback(
+        async (id: string) => {
+            if (id.startsWith('EXAMPLE_')) {
+                deleteExampleReservation(id)
+                return
+            }
+            await removeDocument(id)
+        },
+        [removeDocument, deleteExampleReservation],
+    )
+
+    const getReservationsByClientId = useCallback(
+        (clientId: string) => {
+            const exampleClientReservations = exampleReservations.filter(r => r.client.id === clientId)
+            const dbClientReservations = dbReservations.filter(r => r.client.id === clientId)
+            return [...dbClientReservations, ...exampleClientReservations]
+        },
+        [dbReservations, exampleReservations],
+    )
+
+    const getReservationsByDate = useCallback(
+        (date: string) => {
+            const exampleDateReservations = getExampleReservationsByDate(date)
+            const dbDateReservations = dbReservations.filter(r => {
+                if (r.type === 'hotel') {
+                    return r.checkInDate === date
+                }
+                return r.date === date
+            })
+            return [...dbDateReservations, ...exampleDateReservations]
+        },
+        [dbReservations, getExampleReservationsByDate],
+    )
 
     return (
+        <ReservationContext.Provider
+            value={{
+                reservations: dbReservations,
+                unscheduledHairSalonReservations: dbReservations.filter(
+                    (r): r is HairSalonReservation =>
+                        r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
+                ),
+                addReservation,
+                updateReservation,
+                deleteReservation,
+                getReservationsByClientId,
+                getReservationsByDate,
+                isLoading,
+            }}
+        >
+            {children}
+        </ReservationContext.Provider>
+    )
+}
+
+export const ReservationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    return (
         <ExampleReservationsProvider>
-            <ReservationContext.Provider
-                value={{
-                    reservations: dbReservations,
-                    unscheduledHairSalonReservations: dbReservations.filter(
-                        (r): r is HairSalonReservation =>
-                            r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
-                    ),
-                    addReservation: async (reservation: Omit<Reservation, 'id'>) => {
-                        if (reservation.client?.id?.startsWith('EXAMPLE_')) {
-                            const newReservation = {
-                                ...reservation,
-                                id: `EXAMPLE_${Date.now()}`,
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
-                            } as ReservationDocument
-                            return newReservation
-                        }
-                        const result = await addReservationApi(reservation)
-                        return result.data as ReservationDocument
-                    },
-                    updateReservation: async (id: string, updatedData: Partial<Reservation>) => {
-                        if (id.startsWith('EXAMPLE_')) {
-                            return
-                        }
-                        await updateDocument(id, updatedData)
-                    },
-                    deleteReservation: async (id: string) => {
-                        if (id.startsWith('EXAMPLE_')) {
-                            return
-                        }
-                        await removeDocument(id)
-                    },
-                    getReservationsByClientId: (clientId: string) => {
-                        return dbReservations.filter(r => r.client.id === clientId)
-                    },
-                    getReservationsByDate: (date: string) => {
-                        return dbReservations.filter(r => {
-                            if (r.type === 'hotel') {
-                                return r.checkInDate === date
-                            }
-                            return r.date === date
-                        })
-                    },
-                    isLoading,
-                }}
-            >
-                {children}
-            </ReservationContext.Provider>
+            <InnerReservationProvider>{children}</InnerReservationProvider>
         </ExampleReservationsProvider>
     )
 }
