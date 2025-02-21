@@ -19,6 +19,18 @@ export const ActiveReservations = ({ onViewReservation }: ActiveReservationsProp
     const [searchTerm, setSearchTerm] = useState('')
 
     useEffect(() => {
+        console.log('reservations', reservations)
+    }, [reservations])
+
+    useEffect(() => {
+        console.log('filteredReservations', filteredReservations)
+    }, [filteredReservations])
+
+    useEffect(() => {
+        console.log('searchTerm', searchTerm)
+    }, [searchTerm])
+
+    useEffect(() => {
         if (searchTerm) {
             const filtered = reservations.filter(reservation => {
                 const clientName = reservation.client.name.toLowerCase()

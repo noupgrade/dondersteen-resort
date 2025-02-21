@@ -175,6 +175,7 @@ export const useConfirmedHotelDayReservations = (date: string) => {
     const exampleReservations = getExampleReservationsByDate(date).filter(r => r.type === 'hotel')
 
     const allReservations = useMemo(() => {
+        console.log('useConfirmedHotelDayReservations: reservations', reservations)
         return [...reservations, ...exampleReservations]
     }, [reservations, exampleReservations])
 
@@ -295,7 +296,7 @@ export const usePendingHotelRequests = () => {
             ['status', '==', 'pending'],
         ],
     })
-
+    
     const { exampleReservations } = useExampleReservations()
     const activeExampleReservations = useMemo(() => {
         return exampleReservations.filter(
@@ -421,31 +422,8 @@ export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
 }
 
 export const usePendingHotelReservation = (reservationId: string | null) => {
-    const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
-        path: 'reservations',
-        where: [
-            ['type', '==', 'hotel'],
-            ['status', '==', 'pending'],
-            ['id', '==', reservationId],
-        ],
-        enabled: !!reservationId,
-    })
-
-    const activeExampleReservations = useMemo(() => {
-        if (!reservationId) return []
-
-        const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const exampleReservations = storedExampleReservations
-            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-            : EXAMPLE_RESERVATIONS
-
-        return exampleReservations.filter(r => r.type === 'hotel' && r.status === 'pending' && r.id === reservationId)
-    }, [reservationId])
-
-    const pendingReservation = useMemo(() => {
-        const allReservations = [...dbReservations, ...activeExampleReservations]
-        return allReservations.find((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending') || null
-    }, [dbReservations, activeExampleReservations])
+    const { pendingReservations, isLoading } = usePendingHotelRequests()
+    const pendingReservation = pendingReservations.find(r => r.id === reservationId)
 
     return { pendingReservation, isLoading }
 }
@@ -454,7 +432,6 @@ export const InnerReservationProvider: React.FC<{ children: React.ReactNode }> =
     const {
         results: dbReservations,
         isLoading,
-        addDocument,
         updateDocument,
         removeDocument,
     } = useCollection<ReservationDocument>({
