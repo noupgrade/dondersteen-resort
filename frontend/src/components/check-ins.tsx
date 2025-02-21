@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { HotelReservation } from '@monorepo/functions/src/types/reservations'
 import { PetSize } from '@monorepo/functions/src/types/reservations'
+import { ROOMS } from '@/shared/types/rooms'
 
 type PetCardProps = {
     pet: HotelReservation['pets'][0]
@@ -94,18 +95,7 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
 export function CheckIns() {
     const { reservations: checkIns, isLoading } = useTodayCheckIns()
     const { updateReservation } = useReservation()
-    const [availableRooms] = useState<string[]>([
-        'HAB.1',
-        'HAB.2',
-        'HAB.3',
-        'HAB.4',
-        'HAB.5',
-        'HAB.6',
-        'HAB.7',
-        'HAB.8',
-        'HAB.9',
-        'HAB.10',
-    ])
+    const [availableRooms] = useState<string[]>(ROOMS)
 
     const handleRoomAssign = useCallback(
         (reservationId: string, petName: string, room: string) => {

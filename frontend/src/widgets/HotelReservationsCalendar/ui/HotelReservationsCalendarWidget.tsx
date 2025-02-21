@@ -261,9 +261,14 @@ export function HotelReservationsCalendarWidget() {
                                                         <span className='italic text-muted-foreground'>
                                                             ({pet.breed})
                                                         </span>
-                                                        <Badge variant='secondary' className='h-5 px-1 text-xs'>
-                                                            {pet.roomNumber || 'Sin habitación'}
-                                                        </Badge>
+                                                        {!isSameDay(
+                                                            new Date(reservation.checkInDate),
+                                                            new Date(reservation.checkOutDate),
+                                                        ) && (
+                                                            <Badge variant='secondary' className='h-5 px-1 text-xs'>
+                                                                {pet.roomNumber || 'Sin habitación'}
+                                                            </Badge>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}

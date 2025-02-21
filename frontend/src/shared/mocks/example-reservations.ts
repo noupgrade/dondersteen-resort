@@ -230,7 +230,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.1',
+                roomNumber: 'HAB.4',
             },
             {
                 name: 'Bailey',
@@ -239,7 +239,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.1',
+                roomNumber: 'HAB.5',
             },
             {
                 name: 'Oliver',
@@ -248,7 +248,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.1',
+                roomNumber: 'HAB.6',
             },
         ],
         additionalServices: [
@@ -288,7 +288,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.2',
+                roomNumber: 'HAB.7',
             },
             {
                 name: 'Leo',
@@ -297,7 +297,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.2',
+                roomNumber: 'HAB.8',
             },
         ],
         additionalServices: [
@@ -342,7 +342,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.3',
+                roomNumber: 'HAB.9',
             },
             {
                 name: 'Atlas',
@@ -351,7 +351,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.3',
+                roomNumber: 'HAB.10',
             },
             {
                 name: 'Nova',
@@ -360,7 +360,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.3',
+                roomNumber: 'HAB.11',
             },
         ],
         additionalServices: [
@@ -405,7 +405,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.4',
+                roomNumber: 'HAB.12',
             },
             {
                 name: 'Duke',
@@ -414,7 +414,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.4',
+                roomNumber: 'HAB.13',
             },
         ],
         additionalServices: [
@@ -459,7 +459,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.14',
             },
             {
                 name: 'Lily',
@@ -468,7 +468,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.15',
             },
             {
                 name: 'Ziggy',
@@ -477,7 +477,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.16',
             },
         ],
         additionalServices: [
@@ -517,7 +517,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.6',
+                roomNumber: 'HAB.17',
             },
             {
                 name: 'Chloe',
@@ -526,7 +526,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.6',
+                roomNumber: 'HAB.18',
             },
         ],
         additionalServices: [
@@ -566,7 +566,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             weight: 3,
             sex: 'F',
             isNeutered: true,
-            roomNumber: 'HAB.7',
+            roomNumber: 'HAB.19',
         },
         additionalServices: [
             {
@@ -615,7 +615,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             weight: 12,
             sex: 'M',
             isNeutered: true,
-            roomNumber: 'HAB.8',
+            roomNumber: 'HAB.20',
         },
         additionalServices: [
             {
@@ -677,7 +677,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.7',
+                roomNumber: 'HAB.21',
             },
         ],
         additionalServices: [
@@ -711,7 +711,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.8',
+                roomNumber: 'HAB.22',
             },
         ],
         additionalServices: [
@@ -745,7 +745,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.9',
+                roomNumber: 'HAB.23',
             },
         ],
         additionalServices: [
@@ -781,7 +781,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.10',
+                roomNumber: 'HAB.24',
             },
         ],
         additionalServices: [
@@ -816,7 +816,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.11',
+                roomNumber: 'HAB.25',
             },
         ],
         additionalServices: [
@@ -851,7 +851,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.12',
+                roomNumber: 'HAB.26',
             },
             {
                 name: 'Raven',
@@ -860,7 +860,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.12',
+                roomNumber: 'HAB.27',
             },
         ],
         additionalServices: [
@@ -900,7 +900,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.4',
+                roomNumber: 'HAB.28',
             },
             {
                 name: 'Jasper',
@@ -909,7 +909,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.4',
+                roomNumber: 'HAB.29',
             },
         ],
         additionalServices: [
@@ -944,7 +944,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'mediano',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.30',
             },
             {
                 name: 'Pearl',
@@ -953,7 +953,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.31',
             },
             {
                 name: 'Ash',
@@ -962,7 +962,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.32',
             },
         ],
         additionalServices: [
@@ -997,7 +997,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.6',
+                roomNumber: 'HAB.33',
             },
             {
                 name: 'Lola',
@@ -1006,7 +1006,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.6',
+                roomNumber: 'HAB.34',
             },
         ],
         additionalServices: [
@@ -1051,7 +1051,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'grande',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.1',
+                roomNumber: 'HAB.2',
             },
         ],
         additionalServices: [
@@ -1146,7 +1146,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'M',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.6',
             },
             {
                 name: 'Nina',
@@ -1155,7 +1155,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
                 size: 'pequeño',
                 sex: 'F',
                 isNeutered: true,
-                roomNumber: 'HAB.5',
+                roomNumber: 'HAB.7',
             },
         ],
         additionalServices: [
@@ -1199,7 +1199,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             weight: 30,
             sex: 'F',
             isNeutered: true,
-            roomNumber: 'HAB.1',
+            roomNumber: 'HAB.8',
         },
         additionalServices: [
             {
@@ -1237,7 +1237,7 @@ export const EXAMPLE_RESERVATIONS: Reservation[] = [
             weight: 12,
             sex: 'M',
             isNeutered: true,
-            roomNumber: 'HAB.8',
+            roomNumber: 'HAB.9',
         },
         additionalServices: [
             {
