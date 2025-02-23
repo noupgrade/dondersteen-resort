@@ -24,6 +24,7 @@ import { useCalendarStore } from '../model/store'
 import { PendingReservationBanner } from './PendingReservationBanner'
 
 export function HotelReservationsCalendarWidget() {
+    console.log('HotelReservationsCalendarWidget')
     const { view, selectedDate, setView, setSelectedDate } = useCalendarStore()
     const { updateReservation } = useReservation()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -67,7 +68,7 @@ export function HotelReservationsCalendarWidget() {
     const handleAccept = async (reservation: HotelReservation) => {
         try {
             console.log('Accepting reservation:', reservation)
-            await updateReservation(reservation.id, {status: 'confirmed'})
+            await updateReservation(reservation.id, { status: 'confirmed' })
             console.log('Reservation accepted successfully')
 
             const newParams = new URLSearchParams(searchParams)

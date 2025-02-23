@@ -6,6 +6,7 @@ import { addReservation as addReservationApi } from '@/shared/api/reservations'
 import { useCollection } from '@/shared/firebase/hooks/useCollection'
 import { FSDocument } from '@/shared/firebase/types'
 import { EXAMPLE_RESERVATIONS } from '@/shared/mocks/example-reservations'
+import { getReservationsByDate } from '@/shared/utils/reservations'
 import {
     HairSalonReservation,
     HotelReservation,
@@ -22,9 +23,8 @@ type ExampleReservationsContextType = {
     addExampleReservation: (reservation: ReservationDocument) => void
     updateExampleReservation: (id: string, updatedData: Partial<Reservation>) => void
     deleteExampleReservation: (id: string) => void
-    getExampleReservationsByDate: (date: string) => ReservationDocument[]
-    getExampleHotelReservations: () => HotelReservation[]
-    getExampleHairSalonReservations: () => HairSalonReservation[]
+    exampleHotelReservations: HotelReservation[]
+    exampleHairSalonReservations: HairSalonReservation[]
 }
 
 const ExampleReservationsContext = createContext<ExampleReservationsContextType | undefined>(undefined)
@@ -65,7 +65,7 @@ export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }
                     : r,
             )
             localStorage.setItem('exampleReservations', JSON.stringify(updated))
-            return updated
+            return updated as ReservationDocument[]
         })
     }, [])
 
@@ -77,23 +77,11 @@ export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }
         })
     }, [])
 
-    const getExampleReservationsByDate = useCallback(
-        (date: string) => {
-            return exampleReservations.filter(r => {
-                if (r.type === 'hotel') {
-                    return r.checkInDate <= date && r.checkOutDate >= date
-                }
-                return r.date === date
-            })
-        },
-        [exampleReservations],
-    )
-
-    const getExampleHotelReservations = useCallback(() => {
+    const exampleHotelReservations = useMemo(() => {
         return exampleReservations.filter((r): r is HotelReservation => r.type === 'hotel')
     }, [exampleReservations])
 
-    const getExampleHairSalonReservations = useCallback(() => {
+    const exampleHairSalonReservations = useMemo(() => {
         return exampleReservations.filter((r): r is HairSalonReservation => r.type === 'peluqueria')
     }, [exampleReservations])
 
@@ -104,9 +92,8 @@ export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }
                 addExampleReservation,
                 updateExampleReservation,
                 deleteExampleReservation,
-                getExampleReservationsByDate,
-                getExampleHotelReservations,
-                getExampleHairSalonReservations,
+                exampleHotelReservations,
+                exampleHairSalonReservations,
             }}
         >
             {children}
@@ -115,13 +102,11 @@ export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }
 }
 
 type ReservationContextType = {
-    reservations: ReservationDocument[]
+    reservations: ReservationDocument[] // TODO REMOVE THIS FIELD, RESERVATIONS SHOULD BE FILTERED IN THE CONTEXT
     unscheduledHairSalonReservations: HairSalonReservation[]
     addReservation: (reservation: Omit<Reservation, 'id'>) => Promise<ReservationDocument>
     updateReservation: (id: string, updatedData: Partial<Reservation>) => Promise<void>
     deleteReservation: (id: string) => Promise<void>
-    getReservationsByClientId: (clientId: string) => ReservationDocument[]
-    getReservationsByDate: (date: string) => ReservationDocument[]
     isLoading: boolean
 }
 
@@ -137,21 +122,27 @@ export const useReservation = () => {
 
 export const useHotelReservations = (): { reservations: HotelReservation[] } => {
     const { reservations } = useReservation()
-    const { getExampleHotelReservations } = useExampleReservations()
-    const exampleHotelReservations = getExampleHotelReservations()
+    const { exampleHotelReservations } = useExampleReservations()
+    const hotelReservations = useMemo(
+        () => [...reservations.filter(r => r.type === 'hotel'), ...exampleHotelReservations],
+        [reservations, exampleHotelReservations],
+    )
 
     return {
-        reservations: [...reservations.filter(r => r.type === 'hotel'), ...exampleHotelReservations],
+        reservations: hotelReservations,
     }
 }
 
 export const useHairSalonReservations = (): { reservations: HairSalonReservation[] } => {
     const { reservations } = useReservation()
-    const { getExampleHairSalonReservations } = useExampleReservations()
-    const exampleHairSalonReservations = getExampleHairSalonReservations()
+    const { exampleHairSalonReservations } = useExampleReservations()
+    const hairSalonReservations = useMemo(
+        () => [...reservations.filter(r => r.type === 'peluqueria'), ...exampleHairSalonReservations],
+        [reservations, exampleHairSalonReservations],
+    )
 
     return {
-        reservations: [...reservations.filter(r => r.type === 'peluqueria'), ...exampleHairSalonReservations],
+        reservations: hairSalonReservations,
     }
 }
 
@@ -161,23 +152,44 @@ export const useUnscheduledHairSalonReservations = (): { reservations: HairSalon
 }
 
 export const useConfirmedHotelDayReservations = (date: string) => {
+    const [whereClauses] = useMemo(
+        () => [
+            [
+                ['type', '==', 'hotel'],
+                ['status', '==', 'confirmed'],
+                ['checkInDate', '<=', date],
+                ['checkOutDate', '>=', date],
+            ],
+        ],
+        [date],
+    )
+
+    console.log('useConfirmedHotelDayReservations: whereClauses', { whereClauses })
+
     const { results: reservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
-        where: [
-            ['type', '==', 'hotel'],
-            ['status', '==', 'confirmed'],
-            ['checkInDate', '<=', date],
-            ['checkOutDate', '>=', date],
-        ],
+        where: whereClauses as any,
     })
 
-    const { getExampleReservationsByDate } = useExampleReservations()
-    const exampleReservations = getExampleReservationsByDate(date).filter(r => r.type === 'hotel')
+    const { exampleReservations: exRes } = useExampleReservations()
+    const exampleReservations = getReservationsByDate(exRes, date).filter(r => r.type === 'hotel')
+
+    useEffect(() => {
+        console.log('useConfirmedHotelDayReservations: whereClauses changed', whereClauses)
+    }, [whereClauses])
+
+    useEffect(() => {
+        console.log('useConfirmedHotelDayReservations: reservations changed', reservations)
+    }, [reservations])
+
+    useEffect(() => {
+        console.log('useConfirmedHotelDayReservations: exRes changed', exRes)
+    }, [exRes])
 
     const allReservations = useMemo(() => {
         console.log('useConfirmedHotelDayReservations: reservations', reservations)
         return [...reservations, ...exampleReservations]
-    }, [reservations, exampleReservations])
+    }, [reservations, exRes])
 
     return {
         reservations: allReservations as HotelReservation[],
@@ -186,9 +198,9 @@ export const useConfirmedHotelDayReservations = (date: string) => {
 }
 
 export const useHotelConfirmedTodayReservations = () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
+    const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
     const { reservations, isLoading } = useConfirmedHotelDayReservations(today)
-    const todayCheckIns = reservations.filter(r => r.checkInDate === today)
+    const todayCheckIns = useMemo(() => reservations.filter(r => r.checkInDate === today), [reservations, today])
 
     return {
         reservations: todayCheckIns,
@@ -198,10 +210,10 @@ export const useHotelConfirmedTodayReservations = () => {
 
 export const useTodayCheckIns = () => {
     const { reservations, isLoading } = useHotelConfirmedTodayReservations()
-    const today = format(new Date(), 'yyyy-MM-dd')
+    const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
 
     const checkIns = useMemo(() => {
-        console.log('reservations', reservations)
+        console.log('useTodayCheckIns: checkIns', reservations)
         return reservations.filter(r => r.checkInDate === today)
     }, [reservations, today])
 
@@ -214,22 +226,16 @@ export const useTodayCheckIns = () => {
 export const useCheckIns = () => {
     const { updateReservation } = useReservation()
     const { reservations: checkIns, isLoading } = useTodayCheckIns()
-    const { updateExampleReservation } = useExampleReservations()
 
     const handleRoomAssign = useCallback(
         (reservationId: string, petName: string, room: string) => {
             const reservation = checkIns.find(r => r.id === reservationId)
             if (reservation) {
                 const updatedPets = reservation.pets.map(p => (p.name === petName ? { ...p, roomNumber: room } : p))
-
-                if (reservationId.startsWith('EXAMPLE_')) {
-                    updateExampleReservation(reservationId, { pets: updatedPets })
-                } else {
-                    updateReservation(reservationId, { pets: updatedPets })
-                }
+                updateReservation(reservationId, { pets: updatedPets })
             }
         },
-        [checkIns, updateReservation, updateExampleReservation],
+        [checkIns, updateReservation],
     )
 
     const handleSizeChange = useCallback(
@@ -257,13 +263,9 @@ export const useCheckIns = () => {
                 totalPrice: newTotalPrice,
             }
 
-            if (reservationId.startsWith('EXAMPLE_')) {
-                updateExampleReservation(reservationId, updateData)
-            } else {
-                await updateReservation(reservationId, updateData)
-            }
+            await updateReservation(reservationId, updateData)
         },
-        [checkIns, updateReservation, updateExampleReservation],
+        [checkIns, updateReservation],
     )
 
     return {
@@ -276,7 +278,7 @@ export const useCheckIns = () => {
 
 export const useTodayCheckOuts = () => {
     const { reservations, isLoading } = useHotelConfirmedTodayReservations()
-    const today = format(new Date(), 'yyyy-MM-dd')
+    const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
 
     const checkOuts = useMemo(() => {
         return reservations.filter(r => r.checkOutDate === today)
@@ -287,16 +289,16 @@ export const useTodayCheckOuts = () => {
         isLoading,
     }
 }
-
+const pendingHotelRequestsWhereClauses = [
+    ['type', 'in', ['hotel', 'hotel-budget']],
+    ['status', '==', 'pending'],
+]
 export const usePendingHotelRequests = () => {
     const { results: reservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
-        where: [
-            ['type', 'in', ['hotel', 'hotel-budget']],
-            ['status', '==', 'pending'],
-        ],
+        where: pendingHotelRequestsWhereClauses as any,
     })
-    
+
     const { exampleReservations } = useExampleReservations()
     const activeExampleReservations = useMemo(() => {
         return exampleReservations.filter(
@@ -305,14 +307,17 @@ export const usePendingHotelRequests = () => {
     }, [exampleReservations])
 
     const allReservations = useMemo(() => {
+        console.log('usePendingHotelRequests: allReservations', { reservations, activeExampleReservations })
         return [...reservations, ...activeExampleReservations]
     }, [reservations, activeExampleReservations])
 
     const pendingReservations = useMemo(() => {
+        console.log('usePendingHotelRequests: pendingReservations', { allReservations })
         return allReservations.filter((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending')
     }, [allReservations])
 
     const budgets = useMemo(() => {
+        console.log('usePendingHotelRequests: budgets', { allReservations })
         return allReservations.filter((r): r is HotelReservation => r.type === 'hotel-budget')
     }, [allReservations])
 
@@ -371,15 +376,27 @@ export const useHotelDayReservations = (date: string) => {
 }
 
 export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
+    const [whereClauses] = useMemo(() => {
+        console.log('useHotelWeekReservations: useMemo')
+        return [
+            [
+                ['type', '==', 'hotel'],
+                ['status', '==', 'confirmed'],
+                ['checkInDate', '<=', format(endDate, 'yyyy-MM-dd')], // TODO: Check if this is correct
+                ['checkOutDate', '>=', format(startDate, 'yyyy-MM-dd')],
+            ],
+        ]
+    }, [startDate, endDate])
+
+    console.log('useHotelWeekReservations: whereClauses', { whereClauses })
+
     const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
-        where: [
-            ['type', '==', 'hotel'],
-            ['status', '==', 'confirmed'],
-            ['checkInDate', '<=', format(endDate, 'yyyy-MM-dd')],
-            ['checkOutDate', '>=', format(startDate, 'yyyy-MM-dd')],
-        ],
+        where: whereClauses as any,
     })
+    console.log('dbReservations', dbReservations)
+    console.log('startDate', format(startDate, 'yyyy-MM-dd'))
+    console.log('endDate', format(endDate, 'yyyy-MM-dd'))
 
     const activeExampleReservations = useMemo(() => {
         const storedExampleReservations = localStorage.getItem('exampleReservations')
@@ -421,9 +438,12 @@ export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
     return { ...stats, isLoading }
 }
 
-export const usePendingHotelReservation = (reservationId: string | null) => {
+export const usePendingHotelReservation = (reservationId: string | null) => { // TODO MAYBE REMOVE 
     const { pendingReservations, isLoading } = usePendingHotelRequests()
-    const pendingReservation = pendingReservations.find(r => r.id === reservationId)
+    const pendingReservation = useMemo(
+        () =>  pendingReservations.find(r => r.id === reservationId),
+        [pendingReservations, reservationId],
+    )
 
     return { pendingReservation, isLoading }
 }
@@ -441,13 +461,12 @@ export const InnerReservationProvider: React.FC<{ children: React.ReactNode }> =
     })
     console.log('dbReservations', dbReservations)
 
-    const {
-        exampleReservations,
-        addExampleReservation,
-        updateExampleReservation,
-        deleteExampleReservation,
-        getExampleReservationsByDate,
-    } = useExampleReservations()
+    const { exampleReservations, addExampleReservation, updateExampleReservation, deleteExampleReservation } =
+        useExampleReservations()
+
+    const reservations = useMemo(() => {
+        return [...dbReservations, ...exampleReservations] as ReservationDocument[]
+    }, [dbReservations, exampleReservations])
 
     const addReservation = useCallback(
         async (reservation: Omit<Reservation, 'id'>) => {
@@ -492,42 +511,21 @@ export const InnerReservationProvider: React.FC<{ children: React.ReactNode }> =
         [removeDocument, deleteExampleReservation],
     )
 
-    const getReservationsByClientId = useCallback(
-        (clientId: string) => {
-            const exampleClientReservations = exampleReservations.filter(r => r.client.id === clientId)
-            const dbClientReservations = dbReservations.filter(r => r.client.id === clientId)
-            return [...dbClientReservations, ...exampleClientReservations]
-        },
-        [dbReservations, exampleReservations],
-    )
-
-    const getReservationsByDate = useCallback(
-        (date: string) => {
-            const exampleDateReservations = getExampleReservationsByDate(date)
-            const dbDateReservations = dbReservations.filter(r => {
-                if (r.type === 'hotel') {
-                    return r.checkInDate === date
-                }
-                return r.date === date
-            })
-            return [...dbDateReservations, ...exampleDateReservations]
-        },
-        [dbReservations, getExampleReservationsByDate],
-    )
+    const unscheduledHairSalonReservations = useMemo(() => {
+        return reservations.filter(
+            (r): r is HairSalonReservation =>
+                r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
+        )
+    }, [reservations])
 
     return (
         <ReservationContext.Provider
             value={{
-                reservations: dbReservations,
-                unscheduledHairSalonReservations: dbReservations.filter(
-                    (r): r is HairSalonReservation =>
-                        r.type === 'peluqueria' && r.status === 'confirmed' && (!r.tasks || r.tasks.length === 0),
-                ),
+                reservations,
+                unscheduledHairSalonReservations,
                 addReservation,
                 updateReservation,
                 deleteReservation,
-                getReservationsByClientId,
-                getReservationsByDate,
                 isLoading,
             }}
         >

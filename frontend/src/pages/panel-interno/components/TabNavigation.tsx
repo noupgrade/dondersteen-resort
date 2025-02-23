@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { format } from 'date-fns'
 
 import {
@@ -12,7 +14,8 @@ import { TabsList, TabsTrigger } from '@/shared/ui/tabs.tsx'
 type TabNavigationProps = {}
 
 export const TabNavigation = ({}: TabNavigationProps) => {
-    const today = format(new Date(), 'yyyy-MM-dd')
+    console.log('TabNavigation')
+    const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
     const { reservations: activeReservations } = useConfirmedHotelDayReservations(today)
 
     const { pendingReservations, budgets } = usePendingHotelRequests()

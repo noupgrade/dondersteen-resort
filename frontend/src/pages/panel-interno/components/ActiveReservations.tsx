@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { format } from 'date-fns'
 
@@ -13,10 +13,18 @@ type ActiveReservationsProps = {
 }
 
 export const ActiveReservations = ({ onViewReservation }: ActiveReservationsProps) => {
-    const today = format(new Date(), 'yyyy-MM-dd')
+    console.log('ActiveReservations')
+    const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
     const { reservations, isLoading } = useConfirmedHotelDayReservations(today)
     const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
     const [searchTerm, setSearchTerm] = useState('')
+
+    useEffect(() => {
+        console.log('mounted')
+        return () => {
+            console.log('unmounted')
+        }
+    }, [])
 
     useEffect(() => {
         console.log('reservations', reservations)

@@ -35,18 +35,39 @@ export const useCollection = <T extends FSDocument>({
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
+        console.log('useCollection: useEffect')
+        let unsubscribe = () => {}
         const fetchResults = async () => {
             setIsLoading(true)
-            await getCollection<T>({ path, orderBy, limit, startAfter, where }, upToDateDocs => {
-                if (upToDateDocs.length) setResults(prev => removeDuplicates(prev, upToDateDocs))
-                else setHasReachedEnd(true)
-            })
+            // unsubscribe = await getCollection<T>({ path, orderBy, limit, startAfter, where }, upToDateDocs => {
+            //     if (upToDateDocs.length) setResults(prev => removeDuplicates(prev, upToDateDocs))
+            //     else setHasReachedEnd(true)
+            // })
             setIsLoading(false)
         }
 
         fetchResults()
-    }, [path, limit, startAfter])
+        return () => {
+            console.log('unsubscribing')
+            unsubscribe()
+        }
+    }, [path, limit, startAfter, where])
 
+    useEffect(() => {
+        console.log(`useCollection: useEffect: path: ${path}`)
+    }, [path])
+    useEffect(() => {
+        console.log(`useCollection: useEffect: limit: ${limit}`)
+    }, [limit])
+    useEffect(() => {
+        console.log(`useCollection: useEffect: startAfter: ${startAfter}`)
+    }, [startAfter])
+    useEffect(() => {
+        console.log(`useCollection: useEffect: where: ${where}`)
+    }, [where])
+    useEffect(() => {
+        console.log(`useCollection: useEffect: orderBy: ${orderBy}`)
+    }, [orderBy])
     useEffect(() => {
         setResults([])
     }, [path])
