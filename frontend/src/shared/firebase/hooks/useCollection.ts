@@ -39,10 +39,10 @@ export const useCollection = <T extends FSDocument>({
         let unsubscribe = () => {}
         const fetchResults = async () => {
             setIsLoading(true)
-            // unsubscribe = await getCollection<T>({ path, orderBy, limit, startAfter, where }, upToDateDocs => {
-            //     if (upToDateDocs.length) setResults(prev => removeDuplicates(prev, upToDateDocs))
-            //     else setHasReachedEnd(true)
-            // })
+            unsubscribe = await getCollection<T>({ path, orderBy, limit, startAfter, where }, upToDateDocs => {
+                if (upToDateDocs.length) setResults(prev => removeDuplicates(prev, upToDateDocs))
+                else setHasReachedEnd(true)
+            })
             setIsLoading(false)
         }
 

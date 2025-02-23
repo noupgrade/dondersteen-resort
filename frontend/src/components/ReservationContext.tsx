@@ -153,14 +153,17 @@ export const useUnscheduledHairSalonReservations = (): { reservations: HairSalon
 
 export const useConfirmedHotelDayReservations = (date: string) => {
     const [whereClauses] = useMemo(
-        () => [
+        () => {
+            console.log('useConfirmedHotelDayReservations: useMemo')
+            return [
             [
                 ['type', '==', 'hotel'],
                 ['status', '==', 'confirmed'],
                 ['checkInDate', '<=', date],
                 ['checkOutDate', '>=', date],
             ],
-        ],
+        ]
+    },
         [date],
     )
 
