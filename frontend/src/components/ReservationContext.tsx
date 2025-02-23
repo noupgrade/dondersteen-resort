@@ -329,14 +329,19 @@ export const usePendingHotelRequests = () => {
 }
 
 export const useHotelDayReservations = (date: string) => {
+    const [whereClauses] = useMemo(() => {
+        return [
+            [
+                ['type', '==', 'hotel'],
+                ['status', '==', 'confirmed'],
+                ['checkInDate', '<=', date],
+                ['checkOutDate', '>=', date],
+            ],
+        ]
+    }, [date])
     const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
-        where: [
-            ['type', '==', 'hotel'],
-            ['status', '==', 'confirmed'],
-            ['checkInDate', '<=', date],
-            ['checkOutDate', '>=', date],
-        ],
+        where: whereClauses as any,
     })
 
     const activeExampleReservations = useMemo(() => {
@@ -375,15 +380,15 @@ export const useHotelDayReservations = (date: string) => {
     return { ...stats, isLoading }
 }
 
-export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
+export const useHotelWeekReservations = (startDate: string, endDate: string) => {
     const [whereClauses] = useMemo(() => {
         console.log('useHotelWeekReservations: useMemo')
         return [
             [
                 ['type', '==', 'hotel'],
                 ['status', '==', 'confirmed'],
-                ['checkInDate', '<=', format(endDate, 'yyyy-MM-dd')], // TODO: Check if this is correct
-                ['checkOutDate', '>=', format(startDate, 'yyyy-MM-dd')],
+                ['checkInDate', '<=', endDate], // TODO: Check if this is correct
+                ['checkOutDate', '>=', startDate],
             ],
         ]
     }, [startDate, endDate])
@@ -395,8 +400,8 @@ export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
         where: whereClauses as any,
     })
     console.log('dbReservations', dbReservations)
-    console.log('startDate', format(startDate, 'yyyy-MM-dd'))
-    console.log('endDate', format(endDate, 'yyyy-MM-dd'))
+    console.log('startDate', startDate)
+    console.log('endDate', endDate)
 
     const activeExampleReservations = useMemo(() => {
         const storedExampleReservations = localStorage.getItem('exampleReservations')
@@ -408,8 +413,8 @@ export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
             r =>
                 r.type === 'hotel' &&
                 r.status === 'confirmed' &&
-                r.checkInDate <= format(endDate, 'yyyy-MM-dd') &&
-                r.checkOutDate >= format(startDate, 'yyyy-MM-dd'),
+                r.checkInDate <= endDate &&
+                r.checkOutDate >= startDate,
         )
     }, [startDate, endDate])
 
@@ -438,10 +443,11 @@ export const useHotelWeekReservations = (startDate: Date, endDate: Date) => {
     return { ...stats, isLoading }
 }
 
-export const usePendingHotelReservation = (reservationId: string | null) => { // TODO MAYBE REMOVE 
+export const usePendingHotelReservation = (reservationId: string | null) => {
+    // TODO MAYBE REMOVE
     const { pendingReservations, isLoading } = usePendingHotelRequests()
     const pendingReservation = useMemo(
-        () =>  pendingReservations.find(r => r.id === reservationId),
+        () => pendingReservations.find(r => r.id === reservationId),
         [pendingReservations, reservationId],
     )
 

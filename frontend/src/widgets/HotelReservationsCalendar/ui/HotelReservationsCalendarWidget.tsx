@@ -52,8 +52,8 @@ export function HotelReservationsCalendarWidget() {
         totalPets: dayTotalPets,
     } = useHotelDayReservations(format(selectedDate, 'yyyy-MM-dd'))
     const { reservations: weekReservations } = useHotelWeekReservations(
-        new Date(weekDays[0].date),
-        new Date(weekDays[6].date),
+        weekDays[0].date,
+        weekDays[6].date,
     )
     const { pendingReservation } = usePendingHotelReservation(pendingReservationId)
 
