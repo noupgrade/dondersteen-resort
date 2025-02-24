@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Dog, Home, Ruler } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 
 import { useCheckIns } from '@/components/ReservationContext'
 import { ROOMS } from '@/shared/types/rooms'
+import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { HotelReservation, PetSize } from '@monorepo/functions/src/types/reservations'
@@ -92,37 +94,43 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
 
 export function CheckIns() {
     const { checkIns, isLoading, handleRoomAssign, handleSizeChange } = useCheckIns()
-    const [availableRooms] = useState<string[]>(ROOMS)
 
-    // Usar useMemo para calcular los perros en las habitaciones
-    const petsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> } = {}
+    const currentPetsInRooms = useMemo(() => {
+        const petsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> } = ROOMS.reduce(
+            (acc, room) => {
+                acc[room] = []
+                return acc
+            },
+            {} as { [key: string]: Array<{ name: string; breed: string; sex: string }> },
+        )
 
-    // Inicializar todas las habitaciones con un array vacío
-    availableRooms.forEach(room => {
-        petsInRooms[room] = []
-    })
-    console.log('checkIns', checkIns)
-    // Mapear todas las mascotas a sus habitaciones
-    checkIns.forEach(reservation => {
-        reservation.pets.forEach(pet => {
-            if (pet.roomNumber) {
-                petsInRooms[pet.roomNumber].push({
-                    name: pet.name,
-                    breed: pet.breed,
-                    sex: pet.sex,
-                })
-            }
+        checkIns.forEach(reservation => {
+            reservation.pets.forEach(pet => {
+                if (pet.roomNumber) {
+                    petsInRooms[pet.roomNumber].push({
+                        name: pet.name,
+                        breed: pet.breed,
+                        sex: pet.sex,
+                    })
+                }
+            })
         })
-    })
 
-    const currentPetsInRooms = petsInRooms
+        return petsInRooms
+    }, [checkIns])
 
     if (isLoading) {
         return <div className='py-8 text-center text-muted-foreground'>Cargando check-ins...</div>
     }
 
     if (checkIns.length === 0) {
-        return <div className='py-8 text-center text-muted-foreground'>No hay check-ins programados para hoy</div>
+        return (
+            <Alert variant='info' className='mt-2'>
+                <Calendar className='h-4 w-4' />
+                <AlertTitle>Sin check-ins</AlertTitle>
+                <AlertDescription>No hay entradas programadas para el día de hoy.</AlertDescription>
+            </Alert>
+        )
     }
 
     return (
@@ -142,7 +150,7 @@ export function CheckIns() {
                                 pet={pet}
                                 onRoomAssign={room => handleRoomAssign(reservation.id, pet.name, room)}
                                 onSizeChange={size => handleSizeChange(reservation.id, index, size)}
-                                availableRooms={availableRooms}
+                                availableRooms={ROOMS}
                                 currentPetsInRooms={currentPetsInRooms}
                             />
                         ))}

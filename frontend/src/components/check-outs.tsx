@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { format } from 'date-fns'
-import { Clock, DollarSign, PawPrint, Scissors, Truck } from 'lucide-react'
+import { Calendar, Clock, DollarSign, PawPrint, Scissors, Truck } from 'lucide-react'
 
 import { useReservation, useTodayCheckOuts } from '@/components/ReservationContext'
 import { InvoiceModal } from '@/features/invoice/ui/InvoiceModal'
 import { ReservationViewer } from '@/features/reservation-viewer/ui/ReservationViewer'
+import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -118,6 +119,20 @@ export function CheckOuts() {
             setConfirmedCheckOuts([...confirmedCheckOuts, checkoutReservation.id])
             handleCloseInvoice()
         }
+    }
+
+    if (isLoading) {
+        return <div className='py-8 text-center text-muted-foreground'>Cargando check-outs...</div>
+    }
+
+    if (checkOuts.length === 0) {
+        return (
+            <Alert variant='info' className='mt-2'>
+                <Calendar className='h-4 w-4' />
+                <AlertTitle>Sin check-outs</AlertTitle>
+                <AlertDescription>No hay salidas programadas para el día de hoy.</AlertDescription>
+            </Alert>
+        )
     }
 
     return (
