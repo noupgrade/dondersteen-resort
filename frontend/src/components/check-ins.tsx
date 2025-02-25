@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
 
-import { Dog, Home, Ruler } from 'lucide-react'
-import { Calendar } from 'lucide-react'
+import { Calendar, Check, ChevronsUpDown, Dog, Home, Ruler } from 'lucide-react'
 
 import { useCheckIns } from '@/components/ReservationContext'
+import { cn } from '@/shared/lib/styles/class-merge'
 import { ROOMS } from '@/shared/types/rooms'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/alert'
+import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/shared/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { HotelReservation, PetSize } from '@monorepo/functions/src/types/reservations'
 
 type PetCardProps = {
@@ -32,6 +34,15 @@ function RoomDisplay({ room, pets }: { room: string; pets?: Array<{ name: string
 }
 
 function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsInRooms }: PetCardProps) {
+    const [openRoom, setOpenRoom] = useState(false)
+    const [openSize, setOpenSize] = useState(false)
+
+    const sizes = [
+        { value: 'pequeño', label: 'Pequeño' },
+        { value: 'mediano', label: 'Mediano' },
+        { value: 'grande', label: 'Grande' },
+    ]
+
     return (
         <Card className='mb-4 last:mb-0'>
             <CardHeader className='pb-2'>
@@ -46,45 +57,107 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
             <CardContent className='grid gap-4'>
                 <div className='flex items-center gap-4'>
                     <div className='flex-1'>
-                        <Select onValueChange={onRoomAssign} value={pet.roomNumber}>
-                            <SelectTrigger
-                                className={`min-h-[2.75rem] w-full ${!pet.roomNumber ? 'border-amber-300 bg-amber-100 hover:bg-amber-200' : ''}`}
-                            >
-                                <div className='flex w-full items-center gap-2'>
-                                    <Home className={`h-4 w-4 shrink-0 ${!pet.roomNumber ? 'text-amber-500' : ''}`} />
-                                    {pet.roomNumber ? (
-                                        <RoomDisplay room={pet.roomNumber} pets={currentPetsInRooms[pet.roomNumber]} />
-                                    ) : (
-                                        <span className='text-amber-700'>Asignar Habitación</span>
+                        <Popover open={openRoom} onOpenChange={setOpenRoom}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant='outline'
+                                    role='combobox'
+                                    aria-expanded={openRoom}
+                                    className={cn(
+                                        'min-h-[2.75rem] w-full justify-between',
+                                        !pet.roomNumber ? 'border-amber-300 bg-amber-100 hover:bg-amber-200' : '',
                                     )}
-                                </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <div className='max-h-[300px] overflow-auto'>
-                                    {availableRooms.map(room => (
-                                        <SelectItem key={room} value={room} className='py-2'>
-                                            <RoomDisplay room={room} pets={currentPetsInRooms[room]} />
-                                        </SelectItem>
-                                    ))}
-                                </div>
-                            </SelectContent>
-                        </Select>
+                                >
+                                    <div className='flex w-full items-center gap-2'>
+                                        <Home
+                                            className={`h-4 w-4 shrink-0 ${!pet.roomNumber ? 'text-amber-500' : ''}`}
+                                        />
+                                        {pet.roomNumber ? (
+                                            <RoomDisplay
+                                                room={pet.roomNumber}
+                                                pets={currentPetsInRooms[pet.roomNumber]}
+                                            />
+                                        ) : (
+                                            <span className='text-amber-700'>Asignar Habitación</span>
+                                        )}
+                                    </div>
+                                    <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+                                <Command>
+                                    <CommandInput placeholder='Buscar habitación...' />
+                                    <CommandEmpty>No se encontraron habitaciones.</CommandEmpty>
+                                    <CommandList className='max-h-[300px] overflow-auto'>
+                                        {availableRooms.map(room => (
+                                            <CommandItem
+                                                key={room}
+                                                value={room}
+                                                onSelect={() => {
+                                                    onRoomAssign(room)
+                                                    setOpenRoom(false)
+                                                }}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        'mr-2 h-4 w-4',
+                                                        pet.roomNumber === room ? 'opacity-100' : 'opacity-0',
+                                                    )}
+                                                />
+                                                <RoomDisplay room={room} pets={currentPetsInRooms[room]} />
+                                            </CommandItem>
+                                        ))}
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
                     <div className='flex-1'>
-                        <Select onValueChange={onSizeChange} defaultValue={pet.size}>
-                            <SelectTrigger className='min-h-[2.75rem] w-full'>
-                                <div className='flex items-center gap-2'>
-                                    <Ruler className='h-4 w-4 shrink-0' />
-                                    <SelectValue placeholder='Seleccionar Tamaño' />
-                                </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value='pequeño'>Pequeño</SelectItem>
-                                <SelectItem value='mediano'>Mediano</SelectItem>
-                                <SelectItem value='grande'>Grande</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Popover open={openSize} onOpenChange={setOpenSize}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant='outline'
+                                    role='combobox'
+                                    aria-expanded={openSize}
+                                    className='min-h-[2.75rem] w-full justify-between'
+                                >
+                                    <div className='flex items-center gap-2'>
+                                        <Ruler className='h-4 w-4 shrink-0' />
+                                        <span>
+                                            {sizes.find(s => s.value === pet.size)?.label || 'Seleccionar Tamaño'}
+                                        </span>
+                                    </div>
+                                    <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
+                                <Command>
+                                    <CommandInput placeholder='Buscar tamaño...' />
+                                    <CommandEmpty>No se encontraron tamaños.</CommandEmpty>
+                                    <CommandList>
+                                        {sizes.map(size => (
+                                            <CommandItem
+                                                key={size.value}
+                                                value={size.value}
+                                                onSelect={() => {
+                                                    onSizeChange(size.value as PetSize)
+                                                    setOpenSize(false)
+                                                }}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        'mr-2 h-4 w-4',
+                                                        pet.size === size.value ? 'opacity-100' : 'opacity-0',
+                                                    )}
+                                                />
+                                                {size.label}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
             </CardContent>
@@ -92,18 +165,10 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
     )
 }
 
-let lastRenderTime = performance.now()
-
 export function CheckIns() {
-    console.log('CheckIns')
-    console.log('Current time:', performance.now())
     const { checkIns, isLoading, handleRoomAssign, handleSizeChange } = useCheckIns()
-    console.log('CheckIns hooks finished')
 
     const currentPetsInRooms = useMemo(() => {
-        console.log('Current time:', performance.now())
-        const startTime = performance.now()
-        console.log('checkIns', checkIns)
         const petsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> } = ROOMS.reduce(
             (acc, room) => {
                 acc[room] = []
@@ -123,19 +188,14 @@ export function CheckIns() {
                 }
             })
         })
-        const endTime = performance.now()
-        console.log('petsInRooms', petsInRooms)
-        console.log(`Time taken to measure pets in rooms: ${endTime - startTime} milliseconds`)
         return petsInRooms
     }, [checkIns])
 
     if (isLoading) {
-        console.log('CheckIns isLoading')
         return <div className='py-8 text-center text-muted-foreground'>Cargando check-ins...</div>
     }
 
     if (checkIns.length === 0) {
-        console.log('CheckIns checkIns.length === 0')
         return (
             <Alert variant='info' className='mt-2'>
                 <Calendar className='h-4 w-4' />
@@ -145,12 +205,7 @@ export function CheckIns() {
         )
     }
 
-    console.log('Rendering CheckIns for reservations:', checkIns)
-    const renderTime = performance.now()
-    console.log(`Time taken to render CheckIns: ${renderTime - lastRenderTime} milliseconds`)
-    lastRenderTime = renderTime
-
-    const el = (
+    return (
         <div className='space-y-6'>
             {checkIns.map(reservation => (
                 <Card key={reservation.id} className='overflow-hidden'>
@@ -176,6 +231,4 @@ export function CheckIns() {
             ))}
         </div>
     )
-    console.log('Current time:', performance.now())
-    return el
 }

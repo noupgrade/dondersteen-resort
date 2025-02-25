@@ -35,10 +35,9 @@ export const useCollection = <T extends FSDocument>({
     const [hasReachedEnd, setHasReachedEnd] = useState(false)
     const [results, setResults] = useState<T[]>(() => CollectionCache.get<T>(params) || [])
     const [isLoading, setIsLoading] = useState(() => !CollectionCache.contains(params))
-    console.log('useCollection: isLoading', isLoading)
 
     useEffect(() => {
-        console.log('useCollection: useEffect')
+        setResults(CollectionCache.get<T>(params) || [])
         let unsubscribe = () => {}
         const fetchResults = async () => {
             unsubscribe = await getCollection<T>({ ...params, startAfter }, upToDateDocs => {
@@ -59,29 +58,9 @@ export const useCollection = <T extends FSDocument>({
 
         fetchResults()
         return () => {
-            console.log('unsubscribing')
             unsubscribe()
         }
     }, [path, limit, startAfter, where])
-
-    useEffect(() => {
-        console.log(`useCollection: useEffect: path: ${path}`)
-    }, [path])
-    useEffect(() => {
-        console.log(`useCollection: useEffect: limit: ${limit}`)
-    }, [limit])
-    useEffect(() => {
-        console.log(`useCollection: useEffect: startAfter: ${startAfter}`)
-    }, [startAfter])
-    useEffect(() => {
-        console.log(`useCollection: useEffect: where: ${where}`)
-    }, [where])
-    useEffect(() => {
-        console.log(`useCollection: useEffect: orderBy: ${orderBy}`)
-    }, [orderBy])
-    useEffect(() => {
-        setResults([])
-    }, [path])
 
     const loadMore = () => {
         if (!results.length) setHasReachedEnd(true)

@@ -155,7 +155,6 @@ export const useUnscheduledHairSalonReservations = (): { reservations: HairSalon
 
 export const useConfirmedHotelDayReservations = (date: string) => {
     const [whereClauses] = useMemo(() => {
-        console.log('useConfirmedHotelDayReservations: useMemo')
         return [
             [
                 ['type', '==', 'hotel'],
@@ -173,20 +172,7 @@ export const useConfirmedHotelDayReservations = (date: string) => {
 
     const { exampleHotelReservations } = useExampleReservations()
 
-    useEffect(() => {
-        console.log('useConfirmedHotelDayReservations: whereClauses changed', whereClauses)
-    }, [whereClauses])
-
-    useEffect(() => {
-        console.log('useConfirmedHotelDayReservations: reservations changed', reservations)
-    }, [reservations])
-
-    useEffect(() => {
-        console.log('useConfirmedHotelDayReservations: exampleHotelReservations changed', exampleHotelReservations)
-    }, [exampleHotelReservations])
-
     const allReservations = useMemo(() => {
-        console.log('useConfirmedHotelDayReservations: allreservations', reservations)
         return [...reservations, ...getReservationsByDate(exampleHotelReservations, date)]
     }, [reservations, exampleHotelReservations])
 
@@ -212,7 +198,6 @@ export const useTodayCheckIns = () => {
     const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
 
     const checkIns = useMemo(() => {
-        console.log('useTodayCheckIns: checkIns', reservations)
         return reservations.filter(r => r.checkInDate === today)
     }, [reservations, today])
 
@@ -306,17 +291,14 @@ export const usePendingHotelRequests = () => {
     }, [exampleReservations])
 
     const allReservations = useMemo(() => {
-        console.log('usePendingHotelRequests: allReservations', { reservations, activeExampleReservations })
         return [...reservations, ...activeExampleReservations]
     }, [reservations, activeExampleReservations])
 
     const pendingReservations = useMemo(() => {
-        console.log('usePendingHotelRequests: pendingReservations', { allReservations })
         return allReservations.filter((r): r is HotelReservation => r.type === 'hotel' && r.status === 'pending')
     }, [allReservations])
 
     const budgets = useMemo(() => {
-        console.log('usePendingHotelRequests: budgets', { allReservations })
         return allReservations.filter((r): r is HotelReservation => r.type === 'hotel-budget')
     }, [allReservations])
 
@@ -392,15 +374,10 @@ export const useHotelWeekReservations = (startDate: string, endDate: string) => 
         ]
     }, [startDate, endDate])
 
-    console.log('useHotelWeekReservations: whereClauses', { whereClauses })
-
     const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
         where: whereClauses as any,
     })
-    console.log('dbReservations', dbReservations)
-    console.log('startDate', startDate)
-    console.log('endDate', endDate)
 
     const activeExampleReservations = useMemo(() => {
         const storedExampleReservations = localStorage.getItem('exampleReservations')
