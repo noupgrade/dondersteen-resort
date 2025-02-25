@@ -7,7 +7,7 @@ import { CalendarDays, Calendar as CalendarIcon, CalendarRange, ChevronLeft, Che
 
 import {
     useHotelDayReservations,
-    useHotelWeekReservations,
+    useHotelReservationsInPeriod,
     usePendingHotelReservation,
     useReservation,
 } from '@/components/ReservationContext'
@@ -51,10 +51,7 @@ export function HotelReservationsCalendarWidget() {
         petsBySize: dayPetsBySize,
         totalPets: dayTotalPets,
     } = useHotelDayReservations(format(selectedDate, 'yyyy-MM-dd'))
-    const { reservations: weekReservations } = useHotelWeekReservations(
-        weekDays[0].date,
-        weekDays[6].date,
-    )
+    const { reservations: weekReservations } = useHotelReservationsInPeriod(weekDays[0].date, weekDays[6].date)
     const { pendingReservation } = usePendingHotelReservation(pendingReservationId)
 
     // Actualizar la fecha seleccionada cuando cambie el parámetro date

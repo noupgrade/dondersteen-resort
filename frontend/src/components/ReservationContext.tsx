@@ -310,60 +310,12 @@ export const usePendingHotelRequests = () => {
 }
 
 export const useHotelDayReservations = (date: string) => {
-    const [whereClauses] = useMemo(() => {
-        return [
-            [
-                ['type', '==', 'hotel'],
-                ['status', '==', 'confirmed'],
-                ['checkInDate', '<=', date],
-                ['checkOutDate', '>=', date],
-            ],
-        ]
-    }, [date])
-    const { results: dbReservations, isLoading } = useCollection<ReservationDocument>({
-        path: 'reservations',
-        where: whereClauses as any,
-    })
-
-    const activeExampleReservations = useMemo(() => {
-        const storedExampleReservations = localStorage.getItem('exampleReservations')
-        const exampleReservations = storedExampleReservations
-            ? (JSON.parse(storedExampleReservations) as ReservationDocument[])
-            : EXAMPLE_RESERVATIONS
-
-        return exampleReservations.filter(
-            r => r.type === 'hotel' && r.status === 'confirmed' && r.checkInDate <= date && r.checkOutDate >= date,
-        )
-    }, [date])
-
-    const allReservations = useMemo(() => {
-        return [...dbReservations, ...activeExampleReservations] as HotelReservation[]
-    }, [dbReservations, activeExampleReservations])
-
-    const stats = useMemo(() => {
-        const petsBySize = allReservations.reduce(
-            (sizes, reservation) => {
-                reservation.pets.forEach(pet => {
-                    sizes[pet.size]++
-                })
-                return sizes
-            },
-            { grande: 0, mediano: 0, pequeño: 0 },
-        )
-
-        return {
-            reservations: allReservations,
-            totalPets: allReservations.reduce((total, reservation) => total + reservation.pets.length, 0),
-            petsBySize,
-        }
-    }, [allReservations])
-
-    return { ...stats, isLoading }
+    return useHotelReservationsInPeriod(date, date)
 }
 
-export const useHotelWeekReservations = (startDate: string, endDate: string) => {
+export const useHotelReservationsInPeriod = (startDate: string, endDate: string) => {
     const [whereClauses] = useMemo(() => {
-        console.log('useHotelWeekReservations: useMemo')
+        console.log('useHotelReservationsInPeriod: useMemo')
         return [
             [
                 ['type', '==', 'hotel'],
