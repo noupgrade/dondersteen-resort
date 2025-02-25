@@ -92,10 +92,18 @@ function PetCard({ pet, onRoomAssign, onSizeChange, availableRooms, currentPetsI
     )
 }
 
+let lastRenderTime = performance.now()
+
 export function CheckIns() {
+    console.log('CheckIns')
+    console.log('Current time:', performance.now())
     const { checkIns, isLoading, handleRoomAssign, handleSizeChange } = useCheckIns()
+    console.log('CheckIns hooks finished')
 
     const currentPetsInRooms = useMemo(() => {
+        console.log('Current time:', performance.now())
+        const startTime = performance.now()
+        console.log('checkIns', checkIns)
         const petsInRooms: { [key: string]: Array<{ name: string; breed: string; sex: string }> } = ROOMS.reduce(
             (acc, room) => {
                 acc[room] = []
@@ -115,15 +123,19 @@ export function CheckIns() {
                 }
             })
         })
-
+        const endTime = performance.now()
+        console.log('petsInRooms', petsInRooms)
+        console.log(`Time taken to measure pets in rooms: ${endTime - startTime} milliseconds`)
         return petsInRooms
     }, [checkIns])
 
     if (isLoading) {
+        console.log('CheckIns isLoading')
         return <div className='py-8 text-center text-muted-foreground'>Cargando check-ins...</div>
     }
 
     if (checkIns.length === 0) {
+        console.log('CheckIns checkIns.length === 0')
         return (
             <Alert variant='info' className='mt-2'>
                 <Calendar className='h-4 w-4' />
@@ -133,7 +145,12 @@ export function CheckIns() {
         )
     }
 
-    return (
+    console.log('Rendering CheckIns for reservations:', checkIns)
+    const renderTime = performance.now()
+    console.log(`Time taken to render CheckIns: ${renderTime - lastRenderTime} milliseconds`)
+    lastRenderTime = renderTime
+
+    const el = (
         <div className='space-y-6'>
             {checkIns.map(reservation => (
                 <Card key={reservation.id} className='overflow-hidden'>
@@ -159,4 +176,6 @@ export function CheckIns() {
             ))}
         </div>
     )
+    console.log('Current time:', performance.now())
+    return el
 }

@@ -38,6 +38,7 @@ export const useExampleReservations = () => {
 }
 
 export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    console.log('ExampleReservationsProvider')
     const [exampleReservations, setExampleReservations] = useState<ReservationDocument[]>(() => {
         const storedExampleReservations = localStorage.getItem('exampleReservations')
         return storedExampleReservations
@@ -78,6 +79,7 @@ export const ExampleReservationsProvider: React.FC<{ children: React.ReactNode }
     }, [])
 
     const exampleHotelReservations = useMemo(() => {
+        console.log('ExampleReservationsProvider: exampleReservations', exampleReservations)
         return exampleReservations.filter((r): r is HotelReservation => r.type === 'hotel')
     }, [exampleReservations])
 
@@ -152,10 +154,9 @@ export const useUnscheduledHairSalonReservations = (): { reservations: HairSalon
 }
 
 export const useConfirmedHotelDayReservations = (date: string) => {
-    const [whereClauses] = useMemo(
-        () => {
-            console.log('useConfirmedHotelDayReservations: useMemo')
-            return [
+    const [whereClauses] = useMemo(() => {
+        console.log('useConfirmedHotelDayReservations: useMemo')
+        return [
             [
                 ['type', '==', 'hotel'],
                 ['status', '==', 'confirmed'],
@@ -163,19 +164,14 @@ export const useConfirmedHotelDayReservations = (date: string) => {
                 ['checkOutDate', '>=', date],
             ],
         ]
-    },
-        [date],
-    )
-
-    console.log('useConfirmedHotelDayReservations: whereClauses', { whereClauses })
+    }, [date])
 
     const { results: reservations, isLoading } = useCollection<ReservationDocument>({
         path: 'reservations',
         where: whereClauses as any,
     })
 
-    const { exampleReservations: exRes } = useExampleReservations()
-    const exampleReservations = getReservationsByDate(exRes, date).filter(r => r.type === 'hotel')
+    const { exampleHotelReservations } = useExampleReservations()
 
     useEffect(() => {
         console.log('useConfirmedHotelDayReservations: whereClauses changed', whereClauses)
@@ -186,13 +182,13 @@ export const useConfirmedHotelDayReservations = (date: string) => {
     }, [reservations])
 
     useEffect(() => {
-        console.log('useConfirmedHotelDayReservations: exRes changed', exRes)
-    }, [exRes])
+        console.log('useConfirmedHotelDayReservations: exampleHotelReservations changed', exampleHotelReservations)
+    }, [exampleHotelReservations])
 
     const allReservations = useMemo(() => {
-        console.log('useConfirmedHotelDayReservations: reservations', reservations)
-        return [...reservations, ...exampleReservations]
-    }, [reservations, exRes])
+        console.log('useConfirmedHotelDayReservations: allreservations', reservations)
+        return [...reservations, ...getReservationsByDate(exampleHotelReservations, date)]
+    }, [reservations, exampleHotelReservations])
 
     return {
         reservations: allReservations as HotelReservation[],

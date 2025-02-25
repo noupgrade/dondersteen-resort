@@ -16,6 +16,7 @@ export const ActiveReservations = ({ onViewReservation }: ActiveReservationsProp
     console.log('ActiveReservations')
     const today = useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
     const { reservations, isLoading } = useConfirmedHotelDayReservations(today)
+    console.log('ActiveReservations: reservations', reservations)
     const [filteredReservations, setFilteredReservations] = useState<HotelReservation[]>([])
     const [searchTerm, setSearchTerm] = useState('')
 

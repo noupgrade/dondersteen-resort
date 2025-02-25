@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { deleteDocument, setDocument } from '../DocumentsDAO.ts'
-import { GetCollectionParams, getCollection } from '../getCollection.ts'
-import { FSDocument } from '../types.ts'
+import { deleteDocument, setDocument } from '../DocumentsDAO'
+import { CollectionCache } from '../cache/CollectionCache'
+import { GetCollectionParams, getCollection } from '../getCollection'
+import { FSDocument } from '../types'
 
 interface UseCollectionsResponse<T extends FSDocument> {
     results: T[]
@@ -29,21 +30,31 @@ export const useCollection = <T extends FSDocument>({
     limit,
     where,
 }: GetCollectionParams): UseCollectionsResponse<T> => {
+    const params = { path, orderBy, limit, where }
     const [startAfter, setStartAfter] = useState<number | undefined>(undefined)
     const [hasReachedEnd, setHasReachedEnd] = useState(false)
-    const [results, setResults] = useState<T[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const [results, setResults] = useState<T[]>(() => CollectionCache.get<T>(params) || [])
+    const [isLoading, setIsLoading] = useState(() => !CollectionCache.contains(params))
+    console.log('useCollection: isLoading', isLoading)
 
     useEffect(() => {
         console.log('useCollection: useEffect')
         let unsubscribe = () => {}
         const fetchResults = async () => {
-            setIsLoading(true)
-            unsubscribe = await getCollection<T>({ path, orderBy, limit, startAfter, where }, upToDateDocs => {
-                if (upToDateDocs.length) setResults(prev => removeDuplicates(prev, upToDateDocs))
-                else setHasReachedEnd(true)
+            unsubscribe = await getCollection<T>({ ...params, startAfter }, upToDateDocs => {
+                if (upToDateDocs.length) {
+                    setResults(prev => {
+                        const newResults = removeDuplicates(prev ?? [], upToDateDocs)
+                        // Update cache with new results
+                        CollectionCache.set(params, newResults)
+                        return newResults
+                    })
+                } else {
+                    setHasReachedEnd(true)
+                    CollectionCache.set(params, results)
+                }
+                setIsLoading(false)
             })
-            setIsLoading(false)
         }
 
         fetchResults()
@@ -111,7 +122,7 @@ export const useCollection = <T extends FSDocument>({
                 id,
                 data: updatedData,
             })
-            setResults(prev => prev.map(doc => (doc.id === id ? ({ ...doc, ...updatedData } as T) : doc)))
+            setResults(prev => prev?.map(doc => (doc.id === id ? ({ ...doc, ...updatedData } as T) : doc)) ?? null)
         },
         [path],
     )
@@ -122,13 +133,13 @@ export const useCollection = <T extends FSDocument>({
                 collectionName: path,
                 id,
             })
-            setResults(prev => prev.filter(doc => doc.id !== id))
+            setResults(prev => prev?.filter(doc => doc.id !== id) ?? null)
         },
         [path],
     )
 
     return {
-        results,
+        results: results ?? [],
         hasReachedEnd,
         loadMore,
         isLoading,

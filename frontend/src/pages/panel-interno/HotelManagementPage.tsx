@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-
 import { CheckIns } from '@/components/check-ins.tsx'
 import { CheckOuts } from '@/components/check-outs.tsx'
 import { PendingRequests } from '@/components/pending-requests.tsx'
@@ -36,7 +35,7 @@ export default function HotelManagementPage() {
         redirectPath: bookingType === 'budget' ? '/booking?type=budget' : '/booking',
         requirePetSelection: false,
     })
-    
+
     useEffect(() => {
         const pendingReservationId = searchParams.get('pendingReservationId')
         if (pendingReservationId) {
@@ -80,7 +79,7 @@ export default function HotelManagementPage() {
             <HotelNotificationBanner notifications={notifications} onDismiss={dismissNotification} />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className='space-y-4'>
-                <TabNavigation/>
+                <TabNavigation />
 
                 <TabsContent value='pending'>
                     <Card>
